@@ -1,0 +1,14 @@
+version: 2
+
+models:
+  - name: ga4_user_events
+    columns:
+      - name: u_user_pseudo_id
+        tests:
+          - not_null
+      - name: unique_session
+        tests:
+          - not_null
+      - name: event_timestamp
+        tests:
+          - not_null

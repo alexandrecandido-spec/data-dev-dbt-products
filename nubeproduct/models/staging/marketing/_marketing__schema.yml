@@ -1,0 +1,15 @@
+models:
+  - name: stg_marketing__ga4_analytics_events
+    columns:
+      - name: source
+        tests:
+          - not_null
+      - name: user_pseudo_id
+        tests:
+          - not_null
+      - name: event_timestamp
+        tests:
+          - not_null
+      - name: event_name
+        tests:
+          - not_null
