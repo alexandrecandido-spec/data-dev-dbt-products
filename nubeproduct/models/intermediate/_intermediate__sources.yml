@@ -1,0 +1,9 @@
+version: 2
+
+sources:
+  - name: intermediate
+    database: null
+    schema: moltres
+    tables:
+      - name: mwp_apps
+      - name: mwp_store_settings

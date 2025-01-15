@@ -1,6 +1,16 @@
 WITH apps AS (
-    SELECT *
-    FROM {{ ref('stg_moltres__mwp_apps') }}
+    SELECT 
+        id as app_id,
+        handle
+    FROM {{ source('intermediate', 'mwp_apps') }}
+),
+store_settings AS (
+    SELECT
+        id,
+        store_id, 
+        type,
+        COALESCE(type, 'undefined') as vertical
+    FROM {{ source('intermediate', 'mwp_store_settings') }}
 ),
 orders AS (
     SELECT *
@@ -11,10 +21,6 @@ store_info AS (
     SELECT *
     FROM {{ ref('stg_moltres__mwp_store_info') }}
     WHERE country in ('AR','BR')
-),
-store_settings AS (
-    SELECT *
-    FROM {{ ref('stg_moltres__store_settings') }}
 )
 
 SELECT

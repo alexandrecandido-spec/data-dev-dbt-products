@@ -1,0 +1,8 @@
+version: 2
+
+sources:
+  - name: dp_orders
+    database: null
+    schema: dp_orders
+    tables:
+      - name: recurring_orders

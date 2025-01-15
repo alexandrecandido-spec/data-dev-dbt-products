@@ -21,8 +21,7 @@ WITH source AS (
         status,
         device_type,
         payment_status,
-        gateway,
-        total_in_usd
+        gateway
 
     FROM {{ source('orders', 'mwp_orders') }}
     WHERE total_in_usd <= 10000
@@ -40,9 +39,9 @@ WITH source AS (
 SELECT 
     *,
     CASE  
-        WHEN mo.status != 'cancelled' AND mo.payment_status = 'paid' THEN TRUE ELSE FALSE 
+        WHEN status != 'cancelled' AND payment_status = 'paid' THEN TRUE ELSE FALSE 
     END AS is_paid_order,
     CASE 
-        WHEN mo.device_type IN ('computer', 'phone') THEN mo.device_type ELSE 'other' 
+        WHEN device_type IN ('computer', 'phone') THEN device_type ELSE 'other' 
     END AS device
 FROM source
