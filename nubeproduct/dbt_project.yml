@@ -37,9 +37,6 @@ models:
     staging:
       +materialized: table
 
-    utilities:
-      +materialized: table
-
     intermediate:
       +materialized: ephemeral
 
