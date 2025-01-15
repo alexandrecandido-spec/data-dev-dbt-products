@@ -1,0 +1,8 @@
+version: 2
+
+sources:
+  - name: orders
+    database: null
+    schema: orders
+    tables:
+      - name: mwp_orders

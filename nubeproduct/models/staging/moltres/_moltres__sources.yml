@@ -1,0 +1,11 @@
+version: 2
+
+sources:
+  - name: moltres
+    database: null
+    schema: moltres
+    tables:
+      - name: mwp_checkout_ab_tests
+      - name: mwp_apps
+      - name: mwp_store_info
+      - name: mwp_store_settings
