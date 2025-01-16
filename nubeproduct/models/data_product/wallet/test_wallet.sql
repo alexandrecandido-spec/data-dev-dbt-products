@@ -1,3 +1,9 @@
+{{
+    config(
+      re_data_monitored=true
+    )
+}}
+
 WITH rec_orders AS (
     SELECT 
         CAST(id AS BIGINT) as order_id,

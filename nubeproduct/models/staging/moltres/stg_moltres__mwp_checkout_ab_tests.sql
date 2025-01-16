@@ -1,7 +1,7 @@
 {{
     config(
         materialized='incremental',
-        unique_key='order_id',
+        unique_key='id',
         on_schema_change='fail'
     )
 }}
@@ -9,6 +9,7 @@
 
 WITH source AS (
     SELECT 
+        id,
         TRY_CAST(order_id AS BIGINT) AS order_id,
         test_name,
         variant
