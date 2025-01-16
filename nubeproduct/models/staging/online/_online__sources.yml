@@ -1,0 +1,8 @@
+version: 2
+
+sources:
+  - name: online
+    database: null
+    schema: online
+    tables:
+      - name: events

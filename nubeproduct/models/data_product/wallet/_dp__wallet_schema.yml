@@ -1,0 +1,14 @@
+version: 1
+
+models:
+  - name: test_wallet
+    config: 
+      re_data_monitored: true
+      re_data_columns:
+        - order_id
+        - store_id
+    description: "Generates a data product in layers for wallet use case"
+    columns:
+      - name: order_id
+        description: "The primary key for this table"
+      - name: store_id
