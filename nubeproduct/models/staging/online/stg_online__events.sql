@@ -25,7 +25,7 @@ WITH source AS (
     -- this filter will only be applied on an incremental run
     -- (uses >= to include records whose timestamp occurred since the last run of this model)
     -- (If event_time is NULL or the table is truncated, the condition will always be true and load all records)
-    AND sys_audit_updated_on >= (select coalesce(max(sys_audit_updated_on),'1900-01-01') from {{ source('moltres','mwp_checkout_ab_tests') }} )
+    AND sys_audit_updated_on >= (select coalesce(max(sys_audit_updated_on),'1900-01-01') from {{ source('online','events') }} )
 
     {% endif %}
 )
@@ -36,6 +36,5 @@ SELECT
         {{ get_key_value('attributes', 'shipping_information', is_array=false) }} as attributes_shipping_information,
     lower( {{ get_key_value('attributes', 'email', is_array=false, value_type='string') }} ) as attributes_contact_email,
     {{ get_key_value('attributes', 'shipping_information', is_array=false, value_type='boolean', json_path='has_shipping_option') }} as has_shipping_option
-
-
+    
 FROM source
