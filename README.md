@@ -31,7 +31,7 @@ The project follows a layered approach to data transformation:
   - Data type casting
   - Basic computations
   - Categorization
-- Output: Tables 
+- Output: Tables
 
 #### 2. Intermediate Layer (`models/intermediate/`)
 - Purpose: Complex transformations and business logic
@@ -65,15 +65,10 @@ The project follows a layered approach to data transformation:
    - For staging: Additional `_[directory]_sources.yml`
 
 ## Setup Instructions
-1. Ensure Python 3.7+ is installed
-2. Create and activate virtual environment:
+1. Ensure `uv` is installed: Installation instructions [here](https://docs.astral.sh/uv/getting-started/installation/)
+2. Synchronize the environment:
    ```bash
-   virtualenv -p python3.10 env
-   source env/bin/activate
-   ```
-3. Install dependencies:
-   ```bash
-   python -m pip install dbt-core dbt-databricks
+   uv sync
    ```
 4. Enter project:
    ```bash
