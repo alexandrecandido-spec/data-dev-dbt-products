@@ -12,3 +12,13 @@ models:
       - name: event_timestamp
         tests:
           - not_null
+  - name: hubspot_active_stores
+    columns:
+      - name: store_id
+        tests:
+          - not_null
+    tests:
+      - dbt_expectations.expect_table_row_count_to_be_between:
+          min_value: 300000
+          max_value: 1000000
+
