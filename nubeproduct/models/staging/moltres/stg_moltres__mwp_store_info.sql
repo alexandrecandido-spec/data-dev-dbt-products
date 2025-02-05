@@ -11,7 +11,10 @@ WITH source AS (
     SELECT 
         id,
         country,
-        current_segment
+        current_segment,
+        churned_at,
+        created_at,
+        plan
     FROM {{ source('moltres', 'mwp_store_info') }}
     WHERE state != 4 
     {% if is_incremental() %}
@@ -27,5 +30,8 @@ WITH source AS (
 SELECT 
     id as store_id,
     country,
-    current_segment
+    current_segment,
+    churned_at,
+    created_at,
+    plan
 FROM source 

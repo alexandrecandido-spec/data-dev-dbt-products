@@ -46,3 +46,5 @@ models:
       marketing:
         +schema: marketing
         +location_root: s3://bi-lkh-pond-prd01/test/dbt/marketing/
+vars:
+  'dbt_date:time_zone': 'America/Argentina/Buenos_Aires'
