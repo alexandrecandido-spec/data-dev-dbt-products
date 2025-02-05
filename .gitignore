@@ -1,11 +1,11 @@
 
-target/
 dbt_packages/
 logs/
 
 env/*
 .env/*
 logs/*
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -108,3 +108,4 @@ venv/
 .DS_Store
 
 *.csv
+profiles.yml

@@ -1,16 +1,3 @@
-WITH analytics_events AS (
-    SELECT *
-    FROM {{ ref('stg_marketing__ga4_analytics_events') }}
-    WHERE source in (
-            'inst-br',
-            'inst-ar',
-            'inst-mx',
-            'inst-co',
-            'inst-cl'
-          ) -- GA4 property to get the data from, this is [GA4] Nuvemshop property	
-          and event_name = 'page_view' -- all data here refers to page_view events, so filter for this event only	
-)
-
 SELECT -- calculates values for landing page (first page viewed per session), page (any page visited) and last click per session (source, medium, campaign), it uses previous data from a subquery that unnests the values from the main table (it hast json structure)	
     u_user_pseudo_id,
     unique_session,
@@ -44,4 +31,12 @@ SELECT -- calculates values for landing page (first page viewed per session), pa
         ORDER BY
           event_timestamp
     ) as last_campaign
-FROM analytics_events
+FROM {{ ref('stg_marketing__ga4_analytics_events') }}
+WHERE source in (
+        'inst-br',
+        'inst-ar',
+        'inst-mx',
+        'inst-co',
+        'inst-cl'
+      ) -- GA4 property to get the data from, this is [GA4] Nuvemshop property	
+      and event_name = 'page_view' -- all data here refers to page_view events, so filter for this event only	
