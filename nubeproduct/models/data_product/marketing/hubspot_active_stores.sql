@@ -1,3 +1,9 @@
+{{
+    config(
+        tags=["marketing"]
+    )
+}}
+
 SELECT store_id
 FROM {{ ref('_int__paid_orders_active_stores') }}
 WHERE

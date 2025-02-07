@@ -2,7 +2,8 @@
     config(
         materialized='incremental',
         unique_key='order_id',
-        on_schema_change='fail'
+        on_schema_change='fail',
+        tags=["finance","daily-morning"]
     )
 }}
 
