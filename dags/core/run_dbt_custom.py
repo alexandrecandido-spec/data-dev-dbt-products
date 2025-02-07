@@ -13,6 +13,7 @@ from core.utils.dbt_operator import DBTOperator
 def create_dbt_dag(
     dag_id: str,
     schedule_interval_tag: str,
+    initial_load: bool,
     default_args: dict,
     tags: list
     #group_labels: list = None  # Optional labels for the task groups
@@ -55,7 +56,7 @@ def create_dbt_dag(
                          task_id="_".join(tags),
                          tags=tags,
                          dbt_command='run',
-                         full_refresh="{{ dag_run.conf.get('full_refresh', False) }}"
+                         full_refresh=initial_load
                      )
         
         setup >> task
@@ -114,6 +115,7 @@ default_args = {
 dag = create_dbt_dag(
     dag_id='dbt_finance_daily',
     schedule_interval_tag='daily-morning',
+    initial_load=False,
     default_args=default_args,
     tags=['finance','daily-morning']
     #group_labels=group_labels

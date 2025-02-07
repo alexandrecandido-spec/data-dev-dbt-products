@@ -3,7 +3,7 @@
         materialized='incremental',
         unique_key='order_id',
         on_schema_change='fail',
-        tags=["wallet"]
+        tags=["finance","daily-morning"]
     )
 }}
 
@@ -22,7 +22,7 @@ WITH source AS (
         status,
         device_type,
         payment_status,
-        gateway,
+        gateway
 
     FROM {{ source('orders', 'mwp_orders') }}
     WHERE total_in_usd <= 10000
