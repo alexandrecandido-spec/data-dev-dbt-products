@@ -6,18 +6,20 @@ import json
 import logging
 
 class DBTOperator(BashOperator):
-    """Custom operator para ejecutar comandos DBT con capacidad de recuperación"""
+    """Custom operator para ejecutar comandos DBT con capacidad de recuperación y taggeo"""
     
     template_fields = ('bash_command', 'env')
 
     def __init__(
         self,
-        model: str, 
+        #model: str,
+        tags: list, 
         dbt_command: str = 'run',
         full_refresh: bool = False,
         *args, **kwargs
     ):
-        self.model = model
+        #self.model = model
+        self.tags = tags
         self.dbt_command = dbt_command
         self.full_refresh = full_refresh
         
@@ -31,12 +33,15 @@ class DBTOperator(BashOperator):
     def _build_dbt_command(self) -> str:
         """Construye el comando DBT con los parámetros necesarios"""
         refresh_flag = '--full-refresh' if self.full_refresh else ''
+
+        tag_flag = 'tag:'
+        tag_flag += ',tags:'.join(self.tags)
         
         return f"""
             set -e;
             source /usr/local/airflow/python3-virtualenv/dbt-env/bin/activate;
             cd /tmp/dbt/nubeproduct;
-            dbt {self.dbt_command} --select {self.model} {refresh_flag} \
+            dbt {self.dbt_command} --select {self.tags} {refresh_flag} \
                 --project-dir /tmp/dbt/nubeproduct \
                 --profiles-dir .. \
                 --state /tmp/dbt/state;
