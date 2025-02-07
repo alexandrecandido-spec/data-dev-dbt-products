@@ -1,6 +1,6 @@
 {{
     config(
-      re_data_monitored=true
+      tags=["finance","wallet","hourly"]
     )
 }}
 
