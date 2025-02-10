@@ -9,7 +9,7 @@ import os
 import json
 import logging
 from core.utils.dbt_operator import DBTOperator
-from core.utils.task_checks import check_task_status
+from core.utils.task_checks import check_task_status, send_alert
 
 
 def create_dbt_dag(
@@ -44,7 +44,8 @@ def create_dbt_dag(
         schedule_interval=schedule_interval,
         default_args=default_args,
         tags=tags,
-        catchup=False
+        catchup=False,
+        on_failure_callback=send_alert
     ) as dag:
 
         # Task de preparación
