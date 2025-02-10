@@ -16,14 +16,17 @@ class DBTOperator(BashOperator):
         tags: list, 
         dbt_command: str = 'run',
         full_refresh: bool = False,
+        retry: bool = False,
         *args, **kwargs
     ):
         #self.tags = model
         self.tags = tags
         self.dbt_command = dbt_command
         self.full_refresh = full_refresh
+        self.retry = retry
         
         command = self._build_dbt_command()
+        self.repair_command = self._build_dbt_repair_command()
         
         super().__init__(
             bash_command=command,
@@ -34,17 +37,35 @@ class DBTOperator(BashOperator):
         """Construye el comando DBT con los parámetros necesarios"""
         refresh_flag = '--full-refresh' if self.full_refresh else ''
 
-        tag_flag = 'tag:'
-        tag_flag += ',tag:'.join(self.tags)
+        tag_list = 'tag:'
+        tag_list += ',tag:'.join(self.tags)
+        
+        execution = f'"result:error+,{tag_list}" --state /tmp/dbt/target' if self.retry else tag_list
         
         return f"""
             set -e;
             source /usr/local/airflow/python3-virtualenv/dbt-env/bin/activate;
             cd /tmp/dbt/nubeproduct;
-            dbt {self.dbt_command} --select {tag_flag} {refresh_flag} \
+            dbt {self.dbt_command} --select {execution} {refresh_flag} \
                 --project-dir /tmp/dbt/nubeproduct \
-                --profiles-dir .. \
-                --state /tmp/dbt/state;
+                --profiles-dir ..;
+        """
+    
+    def _build_dbt_repair_command(self) -> str:
+        """Construye la reparación del comando DBT con los parámetros necesarios, a ser ejecutada tras el error del comando principal"""
+
+        tag_list = 'tag:'
+        tag_list += ',tag:'.join(self.tags)
+        
+        execution = f'"result:error+,{tag_list}" --state /tmp/dbt/nubeproduct/target/'
+        # "find /tmp/dbt -type f -name run_results.json"
+        return f"""
+            set -e;
+            source /usr/local/airflow/python3-virtualenv/dbt-env/bin/activate;
+            cd /tmp/dbt/nubeproduct;
+            dbt {self.dbt_command} --select {execution} \
+                --project-dir /tmp/dbt/nubeproduct \
+                --profiles-dir ..;
         """
 
     def execute(self, context):
@@ -55,7 +76,24 @@ class DBTOperator(BashOperator):
             
         except Exception as e:
             self._save_error_state(context, str(e))
-            raise AirflowException(f"Error en la ejecución de DBT para el modelo {self.tags}: {str(e)}")
+            print("An error was encountered with a layer!!!")
+            try:
+                # deberia ejecutar el comando de reparacion
+                original_command = self.bash_command
+                
+                # Cambiamos al comando de reparación
+                self.bash_command = self.repair_command
+                
+                # Ejecutamos el comando de reparación
+                super().execute(context)
+                
+                # Si la reparación fue exitosa, actualizamos el estado
+                self._update_success_state(context)
+                
+                # Restauramos el comando original
+                self.bash_command = original_command
+            except:
+                raise AirflowException(f"Error en la ejecución de DBT para el modelo {self.tags}: {str(e)}")
 
     def _save_execution_state(self, context):
         """Guarda el estado de ejecución actual"""

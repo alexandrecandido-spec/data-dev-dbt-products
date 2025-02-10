@@ -1,5 +1,6 @@
 from airflow import DAG
-from airflow.operators.python import PythonOperator
+from airflow.operators.dummy import DummyOperator
+from airflow.operators.python import BranchPythonOperator
 from airflow.operators.bash import BashOperator
 from airflow.utils.dates import days_ago
 from airflow.utils.task_group import TaskGroup
@@ -8,6 +9,7 @@ import os
 import json
 import logging
 from core.utils.dbt_operator import DBTOperator
+from core.utils.task_checks import check_task_status
 
 
 def create_dbt_dag(
@@ -35,6 +37,8 @@ def create_dbt_dag(
     else:
         schedule_interval=None 
 
+    main_task_name = "_".join(tags)
+    
     with DAG(
         dag_id=dag_id,
         schedule_interval=schedule_interval,
@@ -47,19 +51,41 @@ def create_dbt_dag(
         setup = BashOperator(
             task_id='setup_environment',
             bash_command="""
-                mkdir -p /tmp/dbt/state; 
+                mkdir -p /tmp/dbt/target; 
                 cp -R /usr/local/airflow/dags/dbt /tmp; 
             """
         )
 
         task = DBTOperator(
-                         task_id="_".join(tags),
+                         task_id=main_task_name,
                          tags=tags,
                          dbt_command='run',
                          full_refresh=initial_load
                      )
         
-        setup >> task
+        # branch = BranchPythonOperator(
+        # task_id='branch_task',
+        # trigger_rule='all_done',
+        # python_callable=check_task_status,
+        # op_kwargs = {
+        #     "previous_task": main_task_name
+        # }
+        # )
+        
+        # repair_task = DBTOperator(
+        #                  task_id="repair_task",
+        #                  tags=tags,
+        #                  dbt_command='run',
+        #                  full_refresh=initial_load,
+        #                  retry=True
+        #              )
+        
+        # end = DummyOperator(task_id='end',  trigger_rule='none_failed_min_one_success')
+        
+        setup >> task 
+        # >> branch
+        # branch >> [end, repair_task]
+        # repair_task >> end
         return dag
     
         #previous_group = setup
@@ -99,8 +125,8 @@ default_args = {
     'start_date': datetime(2024, 10, 1),
     'email_on_failure': True,
     'email_on_retry': True,
-    'retries': 2,
-    'retry_delay': timedelta(minutes=5)
+    'retries': 0,
+    'retry_delay': timedelta(minutes=3)
 }
 
 # Grupos de modelos organizados por dependencias con etiquetas descriptivas

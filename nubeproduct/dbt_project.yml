@@ -30,12 +30,14 @@ clean-targets:         # directories to be removed by `dbt clean`
 # In this example config, we tell dbt to build all models in the example/
 # directory as views. These settings can be overridden in the individual model
 # files using the `{{ config(...) }}` macro.
+
 models:
   nubeproduct: # project name
     # Config indicated by + and applies to all files under models/example/
 
     staging:
       +materialized: table
+      +location_root: s3://bi-lkh-pond-prd01/test/dbt/staging/
 
     intermediate:
       +materialized: ephemeral
@@ -46,5 +48,9 @@ models:
       marketing:
         +schema: marketing
         +location_root: s3://bi-lkh-pond-prd01/test/dbt/marketing/
+      wallet:
+        +schema: wallet
+        +location_root: s3://bi-lkh-pond-prd01/test/dbt/wallet/
+
 vars:
   'dbt_date:time_zone': 'America/Argentina/Buenos_Aires'

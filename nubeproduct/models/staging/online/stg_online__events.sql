@@ -2,6 +2,7 @@
     config(
         materialized='incremental',
         unique_key='event_id',
+        partition_by='year_month_code', 
         on_schema_change='fail'
     )
 }}
@@ -15,7 +16,8 @@ WITH source AS (
         consumer_id
         timestamp,
         attributes,
-        event
+        event,
+        year_month_code
     FROM {{ source('online', 'events') }}
     WHERE year_month_code >= DATE_FORMAT(DATE_ADD(DAY, -31, CURRENT_DATE), 'yyyyMMdd')
     and event in ('checkout_filled_email', 'wallet_customer_identification', 'wallet_customer_login', 'checkout_start')
