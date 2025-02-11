@@ -65,7 +65,7 @@ class DBTOperator(BashOperator):
             cd /tmp/dbt/nubeproduct;
             dbt {self.dbt_command} --select {execution} \
                 --project-dir /tmp/dbt/nubeproduct \
-                --profiles-dir ..;
+                --profiles-dir .;
         """
 
     def execute(self, context):
