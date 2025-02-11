@@ -9,3 +9,8 @@ sources:
       - name: mwp_store_settings
       - name: mwp_tags
       - name: mwp_plans_countries
+  - name: intermediate_finance
+    database: null
+    schema: finance
+    tables:
+      - name: active_merchants

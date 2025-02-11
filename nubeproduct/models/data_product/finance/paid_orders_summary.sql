@@ -1,0 +1,73 @@
+{{
+    config(
+        materialized='incremental',
+        unique_key=['store_id','completed_at'],
+        on_schema_change='fail',
+        tags=["finance","daily-morning"]
+    )
+}}
+
+WITH
+blocked_stores AS (
+    SELECT
+        related_id
+    FROM {{ source('dp_moltres', 'mwp_tags') }} as tg
+    WHERE tg.type = 'store'
+        AND (tg.tag = 'sre-block-store-429'
+            OR tg.tag = 'sre-block-store-404')
+),
+orders_summary as (
+    SELECT
+        orders.store_id,
+        store_info.country,
+        orders.storefront,
+        CASE
+            WHEN store_info.country = 'AR' THEN 'ARS'
+            WHEN store_info.country = 'BR' THEN 'BRL'
+            WHEN store_info.country = 'MX' THEN 'MEX'
+            WHEN store_info.country = 'CO' THEN 'COP'
+            WHEN store_info.country = 'CL' THEN 'CLP'
+            ELSE store_info.currency
+        END AS currency,
+        DATE(orders.completed_at) AS completed_at,
+        SUM(orders.total_in_usd) AS gmv,
+        COUNT(orders.order_id) AS orders
+    FROM {{ ref('stg_orders__mwp_orders') }} orders
+    {% if is_incremental() %}
+
+    -- this filter will only be applied on an incremental run
+    -- (uses >= to include records whose timestamp occurred since the last run of this model)
+    -- (If event_time is NULL or the table is truncated, the condition will always be true and load all records)
+    WHERE sys_audit_updated_on >= (select coalesce(max(sys_audit_updated_on),'1900-01-01') from {{ ref('stg_orders__mwp_orders') }} )
+
+    {% endif %}
+    INNER JOIN {{ ref('stg_moltres__mwp_store_info') }} store_info on orders.store_id = store_info.store_id
+    GROUP BY 
+        orders.store_id,
+        DATE(completed_at),
+        orders.storefront,
+        store_info.country,
+        store_info.currency
+)
+
+SELECT
+    orders_summary.store_id,
+    orders_summary.country,
+    orders_summary.storefront,
+    orders_summary.completed_at,
+    orders_summary.gmv,
+    SUM(orders_summary.gmv / currency_conversion.exchange_rate) AS gmv_local,
+    orders_summary.currency,
+    orders_summary.orders
+    FROM orders_summary
+LEFT JOIN {{ source('dp_finances', 'dp_currency_conversion') }} currency_conversion 
+    ON orders_summary.completed_at = currency_conversion.updated_at 
+        AND  orders_summary.currency = currency_conversion.isocode
+GROUP BY
+    orders_summary.store_id,
+    orders_summary.country,
+    orders_summary.storefront,
+    orders_summary.completed_at,
+    orders_summary.gmv,
+    orders_summary.currency,
+    orders_summary.orders

@@ -14,6 +14,7 @@ WITH source AS (
         current_segment,
         churned_at,
         created_at,
+        currency,
         plan
     FROM {{ source('moltres', 'mwp_store_info') }}
     WHERE state != 4 
@@ -30,6 +31,7 @@ WITH source AS (
 SELECT 
     id as store_id,
     country,
+    currency,
     current_segment,
     churned_at,
     created_at,

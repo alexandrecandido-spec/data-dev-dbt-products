@@ -14,7 +14,8 @@ WITH source AS (
         TRY_CAST(created_at AS TIMESTAMP) AS created_at,
         TRY_CAST(started_checkout AS TIMESTAMP) AS started_checkout_at, 
         TRY_CAST(completed_contact AS TIMESTAMP) AS completed_contact_at, 
-        TRY_CAST(completed_at AS TIMESTAMP) AS completed_at, 
+        TRY_CAST(completed_at AS TIMESTAMP) AS completed_at,
+        TRY_CAST(cancelled_at AS TIMESTAMP) AS cancelled_at, 
         store_id, 
         LOWER(contact_email) AS contact_email, 
         total_in_usd, 
@@ -22,10 +23,11 @@ WITH source AS (
         status,
         device_type,
         payment_status,
-        gateway
+        gateway,
+        order_id as ejemplo
 
     FROM {{ source('orders', 'mwp_orders') }}
-    WHERE total_in_usd <= 10000
+    WHERE total_in_usd <= 10000 and total_in_usd >= -10000
     
     {% if is_incremental() %}
 
