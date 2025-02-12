@@ -24,7 +24,7 @@ WITH source AS (
         device_type,
         payment_status,
         gateway,
-        order_id as ejemplo
+        CONCAT(CAST(DATE(completed_at) AS STRING),'-',CAST(store_id AS STRING)) order_date_store_id
 
     FROM {{ source('orders', 'mwp_orders') }}
     WHERE total_in_usd <= 10000 and total_in_usd >= -10000
