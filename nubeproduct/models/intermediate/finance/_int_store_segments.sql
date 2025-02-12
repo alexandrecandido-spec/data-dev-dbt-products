@@ -29,7 +29,7 @@ FROM
 	{{ ref('stg_orders__mwp_orders') }}
 WHERE
 	completed_at >= DATEADD(DAY,
-	-90,
+	-720,
 	current_date)
     ),
 
