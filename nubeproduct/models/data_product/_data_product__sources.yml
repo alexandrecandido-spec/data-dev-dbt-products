@@ -6,3 +6,13 @@ sources:
     schema: dp_orders
     tables:
       - name: recurring_orders
+  - name: dp_moltres
+    database: null
+    schema: moltres
+    tables:
+      - name: mwp_tags
+  - name: dp_finances
+    database: null
+    schema: finances
+    tables:
+      - name: dp_currency_conversion

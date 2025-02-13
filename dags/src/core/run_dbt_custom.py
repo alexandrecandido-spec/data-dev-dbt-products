@@ -67,7 +67,8 @@ def create_dbt_dag(
         schedule_interval=schedule_interval,
         default_args=default_args,
         tags=tags,
-        catchup=False
+        catchup=False,
+        on_failure_callback=send_alert
     ) as dag:
 
         # Task de preparación
