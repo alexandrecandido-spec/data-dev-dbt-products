@@ -2,7 +2,8 @@
     config(
         materialized='incremental',
         unique_key='store_id',
-        on_schema_change='fail'
+        on_schema_change='fail',
+        tags=["daily-morning"]
     )
 }}
 
@@ -35,5 +36,6 @@ SELECT
     current_segment,
     churned_at,
     created_at,
-    plan
+    plan,
+    {{add_audit_columns()}}
 FROM source 

@@ -71,26 +71,32 @@ orders_summary as (
         orders.storefront,
         store_info.country,
         store_info.currency
+),
+final_group AS (
+    SELECT
+        orders_summary.store_id,
+        orders_summary.country,
+        orders_summary.storefront,
+        orders_summary.completed_at,
+        orders_summary.gmv,
+        SUM(orders_summary.gmv / currency_conversion.exchange_rate) AS gmv_local,
+        orders_summary.currency,
+        orders_summary.orders
+        FROM orders_summary
+    LEFT JOIN {{ source('dp_finances', 'dp_currency_conversion') }} currency_conversion 
+        ON orders_summary.completed_at = currency_conversion.updated_at 
+            AND  orders_summary.currency = currency_conversion.isocode
+    GROUP BY
+        orders_summary.store_id,
+        orders_summary.country,
+        orders_summary.storefront,
+        orders_summary.completed_at,
+        orders_summary.gmv,
+        orders_summary.currency,
+        orders_summary.orders
 )
 
-SELECT
-    orders_summary.store_id,
-    orders_summary.country,
-    orders_summary.storefront,
-    orders_summary.completed_at,
-    orders_summary.gmv,
-    SUM(orders_summary.gmv / currency_conversion.exchange_rate) AS gmv_local,
-    orders_summary.currency,
-    orders_summary.orders
-    FROM orders_summary
-LEFT JOIN {{ source('dp_finances', 'dp_currency_conversion') }} currency_conversion 
-    ON orders_summary.completed_at = currency_conversion.updated_at 
-        AND  orders_summary.currency = currency_conversion.isocode
-GROUP BY
-    orders_summary.store_id,
-    orders_summary.country,
-    orders_summary.storefront,
-    orders_summary.completed_at,
-    orders_summary.gmv,
-    orders_summary.currency,
-    orders_summary.orders
+SELECT 
+    *,
+    {{add_audit_columns()}}
+FROM final_group
