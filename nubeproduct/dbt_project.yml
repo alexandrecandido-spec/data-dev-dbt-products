@@ -37,20 +37,21 @@ models:
 
     staging:
       +materialized: table
-      +location_root: s3://bi-lkh-pond-prd01/test/dbt/staging/
+      finance:
+        +tags: ["finance"]
+        +location_root: s3://dn-lkh-products-prd01/data-dev-dbt-products/staging/finance/
 
     intermediate:
       +materialized: ephemeral
+      finance:
+        +tags: ["finance"]
 
     data_product:
       +materialized: table
       +file_format: delta
-      marketing:
-        +schema: marketing
-        +location_root: s3://bi-lkh-pond-prd01/test/dbt/marketing/
-      wallet:
-        +schema: wallet
-        +location_root: s3://bi-lkh-pond-prd01/test/dbt/wallet/
+      finance:
+        +tags: ["finance"]
+        +location_root: s3://dn-lkh-products-prd01/data-dev-dbt-products/data_product/finance/
 
 vars:
   'dbt_date:time_zone': 'America/Argentina/Buenos_Aires'

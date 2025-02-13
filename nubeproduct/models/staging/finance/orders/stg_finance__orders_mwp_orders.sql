@@ -2,20 +2,21 @@
     config(
         materialized='incremental',
         unique_key='order_id',
+        partition_by='year_month_day_code',
         on_schema_change='fail',
-        tags=["finance","daily-morning"]
+        tags=["daily-morning"]
     )
 }}
 
 
 WITH source AS (
     SELECT 
-        TRY_CAST(id AS BIGINT) AS order_id, 
-        TRY_CAST(created_at AS TIMESTAMP) AS created_at,
-        TRY_CAST(started_checkout AS TIMESTAMP) AS started_checkout_at, 
-        TRY_CAST(completed_contact AS TIMESTAMP) AS completed_contact_at, 
-        TRY_CAST(completed_at AS TIMESTAMP) AS completed_at,
-        TRY_CAST(cancelled_at AS TIMESTAMP) AS cancelled_at, 
+        id AS order_id, 
+        created_at AS created_at,
+        started_checkout AS started_checkout_at, 
+        completed_contact AS completed_contact_at, 
+        completed_at AS completed_at,
+        cancelled_at AS cancelled_at, 
         store_id, 
         LOWER(contact_email) AS contact_email, 
         total_in_usd, 
@@ -24,7 +25,8 @@ WITH source AS (
         device_type,
         payment_status,
         gateway,
-        CONCAT(CAST(DATE(completed_at) AS STRING),'-',CAST(store_id AS STRING)) order_date_store_id
+        CONCAT(CAST(DATE(completed_at) AS STRING),'-',CAST(store_id AS STRING)) order_date_store_id,
+        CAST(to_date(completed_at, 'yyyyMMdd') AS STRING) AS year_month_day_code
 
     FROM {{ source('orders', 'mwp_orders') }}
     WHERE total_in_usd <= 10000 and total_in_usd >= -10000
@@ -46,5 +48,6 @@ SELECT
     END AS is_paid_order,
     CASE 
         WHEN device_type IN ('computer', 'phone') THEN device_type ELSE 'other' 
-    END AS device
+    END AS device,
+    {{add_audit_columns()}}
 FROM source

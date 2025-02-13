@@ -45,5 +45,5 @@ SELECT
         WHEN orders_off_platform_90d * proportional BETWEEN 1 AND 6 THEN 'struggling-seller'
         ELSE 'no-seller'
     END AS segment_off_platform
-FROM {{ ref('_int_store_segments') }}
+FROM {{ ref('_int_finance_store_segments__window_sales') }}
 WHERE is_paying_merchant = 1 OR (is_paying_merchant=0 AND orders_general_90d>0)

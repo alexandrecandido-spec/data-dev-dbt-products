@@ -4,7 +4,7 @@
         unique_key=['store_id','completed_at','storefront'],
         incremental_strategy='merge',
         on_schema_change='fail',
-        tags=["finance","daily-morning"]
+        tags=["daily-morning"]
     )
 }}
 
@@ -34,7 +34,7 @@ orders_summary as (
         DATE(orders.completed_at) AS completed_at,
         SUM(orders.total_in_usd) AS gmv,
         COUNT(orders.order_id) AS orders
-    FROM {{ ref('stg_orders__mwp_orders') }} orders 
+    FROM {{ ref('stg_finance__orders_mwp_orders') }} orders 
     INNER JOIN {{ ref('stg_moltres__mwp_store_info') }} store_info on orders.store_id = store_info.store_id
     WHERE 
         {% if is_incremental() %}
@@ -47,7 +47,7 @@ orders_summary as (
             date_sub(current_date(), 1) 
             )
         OR orders.order_date_store_id IN (
-            SELECT DISTINCT order_date_store_id FROM {{ ref('stg_orders__mwp_orders') }}
+            SELECT DISTINCT order_date_store_id FROM {{ ref('stg_finance__orders_mwp_orders') }}
             WHERE orders.cancelled_at >= date_sub(current_date(), 1) 
             
             ))

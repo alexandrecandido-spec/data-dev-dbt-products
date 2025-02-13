@@ -14,7 +14,7 @@ store_settings AS (
 ),
 orders AS (
     SELECT *
-    FROM {{ ref('stg_orders__mwp_orders') }}
+    FROM {{ ref('stg_finance__orders_mwp_orders') }}
     WHERE storefront in ('mobile', 'store')
 ),
 store_info AS (

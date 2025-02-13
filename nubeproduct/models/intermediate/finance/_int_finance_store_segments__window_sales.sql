@@ -16,7 +16,7 @@ FROM
 		DISTINCT DATE_TRUNC('month',
 		completed_at) AS generated_date
 	FROM
-		{{ ref('stg_orders__mwp_orders') }}
+		{{ ref('stg_finance__orders_mwp_orders') }}
 	WHERE
 		completed_at >= '2024-01-01'
 		AND completed_at <= current_date
@@ -26,7 +26,7 @@ stores AS (
 SELECT
 	DISTINCT store_id
 FROM
-	{{ ref('stg_orders__mwp_orders') }}
+	{{ ref('stg_finance__orders_mwp_orders') }}
 WHERE
 	completed_at >= DATEADD(DAY,
 	-720,
@@ -42,7 +42,7 @@ UNION
 SELECT
 	DISTINCT store_id
 FROM
-	{{ ref('_int_active_merchants') }}
+	{{ ref('_int_finance_store_segments__active_merchants') }}
     ),
     
     
@@ -56,7 +56,7 @@ UNION
 SELECT
 	DISTINCT datemonth
 FROM
-	{{ ref('_int_active_merchants') }}
+	{{ ref('_int_finance_store_segments__active_merchants') }}
     )
 
 SELECT
@@ -214,9 +214,9 @@ SELECT
 FROM
 	all_dates ad
 CROSS JOIN combined_stores cs
-LEFT JOIN {{ ref('paid_orders_summary') }} fo ON
+LEFT JOIN {{ ref('finance_paid_orders_summary') }} fo ON
 	cs.store_id = fo.store_id
-LEFT JOIN {{ ref('_int_active_merchants') }} am ON
+LEFT JOIN {{ ref('_int_finance_store_segments__active_merchants') }} am ON
 	cs.store_id = am.store_id
 	AND ad.datemonth = am.datemonth
 INNER JOIN {{ ref('stg_moltres__mwp_store_info') }} msi ON
