@@ -1,24 +1,47 @@
 from airflow import DAG
-from airflow.operators.dummy import DummyOperator
-from airflow.operators.python import BranchPythonOperator
+from airflow.hooks.base import BaseHook
+from airflow.operators.python import PythonOperator
 from airflow.operators.bash import BashOperator
-from airflow.utils.dates import days_ago
-from airflow.utils.task_group import TaskGroup
+
 from datetime import datetime, timedelta
 import os
-import json
+import json, yaml
 import logging
 from core.utils.dbt_operator import DBTOperator
-from core.utils.task_checks import check_task_status, send_alert
 
 
+def create_profiles_yml():
+    """Construye profiles.yml con los detalles de conexión en Airflow"""
+    dbt_conn = BaseHook.get_connection("dbt_profiles")
+    
+    profiles_config = {
+        'nubeproduct': {
+            'outputs': {
+                'dev': {
+                    'catalog': None,
+                    'host': dbt_conn.host,
+                    'http_path': '/sql/1.0/warehouses/2f8b52bf3d2088a2',
+                    'schema': 'testing',
+                    'threads': 4,
+                    'token': dbt_conn.password,
+                    'type': 'databricks'
+                }
+            },
+            'target': 'dev'
+        }
+    }
+    
+    # Create profiles.yml in tmp directory
+    with open('/tmp/dbt/nubeproduct/profiles.yml', 'w') as f:
+        yaml.dump(profiles_config, f, default_flow_style=False)
+        
+        
 def create_dbt_dag(
     dag_id: str,
     schedule_interval_tag: str,
     initial_load: bool,
     default_args: dict,
     tags: list
-    #group_labels: list = None  # Optional labels for the task groups
 ):
     """
     Función factory para crear DAGs de DBT con manejo de errores y TaskGroups
@@ -56,6 +79,11 @@ def create_dbt_dag(
                 cp -R /usr/local/airflow/dags/dbt /tmp; 
             """
         )
+        
+        create_profiles = PythonOperator(
+            task_id='create_profiles_yml',
+            python_callable=create_profiles_yml
+        )
 
         task = DBTOperator(
                          task_id=main_task_name,
@@ -63,61 +91,12 @@ def create_dbt_dag(
                          dbt_command='run',
                          full_refresh=initial_load
                      )
+    
         
-        # branch = BranchPythonOperator(
-        # task_id='branch_task',
-        # trigger_rule='all_done',
-        # python_callable=check_task_status,
-        # op_kwargs = {
-        #     "previous_task": main_task_name
-        # }
-        # )
-        
-        # repair_task = DBTOperator(
-        #                  task_id="repair_task",
-        #                  tags=tags,
-        #                  dbt_command='run',
-        #                  full_refresh=initial_load,
-        #                  retry=True
-        #              )
-        
-        # end = DummyOperator(task_id='end',  trigger_rule='none_failed_min_one_success')
-        
-        setup >> task 
-        # >> branch
-        # branch >> [end, repair_task]
-        # repair_task >> end
+        setup >> create_profiles >> task
+
         return dag
     
-        #previous_group = setup
-        #task_groups = []
-
-        # for i, models in enumerate(models_groups):
-        #     group_label = (group_labels[i] if group_labels and i < len(group_labels) 
-        #                  else f'model_group_{i+1}')
-            
-        #     with TaskGroup(group_id=f'dbt_{group_label}') as tg:
-        #         model_tasks = []
-                
-        #         # Crear una tarea para cada modelo en el grupo
-        #         for model in models:
-        #             task = DBTOperator(
-        #                 task_id=model,
-        #                 model=model,
-        #                 dbt_command='run',
-        #                 full_refresh="{{ dag_run.conf.get('full_refresh', False) }}"
-        #             )
-        #             model_tasks.append(task)
-                
-        #         # # Configurar dependencias dentro del grupo si hay más de una tarea
-        #         # for j in range(len(model_tasks)-1):
-        #         #     model_tasks[j] >> model_tasks[j+1]
-            
-        #     task_groups.append(tg)
-        #     previous_group >> tg
-        #     previous_group = tg
-
-        # return dag
 
 default_args = {
     'owner': 'Maria Rivas OConnor',
@@ -130,14 +109,6 @@ default_args = {
     'retry_delay': timedelta(minutes=3)
 }
 
-# Grupos de modelos organizados por dependencias con etiquetas descriptivas
-# model_groups = [
-#     ['stg_marketing__ga4_analytics_events', 'stg_moltres__mwp_store_info'],
-#     ['ga4_user_events']
-# ]
-
-# group_labels = ['staging_models', 'data_products']
-
 # Crear el DAG
 dag = create_dbt_dag(
     dag_id='dbt_finance_daily',
@@ -145,6 +116,5 @@ dag = create_dbt_dag(
     initial_load=False,
     default_args=default_args,
     tags=['finance','daily-morning']
-    #group_labels=group_labels
 )
 
