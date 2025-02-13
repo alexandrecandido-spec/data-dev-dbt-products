@@ -48,7 +48,7 @@ class DBTOperator(BashOperator):
             cd /tmp/dbt/nubeproduct;
             dbt {self.dbt_command} --select {execution} {refresh_flag} \
                 --project-dir /tmp/dbt/nubeproduct \
-                --profiles-dir ..;
+                --profiles-dir .;
         """
     
     def _build_dbt_repair_command(self) -> str:

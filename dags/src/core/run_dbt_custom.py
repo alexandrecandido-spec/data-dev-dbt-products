@@ -3,11 +3,9 @@ from airflow.hooks.base import BaseHook
 from airflow.operators.python import PythonOperator
 from airflow.operators.bash import BashOperator
 
-from datetime import datetime, timedelta
-import os
-import json, yaml
-import logging
-from core.utils.dbt_operator import DBTOperator
+import yaml
+from src.core.utils.dbt_operator import DBTOperator
+
 
 
 def create_profiles_yml():
@@ -34,8 +32,8 @@ def create_profiles_yml():
     # Create profiles.yml in tmp directory
     with open('/tmp/dbt/nubeproduct/profiles.yml', 'w') as f:
         yaml.dump(profiles_config, f, default_flow_style=False)
-        
-        
+
+
 def create_dbt_dag(
     dag_id: str,
     schedule_interval_tag: str,
@@ -67,8 +65,7 @@ def create_dbt_dag(
         schedule_interval=schedule_interval,
         default_args=default_args,
         tags=tags,
-        catchup=False,
-        on_failure_callback=send_alert
+        catchup=False
     ) as dag:
 
         # Task de preparación
@@ -96,25 +93,4 @@ def create_dbt_dag(
         setup >> create_profiles >> task
 
         return dag
-    
-
-default_args = {
-    'owner': 'Maria Rivas OConnor',
-    'email': ['maria.rivas@tiendanube.com'],
-    'depends_on_past': False,
-    'start_date': datetime(2024, 10, 1),
-    'email_on_failure': True,
-    'email_on_retry': True,
-    'retries': 0,
-    'retry_delay': timedelta(minutes=3)
-}
-
-# Crear el DAG
-dag = create_dbt_dag(
-    dag_id='dbt_finance_daily',
-    schedule_interval_tag='daily-morning',
-    initial_load=False,
-    default_args=default_args,
-    tags=['finance','daily-morning']
-)
 

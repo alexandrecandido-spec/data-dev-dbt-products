@@ -1,15 +1,16 @@
 from datetime import datetime, timedelta
 from src.core.run_dbt_custom import create_dbt_dag
+from src.core.utils.slack_manager import task_fail_slack_alert_bi
 
 default_args = {
     'owner': 'Maria Rivas OConnor',
-    'email': ['maria.rivas@tiendanube.com'],
     'depends_on_past': False,
     'start_date': datetime(2024, 10, 1),
-    'email_on_failure': True,
-    'email_on_retry': True,
+    'email_on_failure': False,
+    'email_on_retry': False,
     'retries': 0,
-    'retry_delay': timedelta(minutes=3)
+    'retry_delay': timedelta(minutes=3),
+    'on_failure_callback': task_fail_slack_alert_bi
 }
 
 # Crear el DAG
