@@ -38,6 +38,7 @@ models:
     staging:
       +materialized: table
       finance:
+        +schema: finance
         +tags: ["finance"]
         +location_root: s3://dn-lkh-products-prd01/data-dev-dbt-products/staging/finance/
 
@@ -50,6 +51,7 @@ models:
       +materialized: table
       +file_format: delta
       finance:
+        +schema: finance
         +tags: ["finance"]
         +location_root: s3://dn-lkh-products-prd01/data-dev-dbt-products/data_product/finance/
 

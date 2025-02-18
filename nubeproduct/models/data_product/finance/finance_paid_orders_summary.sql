@@ -37,24 +37,23 @@ orders_summary as (
     FROM {{ ref('stg_finance__orders_mwp_orders') }} orders 
     INNER JOIN {{ ref('stg_moltres__mwp_store_info') }} store_info on orders.store_id = store_info.store_id
     WHERE 
+        orders.cancelled_at IS NULL
+        AND completed_at IS NOT NULL
         {% if is_incremental() %}
 
         -- this filter will only be applied on an incremental run
         -- (uses >= to include records whose timestamp occurred since the last run of this model)
         -- (If event_time is NULL or the table is truncated, the condition will always be true and load all records)
-        orders.cancelled_at IS NULL 
         AND (orders.completed_at >= (
-            date_sub(current_date(), 1) 
+            SELECT MAX(sys_audit_updated_on) FROM dp_finance.finance_paid_orders_summary
             )
         OR orders.order_date_store_id IN (
             SELECT DISTINCT order_date_store_id FROM {{ ref('stg_finance__orders_mwp_orders') }}
-            WHERE orders.cancelled_at >= date_sub(current_date(), 1) 
-            
+            WHERE orders.cancelled_at >= (SELECT MAX(sys_audit_updated_on) FROM dp_finance.finance_paid_orders_summary)
             ))
-        AND
 
         {% endif %}
-        orders.payment_status = 'paid'
+        AND orders.payment_status = 'paid'
         AND orders.status <> 'cancelled'
         AND orders.store_id NOT IN (
             SELECT
@@ -94,9 +93,23 @@ final_group AS (
         orders_summary.gmv,
         orders_summary.currency,
         orders_summary.orders
+), 
+existing_data AS (
+    {{ get_existing_data(this, ['store_id', 'storefront', 'completed_at', 'sys_audit_created_on', 'sys_audit_created_by']) }}
 )
 
 SELECT 
-    *,
-    {{add_audit_columns()}}
-FROM final_group
+    final_group.store_id,
+    final_group.country,
+    final_group.storefront,
+    final_group.completed_at,
+    final_group.gmv AS gmv_usd,
+    final_group.gmv_local as gmv_local_currency,
+    final_group.currency as local_currency,
+    final_group.orders,
+    COALESCE(e.sys_audit_created_on, current_timestamp) AS sys_audit_created_on,
+    COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by,
+    current_timestamp AS sys_audit_updated_on,
+    'data-dev-dbt-products' AS sys_audit_updated_by
+FROM final_group 
+LEFT JOIN existing_data e ON final_group.store_id = e.store_id and final_group.storefront = e.storefront and final_group.completed_at = e.completed_at

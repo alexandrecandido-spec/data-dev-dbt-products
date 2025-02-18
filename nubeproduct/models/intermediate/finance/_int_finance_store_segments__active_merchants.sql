@@ -1,21 +1,30 @@
+WITH months AS (
+  	SELECT
+    	sequence(to_date('2022-01-01'), current_date, interval 1 month) AS month_list
+	)
+
 SELECT
-	LAST_DAY(TO_DATE(CAST(date_id AS STRING),
-	'yyyyMMdd')) AS datemonth,
-	store_id
+  last_day(tmp.datemonth) AS datemonth,
+  act.store_id
 FROM
-	{{ source('intermediate_finance', 'active_merchants') }} act
-WHERE
-	date_id >= 20240101
-	AND act.store_id_plan_country NOT IN (
+  (
     SELECT
+      explode(month_list) AS datemonth
+    FROM
+      months
+  ) tmp
+INNER JOIN
+	{{ source('intermediate_finance', 'active_merchants') }} act
+	on
+	last_day(tmp.datemonth) = act.date
+	and act.date_id >= 20220101
+WHERE
+  	act.store_id_plan_country NOT IN (
+		SELECT
 		id
-	FROM
+		FROM
 		{{ source('intermediate', 'mwp_plans_countries') }}
-	WHERE
+		WHERE
 		context LIKE '%freemium%'
 		AND monthly = 0
-)
-GROUP BY
-	LAST_DAY(TO_DATE(CAST(date_id AS STRING),
-	'yyyyMMdd')),
-	store_id
+	)

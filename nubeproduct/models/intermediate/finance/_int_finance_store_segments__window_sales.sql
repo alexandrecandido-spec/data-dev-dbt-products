@@ -18,7 +18,7 @@ FROM
 	FROM
 		{{ ref('stg_finance__orders_mwp_orders') }}
 	WHERE
-		completed_at >= '2024-01-01'
+		completed_at >= '2021-09-01'
 		AND completed_at <= current_date
         )
     ),
@@ -29,7 +29,9 @@ FROM
 	{{ ref('stg_finance__orders_mwp_orders') }}
 WHERE
 	completed_at >= DATEADD(DAY,
-	-720,
+  CASE WHEN {{ is_incremental() }} THEN -120 ELSE
+	-1460
+  END,
 	current_date)
     ),
 
@@ -63,7 +65,7 @@ SELECT
 	ad.datemonth,
 	cs.store_id,
 	msi.country,
-	fo.currency,
+	fo.local_currency,
 	DATE(msi.created_at),
     ROUND(
           GREATEST(1,
@@ -93,7 +95,7 @@ SELECT
         SUM(
           CASE
             WHEN fo.completed_at BETWEEN DATE_TRUNC('month', ad.datemonth)
-            AND ad.datemonth THEN fo.gmv
+            AND ad.datemonth THEN fo.gmv_usd
           END
         ),
 	0
@@ -103,7 +105,7 @@ SELECT
           SUM(
             CASE
               WHEN fo.completed_at BETWEEN DATE_TRUNC('month', ad.datemonth)
-              AND ad.datemonth THEN fo.gmv_local
+              AND ad.datemonth THEN fo.gmv_local_currency
             END
           ),
 	2
@@ -135,7 +137,7 @@ SELECT
           CASE
             WHEN fo.storefront IN ('mobile', 'store', 'form', 'social')
             AND fo.completed_at BETWEEN DATE_TRUNC('month', ad.datemonth)
-            AND ad.datemonth THEN fo.gmv
+            AND ad.datemonth THEN fo.gmv_usd
           END
         ),
 	0
@@ -146,7 +148,7 @@ SELECT
             CASE
               WHEN fo.storefront IN ('mobile', 'store', 'form', 'social')
               AND fo.completed_at BETWEEN DATE_TRUNC('month', ad.datemonth)
-              AND ad.datemonth THEN fo.gmv_local
+              AND ad.datemonth THEN fo.gmv_local_currency
             END
           ),
 	2
@@ -181,7 +183,7 @@ SELECT
             WHEN fo.storefront NOT IN ('mobile', 'store', 'form', 'social')
             AND fo.storefront IS NOT NULL
             AND fo.completed_at BETWEEN DATE_TRUNC('month', ad.datemonth)
-            AND ad.datemonth THEN fo.gmv
+            AND ad.datemonth THEN fo.gmv_usd
           END
         ),
 	0
@@ -193,7 +195,7 @@ SELECT
               WHEN fo.storefront NOT IN ('mobile', 'store', 'form', 'social')
               AND fo.storefront IS NOT NULL
               AND fo.completed_at BETWEEN DATE_TRUNC('month', ad.datemonth)
-              AND ad.datemonth THEN fo.gmv_local
+              AND ad.datemonth THEN fo.gmv_local_currency
             END
           ),
 	2
@@ -235,6 +237,6 @@ GROUP BY
 	ad.datemonth,
 	cs.store_id,
 	is_paying_merchant,
-	fo.currency,
+	fo.local_currency,
 	DATE(msi.created_at),
 	msi.country

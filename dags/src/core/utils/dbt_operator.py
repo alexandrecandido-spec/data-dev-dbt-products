@@ -24,7 +24,8 @@ class DBTOperator(BashOperator):
         self.dbt_command = dbt_command
         self.full_refresh = full_refresh
         self.retry = retry
-        
+        self.project = "_".join(tags)
+
         command = self._build_dbt_command()
         self.repair_command = self._build_dbt_repair_command()
         
@@ -39,16 +40,15 @@ class DBTOperator(BashOperator):
 
         tag_list = 'tag:'
         tag_list += ',tag:'.join(self.tags)
-        
-        execution = f'"result:error+,{tag_list}" --state /tmp/dbt/target' if self.retry else tag_list
-        
+                
         return f"""
             set -e;
             source /usr/local/airflow/python3-virtualenv/dbt-env/bin/activate;
-            cd /tmp/dbt/nubeproduct;
-            dbt {self.dbt_command} --select {execution} {refresh_flag} \
-                --project-dir /tmp/dbt/nubeproduct \
-                --profiles-dir .;
+            cd /tmp/dbt/{self.project}/nubeproduct;
+            dbt deps;
+            dbt {self.dbt_command} --select {tag_list} {refresh_flag} \
+                --project-dir /tmp/dbt/{self.project}/nubeproduct \
+                --profiles-dir /tmp/dbt;
         """
     
     def _build_dbt_repair_command(self) -> str:
@@ -57,15 +57,15 @@ class DBTOperator(BashOperator):
         tag_list = 'tag:'
         tag_list += ',tag:'.join(self.tags)
         
-        execution = f'"result:error+,{tag_list}" --state /tmp/dbt/nubeproduct/target/'
+        execution = f'"result:error+,{tag_list}" --state /tmp/dbt/{self.project}/nubeproduct/target/'
         # "find /tmp/dbt -type f -name run_results.json"
         return f"""
             set -e;
             source /usr/local/airflow/python3-virtualenv/dbt-env/bin/activate;
-            cd /tmp/dbt/nubeproduct;
+            cd /tmp/dbt/{self.project}/nubeproduct;
             dbt {self.dbt_command} --select {execution} \
-                --project-dir /tmp/dbt/nubeproduct \
-                --profiles-dir .;
+                --project-dir /tmp/dbt/{self.project}/nubeproduct \
+                --profiles-dir /tmp/dbt;
         """
 
     def execute(self, context):

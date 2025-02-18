@@ -27,6 +27,9 @@ WITH source AS (
     AND sys_audit_updated_on >= (select coalesce(max(sys_audit_updated_on),'1900-01-01') from {{ source('moltres','mwp_store_info') }} )
 
     {% endif %}
+),
+existing_data AS (
+    {{ get_existing_data(this, ['store_id', 'sys_audit_created_on', 'sys_audit_created_by']) }}
 )
 
 SELECT 
@@ -37,5 +40,9 @@ SELECT
     churned_at,
     created_at,
     plan,
-    {{add_audit_columns()}}
-FROM source 
+    COALESCE(e.sys_audit_created_on, current_timestamp) AS sys_audit_created_on,
+    COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by,
+    current_timestamp AS sys_audit_updated_on,
+    'data-dev-dbt-products' AS sys_audit_updated_by
+FROM source
+LEFT JOIN existing_data e ON source.id = e.store_id

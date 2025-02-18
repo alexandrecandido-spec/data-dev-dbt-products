@@ -19,7 +19,7 @@ def create_profiles_yml():
                     'catalog': None,
                     'host': dbt_conn.host,
                     'http_path': '/sql/1.0/warehouses/2f8b52bf3d2088a2',
-                    'schema': 'testing',
+                    'schema': 'dp',
                     'threads': 4,
                     'token': dbt_conn.password,
                     'type': 'databricks'
@@ -30,7 +30,7 @@ def create_profiles_yml():
     }
     
     # Create profiles.yml in tmp directory
-    with open('/tmp/dbt/nubeproduct/profiles.yml', 'w') as f:
+    with open('/tmp/dbt/profiles.yml', 'w') as f:
         yaml.dump(profiles_config, f, default_flow_style=False)
 
 
@@ -55,6 +55,8 @@ def create_dbt_dag(
     """Continuar sumando condiciones de acuerdo a los schedules/tags"""
     if schedule_interval_tag == 'daily-morning':
         schedule_interval='0 9 * * *'
+    elif schedule_interval_tag == 'monthly':
+        schedule_interval='5 3 1 * *'
     else:
         schedule_interval=None 
 
@@ -71,9 +73,11 @@ def create_dbt_dag(
         # Task de preparación
         setup = BashOperator(
             task_id='setup_environment',
-            bash_command="""
+            bash_command=f"""
+                rm -rf /tmp/dbt/{main_task_name}/nubeproduct;
+                mkdir -p /tmp/dbt/{main_task_name}/nubeproduct;
                 mkdir -p /tmp/dbt/target; 
-                cp -R /usr/local/airflow/dags/dbt /tmp; 
+                cp -R /usr/local/airflow/dags/dbt/nubeproduct/* /tmp/dbt/{main_task_name}/nubeproduct/;
             """
         )
         
@@ -85,12 +89,52 @@ def create_dbt_dag(
         task = DBTOperator(
                          task_id=main_task_name,
                          tags=tags,
-                         dbt_command='run',
+                         dbt_command= 'run',
                          full_refresh=initial_load
                      )
-    
+
+        test = DBTOperator(
+                         task_id='test_results',
+                         tags=tags,
+                         dbt_command= 'test',
+                         full_refresh=False
+                     )
         
-        setup >> create_profiles >> task
+        setup >> create_profiles >> task >> test
 
         return dag
+
+
+## TODO: Understand how to call src.core.run_dbt_custom from builders
+from datetime import datetime, timedelta
+from src.core.utils.slack_manager import task_fail_slack_alert_bi
+
+default_args = {
+    'owner': 'Maria Rivas OConnor',
+    'depends_on_past': False,
+    'start_date': datetime(2024, 10, 1),
+    'email_on_failure': False,
+    'email_on_retry': False,
+    'retries': 0,
+    'retry_delay': timedelta(minutes=3),
+    'on_failure_callback': task_fail_slack_alert_bi
+}
+
+# Crear el DAG
+dag = create_dbt_dag(
+    dag_id='dbt_finance_daily',
+    schedule_interval_tag='daily-morning',
+    initial_load=False,
+    default_args=default_args,
+    tags=['finance','daily-morning']
+)
+
+# Crear el DAG
+dag = create_dbt_dag(
+    dag_id='dbt_finance_monthly',
+    schedule_interval_tag='monthly',
+    initial_load=False,
+    default_args=default_args,
+    tags=['finance','monthly']
+)
 

@@ -39,15 +39,37 @@ WITH source AS (
     AND sys_audit_updated_on >= (select coalesce(max(sys_audit_updated_on),'1900-01-01') from {{ source('orders','mwp_orders') }} )
 
     {% endif %}
+),
+existing_data AS (
+    {{ get_existing_data(this, ['order_id', 'sys_audit_created_on', 'sys_audit_created_by']) }}
 )
 
 SELECT 
-    *,
+    source.order_id, 
+    created_at,
+    started_checkout_at, 
+    completed_contact_at, 
+    completed_at,
+    cancelled_at, 
+    store_id, 
+    LOWER(contact_email) AS contact_email, 
+    total_in_usd, 
+    storefront,
+    status,
+    device_type,
+    payment_status,
+    gateway,
+    order_date_store_id,
+    year_month_day_code,
     CASE  
         WHEN status != 'cancelled' AND payment_status = 'paid' THEN TRUE ELSE FALSE 
     END AS is_paid_order,
     CASE 
         WHEN device_type IN ('computer', 'phone') THEN device_type ELSE 'other' 
     END AS device,
-    {{add_audit_columns()}}
+    COALESCE(e.sys_audit_created_on, current_timestamp) AS sys_audit_created_on,
+    COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by,
+    current_timestamp AS sys_audit_updated_on,
+    'data-dev-dbt-products' AS sys_audit_updated_by
 FROM source
+LEFT JOIN existing_data e ON source.order_id = e.order_id

@@ -1,0 +1,33 @@
+version: 2
+models:
+  - name: stg_moltres__mwp_store_info
+    columns:
+      - name: store_id
+        tests:
+          - unique
+      - name: store_id
+        tests:
+          - not_null
+      - name: created_at
+        tests:
+          - not_null
+  - name: stg_finance__orders_mwp_orders
+    columns:
+      - name: order_id
+        tests:
+          - unique
+      - name: order_id
+        tests:
+          - not_null
+      - name: store_id
+        tests:
+          - not_null
+      - name: created_at
+        tests:
+          - not_null
+      - name: status
+        tests:
+          - not_null
+      - name: total_in_usd
+        tests:
+          - not_null

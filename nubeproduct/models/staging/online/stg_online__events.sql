@@ -3,7 +3,8 @@
         materialized='incremental',
         unique_key='event_id',
         partition_by='year_month_code', 
-        on_schema_change='fail'
+        on_schema_change='fail',
+        tags=["testing","manual"]
     )
 }}
 
