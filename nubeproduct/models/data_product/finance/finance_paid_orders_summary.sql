@@ -32,6 +32,7 @@ orders_summary as (
             ELSE store_info.currency
         END AS currency,
         DATE(orders.completed_at) AS completed_at,
+        DATE(orders.created_at) AS created_at,
         SUM(orders.total_in_usd) AS gmv,
         COUNT(orders.order_id) AS orders
     FROM {{ ref('stg_finance__orders_mwp_orders') }} orders 
@@ -66,6 +67,7 @@ orders_summary as (
     GROUP BY 
         orders.store_id,
         orders.order_date_store_id,
+        DATE(orders.created_at),
         DATE(completed_at),
         orders.storefront,
         store_info.country,
@@ -83,12 +85,13 @@ final_group AS (
         orders_summary.orders
         FROM orders_summary
     LEFT JOIN {{ source('dp_finances', 'dp_currency_conversion') }} currency_conversion 
-        ON orders_summary.completed_at = currency_conversion.updated_at 
+        ON orders_summary.created_at = currency_conversion.updated_at 
             AND  orders_summary.currency = currency_conversion.isocode
     GROUP BY
         orders_summary.store_id,
         orders_summary.country,
         orders_summary.storefront,
+        orders_summary.created_at,
         orders_summary.completed_at,
         orders_summary.gmv,
         orders_summary.currency,
