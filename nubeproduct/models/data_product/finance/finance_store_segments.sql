@@ -19,9 +19,9 @@ SELECT
     created_at,
     proportional_segment,
     is_paying_merchant,
-    orders_general_month AS orders_last_month_closed,
-    gmv_general_month AS gmv_usd_last_month_closed,
-    gmv_local_general_month AS gmv_local_currency_last_month_closed,
+    orders_general_month AS orders_last_closed_month,
+    gmv_general_month AS gmv_usd_last_closed_month,
+    gmv_local_general_month AS gmv_local_currency_last_closed_month,
     orders_general_90d,
     CASE
         WHEN orders_general_90d * proportional > 1500 THEN 'top-seller'
@@ -32,9 +32,9 @@ SELECT
         WHEN orders_general_90d * proportional BETWEEN 1 AND 6 THEN 'struggling-seller'
         ELSE 'no-seller'
     END AS segment,
-    orders_on_platform_month AS orders_on_plaftorm_last_month_closed,
-    gmv_on_platform_month AS gmv_usd_on_platform_last_month_closed,
-    gmv_local_on_platform_month AS gmv_local_currency_on_platform_last_month_closed,
+    orders_on_platform_month AS orders_on_plaftorm_last_closed_month,
+    gmv_on_platform_month AS gmv_usd_on_platform_last_closed_month,
+    gmv_local_on_platform_month AS gmv_local_currency_on_platform_last_closed_month,
     orders_on_platform_90d,
     CASE
         WHEN orders_on_platform_90d * proportional > 1500 THEN 'top-seller'
@@ -45,9 +45,9 @@ SELECT
         WHEN orders_on_platform_90d * proportional BETWEEN 1 AND 6 THEN 'struggling-seller'
         ELSE 'no-seller'
     END AS segment_on_platform,
-    orders_off_platform_month AS orders_off_plaftorm_last_month_closed,
-    gmv_off_platform_month AS gmv_usd_off_platform_last_month_closed,
-    gmv_local_off_platform_month AS gmv_local_currency_off_platform_last_month_closed,
+    orders_off_platform_month AS orders_off_plaftorm_last_closed_month,
+    gmv_off_platform_month AS gmv_usd_off_platform_last_closed_month,
+    gmv_local_off_platform_month AS gmv_local_currency_off_platform_last_closed_month,
     orders_off_platform_90d,
     CASE
         WHEN orders_off_platform_90d * proportional > 1500 THEN 'top-seller'
