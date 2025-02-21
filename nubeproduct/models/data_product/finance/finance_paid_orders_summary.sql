@@ -79,10 +79,10 @@ final_group AS (
         orders_summary.country,
         orders_summary.storefront,
         orders_summary.completed_at,
-        orders_summary.gmv,
+        SUM(orders_summary.gmv) AS gmv,
         SUM(orders_summary.gmv / currency_conversion.exchange_rate) AS gmv_local,
         orders_summary.currency,
-        orders_summary.orders
+        SUM(orders_summary.orders) AS orders
         FROM orders_summary
     LEFT JOIN {{ source('dp_finances', 'dp_currency_conversion') }} currency_conversion 
         ON orders_summary.created_at = currency_conversion.updated_at 
@@ -91,11 +91,8 @@ final_group AS (
         orders_summary.store_id,
         orders_summary.country,
         orders_summary.storefront,
-        orders_summary.created_at,
         orders_summary.completed_at,
-        orders_summary.gmv,
-        orders_summary.currency,
-        orders_summary.orders
+        orders_summary.currency
 ), 
 existing_data AS (
     {{ get_existing_data(this, ['store_id', 'storefront', 'completed_at', 'sys_audit_created_on', 'sys_audit_created_by']) }}
