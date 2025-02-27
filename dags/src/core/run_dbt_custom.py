@@ -47,9 +47,9 @@ def create_dbt_dag(
     Args:
         dag_id: ID del DAG
         schedule_interval: Intervalo de ejecución
+        initial_load: Indica si la ejecución debe ser inicial o incremental
         default_args: Argumentos por defecto del DAG
-        models_groups: Lista de grupos de modelos a ejecutar en orden
-        group_labels: Lista opcional de etiquetas para los grupos de tareas
+        tags: Lista de etiquetas de modelos a ejecutar, condicion de tipo AND
     """
     
     """Continuar sumando condiciones de acuerdo a los schedules/tags"""
@@ -103,38 +103,3 @@ def create_dbt_dag(
         setup >> create_profiles >> task >> test
 
         return dag
-
-
-## TODO: Understand how to call src.core.run_dbt_custom from builders
-from datetime import datetime, timedelta
-from src.core.utils.slack_manager import task_fail_slack_alert_bi
-
-default_args = {
-    'owner': 'Maria Rivas OConnor',
-    'depends_on_past': False,
-    'start_date': datetime(2024, 10, 1),
-    'email_on_failure': False,
-    'email_on_retry': False,
-    'retries': 0,
-    'retry_delay': timedelta(minutes=3),
-    'on_failure_callback': task_fail_slack_alert_bi
-}
-
-# Crear el DAG
-dag = create_dbt_dag(
-    dag_id='dbt_finance_daily',
-    schedule_interval_tag='daily-morning',
-    initial_load=False,
-    default_args=default_args,
-    tags=['finance','daily-morning']
-)
-
-# Crear el DAG
-dag = create_dbt_dag(
-    dag_id='dbt_finance_monthly',
-    schedule_interval_tag='monthly',
-    initial_load=False,
-    default_args=default_args,
-    tags=['finance','monthly']
-)
-

@@ -22,10 +22,20 @@ def get_task_logs(task_instance: TaskInstance, session=None):
     return logs.log if logs else "No se pudo extraer el log de la base de datos."
 
 def _send_slack_alert(conn_id: str, channel: str, context, slack_ids:list=[]):
-    state = context.get('task_instance').state
-    try_number = context.get('task_instance').try_number
+    task_instance = context.get('task_instance')
+    state = task_instance.state
+    try_number = task_instance.try_number
     responsible = ','.join(['<@'+str(id)+'>' for id in slack_ids])
-    logs = get_task_logs(context.get('task_instance'))
+    
+    # Try to get DBT-specific error from XCom
+    dbt_error = task_instance.xcom_pull(key='dbt_error_details')
+    
+    # If no DBT error found, fall back to regular logs
+    if not dbt_error:
+        logs = get_task_logs(task_instance)
+        error_details = logs if logs else "No se pudo extraer el error específico"
+    else:
+        error_details = dbt_error
 
     slack_msg = """
             {alert_type}
@@ -39,23 +49,22 @@ def _send_slack_alert(conn_id: str, channel: str, context, slack_ids:list=[]):
             *DBT Error Details*: ```{error}```
             """.format(
         alert_type=':large_yellow_circle: Task Retrying...' if state == 'up_for_retry' else ':red_circle: Task Failed.',
-        task=context.get('task_instance').task_id,
-        dag=context.get('task_instance').dag_id,
-        ti=context.get('task_instance'),
+        task=task_instance.task_id,
+        dag=task_instance.dag_id,
         exec_date=context.get('execution_date'),
-        log_url=context.get('task_instance').log_url,
+        log_url=task_instance.log_url,
         state=state,
-        try_number = try_number,
-        responsible = responsible,
-        error = logs if logs else "No se pudo extraer el error específico de db. Esta es la otra"
-    )  
+        try_number=try_number,
+        responsible=responsible,
+        error=error_details
+    )
 
     alert = SlackWebhookOperator(
         task_id='slack_failure_alert',
         slack_webhook_conn_id=conn_id,
         message=slack_msg,
         channel=channel
-        )
+    )
 
     return alert.execute(context=context)
 

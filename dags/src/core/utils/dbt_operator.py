@@ -1,9 +1,11 @@
 from airflow.operators.bash import BashOperator
 from airflow.exceptions import AirflowException
-from datetime import datetime, timedelta
+from datetime import datetime
 import os
 import json
 import logging
+from typing import Optional, Tuple
+import subprocess
 
 class DBTOperator(BashOperator):
     """Custom operator para ejecutar comandos DBT con capacidad de recuperación y taggeo"""
@@ -12,14 +14,12 @@ class DBTOperator(BashOperator):
 
     def __init__(
         self,
-        #model: str,
         tags: list, 
         dbt_command: str = 'run',
         full_refresh: bool = False,
         retry: bool = False,
         *args, **kwargs
     ):
-        #self.tags = model
         self.tags = tags
         self.dbt_command = dbt_command
         self.full_refresh = full_refresh
@@ -67,33 +67,103 @@ class DBTOperator(BashOperator):
                 --project-dir /tmp/dbt/{self.project}/nubeproduct \
                 --profiles-dir /tmp/dbt;
         """
+        
+    def _execute_bash_command(self, command: str) -> Tuple[bool, str]:
+        """Ejecuta el comando bash y captura la salida en tiempo real"""
+        process = subprocess.Popen(
+            ['bash', '-c', command],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            universal_newlines=True,
+            bufsize=1
+        )
+
+        output_lines = []
+        # Captura la salida en tiempo real
+        while True:
+            output = process.stdout.readline()
+            if output:
+                logging.info(output.strip())  # Imprime el progreso en tiempo real
+                output_lines.append(output)
+            if process.poll() is not None:
+                break
+            
+        # Captura cualquier error restante
+        stderr = process.stderr.read()
+        if stderr:
+            output_lines.append(stderr)
+
+        success = process.returncode == 0
+        return success, ''.join(output_lines)
+
+    def _parse_dbt_error(self, output: str) -> Optional[str]:
+        """Extrae el mensaje de error específico de DBT"""
+        if not output:
+            return None
+            
+        lines = output.split('\n')
+        error_message = []
+        capturing = False
+        
+        for line in lines:
+            # Busca el inicio del mensaje de error
+            if 'ERROR' in line and 'creating' in line:
+                capturing = True
+                error_message = []
+            # Captura detalles adicionales del error
+            elif capturing and line.strip():
+                if 'Done. PASS=' in line:  # Fin del mensaje de error
+                    capturing = False
+                    continue
+                # Limpia códigos ANSI y agrega la línea
+                clean_line = (line.replace('[0m', '')
+                                .replace('[31m', '')
+                                .strip())
+                if clean_line and not clean_line.startswith('Running with dbt='):
+                    error_message.append(clean_line)
+        
+        return '\n'.join(error_message) if error_message else None
 
     def execute(self, context):
+        """Execute the bash command with real-time output and error handling"""
         try:
             self._save_execution_state(context)
-            super().execute(context)
-            self._update_success_state(context)
             
+            # Execute main command
+            success, output = self._execute_bash_command(self.bash_command)
+            
+            if not success:
+                # Si hay error, extrae y loguea el mensaje de error específico
+                error_details = self._parse_dbt_error(output)
+                
+                # Intenta el comando de reparación
+                logging.info("\n\nAttempting repair command execution...")
+                repair_success, repair_output = self._execute_bash_command(self.repair_command)
+                
+                if not repair_success:
+                    # Si la reparación falla, extrae el error
+                    repair_error = self._parse_dbt_error(repair_output)
+                    error_msg = f">>>> [!!!] Error en la ejecución de DBT para el modelo {self.tags}: >>>>>\n"
+                    if error_details:
+                        error_msg += f"\nOriginal error:\n{error_details}"
+                    if repair_error:
+                        error_msg += f"\nRepair error:\n{repair_error}"
+                    
+                    # Push error details to XCom
+                    context['task_instance'].xcom_push(
+                        key='dbt_error_details',
+                        value= error_msg if error_msg else "Could not capture error."
+                    )
+                    raise AirflowException(error_msg)
+                
+            self._update_success_state(context)
+            return output
+
         except Exception as e:
-            self._save_error_state(context, str(e))
-            print("An error was encountered with a layer!!!")
-            try:
-                # deberia ejecutar el comando de reparacion
-                original_command = self.bash_command
-                
-                # Cambiamos al comando de reparación
-                self.bash_command = self.repair_command
-                
-                # Ejecutamos el comando de reparación
-                super().execute(context)
-                
-                # Si la reparación fue exitosa, actualizamos el estado
-                self._update_success_state(context)
-                
-                # Restauramos el comando original
-                self.bash_command = original_command
-            except:
-                raise AirflowException(f"Error en la ejecución de DBT para el modelo {self.tags}: {str(e)}")
+            if not isinstance(e, AirflowException):
+                self._save_error_state(context, str(e))
+                raise AirflowException(f"Error inesperado en DBT para el modelo {self.tags}: {str(e)}")
+            raise AirflowException(str(e))
 
     def _save_execution_state(self, context):
         """Guarda el estado de ejecución actual"""
