@@ -37,15 +37,22 @@ models:
 
     staging:
       +materialized: table
+      +file_format: delta
       finance:
         +schema: finance
         +tags: ["finance"]
         +location_root: s3://dn-lkh-products-prd01/data-dev-dbt-products/staging/finance/
+      marketing:
+        +schema: marketing
+        +tags: ["marketing"]
+        +location_root: s3://dn-lkh-products-prd01/data-dev-dbt-products/staging/marketing/
 
     intermediate:
       +materialized: ephemeral
       finance:
         +tags: ["finance"]
+      marketing:
+        +tags: ["marketing"]
 
     data_product:
       +materialized: table
@@ -54,6 +61,10 @@ models:
         +schema: finance
         +tags: ["finance"]
         +location_root: s3://dn-lkh-products-prd01/data-dev-dbt-products/data_product/finance/
+      marketing:
+        +schema: marketing
+        +tags: ["marketing"]
+        +location_root: s3://dn-lkh-products-prd01/data-dev-dbt-products/data_product/marketing/
 
 vars:
   'dbt_date:time_zone': 'America/Argentina/Buenos_Aires'
