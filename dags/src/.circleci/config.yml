@@ -4,19 +4,19 @@ version: 2.1
 
 
 jobs:
-  bi-dbt-nubeproduct:
+  bi-dags-nubeproduct:
     docker:
       - image: 'cimg/python:3.9'
     steps:
-      - deploy-dbt-project:
-          dp-dbt-project-location: "nubeproduct"
-      - run: echo 'Deployed Nubeproduct DBT Project into S3 Airflow Artifacts Bucket'
+      - deploy-dp-dags:
+          dp-dags-location: "dags/src"
+      - run: echo 'Deployed DAGS for DBT Project into S3 Airflow Artifacts Bucket'
 
 workflows:
-  nubeproduct-dbt-production:
+  bi-dbt-production:
     jobs:
       - common-pre
-      - bi-dbt-nubeproduct:
+      - bi-dags-nubeproduct:
           requires:
             - common-pre
           context:

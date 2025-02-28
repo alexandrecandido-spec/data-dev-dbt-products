@@ -15,8 +15,7 @@ default_args = {
     'on_failure_callback': task_fail_slack_alert_bi
 }
 
-
-# Crear el DAG frecuencia diaraia
+# Crear el DAG frecuencia diaria
 dag = create_dbt_dag(
     dag_id='dbt_finance_daily',
     schedule_interval_tag='daily-morning',
