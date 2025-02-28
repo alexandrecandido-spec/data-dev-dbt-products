@@ -1,0 +1,23 @@
+# Config dedicated for module A
+# All the resources must be prefixed with `module-a-` to avoid conflicts
+version: 2.1
+
+
+jobs:
+  bi-yogi-nubeflow:
+    docker:
+      - image: 'cimg/python:3.9'
+    steps:
+      - deploy-dbt-project:
+          dp-dags-location: "nubeproduct"
+      - run: echo 'Deployed Nubeproduct DBT Project into S3 Airflow Artifacts Bucket'
+
+workflows:
+  bi-dbt-production:
+    jobs:
+      - common-pre
+      - bi-yogi-nubeflow:
+          requires:
+            - common-pre
+          context:
+            - dbt-data-products-prd01
