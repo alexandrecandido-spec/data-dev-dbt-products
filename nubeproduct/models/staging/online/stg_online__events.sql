@@ -35,7 +35,6 @@ WITH source AS (
 
 SELECT 
     *,
-    'test' as test,
     {{ get_key_value('attributes', 'cart_id', is_array=false, value_type='bigint') }} as attributes_cart_id,
         {{ get_key_value('attributes', 'shipping_information', is_array=false) }} as attributes_shipping_information,
     lower( {{ get_key_value('attributes', 'email', is_array=false, value_type='string') }} ) as attributes_contact_email,
