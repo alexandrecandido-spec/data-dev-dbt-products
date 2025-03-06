@@ -38,18 +38,13 @@ commands:
       - run:
           name: Deploy Data Product Dags and modules to Artifacts Bucket
           command: |
-            # Print the bucket name for debugging
-            echo "Using bucket: $NUBEPRODUCT_ARTIFACTS_BUCKET"
-            
-            aws s3 ls s3://bi-nbflw-artif-prd01/
-
-            aws s3 ls s3://dn-dbtdp-artif-prd01/
-
             # Ensure the bucket variable is set
             if [ -z "$NUBEPRODUCT_ARTIFACTS_BUCKET" ]; then
               echo "Error: NUBEPRODUCT_ARTIFACTS_BUCKET environment variable is not set"
               exit 1
             fi
+
+            aws s3 rm s3://$NUBEPRODUCT_ARTIFACTS_BUCKET/dags/src --recursive
 
             aws s3 sync \
                 << parameters.dp-dags-location >> s3://$NUBEPRODUCT_ARTIFACTS_BUCKET/dags \
@@ -65,21 +60,110 @@ commands:
           role_arn: "arn:aws:iam::362686812061:role/CircleCIRoleForOIDC_Generic"
           region: us-east-1
       - run:
+          name: Handle Python version
+          command: |
+            # Remove the .python-version file completely
+            rm -f .python-version
+      - run:
+          name: Setup DBT environment
+          command: |
+            pip install dbt-core dbt-databricks
+      - run:
+          name: Create DBT profiles directory and configuration
+          command: |
+            # Create the profiles directory
+            mkdir -p ~/.dbt
+            
+            # Create the profiles.yml file with environment variables
+            cat > ~/.dbt/profiles.yml \<< EOF
+            nubeproduct:
+              outputs:
+                dev:
+                  catalog: null
+                  host: dbc-ff5dddaf-fe0f.cloud.databricks.com
+                  http_path: /sql/1.0/warehouses/2f8b52bf3d2088a2
+                  schema: testing
+                  threads: 4
+                  token: ${DBT_TOKEN}
+                  type: databricks
+                prod:
+                  catalog: null
+                  host: dbc-ff5dddaf-fe0f.cloud.databricks.com
+                  http_path: /sql/1.0/warehouses/2f8b52bf3d2088a2
+                  schema: dp
+                  threads: 4
+                  token: ${DBT_TOKEN}
+                  type: databricks
+              target: dev
+            EOF
+            
+            # Make sure the file exists and has content (for debugging)
+            echo "DBT profiles.yml created:"
+            ls -la ~/.dbt/
+            cat ~/.dbt/profiles.yml | grep -v token # Print file without exposing token
+      - run:
+          name: Run DBT deps
+          command: |
+            cd << parameters.dp-dbt-project-location >>
+            dbt deps
+      - run:
+          name: Run updated DBT models
+          command: |
+            # Create a temp directory for storing the comparison state
+            mkdir -p state
+            
+            # Store the current branch name
+            CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+            echo "Current branch: $CURRENT_BRANCH"
+            
+            echo "Generating manifest from main branch..."
+            # Generate manifest from the main branch
+            git checkout main
+            cd << parameters.dp-dbt-project-location >>
+            dbt compile --target prod
+            
+            if [ $? -ne 0 ]; then
+              echo "ERROR: Failed to compile dbt models on main branch"
+              git checkout $CURRENT_BRANCH
+              exit 1
+            fi
+            
+            cp target/manifest.json ../state/
+            echo "Manifest generated and saved to state/manifest.json"
+            
+            # Switch back to the working branch
+            echo "Switching back to working branch: $CURRENT_BRANCH"
+            git checkout $CURRENT_BRANCH
+            
+            echo "Running modified models and their downstream dependencies..."
+            # Run only the modified models and their downstream dependencies
+            dbt ls --select state:modified+ --resource-type model --state ../state
+            
+            echo "Models to be run:"
+            dbt ls --select state:modified+ --resource-type model --state ../state
+            
+            # Run the models
+            dbt run --select state:modified+ --state ../state --full-refresh
+            
+            if [ $? -ne 0 ]; then
+              echo "ERROR: Failed to run modified dbt models"
+              exit 1
+            fi
+            
+            echo "Successfully ran all modified models and their dependencies"
+      - run:
           name: Deploy Data Product Project to Artifacts Bucket
           command: |
-            # Print the bucket name for debugging
-            echo "Using bucket: $NUBEPRODUCT_ARTIFACTS_BUCKET"
-            
             # Ensure the bucket variable is set
             if [ -z "$NUBEPRODUCT_ARTIFACTS_BUCKET" ]; then
               echo "Error: NUBEPRODUCT_ARTIFACTS_BUCKET environment variable is not set"
               exit 1
             fi
 
+            aws s3 rm s3://$NUBEPRODUCT_ARTIFACTS_BUCKET/dags/dbt --recursive
+
             aws s3 sync \
                 << parameters.dp-dbt-project-location >> s3://$NUBEPRODUCT_ARTIFACTS_BUCKET/dags/dbt/nubeproduct \
-            aws s3 sync \
-                << parameters.dp-dbt-project-location >> s3://$NUBEPRODUCT_ARTIFACTS_BUCKET/dag/dbt/nubeproduct \
                 --cache-control "max-age=86400" 
             
 
@@ -101,14 +185,14 @@ workflows:
           filters:
             branches:
               only:
-                - deploy-circleci
+                - main
           context:
             - dbt-data-products-prd01
           force-all: << pipeline.parameters.force-all >>
           base-revision: main
           # A list of domain/data-product to be included in deployment
           # this is used by list-changed-modules to see whether dp has changed
-          # TODO: check whether only sub-components has changed
+          # TODO: check whether only sub-components has changed
           modules: |
             nubeproduct
             dags/src
