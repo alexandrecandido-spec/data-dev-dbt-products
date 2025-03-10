@@ -209,6 +209,17 @@ jobs:
       - image: alpine
     steps:
       - run: echo 'Jobs with `common-` prefix are intended to be shared among modules'
+  debug-branch:
+    docker:
+      - image: alpine
+    steps:
+      - run: 
+          name: Debug branch info
+          command: |
+            echo "Branch: ${CIRCLE_BRANCH}"
+            echo "PR Number: ${CIRCLE_PR_NUMBER}"
+            echo "PR Username: ${CIRCLE_PR_USERNAME}"
+            echo "PR Reponame: ${CIRCLE_PR_REPONAME}"
   
 workflows:
   # The setup workflow
@@ -216,17 +227,22 @@ workflows:
     when: << pipeline.parameters.run-setup >>
    
     jobs:
+      - debug-branch:
+          filters:
+            branches:
+              only:
+                - main
+                - /pull\/.*/
       - config-splitting/setup-dynamic-config:
           filters:
             branches:
               only:
                 - main
-                - /pull\/[0-9]+/
           context:
             - dbt-data-products-prd01
           force-all: << pipeline.parameters.force-all >>
           base-revision: main
-          # A list of domain/data-product to be included in deployment
+          # A list of domain/data-product to be included in deployment TEST
           # this is used by list-changed-modules to see whether dp has changed
           # TODO: check whether only sub-components has changed
           modules: |

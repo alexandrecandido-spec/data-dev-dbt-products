@@ -2,8 +2,37 @@
 # All the resources must be prefixed with `module-a-` to avoid conflicts
 version: 2.1
 
+# This command will detect if we're running in a PR context
+commands:
+  check_if_pr:
+    steps:
+      - run:
+          name: Set PR environment flag
+          command: |
+            if [ -n "$CIRCLE_PULL_REQUEST" ]; then
+              echo "export IS_PR=true" >> $BASH_ENV
+              echo "Running in a pull request context: $CIRCLE_PULL_REQUEST"
+            else
+              echo "export IS_PR=false" >> $BASH_ENV
+              echo "Not running in a pull request context"
+            fi
+            source $BASH_ENV
 
 jobs:
+  check-pr-status:
+    docker:
+      - image: 'cimg/base:stable'
+    steps:
+      - check_if_pr
+      - run:
+          name: Determine whether to continue
+          command: |
+            if [ "$IS_PR" = "true" ]; then
+              echo "This is a pull request, proceeding with build"
+            else
+              echo "This is not a pull request, halting workflow"
+              circleci-agent step halt
+            fi
   bi-dbt-nubeproduct:
     docker:
       - image: 'cimg/python:3.9'
@@ -16,8 +45,14 @@ workflows:
   nubeproduct-dbt-production:
     jobs:
       - common-pre
-      - bi-dbt-nubeproduct:
+      - check-pr-status:
           requires:
             - common-pre
+          filters:
+            branches:
+              ignore: main
+      - bi-dbt-nubeproduct:
+          requires:
+            - check-pr-status
           context:
             - dbt-data-products-prd01
