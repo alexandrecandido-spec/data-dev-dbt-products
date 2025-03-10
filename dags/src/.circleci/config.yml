@@ -4,6 +4,11 @@ version: 2.1
 
 
 jobs:
+  test-dbt-nubeproduct:
+    docker:
+      - image: 'cimg/python:3.9'
+    steps:
+      - run: echo 'Changes on dags do not trigger dbt test'
   bi-dags-nubeproduct:
     docker:
       - image: 'cimg/python:3.9'
@@ -11,13 +16,24 @@ jobs:
       - deploy-dp-dags:
           dp-dags-location: "dags/src"
       - run: echo 'Deployed DAGS for DBT Project into S3 Airflow Artifacts Bucket'
+    
 
 workflows:
   bi-dbt-production:
     jobs:
-      - common-pre
+      - common-pre:
+          filters:
+            branches:
+              only: main
+      - test-dbt-nubeproduct:
+          filters:
+            branches:
+              only: main
       - bi-dags-nubeproduct:
           requires:
             - common-pre
+          filters:
+            branches:
+              only: main
           context:
             - dbt-data-products-prd01
