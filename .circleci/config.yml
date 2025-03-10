@@ -47,7 +47,7 @@ commands:
             aws s3 rm s3://$NUBEPRODUCT_ARTIFACTS_BUCKET/dags/src --recursive
 
             aws s3 sync \
-                << parameters.dp-dags-location >> s3://$NUBEPRODUCT_ARTIFACTS_BUCKET/dags \
+                << parameters.dp-dags-location >> s3://$NUBEPRODUCT_ARTIFACTS_BUCKET/dags/src \
                 --cache-control "max-age=86400" 
   test-dbt-project:
     parameters:
