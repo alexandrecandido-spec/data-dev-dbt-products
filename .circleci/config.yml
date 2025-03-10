@@ -221,6 +221,7 @@ workflows:
             branches:
               only:
                 - main
+                - /pull\/[0-9]+/
           context:
             - dbt-data-products-prd01
           force-all: << pipeline.parameters.force-all >>
