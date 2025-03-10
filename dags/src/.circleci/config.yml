@@ -28,7 +28,7 @@ workflows:
       - test-dbt-nubeproduct:
           filters:
             branches:
-              only: main
+              ignore: main
       - bi-dags-nubeproduct:
           requires:
             - common-pre
