@@ -32,6 +32,7 @@ jobs:
             else
               echo "This is not a pull request, halting workflow"
               circleci-agent step halt
+              exit 1
             fi
   test-dbt-nubeproduct:
     docker:
@@ -67,8 +68,6 @@ workflows:
           context:
             - dbt-data-products-prd01
       - bi-dbt-nubeproduct:
-          requires:
-            - check-pr-status
           filters:
             branches:
               only: main

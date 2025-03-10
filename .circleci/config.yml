@@ -116,76 +116,45 @@ commands:
             # Create a temp directory for storing the comparison state
             mkdir -p state
             
-            echo "Current branch: $(git rev-parse --abbrev-ref HEAD)"
-            echo "Current commit: $(git rev-parse HEAD)"
+            # Store the current branch name
+            CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+            echo "Current branch: $CURRENT_BRANCH"
             
-            # When on main, compare with previous commit
-            if [ "$(git rev-parse --abbrev-ref HEAD)" = "main" ]; then
-              # Check if previous commit exists (in case this is the first commit)
-              if git rev-parse HEAD~1 >/dev/null 2>&1; then
-                BASE_COMMIT=$(git rev-parse HEAD~1)
-                echo "On main, comparing with previous commit: $BASE_COMMIT"
-              else
-                echo "This appears to be the first commit on main"
-                # You could set some default baseline or empty state here
-                BASE_COMMIT=$(git rev-list --max-parents=0 HEAD)
-                echo "Using initial commit as base: $BASE_COMMIT"
-              fi
-            # When on main, use previous commit on main
-            elif [ "$(git rev-parse --abbrev-ref HEAD)" = "main" ]; then
-              BASE_COMMIT=$(git rev-parse HEAD~1)
-              echo "On main branch, comparing with previous commit: $BASE_COMMIT"
-            # For any other branch, find common ancestor with main
-            else
-              BASE_COMMIT=$(git merge-base HEAD origin/main)
-              echo "On feature branch, comparing with main common ancestor: $BASE_COMMIT"
-            fi
-            
-            # Check out the base commit to generate the manifest
-            echo "Generating manifest from base commit..."
-            git checkout $BASE_COMMIT
+            echo "Generating manifest from main branch..."
+            # Generate manifest from the main branch
+            git checkout main
             cd << parameters.dp-dbt-project-location >>
             dbt compile --target prod
             
             if [ $? -ne 0 ]; then
-              echo "ERROR: Failed to compile dbt models on base commit"
-              git checkout $(git rev-parse HEAD)
+              echo "ERROR: Failed to compile dbt models on main branch"
+              git checkout $CURRENT_BRANCH
               exit 1
             fi
             
             cp target/manifest.json ../state/
             echo "Manifest generated and saved to state/manifest.json"
             
-            # Switch back to the current commit
-            echo "Switching back to current commit"
-            cd ..
-            git checkout -
-            cd << parameters.dp-dbt-project-location >>
+            # Switch back to the working branch
+            echo "Switching back to working branch: $CURRENT_BRANCH"
+            git checkout $CURRENT_BRANCH
             
             echo "Running modified models and their downstream dependencies..."
-            # List the modified models
+            # Run only the modified models and their downstream dependencies
             dbt ls --select state:modified+ --resource-type model --state ../state
             
-            # Count how many models are modified
-            MODIFIED_COUNT=$(dbt ls --select state:modified+ --resource-type model --state ../state | wc -l)
-            MODIFIED_COUNT=$(echo $MODIFIED_COUNT | tr -d '[:space:]')
+            echo "Models to be run:"
+            dbt ls --select state:modified+ --resource-type model --state ../state
             
-            echo "Number of modified models: $MODIFIED_COUNT"
+            # Run the models
+            dbt run --select state:modified+ --state ../state --full-refresh
             
-            if [ "$MODIFIED_COUNT" -gt 0 ]; then
-              echo "Running modified models:"
-              # Run the modified models
-              dbt run --select state:modified+ --state ../state --full-refresh
-              
-              if [ $? -ne 0 ]; then
-                echo "ERROR: Failed to run modified dbt models"
-                exit 1
-              fi
-              
-              echo "Successfully ran all modified models and their dependencies"
-            else
-              echo "No models were modified. Nothing to run."
+            if [ $? -ne 0 ]; then
+              echo "ERROR: Failed to run modified dbt models"
+              exit 1
             fi
+            
+            echo "Successfully ran all modified models and their dependencies"
   deploy-dbt-project:
     parameters:
       dp-dbt-project-location:
@@ -247,82 +216,6 @@ commands:
           command: |
             cd << parameters.dp-dbt-project-location >>
             dbt deps
-      - run:
-          name: Run updated DBT models
-          command: |
-            # Create a temp directory for storing the comparison state
-            mkdir -p state
-            
-            echo "Current branch: $(git rev-parse --abbrev-ref HEAD)"
-            echo "Current commit: $(git rev-parse HEAD)"
-            
-            # When on main, compare with previous commit
-            if [ "$(git rev-parse --abbrev-ref HEAD)" = "main" ]; then
-              # Check if previous commit exists (in case this is the first commit)
-              if git rev-parse HEAD~1 >/dev/null 2>&1; then
-                BASE_COMMIT=$(git rev-parse HEAD~1)
-                echo "On main, comparing with previous commit: $BASE_COMMIT"
-              else
-                echo "This appears to be the first commit on main"
-                # You could set some default baseline or empty state here
-                BASE_COMMIT=$(git rev-list --max-parents=0 HEAD)
-                echo "Using initial commit as base: $BASE_COMMIT"
-              fi
-            # When on main, use previous commit on main
-            elif [ "$(git rev-parse --abbrev-ref HEAD)" = "main" ]; then
-              BASE_COMMIT=$(git rev-parse HEAD~1)
-              echo "On main branch, comparing with previous commit: $BASE_COMMIT"
-            # For any other branch, find common ancestor with main
-            else
-              BASE_COMMIT=$(git merge-base HEAD origin/main)
-              echo "On feature branch, comparing with main common ancestor: $BASE_COMMIT"
-            fi
-            
-            # Check out the base commit to generate the manifest
-            echo "Generating manifest from base commit..."
-            git checkout $BASE_COMMIT
-            cd << parameters.dp-dbt-project-location >>
-            dbt compile --target prod
-            
-            if [ $? -ne 0 ]; then
-              echo "ERROR: Failed to compile dbt models on base commit"
-              git checkout $(git rev-parse HEAD)
-              exit 1
-            fi
-            
-            cp target/manifest.json ../state/
-            echo "Manifest generated and saved to state/manifest.json"
-            
-            # Switch back to the current commit
-            echo "Switching back to current commit"
-            cd ..
-            git checkout -
-            cd << parameters.dp-dbt-project-location >>
-            
-            echo "Running modified models and their downstream dependencies..."
-            # List the modified models
-            dbt ls --select state:modified+ --resource-type model --state ../state
-            
-            # Count how many models are modified
-            MODIFIED_COUNT=$(dbt ls --select state:modified+ --resource-type model --state ../state | wc -l)
-            MODIFIED_COUNT=$(echo $MODIFIED_COUNT | tr -d '[:space:]')
-            
-            echo "Number of modified models: $MODIFIED_COUNT"
-            
-            if [ "$MODIFIED_COUNT" -gt 0 ]; then
-              echo "Running modified models:"
-              # Run the modified models
-              dbt run --select state:modified+ --state ../state --full-refresh
-              
-              if [ $? -ne 0 ]; then
-                echo "ERROR: Failed to run modified dbt models"
-                exit 1
-              fi
-              
-              echo "Successfully ran all modified models and their dependencies"
-            else
-              echo "No models were modified. Nothing to run."
-            fi
       - run:
           name: Deploy Data Product Project to Artifacts Bucket
           command: |
