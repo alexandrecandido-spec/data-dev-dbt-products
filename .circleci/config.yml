@@ -49,6 +49,143 @@ commands:
             aws s3 sync \
                 << parameters.dp-dags-location >> s3://$NUBEPRODUCT_ARTIFACTS_BUCKET/dags \
                 --cache-control "max-age=86400" 
+  test-dbt-project:
+    parameters:
+      dp-dbt-project-location:
+        description: The location of the root folder for data product dbt project
+        type: string
+    steps:
+      - checkout:
+          depth: 0
+      - run:
+          name: Fetch main branch
+          command: git fetch origin main
+      - aws-cli/setup:
+          role_arn: "arn:aws:iam::362686812061:role/CircleCIRoleForOIDC_Generic"
+          region: us-east-1
+      - run:
+          name: Handle Python version
+          command: |
+            # Remove the .python-version file completely
+            rm -f .python-version
+      - run:
+          name: Setup DBT environment
+          command: |
+            pip install dbt-core dbt-databricks
+      - run:
+          name: Create DBT profiles directory and configuration
+          command: |
+            # Create the profiles directory
+            mkdir -p ~/.dbt
+            
+            # Create the profiles.yml file with environment variables
+            cat > ~/.dbt/profiles.yml \<< EOF
+            nubeproduct:
+              outputs:
+                dev:
+                  catalog: null
+                  host: dbc-ff5dddaf-fe0f.cloud.databricks.com
+                  http_path: /sql/1.0/warehouses/2f8b52bf3d2088a2
+                  schema: testing
+                  threads: 4
+                  token: ${DBT_TOKEN}
+                  type: databricks
+                prod:
+                  catalog: null
+                  host: dbc-ff5dddaf-fe0f.cloud.databricks.com
+                  http_path: /sql/1.0/warehouses/2f8b52bf3d2088a2
+                  schema: dp
+                  threads: 4
+                  token: ${DBT_TOKEN}
+                  type: databricks
+              target: dev
+            EOF
+            
+            # Make sure the file exists and has content (for debugging)
+            echo "DBT profiles.yml created:"
+            ls -la ~/.dbt/
+            cat ~/.dbt/profiles.yml | grep -v token # Print file without exposing token
+      - run:
+          name: Run DBT deps
+          command: |
+            cd << parameters.dp-dbt-project-location >>
+            dbt deps
+      - run:
+          name: Run updated DBT models
+          command: |
+            # Create a temp directory for storing the comparison state
+            mkdir -p state
+            
+            echo "Current branch: $(git rev-parse --abbrev-ref HEAD)"
+            echo "Current commit: $(git rev-parse HEAD)"
+            
+            # When on main, compare with previous commit
+            if [ "$(git rev-parse --abbrev-ref HEAD)" = "main" ]; then
+              # Check if previous commit exists (in case this is the first commit)
+              if git rev-parse HEAD~1 >/dev/null 2>&1; then
+                BASE_COMMIT=$(git rev-parse HEAD~1)
+                echo "On main, comparing with previous commit: $BASE_COMMIT"
+              else
+                echo "This appears to be the first commit on main"
+                # You could set some default baseline or empty state here
+                BASE_COMMIT=$(git rev-list --max-parents=0 HEAD)
+                echo "Using initial commit as base: $BASE_COMMIT"
+              fi
+            # When on main, use previous commit on main
+            elif [ "$(git rev-parse --abbrev-ref HEAD)" = "main" ]; then
+              BASE_COMMIT=$(git rev-parse HEAD~1)
+              echo "On main branch, comparing with previous commit: $BASE_COMMIT"
+            # For any other branch, find common ancestor with main
+            else
+              BASE_COMMIT=$(git merge-base HEAD origin/main)
+              echo "On feature branch, comparing with main common ancestor: $BASE_COMMIT"
+            fi
+            
+            # Check out the base commit to generate the manifest
+            echo "Generating manifest from base commit..."
+            git checkout $BASE_COMMIT
+            cd << parameters.dp-dbt-project-location >>
+            dbt compile --target prod
+            
+            if [ $? -ne 0 ]; then
+              echo "ERROR: Failed to compile dbt models on base commit"
+              git checkout $(git rev-parse HEAD)
+              exit 1
+            fi
+            
+            cp target/manifest.json ../state/
+            echo "Manifest generated and saved to state/manifest.json"
+            
+            # Switch back to the current commit
+            echo "Switching back to current commit"
+            cd ..
+            git checkout -
+            cd << parameters.dp-dbt-project-location >>
+            
+            echo "Running modified models and their downstream dependencies..."
+            # List the modified models
+            dbt ls --select state:modified+ --resource-type model --state ../state
+            
+            # Count how many models are modified
+            MODIFIED_COUNT=$(dbt ls --select state:modified+ --resource-type model --state ../state | wc -l)
+            MODIFIED_COUNT=$(echo $MODIFIED_COUNT | tr -d '[:space:]')
+            
+            echo "Number of modified models: $MODIFIED_COUNT"
+            
+            if [ "$MODIFIED_COUNT" -gt 0 ]; then
+              echo "Running modified models:"
+              # Run the modified models
+              dbt run --select state:modified+ --state ../state --full-refresh
+              
+              if [ $? -ne 0 ]; then
+                echo "ERROR: Failed to run modified dbt models"
+                exit 1
+              fi
+              
+              echo "Successfully ran all modified models and their dependencies"
+            else
+              echo "No models were modified. Nothing to run."
+            fi
   deploy-dbt-project:
     parameters:
       dp-dbt-project-location:
@@ -234,10 +371,6 @@ workflows:
                 - main
                 - /pull\/.*/
       - config-splitting/setup-dynamic-config:
-          filters:
-            branches:
-              only:
-                - main
           context:
             - dbt-data-products-prd01
           force-all: << pipeline.parameters.force-all >>
