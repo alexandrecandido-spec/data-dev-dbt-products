@@ -40,7 +40,7 @@ jobs:
     steps:
       - test-dbt-project:
           dp-dbt-project-location: "nubeproduct"
-      - run: echo 'Deployed Nubeproduct DBT Project into S3 Airflow Artifacts Bucket'
+          skip-tests: << pipeline.parameters.dags-only-changes >>
   bi-dbt-nubeproduct:
     docker:
       - image: 'cimg/python:3.9'

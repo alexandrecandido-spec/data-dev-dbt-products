@@ -8,8 +8,9 @@ jobs:
     docker:
       - image: 'cimg/python:3.9'
     steps:
-      - run: echo << pipeline.parameters.dags-only-changes >>
-      - run: echo 'Changes on dags do not trigger dbt test, but this job runs to satisfy GitHub required checks'
+      - test-dbt-project:
+          dp-dbt-project-location: "nubeproduct"
+          skip-tests: << pipeline.parameters.dags-only-changes >>
   bi-dags-nubeproduct:
     docker:
       - image: 'cimg/python:3.9'

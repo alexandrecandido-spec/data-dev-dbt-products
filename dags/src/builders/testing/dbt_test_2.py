@@ -16,7 +16,7 @@ default_args = {
     'on_failure_callback': task_fail_slack_alert_bi
 }
 
-# Crear el DAG!
+# Crear el DAG!!
 dag = create_dbt_dag(
     dag_id='dbt_test_2',
     schedule_interval_tag='manual',
