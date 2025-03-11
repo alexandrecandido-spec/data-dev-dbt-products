@@ -8,7 +8,8 @@ jobs:
     docker:
       - image: 'cimg/python:3.9'
     steps:
-      - run: echo 'Changes on dags do not trigger dbt test'
+      - run: echo << pipeline.parameters.dags-only-changes >>
+      - run: echo 'Changes on dags do not trigger dbt test, but this job runs to satisfy GitHub required checks'
   bi-dags-nubeproduct:
     docker:
       - image: 'cimg/python:3.9'
@@ -19,16 +20,20 @@ jobs:
     
 
 workflows:
+  allow-merge-dags-changes-only:
+    when: << pipeline.parameters.dags-only-changes >>
+    jobs:
+      - test-dbt-nubeproduct:
+          filters:
+            branches:
+              ignore: main
+  
   bi-dbt-production:
     jobs:
       - common-pre:
           filters:
             branches:
               only: main
-      - test-dbt-nubeproduct:
-          filters:
-            branches:
-              ignore: main
       - bi-dags-nubeproduct:
           requires:
             - common-pre

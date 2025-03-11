@@ -22,6 +22,10 @@ parameters:
     description: Some string to pass
     type: string
     default: ""
+  dags-only-changes:
+    description: Flag to indicate if only dags module has changes
+    type: boolean
+    default: false
 
 # Custom commands aimed for the main workflows and jobs
 commands:
@@ -239,17 +243,7 @@ jobs:
       - image: alpine
     steps:
       - run: echo 'Jobs with `common-` prefix are intended to be shared among modules'
-  debug-branch:
-    docker:
-      - image: alpine
-    steps:
-      - run: 
-          name: Debug branch info
-          command: |
-            echo "Branch: ${CIRCLE_BRANCH}"
-            echo "PR Number: ${CIRCLE_PR_NUMBER}"
-            echo "PR Username: ${CIRCLE_PR_USERNAME}"
-            echo "PR Reponame: ${CIRCLE_PR_REPONAME}"
+
   
 workflows:
   # The setup workflow
@@ -257,12 +251,6 @@ workflows:
     when: << pipeline.parameters.run-setup >>
    
     jobs:
-      - debug-branch:
-          filters:
-            branches:
-              only:
-                - main
-                - /pull\/.*/
       - config-splitting/setup-dynamic-config:
           context:
             - dbt-data-products-prd01
@@ -319,6 +307,14 @@ orbs:
                 cat \<< EOD | sed -e '/^$/d' | while read row; do module="$(echo "$row" | awk '{ print $1 }')"; if [ << parameters.force-all >> == 'true' ] || [ $(git diff --name-only << parameters.base-revision >> "$module" | wc -l) -gt 0 ] || (! git rev-parse --verify HEAD~1) || [ $(git diff --name-only HEAD~1 "$module" | wc -l) -gt 0 ]; then echo "$row" | sed -e 's/ /\n/g' >> << parameters.modules-filtered >>; fi; done
                 << parameters.modules >>
                 EOD
+
+                # Check if only dags/src has changes and nubeproduct doesn't
+                if grep -q "dags/src" << parameters.modules-filtered >> && ! grep -q "nubeproduct" << parameters.modules-filtered >>; then
+                  echo "Only dags/src has changes, setting dags-only-changes parameter"
+                  echo '{"run-setup":false, "dags-only-changes":true}' > /tmp/continuation-params.json
+                else
+                  echo '{"run-setup":false, "dags-only-changes":false}' > /tmp/continuation-params.json
+                fi
       merge-modular-configs:
         parameters:
           modules:
@@ -406,4 +402,4 @@ orbs:
               continue-config: << parameters.continue-config >>
           - continuation/continue:
               configuration_path: << parameters.continue-config >>
-              parameters: '{"run-setup":false}'
+              parameters: /tmp/continuation-params.json
