@@ -23,6 +23,8 @@ clean-targets:         # directories to be removed by `dbt clean`
   - "dbt_packages"
   - "logs"
 
+vars:
+  'dbt_date:time_zone': 'America/Argentina/Buenos_Aires'
 
 # Configuring models
 # Full documentation: https://docs.getdbt.com/docs/configuring-models
@@ -33,7 +35,7 @@ clean-targets:         # directories to be removed by `dbt clean`
 
 models:
   nubeproduct: # project name
-    # Config indicated by + and applies to all files under models/example/
+    # Config indicated by + and applies to all files under models/example/   
 
     staging:
       +materialized: table
@@ -41,11 +43,15 @@ models:
       finance:
         +schema: finance
         +tags: ["finance"]
-        +location_root: s3://dn-lkh-products-prd01/data-dev-dbt-products/staging/finance/
+        +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/staging/finance/"
       marketing:
         +schema: marketing
         +tags: ["marketing"]
-        +location_root: s3://dn-lkh-products-prd01/data-dev-dbt-products/staging/marketing/
+        +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/staging/marketing/"
+      onboarding:
+        +schema: onboarding
+        +tags: ["onboarding"]
+        +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/staging/onboarding/"
 
     intermediate:
       +materialized: ephemeral
@@ -60,11 +66,11 @@ models:
       finance:
         +schema: finance
         +tags: ["finance"]
-        +location_root: s3://dn-lkh-products-prd01/data-dev-dbt-products/data_product/finance/
+        +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/data_product/finance/"
       marketing:
         +schema: marketing
         +tags: ["marketing"]
-        +location_root: s3://dn-lkh-products-prd01/data-dev-dbt-products/data_product/marketing/
+        +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/data_product/marketing/"
 
 vars:
   'dbt_date:time_zone': 'America/Argentina/Buenos_Aires'
