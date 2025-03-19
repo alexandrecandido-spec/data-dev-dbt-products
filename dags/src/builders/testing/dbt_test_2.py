@@ -2,7 +2,7 @@ from airflow import DAG
 
 from datetime import datetime, timedelta
 from src.core.run_dbt_custom import create_dbt_dag
-from src.core.utils.slack_manager import task_fail_slack_alert_bi # test commit dag change 2
+from src.core.utils.slack_manager import task_fail_slack_alert_bi 
 
 
 default_args = {
