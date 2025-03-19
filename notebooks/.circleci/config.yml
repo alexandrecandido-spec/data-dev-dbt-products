@@ -1,7 +1,5 @@
-# Config dedicated for module A
-# All the resources must be prefixed with `module-a-` to avoid conflicts
+# Config dedicated for module notebooks
 version: 2.1
-
 
 jobs:
   test-dbt-nubeproduct:
@@ -11,14 +9,13 @@ jobs:
       - test-dbt-project:
           dp-dbt-project-location: "nubeproduct"
           skip-tests: << pipeline.parameters.dags-or-nbks-only-changes >>
-  bi-dags-nubeproduct:
+  deploy-notebooks:
     docker:
       - image: 'cimg/python:3.9'
     steps:
-      - deploy-dp-dags:
-          dp-dags-location: "dags/src"
-      - run: echo 'Deployed DAGS for DBT Project into S3 Airflow Artifacts Bucket'
-    
+      - deploy-nbks-workspace:
+          nbk-location: "notebooks/src"
+      - run: echo 'Deployed Data Engineer Workspace Notebooks'
 
 workflows:
   allow-merge-dags-changes-only:
@@ -28,18 +25,12 @@ workflows:
           filters:
             branches:
               ignore: main
-  
-  bi-dbt-production:
+  deploy-databricks-projects:
     jobs:
-      - common-pre:
-          filters:
-            branches:
-              only: main
-      - bi-dags-nubeproduct:
+      - common-pre
+      - deploy-notebooks:
           requires:
             - common-pre
           filters:
             branches:
               only: main
-          context:
-            - dbt-data-products-prd01

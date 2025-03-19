@@ -40,7 +40,7 @@ jobs:
     steps:
       - test-dbt-project:
           dp-dbt-project-location: "nubeproduct"
-          skip-tests: << pipeline.parameters.dags-only-changes >>
+          skip-tests: << pipeline.parameters.dags-or-nbks-only-changes >>
   bi-dbt-nubeproduct:
     docker:
       - image: 'cimg/python:3.9'

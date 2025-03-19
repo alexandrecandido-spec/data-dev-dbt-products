@@ -22,13 +22,45 @@ parameters:
     description: Some string to pass
     type: string
     default: ""
-  dags-only-changes:
-    description: Flag to indicate if only dags module has changes
+  dags-or-nbks-only-changes:
+    description: Flag to indicate if only dags or notebooks module has changes
     type: boolean
     default: false
 
 # Custom commands aimed for the main workflows and jobs
 commands:
+  deploy-nbks-workspace:
+    parameters:
+      nbk-location:
+        type: string
+        description: The location of the root folder for databricks notebooks
+    steps:
+      - checkout
+      - aws-cli/setup:
+          role_arn: "arn:aws:iam::362686812061:role/CircleCIRoleForOIDC_Generic"
+          region: us-east-1
+      - run:
+                name: Handle Python version
+                command: |
+                  # Remove the .python-version file completely
+                  rm -f .python-version
+      - run:
+          name: Set Environment Variables and Databricks Configuration
+          command: |
+            secrets=$(aws secretsmanager get-secret-value --secret-id de-turbn/prd/dbkwksp-svc/dbt/01 --query SecretString --output text)
+            echo "export DATABRICKS_TOKEN=$(echo $secrets | jq -r '.ServiceToken')" >> "$BASH_ENV"
+            echo "export DATABRICKS_HOST=$(echo $secrets | jq -r '.DatabricksHost')" >> "$BASH_ENV"
+
+            echo "Databricks host is: ${DATABRICKS_HOST}"
+      - run:
+          name: Install Databricks CLI and dependencies
+          command: |
+            pip install databricks-cli==0.17.6
+            pip install urllib3==1.26.15
+      - run:
+          name: Deploy Data Product Notebooks to Data Engineer Databricks Workspace
+          command: |
+            databricks workspace import_dir << parameters.nbk-location >>  /target/dbt-products -o
   deploy-dp-dags:
     parameters:
       dp-dags-location:
@@ -273,6 +305,7 @@ workflows:
           modules: |
             nubeproduct
             dags/src
+            notebooks
 
 orbs:
   aws-cli: circleci/aws-cli@4.1.3
@@ -320,12 +353,12 @@ orbs:
                 EOD
 
                 # Check if only dags/src has changes and nubeproduct doesn't
-                if grep -q "dags/src" << parameters.modules-filtered >> && ! grep -q "nubeproduct" << parameters.modules-filtered >>; then
-                  echo "Only dags/src has changes, setting dags-only-changes parameter"
-                  echo '{"run-setup":false, "dags-only-changes":true}' > /tmp/continuation-params.json
+                if ! grep -q "nubeproduct" << parameters.modules-filtered >>; then
+                  echo "Only dags/src has changes, setting dags-or-nbks-only-changes parameter"
+                  echo '{"run-setup":false, "dags-or-nbks-only-changes":true}' > /tmp/continuation-params.json
                 else
-                  echo "Setting dags-only-changes parameter to false"
-                  echo '{"run-setup":false, "dags-only-changes":false}' > /tmp/continuation-params.json
+                  echo "Setting dags-or-nbks-only-changes parameter to false"
+                  echo '{"run-setup":false, "dags-or-nbks-only-changes":false}' > /tmp/continuation-params.json
                 fi
       merge-modular-configs:
         parameters:
