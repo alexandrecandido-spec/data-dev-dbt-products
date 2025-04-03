@@ -1,7 +1,7 @@
 {{
     config(
         materialized='incremental',
-        unique_key='order_id',
+        unique_key='id',
         on_schema_change='fail'
     )
 }}
@@ -26,7 +26,7 @@ WITH source AS (
 )
 
 SELECT 
-    TRY_CAST(external_cart_id AS BIGINT) as order_id,
+    TRY_CAST(external_cart_id AS BIGINT) as id,
     created_at
 FROM source
 

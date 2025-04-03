@@ -16,3 +16,8 @@ sources:
     schema: finances
     tables:
       - name: dp_currency_conversion
+  - name: dp_finance
+    database: null
+    schema: finance
+    tables:
+      - name: finance_exchange_rate

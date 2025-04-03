@@ -10,7 +10,7 @@ blocked_stores AS (
 stores_transactions AS (
     SELECT
         mo.store_id,
-        COUNT(mo.order_id) as tx_last_90_days
+        COUNT(mo.id) as tx_last_90_days
     FROM {{ ref('stg_finance__orders_mwp_orders') }} as mo
     WHERE 1 = 1
         AND mo.completed_at BETWEEN date_add(current_date(), -90) AND current_date()

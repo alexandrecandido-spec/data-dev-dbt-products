@@ -24,7 +24,7 @@ store_info AS (
 )
 
 SELECT
-    orders.order_id,
+    orders.id,
     orders.store_id,
     orders.created_at,
     orders.started_checkout_at,

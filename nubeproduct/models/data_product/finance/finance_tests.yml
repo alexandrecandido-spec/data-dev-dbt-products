@@ -58,3 +58,26 @@ models:
           - dbt_expectations.expect_column_values_to_be_between:
               min_value: 0
               row_condition: "orders_last_closed_month IS NOT NULL"
+  - name: finance_exchange_rate
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: 
+            - isocode
+            - processed_at
+    columns:
+      - name: isocode
+        tests:
+          - not_null
+      - name: processed_at
+        tests:
+          - not_null
+      - name: indirect_exchange_rate
+        tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              row_condition: "indirect_exchange_rate IS NOT NULL"
+      - name: direct_exchange_rate
+        tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              row_condition: "direct_exchange_rate IS NOT NULL"
