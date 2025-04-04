@@ -14,3 +14,7 @@ sources:
     schema: finance
     tables:
       - name: active_merchants
+  - name: third_party_finance
+    schema: third_party
+    tables:
+      - name: finance_exchange_rate_ars_to_usd

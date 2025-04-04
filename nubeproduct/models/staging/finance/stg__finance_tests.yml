@@ -13,10 +13,10 @@ models:
           - not_null
   - name: stg_finance__orders_mwp_orders
     columns:
-      - name: order_id
+      - name: id
         tests:
           - unique
-      - name: order_id
+      - name: id
         tests:
           - not_null
       - name: store_id
@@ -29,5 +29,8 @@ models:
         tests:
           - not_null
       - name: total_in_usd
+        tests:
+          - not_null
+      - name: total
         tests:
           - not_null

@@ -1,7 +1,7 @@
 {{
     config(
         materialized='incremental',
-        unique_key='order_id',
+        unique_key='id',
         partition_by='year_month_day_code',
         on_schema_change='fail',
         tags=["daily-morning"]
@@ -11,14 +11,16 @@
 
 WITH source AS (
     SELECT 
-        id AS order_id, 
+        id,
         created_at AS created_at,
         started_checkout AS started_checkout_at, 
         completed_contact AS completed_contact_at, 
         completed_at AS completed_at,
         cancelled_at AS cancelled_at, 
         store_id, 
-        LOWER(contact_email) AS contact_email, 
+        LOWER(contact_email) AS contact_email,
+        currency,
+        total, 
         total_in_usd, 
         storefront,
         status,
@@ -41,11 +43,11 @@ WITH source AS (
     {% endif %}
 ),
 existing_data AS (
-    {{ get_existing_data(this, ['order_id', 'sys_audit_created_on', 'sys_audit_created_by']) }}
+    {{ get_existing_data(this, ['id', 'sys_audit_created_on', 'sys_audit_created_by']) }}
 )
 
 SELECT 
-    source.order_id, 
+    source.id, 
     created_at,
     started_checkout_at, 
     completed_contact_at, 
@@ -53,6 +55,8 @@ SELECT
     cancelled_at, 
     store_id, 
     LOWER(contact_email) AS contact_email, 
+    currency,
+    total,
     total_in_usd, 
     storefront,
     status,
@@ -72,4 +76,4 @@ SELECT
     current_timestamp AS sys_audit_updated_on,
     'data-dev-dbt-products' AS sys_audit_updated_by
 FROM source
-LEFT JOIN existing_data e ON source.order_id = e.order_id
+LEFT JOIN existing_data e ON source.id = e.id

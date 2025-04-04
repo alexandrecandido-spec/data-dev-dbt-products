@@ -34,7 +34,7 @@ orders_summary as (
         DATE(orders.completed_at) AS completed_at,
         DATE(orders.created_at) AS created_at,
         SUM(orders.total_in_usd) AS gmv,
-        COUNT(orders.order_id) AS orders
+        COUNT(orders.id) AS orders
     FROM {{ ref('stg_finance__orders_mwp_orders') }} orders 
     INNER JOIN {{ ref('stg_moltres__mwp_store_info') }} store_info on orders.store_id = store_info.store_id
     WHERE 

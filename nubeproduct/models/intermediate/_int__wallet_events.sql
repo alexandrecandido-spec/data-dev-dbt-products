@@ -1,6 +1,6 @@
 WITH checkout_emails AS (
     SELECT 
-        attributes_cart_id AS order_id,
+        attributes_cart_id AS id,
         event,
         timestamp - interval '3' hour AS event_registration_at,
         attributes_contact_email AS contact_email,
