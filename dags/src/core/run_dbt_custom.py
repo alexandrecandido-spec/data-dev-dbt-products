@@ -15,7 +15,7 @@ def create_profiles_yml():
     profiles_config = {
         'nubeproduct': {
             'outputs': {
-                'dev': {
+                'prod': {
                     'catalog': None,
                     'host': dbt_conn.host,
                     'http_path': '/sql/1.0/warehouses/2f8b52bf3d2088a2',
@@ -25,7 +25,7 @@ def create_profiles_yml():
                     'type': 'databricks'
                 }
             },
-            'target': 'dev'
+            'target': 'prod'
         }
     }
     
