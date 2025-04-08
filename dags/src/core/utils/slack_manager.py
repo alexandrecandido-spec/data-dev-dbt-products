@@ -5,7 +5,7 @@ from airflow.utils.db import provide_session
 
 def task_fail_slack_alert_bi(context,slack_ids:list=[]):
     SLACK_CONN_ID = 'dbt_slack_alert'
-    channel = '#test-dbt-alerts'
+    channel = '#dbt-alerts'
     return _send_slack_alert(SLACK_CONN_ID, channel, context,slack_ids)
 
 @provide_session
@@ -25,7 +25,17 @@ def _send_slack_alert(conn_id: str, channel: str, context, slack_ids:list=[]):
     task_instance = context.get('task_instance')
     state = task_instance.state
     try_number = task_instance.try_number
-    responsible = ','.join(['<@'+str(id)+'>' for id in slack_ids])
+    
+    # Format mentions correctly based on ID format or prefix
+    responsible_mentions = []
+    for id in slack_ids:
+        # Check if the ID belongs to a group (starts with 'S' for subteam)
+        if str(id).startswith('S'):
+            responsible_mentions.append('<!subteam^'+str(id)+'>')
+        else:
+            responsible_mentions.append('<@'+str(id)+'>')
+    
+    responsible = ','.join(responsible_mentions)
     
     # Try to get DBT-specific error from XCom
     dbt_error = task_instance.xcom_pull(key='dbt_error_details')

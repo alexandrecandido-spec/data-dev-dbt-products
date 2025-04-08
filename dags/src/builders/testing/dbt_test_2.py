@@ -1,8 +1,12 @@
 from airflow import DAG
-
-from datetime import datetime, timedelta
+from airflow.models import Variable
+import ast
+from datetime import datetime
 from src.core.run_dbt_custom import create_dbt_dag
-from src.core.utils.slack_manager import task_fail_slack_alert_bi 
+from src.core.utils.slack_manager import task_fail_slack_alert_bi
+from functools import partial
+
+SLACK_IDS= ast.literal_eval(Variable.get('slack_ids_analytics_engineer_alert'))
 
 
 default_args = {
@@ -11,16 +15,13 @@ default_args = {
     'start_date': datetime(2024, 10, 1),
     'email_on_failure': False,
     'email_on_retry': False,
-    'retries': 0,
-    'retry_delay': timedelta(minutes=0),
-    'on_failure_callback': task_fail_slack_alert_bi
+    'on_failure_callback': partial(task_fail_slack_alert_bi,slack_ids=SLACK_IDS)
 }
 
-# Crear el DAG!!
+# Crear el DAG
 dag = create_dbt_dag(
     dag_id='dbt_test_2',
     schedule_interval_tag='manual',
-    initial_load=False,
     default_args=default_args,
     tags=['testing','manual']
 )

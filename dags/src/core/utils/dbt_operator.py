@@ -4,25 +4,27 @@ from datetime import datetime
 import os
 import json
 import logging
-from typing import Optional, Tuple
+from typing import Optional, Tuple, List
 import subprocess
 
 class DBTOperator(BashOperator):
     """Custom operator para ejecutar comandos DBT con capacidad de recuperación y taggeo"""
     
-    template_fields = ('bash_command', 'env')
+    template_fields = ('bash_command', 'env', 'models')
 
     def __init__(
         self,
         tags: list, 
         dbt_command: str = 'run',
         full_refresh: bool = False,
+        models: List[str] = None,
         retry: bool = False,
         *args, **kwargs
     ):
         self.tags = tags
         self.dbt_command = dbt_command
         self.full_refresh = full_refresh
+        self.models = models or []
         self.retry = retry
         self.project = "_".join(tags)
 
@@ -37,19 +39,26 @@ class DBTOperator(BashOperator):
     def _build_dbt_command(self) -> str:
         """Construye el comando DBT con los parámetros necesarios"""
         refresh_flag = '--full-refresh' if self.full_refresh else ''
-
-        tag_list = 'tag:'
-        tag_list += ',tag:'.join(self.tags)
-                
-        return f"""
+        
+        # Si se indican modelos los ejecutara especificamente, de lo contrario ejecuta todos los modelos con tags especificadas
+        if self.models and len(self.models) > 0:
+            selection = ' '.join(self.models)
+        else:
+            selection = 'tag:'
+            selection += ',tag:'.join(self.tags)
+            
+        execution = f"""
             set -e;
             source /usr/local/airflow/python3-virtualenv/dbt-env/bin/activate;
             cd /tmp/dbt/{self.project}/nubeproduct;
             dbt deps;
-            dbt {self.dbt_command} --select {tag_list} {refresh_flag} \
+            dbt {self.dbt_command} --select {selection} {refresh_flag} \
                 --project-dir /tmp/dbt/{self.project}/nubeproduct \
                 --profiles-dir /tmp/dbt;
         """
+        logging.info(f"command executed: {execution}")
+                
+        return execution
     
     def _build_dbt_repair_command(self) -> str:
         """Construye la reparación del comando DBT con los parámetros necesarios, a ser ejecutada tras el error del comando principal"""
@@ -127,6 +136,14 @@ class DBTOperator(BashOperator):
     def execute(self, context):
         """Execute the bash command with real-time output and error handling"""
         try:
+            # Update models from context if available and not already set
+            if not self.models:
+                dag_run_conf = context.get('dag_run').conf
+                if dag_run_conf and 'models' in dag_run_conf:
+                    self.models = dag_run_conf.get('models', [])
+                    # Rebuild command with updated models
+                    self.bash_command = self._build_dbt_command()
+                    
             self._save_execution_state(context)
             
             # Execute main command

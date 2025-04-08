@@ -10,9 +10,8 @@ SLACK_IDS= ast.literal_eval(Variable.get('slack_ids_analytics_engineer_alert'))
 
 
 
-
 default_args = {
-    'owner': 'Santiago Gandolfo',
+    'owner': 'Maria Rivas OConnor',
     'depends_on_past': False,
     'start_date': datetime(2024, 10, 1),
     'email_on_failure': False,
@@ -20,11 +19,11 @@ default_args = {
     'on_failure_callback': partial(task_fail_slack_alert_bi,slack_ids=SLACK_IDS)
 }
 
-
-# Crear el DAG frecuencia diaraia
+# Crear initial load on demand dag
 dag = create_dbt_dag(
-    dag_id='dbt_marketing_daily_afternoon',
-    schedule_interval_tag='daily-morning',
+    dag_id='dbt_initial_load_on_demand',
+    schedule_interval_tag='manual',
     default_args=default_args,
-    tags=['marketing', 'daily-afternoon']
+    tags=['on-demand-initial'],
+    initial_load=True
 )

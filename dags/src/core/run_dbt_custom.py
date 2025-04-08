@@ -37,9 +37,9 @@ def create_profiles_yml():
 def create_dbt_dag(
     dag_id: str,
     schedule_interval_tag: str,
-    initial_load: bool,
     default_args: dict,
-    tags: list
+    tags: list,
+    initial_load: bool = False
 ):
     """
     Función factory para crear DAGs de DBT con manejo de errores y TaskGroups
@@ -47,9 +47,9 @@ def create_dbt_dag(
     Args:
         dag_id: ID del DAG
         schedule_interval: Intervalo de ejecución
-        initial_load: Indica si la ejecución debe ser inicial o incremental
         default_args: Argumentos por defecto del DAG
         tags: Lista de etiquetas de modelos a ejecutar, condicion de tipo AND
+        initial_load: Indica si la ejecución debe ser inicial o incremental
     """
     
     """Continuar sumando condiciones de acuerdo a los schedules/tags"""
@@ -69,7 +69,10 @@ def create_dbt_dag(
         schedule_interval=schedule_interval,
         default_args=default_args,
         tags=tags,
-        catchup=False
+        catchup=False,
+        params={
+        "models": ["model_name"]    
+        }
     ) as dag:
 
         # Task de preparación
@@ -92,14 +95,17 @@ def create_dbt_dag(
                          task_id=main_task_name,
                          tags=tags,
                          dbt_command= 'run',
-                         full_refresh=initial_load
+                         full_refresh=initial_load,
+                         models=[]  # Empty by default, will be populated at runtime
+
                      )
 
         test = DBTOperator(
                          task_id='test_results',
                          tags=tags,
                          dbt_command= 'test',
-                         full_refresh=False
+                         full_refresh=False,
+                         models=[]  # Empty by default, will be populated at runtime
                      )
         
         setup >> create_profiles >> task >> test

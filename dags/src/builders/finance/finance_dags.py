@@ -1,8 +1,14 @@
 from airflow import DAG
-
-from datetime import datetime, timedelta
+from airflow.models import Variable
+import ast
+from datetime import datetime
 from src.core.run_dbt_custom import create_dbt_dag
 from src.core.utils.slack_manager import task_fail_slack_alert_bi
+from functools import partial
+
+SLACK_IDS= ast.literal_eval(Variable.get('slack_ids_analytics_engineer_alert'))
+
+
 
 default_args = {
     'owner': 'Maria Rivas OConnor',
@@ -10,16 +16,14 @@ default_args = {
     'start_date': datetime(2024, 10, 1),
     'email_on_failure': False,
     'email_on_retry': False,
-    'retries': 0,
-    'retry_delay': timedelta(minutes=3),
-    'on_failure_callback': task_fail_slack_alert_bi
+    'on_failure_callback': partial(task_fail_slack_alert_bi,slack_ids=SLACK_IDS)
+
 }
 
 # Crear el DAG frecuencia diaria
 dag = create_dbt_dag(
     dag_id='dbt_finance_daily',
     schedule_interval_tag='daily-morning',
-    initial_load=False,
     default_args=default_args,
     tags=['finance','daily-morning']
 )
@@ -28,7 +32,6 @@ dag = create_dbt_dag(
 dag = create_dbt_dag(
     dag_id='dbt_finance_monthly',
     schedule_interval_tag='monthly',
-    initial_load=False,
     default_args=default_args,
     tags=['finance','monthly']
 )
