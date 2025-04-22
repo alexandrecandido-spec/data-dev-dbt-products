@@ -4,7 +4,7 @@
         unique_key='id',
         partition_by='year_month_day_code',
         on_schema_change='fail',
-        tags=["daily-morning"]
+        tags=["finance", "daily-morning"]
     )
 }}
 
@@ -30,7 +30,7 @@ WITH source AS (
         CONCAT(CAST(DATE(completed_at) AS STRING),'-',CAST(store_id AS STRING)) order_date_store_id,
         CAST(to_date(completed_at, 'yyyyMMdd') AS STRING) AS year_month_day_code
 
-    FROM {{ source('orders', 'mwp_orders') }}
+    FROM {{ source('stg_orders', 'mwp_orders') }}
     WHERE total_in_usd <= 10000 and total_in_usd >= -10000
     
     {% if is_incremental() %}
@@ -38,7 +38,7 @@ WITH source AS (
     -- this filter will only be applied on an incremental run
     -- (uses >= to include records whose timestamp occurred since the last run of this model)
     -- (If event_time is NULL or the table is truncated, the condition will always be true and load all records)
-    AND sys_audit_updated_on >= (select coalesce(max(sys_audit_updated_on),'1900-01-01') from {{ source('orders','mwp_orders') }} )
+    AND sys_audit_updated_on >= (select coalesce(max(sys_audit_updated_on),'1900-01-01') from {{ source('stg_orders','mwp_orders') }} )
 
     {% endif %}
 ),

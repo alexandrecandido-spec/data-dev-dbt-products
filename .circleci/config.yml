@@ -141,7 +141,7 @@ commands:
                         catalog: null
                         host: dbc-ff5dddaf-fe0f.cloud.databricks.com
                         http_path: /sql/1.0/warehouses/2f8b52bf3d2088a2
-                        schema: dp
+                        schema: data
                         threads: 4
                         token: ${DBT_TOKEN}
                         type: databricks
@@ -247,7 +247,7 @@ commands:
                   catalog: null
                   host: dbc-ff5dddaf-fe0f.cloud.databricks.com
                   http_path: /sql/1.0/warehouses/2f8b52bf3d2088a2
-                  schema: dp
+                  schema: data
                   threads: 4
                   token: ${DBT_TOKEN}
                   type: databricks

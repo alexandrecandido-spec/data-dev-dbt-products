@@ -6,7 +6,7 @@ WITH ars_exchange_rate AS (
         (1/selling_rate) indirect_exchange_rate,
         selling_rate direct_exchange_rate
     FROM
-        {{ source('third_party_finance', 'finance_exchange_rate_ars_to_usd') }}
+        {{ source('int_third_party', 'finance_exchange_rate_ars_to_usd') }}
     WHERE
     processed_at >= DATE '2018-01-01'
 ),
@@ -45,7 +45,7 @@ SELECT
     END AS name,
     SUM(total_in_usd) / SUM(total) AS indirect_exchange_rate,
     SUM(total) / SUM(total_in_usd) AS direct_exchange_rate
-FROM {{ ref('stg_finance__orders_mwp_orders') }}
+FROM {{ ref('orders__mwp_orders') }}
 WHERE currency <> 'ARS'
 GROUP BY DATE(completed_at), currency
 )

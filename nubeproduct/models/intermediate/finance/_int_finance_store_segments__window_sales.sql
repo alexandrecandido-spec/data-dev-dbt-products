@@ -16,7 +16,7 @@ FROM
 		DISTINCT DATE_TRUNC('month',
 		completed_at) AS generated_date
 	FROM
-		{{ ref('stg_finance__orders_mwp_orders') }}
+		{{ ref('orders__mwp_orders') }}
 	WHERE
 		completed_at >= '2021-09-01'
 		AND completed_at <= current_date
@@ -26,7 +26,7 @@ stores AS (
 SELECT
 	DISTINCT store_id
 FROM
-	{{ ref('stg_finance__orders_mwp_orders') }}
+	{{ ref('orders__mwp_orders') }}
 WHERE
 	completed_at >= DATEADD(DAY,
   CASE WHEN {{ is_incremental() }} THEN -120 ELSE
@@ -221,7 +221,7 @@ LEFT JOIN {{ ref('finance_paid_orders_summary') }} fo ON
 LEFT JOIN {{ ref('_int_finance_store_segments__active_merchants') }} am ON
 	cs.store_id = am.store_id
 	AND ad.datemonth = am.datemonth
-INNER JOIN {{ ref('stg_moltres__mwp_store_info') }} msi ON
+INNER JOIN {{ ref('moltres__mwp_store_info') }} msi ON
 	cs.store_id = msi.store_id
 WHERE
 	ad.datemonth <= DATEADD(
