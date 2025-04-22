@@ -14,7 +14,7 @@ FROM
       months
   ) tmp
 INNER JOIN
-	{{ source('intermediate_finance', 'active_merchants') }} act
+	{{ source('int_finance', 'active_merchants') }} act
 	on
 	last_day(tmp.datemonth) = act.date
 	and act.date_id >= 20220101
@@ -23,7 +23,7 @@ WHERE
 		SELECT
 		id
 		FROM
-		{{ source('intermediate', 'mwp_plans_countries') }}
+		{{ source('int_moltres', 'mwp_plans_countries') }}
 		WHERE
 		context LIKE '%freemium%'
 		AND monthly = 0

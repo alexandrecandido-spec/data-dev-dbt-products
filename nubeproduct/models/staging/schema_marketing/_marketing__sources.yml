@@ -1,8 +1,0 @@
-version: 2
-
-sources:
-  - name: marketing
-    database: null
-    schema: marketing
-    tables:
-      - name: analytics_events

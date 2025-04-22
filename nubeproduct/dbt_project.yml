@@ -39,19 +39,10 @@ models:
 
     staging:
       +materialized: table
+      +schema: staging
       +file_format: delta
-      finance:
-        +schema: finance
-        +tags: ["finance"]
-        +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/staging/finance/"
-      marketing:
-        +schema: marketing
-        +tags: ["marketing"]
-        +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/staging/marketing/"
-      onboarding:
-        +schema: onboarding
-        +tags: ["onboarding"]
-        +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/staging/onboarding/"
+      +tags: ["core"]
+      +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/staging/"
 
     intermediate:
       +materialized: ephemeral

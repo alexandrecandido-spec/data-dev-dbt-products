@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: stg_moltres__mwp_store_info
+  - name: moltres__mwp_store_info
     columns:
       - name: store_id
         tests:
@@ -11,7 +11,7 @@ models:
       - name: created_at
         tests:
           - not_null
-  - name: stg_finance__orders_mwp_orders
+  - name: orders__mwp_orders
     columns:
       - name: id
         tests:

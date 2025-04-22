@@ -1,20 +1,18 @@
 version: 2
 
 sources:
-  - name: intermediate
+  - name: int_moltres
     database: null
     schema: moltres
     tables:
-      - name: mwp_apps
-      - name: mwp_store_settings
       - name: mwp_tags
       - name: mwp_plans_countries
-  - name: intermediate_finance
+  - name: int_finance
     database: null
     schema: finance
     tables:
       - name: active_merchants
-  - name: third_party_finance
+  - name: int_third_party
     schema: third_party
     tables:
       - name: finance_exchange_rate_ars_to_usd

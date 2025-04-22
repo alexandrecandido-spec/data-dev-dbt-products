@@ -35,8 +35,8 @@ orders_summary as (
         DATE(orders.created_at) AS created_at,
         SUM(orders.total_in_usd) AS gmv,
         COUNT(orders.id) AS orders
-    FROM {{ ref('stg_finance__orders_mwp_orders') }} orders 
-    INNER JOIN {{ ref('stg_moltres__mwp_store_info') }} store_info on orders.store_id = store_info.store_id
+    FROM {{ ref('orders__mwp_orders') }} orders 
+    INNER JOIN {{ ref('moltres__mwp_store_info') }} store_info on orders.store_id = store_info.store_id
     WHERE 
         orders.cancelled_at IS NULL
         AND completed_at IS NOT NULL
@@ -49,7 +49,7 @@ orders_summary as (
             SELECT MAX(sys_audit_updated_on) FROM dp_finance.finance_paid_orders_summary
             )
         OR orders.order_date_store_id IN (
-            SELECT DISTINCT order_date_store_id FROM {{ ref('stg_finance__orders_mwp_orders') }}
+            SELECT DISTINCT order_date_store_id FROM {{ ref('orders__mwp_orders') }}
             WHERE orders.cancelled_at >= (SELECT MAX(sys_audit_updated_on) FROM dp_finance.finance_paid_orders_summary)
             ))
 

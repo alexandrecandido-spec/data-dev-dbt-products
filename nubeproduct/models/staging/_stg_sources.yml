@@ -1,0 +1,14 @@
+version: 2
+
+sources:
+  - name: stg_moltres
+    database: null
+    schema: moltres
+    tables:
+      - name: mwp_store_info
+
+  - name: stg_orders
+    database: null
+    schema: orders
+    tables:
+      - name: mwp_orders
