@@ -3,6 +3,7 @@ WITH ars_exchange_rate AS (
         DATE(processed_at) processed_at,
         'ARS' isocode,
         'Pesos Argentinos' name,
+        'AR' as country_currency_code,
         (1/selling_rate) indirect_exchange_rate,
         selling_rate direct_exchange_rate
     FROM
@@ -43,10 +44,39 @@ SELECT
         WHEN currency = 'VES' THEN 'Bolívares Soberanos'
         WHEN currency = 'ZAR' THEN 'Rand Sudafricano'
     END AS name,
+    CASE
+        WHEN currency = 'AED' THEN 'AE'
+        WHEN currency = 'AOA' THEN 'AO'
+        --WHEN currency = 'ARS' THEN 'Pesos Argentinos'
+        WHEN currency = 'AUD' THEN 'AU'
+        WHEN currency = 'BOB' THEN 'BO'
+        WHEN currency = 'BRL' THEN 'BR'
+        WHEN currency = 'CAD' THEN 'CA'
+        WHEN currency = 'CLP' THEN 'CL'
+        WHEN currency = 'CNY' THEN 'CN'
+        WHEN currency = 'COP' THEN 'CO'
+        WHEN currency = 'CRC' THEN 'CR'
+        WHEN currency = 'EUR' THEN 'EU'
+        WHEN currency = 'GBP' THEN 'GB'
+        WHEN currency = 'GTQ' THEN 'GT'
+        WHEN currency = 'ILS' THEN 'IL'
+        WHEN currency = 'INR' THEN 'IN'
+        WHEN currency = 'JPY' THEN 'JP'
+        WHEN currency = 'MXN' THEN 'MX'
+        WHEN currency = 'PEN' THEN 'PE'
+        WHEN currency = 'PYG' THEN 'PY'
+        WHEN currency = 'RUB' THEN 'RU'
+        WHEN currency = 'SEK' THEN 'SE'
+        WHEN currency = 'USD' THEN 'US'
+        WHEN currency = 'UYU' THEN 'UY'
+        WHEN currency = 'VEF' THEN 'VE'
+        WHEN currency = 'VES' THEN ''
+        WHEN currency = 'ZAR' THEN 'ZA'
+    END AS country_currency_code,
     SUM(total_in_usd) / SUM(total) AS indirect_exchange_rate,
     SUM(total) / SUM(total_in_usd) AS direct_exchange_rate
 FROM {{ ref('orders__mwp_orders') }}
-WHERE currency <> 'ARS'
+WHERE currency not in ('ARS', 'ars')
 GROUP BY DATE(completed_at), currency
 )
 

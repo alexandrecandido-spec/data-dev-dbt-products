@@ -4,14 +4,25 @@ sources:
   - name: int_moltres
     database: null
     schema: moltres
+    description: "Intermediate tables built from raw data in the moltres schema, typically used to normalize or enrich store-level information."
     tables:
+      - name: mwp_apps
+        description: "Contains information about apps installed by merchants."
+      - name: mwp_store_settings
+        description: "Stores configuration settings such as language, currency, and other information."
       - name: mwp_tags
+        description: "List of tags assigned to stores."
       - name: mwp_plans_countries
+        description: "Maps available plans to the countries where Tiendanube / Nuvemshop offers its platform."
+      - name: mwp_shipping_carriers
+        description: "Provides details about the shipping carriers integrated or used by stores."
   - name: int_finance
     database: null
     schema: finance
+    description: "Intermediate financial data used to derive metrics related to merchant activity and billing."
     tables:
       - name: active_merchants
+        description: "List of currently active merchants, based on plan subscriptions and payment activity."
   - name: int_third_party
     schema: third_party
     tables:

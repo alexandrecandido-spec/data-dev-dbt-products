@@ -1,0 +1,237 @@
+version: 2
+models:
+  - name: finance_paid_orders_store_summary
+    description: >
+      Contains the summary of paid orders by store, including currency-related data,
+      payment gateways, shipping methods, and audit metadata.
+    columns:
+      - name: id
+        description: Unique identifier of the order.
+        tests:
+          - not_null
+          - unique
+
+      - name: store_id
+        description: Identifier of the store that got the order.
+        tests:
+          - not_null
+
+      - name: country
+        description: Store’s country.
+
+      - name: completed_at
+        description: Timestamp when the order was completed.
+
+      - name: gateway
+        description: Payment gateway used for the order.
+
+      - name: shipping_method
+        description: Shipping method selected by the customer.
+
+      - name: storefront
+        description: Storefront from which the order came
+
+      - name: currency
+        description: Original currency used in the order.
+
+      - name: country_currency
+        description: Expected local currency based on the store’s country.
+
+      - name: total
+        description: Total order amount in the original currency.
+
+      - name: shipping_cost
+        description: Shipping cost in the original currency.
+
+      - name: total_in_usd
+        description: Total amount converted to USD from orders with the currency layer API.
+
+      - name: total_in_usd_billing
+        description: Total amount converted to USD considering the dollar sell rate value for Argentina.
+
+      - name: total_in_local_currency
+        description: Total amount converted to the expected local currency considering the dollar sell rate value for Argentina..
+
+      - name: gateway_integration_type
+        description: Type of integration with the payment gateway.
+
+      - name: shipping_option
+        description: Shipping option selected.
+
+      - name: shipping_pickup_type
+        description: Type of pickup.
+
+      - name: shipping_province
+        description: Province or region to which the order was shipped.
+
+      - name: gateway_installments
+        description: Number of installments used in the payment.
+
+      - name: contact_email
+        description: Customer's contact email address.
+
+      - name: paid_at
+        description: Timestamp when the order was paid. Information obtained from the order log
+
+      - name: store_status
+        description: Current status of the store.
+
+      - name: payment
+        description: Payment details.
+
+      - name: shipping
+        description: Shipping details.
+
+      - name: platform_type
+        description: Whether it was done on or off platform.
+
+      - name: year_month_day_code
+        description: YYYYMMDD code used for partitioning the data.
+        tests:
+          - not_null
+
+      - name: is_foreign_currency
+        description: Indicates whether the payment was made in a currency different from the expected local currency.
+
+      - name: sys_audit_created_on
+        description: Timestamp when the row was initially created in the summary table.
+
+      - name: sys_audit_created_by
+        description: Source or user responsible for the initial row creation.
+
+      - name: sys_audit_updated_on
+        description: Timestamp of the latest update to the row.
+
+      - name: sys_audit_updated_by
+        description: Source or user responsible for the latest update.
+
+  - name: finance_store_gmv_and_segments
+    description: >
+      Contains monthly GMV, order metrics, and seller segmentation by store, both on and off platform,
+      over the last closed month and the past 90 days. Segments are calculated based on proportional 
+      order volume and grouped into top, large, medium, small, tiny, struggling, or no-seller.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: 
+            - datemonth
+            - store_id
+    columns:
+      - name: store_id
+        description: Unique identifier of the store.
+        tests:
+          - not_null
+
+      - name: datemonth
+        description: First day of the month used as the partition column.
+        tests:
+          - not_null
+
+      - name: country
+        description: Country where the store belongs.
+
+      - name: country_currency
+        description: Local expected currency based on the store's country.
+
+      - name: created_at
+        description: Timestamp when the store was created.
+
+      - name: proportional_segment
+        description: Store segment calculated based on a proportional formula.
+
+      - name: is_paying_merchant
+        description: Boolean indicating if the store is a paying merchant.
+
+      - name: orders_last_closed_month
+        description: Total number of orders in the last closed month.
+        tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              row_condition: "orders_last_closed_month IS NOT NULL"
+
+      - name: gmv_usd_last_closed_month
+        description: Gross Merchandise Value (GMV) in USD for the last closed month.
+
+      - name: gmv_local_currency_last_closed_month
+        description: GMV in the local currency for the last closed month.
+
+      - name: orders_general_90d
+        description: Total number of orders (on and off platform) in the last 90 days.
+
+      - name: segment
+        description: Seller segment based on all orders in the last 90 days.
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["top-seller", "large-seller", "medium-seller", "small-seller", "tiny-seller", "struggling-seller", "no-seller"]
+
+      - name: orders_on_plaftorm_last_closed_month
+        description: Number of orders made on the platform during the last closed month.
+
+      - name: gmv_usd_on_platform_last_closed_month
+        description: GMV in USD for orders made on the platform during the last closed month.
+
+      - name: gmv_local_currency_on_platform_last_closed_month
+        description: GMV in local currency for on-platform orders during the last closed month.
+
+      - name: orders_on_platform_90d
+        description: Number of on-platform orders in the last 90 days.
+
+      - name: segment_on_platform
+        description: Seller segment based on on-platform orders in the last 90 days.
+        tests:
+          - accepted_values:
+              values: ["top-seller", "large-seller", "medium-seller", "small-seller", "tiny-seller", "struggling-seller", "no-seller"]
+
+      - name: orders_off_plaftorm_last_closed_month
+        description: Number of orders made off-platform during the last closed month.
+
+      - name: gmv_usd_off_platform_last_closed_month
+        description: GMV in USD for off-platform orders during the last closed month.
+
+      - name: gmv_local_currency_off_platform_last_closed_month
+        description: GMV in local currency for off-platform orders during the last closed month.
+
+      - name: orders_off_platform_90d
+        description: Number of off-platform orders in the last 90 days.
+
+      - name: segment_off_platform
+        description: Seller segment based on off-platform orders in the last 90 days.
+        tests:
+          - accepted_values:
+              values: ["top-seller", "large-seller", "medium-seller", "small-seller", "tiny-seller", "struggling-seller", "no-seller"]
+
+      - name: sys_audit_created_on
+        description: Timestamp when the row was originally created.
+
+      - name: sys_audit_created_by
+        description: System or user that created the row.
+
+      - name: sys_audit_updated_on
+        description: Timestamp of the most recent update to the row.
+
+      - name: sys_audit_updated_by
+        description: System or user that last updated the row.
+  
+  - name: finance_exchange_rate
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: 
+            - isocode
+            - processed_at
+    columns:
+      - name: isocode
+        tests:
+          - not_null
+      - name: processed_at
+        tests:
+          - not_null
+      - name: indirect_exchange_rate
+        tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              row_condition: "indirect_exchange_rate IS NOT NULL"
+      - name: direct_exchange_rate
+        tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              row_condition: "direct_exchange_rate IS NOT NULL"
