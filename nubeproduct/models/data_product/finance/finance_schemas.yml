@@ -105,32 +105,6 @@ models:
       - name: sys_audit_updated_by
         description: Source or user responsible for the latest update.
 
-  - name: finance_paid_orders_summary
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: 
-            - store_id
-            - storefront
-            - completed_at
-    columns:
-      - name: store_id
-        tests:
-          - not_null
-      - name: storefront
-        tests:
-          - not_null
-      - name: completed_at
-        tests:
-          - not_null
-      - name: gmv_usd
-        tests:
-          - not_null
-      - name: orders
-        tests:
-          - dbt_expectations.expect_column_values_to_be_between:
-              min_value: 0
-              row_condition: "orders IS NOT NULL"
-
   - name: finance_store_gmv_and_segments
     description: >
       Contains monthly GMV, order metrics, and seller segmentation by store, both on and off platform,
