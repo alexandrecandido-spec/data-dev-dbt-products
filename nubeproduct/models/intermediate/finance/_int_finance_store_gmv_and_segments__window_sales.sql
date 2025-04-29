@@ -83,10 +83,10 @@ SELECT
 	END AS is_paying_merchant,
 	-- General (todas las órdenes)
       COALESCE(
-        SUM(
+        COUNT(
           CASE
             WHEN fo.completed_at BETWEEN DATE_TRUNC('month', ad.datemonth)
-            AND ad.datemonth THEN fo.orders
+            AND ad.datemonth THEN fo.id
           END
         ),
 	0
@@ -95,7 +95,7 @@ SELECT
         SUM(
           CASE
             WHEN fo.completed_at BETWEEN DATE_TRUNC('month', ad.datemonth)
-            AND ad.datemonth THEN fo.gmv_usd
+            AND ad.datemonth THEN fo.total_in_usd_billing
           END
         ),
 	0
@@ -105,7 +105,7 @@ SELECT
           SUM(
             CASE
               WHEN fo.completed_at BETWEEN DATE_TRUNC('month', ad.datemonth)
-              AND ad.datemonth THEN fo.gmv_local_currency
+              AND ad.datemonth THEN fo.total_in_local_currency
             END
           ),
 	2
@@ -113,21 +113,21 @@ SELECT
 	0
       ) AS gmv_local_general_month,
 	COALESCE(
-        SUM(
+        COUNT(
           CASE
             WHEN fo.completed_at BETWEEN DATEADD(DAY, -90, ad.datemonth)
-            AND ad.datemonth THEN fo.orders
+            AND ad.datemonth THEN fo.id
           END
         ),
 	0
       ) AS orders_general_90d,
 	-- On Platform (storefront en 'mobile', 'store', 'form', 'social')
       COALESCE(
-        SUM(
+        COUNT(
           CASE
             WHEN fo.storefront IN ('mobile', 'store', 'form', 'social')
             AND fo.completed_at BETWEEN DATE_TRUNC('month', ad.datemonth)
-            AND ad.datemonth THEN fo.orders
+            AND ad.datemonth THEN fo.id
           END
         ),
 	0
@@ -137,7 +137,7 @@ SELECT
           CASE
             WHEN fo.storefront IN ('mobile', 'store', 'form', 'social')
             AND fo.completed_at BETWEEN DATE_TRUNC('month', ad.datemonth)
-            AND ad.datemonth THEN fo.gmv_usd
+            AND ad.datemonth THEN fo.total_in_usd_billing
           END
         ),
 	0
@@ -148,7 +148,7 @@ SELECT
             CASE
               WHEN fo.storefront IN ('mobile', 'store', 'form', 'social')
               AND fo.completed_at BETWEEN DATE_TRUNC('month', ad.datemonth)
-              AND ad.datemonth THEN fo.gmv_local_currency
+              AND ad.datemonth THEN fo.total_in_local_currency
             END
           ),
 	2
@@ -156,23 +156,23 @@ SELECT
 	0
       ) AS gmv_local_on_platform_month,
 	COALESCE(
-        SUM(
+        COUNT(
           CASE
             WHEN fo.storefront IN ('mobile', 'store', 'form', 'social')
             AND fo.completed_at BETWEEN DATEADD(DAY, -90, ad.datemonth)
-            AND ad.datemonth THEN fo.orders
+            AND ad.datemonth THEN fo.id
           END
         ),
 	0
       ) AS orders_on_platform_90d,
 	-- Off Platform (lo contrario a On Platform)
       COALESCE(
-        SUM(
+        COUNT(
           CASE
             WHEN fo.storefront NOT IN ('mobile', 'store', 'form', 'social')
             AND fo.storefront IS NOT NULL
             AND fo.completed_at BETWEEN DATE_TRUNC('month', ad.datemonth)
-            AND ad.datemonth THEN fo.orders
+            AND ad.datemonth THEN fo.id
           END
         ),
 	0
@@ -183,7 +183,7 @@ SELECT
             WHEN fo.storefront NOT IN ('mobile', 'store', 'form', 'social')
             AND fo.storefront IS NOT NULL
             AND fo.completed_at BETWEEN DATE_TRUNC('month', ad.datemonth)
-            AND ad.datemonth THEN fo.gmv_usd
+            AND ad.datemonth THEN fo.total_in_usd_billing
           END
         ),
 	0
@@ -195,7 +195,7 @@ SELECT
               WHEN fo.storefront NOT IN ('mobile', 'store', 'form', 'social')
               AND fo.storefront IS NOT NULL
               AND fo.completed_at BETWEEN DATE_TRUNC('month', ad.datemonth)
-              AND ad.datemonth THEN fo.gmv_local_currency
+              AND ad.datemonth THEN fo.total_in_local_currency
             END
           ),
 	2
@@ -203,12 +203,12 @@ SELECT
 	0
       ) AS gmv_local_off_platform_month,
 	COALESCE(
-        SUM(
+        COUNT(
           CASE
             WHEN fo.storefront NOT IN ('mobile', 'store', 'form', 'social')
             AND fo.storefront IS NOT NULL
             AND fo.completed_at BETWEEN DATEADD(DAY, -90, ad.datemonth)
-            AND ad.datemonth THEN fo.orders
+            AND ad.datemonth THEN fo.id
           END
         ),
 	0
