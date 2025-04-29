@@ -65,7 +65,7 @@ SELECT
 	ad.datemonth,
 	cs.store_id,
 	msi.country,
-	fo.local_currency,
+	fo.country_currency,
 	DATE(msi.created_at),
     ROUND(
           GREATEST(1,
@@ -237,6 +237,6 @@ GROUP BY
 	ad.datemonth,
 	cs.store_id,
 	is_paying_merchant,
-	fo.local_currency,
+	fo.country_currency,
 	DATE(msi.created_at),
 	msi.country
