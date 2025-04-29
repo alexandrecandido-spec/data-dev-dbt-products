@@ -4,7 +4,7 @@
         unique_key='id',
         partition_by='year_month_day_code',
         on_schema_change='fail',
-        tags=["finance", "daily-morning"]
+        tags=["daily-morning"]
     )
 }}
 
@@ -27,11 +27,18 @@ WITH source AS (
         device_type,
         payment_status,
         gateway,
+        shipping_method,
+        shipping_cost,
+        shipping_option,
+        shipping_pickup_type,
+        shipping_province,
+        gateway_integration_type,
+        gateway_installments,
         CONCAT(CAST(DATE(completed_at) AS STRING),'-',CAST(store_id AS STRING)) order_date_store_id,
         CAST(to_date(completed_at, 'yyyyMMdd') AS STRING) AS year_month_day_code
 
     FROM {{ source('stg_orders', 'mwp_orders') }}
-    WHERE total_in_usd <= 10000 and total_in_usd >= -10000
+    WHERE total_in_usd <= 10000 and total_in_usd >= 0
     
     {% if is_incremental() %}
 
@@ -47,14 +54,14 @@ existing_data AS (
 )
 
 SELECT 
-    source.id, 
+    source.id,
     created_at,
     started_checkout_at, 
     completed_contact_at, 
     completed_at,
     cancelled_at, 
     store_id, 
-    LOWER(contact_email) AS contact_email, 
+    contact_email, 
     currency,
     total,
     total_in_usd, 
@@ -63,10 +70,20 @@ SELECT
     device_type,
     payment_status,
     gateway,
+    shipping_method,
+    shipping_cost,
+    shipping_option,
+    shipping_pickup_type,
+    shipping_province,
+    gateway_integration_type,
+    gateway_installments,
     order_date_store_id,
     year_month_day_code,
     CASE  
-        WHEN status != 'cancelled' AND payment_status = 'paid' THEN TRUE ELSE FALSE 
+        WHEN status != 'cancelled' 
+            AND payment_status = 'paid' 
+            AND completed_at is not null 
+        THEN TRUE ELSE FALSE 
     END AS is_paid_order,
     CASE 
         WHEN device_type IN ('computer', 'phone') THEN device_type ELSE 'other' 

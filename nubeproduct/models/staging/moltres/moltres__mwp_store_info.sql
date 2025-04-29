@@ -3,7 +3,7 @@
         materialized='incremental',
         unique_key='store_id',
         on_schema_change='fail',
-        tags=["finance", "daily-morning"]
+        tags=["daily-morning"]
     )
 }}
 
@@ -15,6 +15,7 @@ WITH source AS (
         current_segment,
         churned_at,
         created_at,
+        first_payment,
         currency,
         plan
     FROM {{ source('stg_moltres', 'mwp_store_info') }}
@@ -37,6 +38,7 @@ SELECT
     country,
     currency,
     current_segment,
+    first_payment,
     churned_at,
     created_at,
     plan,

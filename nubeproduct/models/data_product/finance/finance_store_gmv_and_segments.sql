@@ -1,8 +1,10 @@
 {{
     config(
         materialized='incremental',
-        incremental_strategy='append',
+        incremental_strategy='merge',
+        unique_key=['datemonth','store_id'],
         on_schema_change='fail',
+        partition_by='datemonth',
         tags=["monthly"]
     )
 }}
@@ -15,7 +17,7 @@ SELECT
     source.datemonth,
     source.store_id,
     country,
-    local_currency,
+    country_currency,
     created_at,
     proportional_segment,
     is_paying_merchant,
@@ -62,13 +64,15 @@ SELECT
     COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by,
     current_timestamp AS sys_audit_updated_on,
     'data-dev-dbt-products' AS sys_audit_updated_by
-FROM {{ ref('_int_finance_store_segments__window_sales') }} source 
+FROM {{ ref('_int_finance_store_gmv_and_segments__window_sales') }} source 
 LEFT JOIN existing_data e ON source.store_id = e.store_id and source.datemonth = e.datemonth
 WHERE is_paying_merchant = 1 OR (is_paying_merchant=0 AND orders_general_90d>0) and 
 {% if not is_incremental() %}
-    source.datemonth > '2022-01-01'
+    source.datemonth >= '2022-01-01'
 {% endif %}
 {% if is_incremental() %}
-    source.datemonth > (SELECT MAX(datemonth) AS max_datemonth
-                        FROM dp_finance.finance_store_segments)
+    source.datemonth > COALESCE(
+            (SELECT MAX(datemonth) FROM {{ this }}),
+            last_day(add_months(current_date(), -1))
+        )
 {% endif %}
