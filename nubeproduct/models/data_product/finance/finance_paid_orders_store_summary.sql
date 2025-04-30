@@ -5,7 +5,7 @@
         incremental_strategy='merge',
         on_schema_change='fail',
         partition_by='year_month_day_code',
-        tags=["finance","daily-morning"]
+        tags=["daily-morning"]
     )
 }}
 

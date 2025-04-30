@@ -5,7 +5,7 @@
         unique_key=['datemonth','store_id'],
         on_schema_change='fail',
         partition_by='datemonth',
-        tags=["finance", "monthly"]
+        tags=["monthly"]
     )
 }}
 
