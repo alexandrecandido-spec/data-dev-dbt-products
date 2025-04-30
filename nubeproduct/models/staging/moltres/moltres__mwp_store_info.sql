@@ -3,7 +3,7 @@
         materialized='incremental',
         unique_key='store_id',
         on_schema_change='fail',
-        tags=["daily-morning"]
+        tags=["finance","daily-morning"]
     )
 }}
 
