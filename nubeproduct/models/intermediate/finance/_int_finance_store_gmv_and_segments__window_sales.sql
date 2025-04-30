@@ -14,12 +14,12 @@ FROM
 	(
 	SELECT
 		DISTINCT DATE_TRUNC('month',
-		completed_at) AS generated_date
+		DATE(completed_at)) AS generated_date
 	FROM
 		{{ ref('orders__mwp_orders') }}
 	WHERE
-		completed_at >= '2021-09-01'
-		AND completed_at <= current_date
+		DATE(completed_at) >= '2021-09-01'
+		AND DATE(completed_at) <= DATE(current_date)
         )
     ),
 stores AS (
@@ -28,7 +28,7 @@ SELECT
 FROM
 	{{ ref('orders__mwp_orders') }}
 WHERE
-	completed_at >= DATEADD(DAY,
+	DATE(completed_at) >= DATEADD(DAY,
   CASE WHEN {{ is_incremental() }} THEN -120 ELSE
 	-1460
   END,
@@ -85,7 +85,7 @@ SELECT
       COALESCE(
         COUNT(
           CASE
-            WHEN fo.completed_at BETWEEN DATE_TRUNC('month', ad.datemonth)
+            WHEN DATE(fo.completed_at) BETWEEN DATE_TRUNC('month', ad.datemonth)
             AND ad.datemonth THEN fo.id
           END
         ),
@@ -94,7 +94,7 @@ SELECT
 	COALESCE(
         SUM(
           CASE
-            WHEN fo.completed_at BETWEEN DATE_TRUNC('month', ad.datemonth)
+            WHEN DATE(fo.completed_at) BETWEEN DATE_TRUNC('month', ad.datemonth)
             AND ad.datemonth THEN fo.total_in_usd_billing
           END
         ),
@@ -104,7 +104,7 @@ SELECT
         ROUND(
           SUM(
             CASE
-              WHEN fo.completed_at BETWEEN DATE_TRUNC('month', ad.datemonth)
+              WHEN DATE(fo.completed_at) BETWEEN DATE_TRUNC('month', ad.datemonth)
               AND ad.datemonth THEN fo.total_in_local_currency
             END
           ),
@@ -115,7 +115,7 @@ SELECT
 	COALESCE(
         COUNT(
           CASE
-            WHEN fo.completed_at BETWEEN DATEADD(DAY, -90, ad.datemonth)
+            WHEN DATE(fo.completed_at) BETWEEN DATEADD(DAY, -90, ad.datemonth)
             AND ad.datemonth THEN fo.id
           END
         ),
@@ -126,7 +126,7 @@ SELECT
         COUNT(
           CASE
             WHEN fo.storefront IN ('mobile', 'store', 'form', 'social')
-            AND fo.completed_at BETWEEN DATE_TRUNC('month', ad.datemonth)
+            AND DATE(fo.completed_at) BETWEEN DATE_TRUNC('month', ad.datemonth)
             AND ad.datemonth THEN fo.id
           END
         ),
@@ -136,7 +136,7 @@ SELECT
         SUM(
           CASE
             WHEN fo.storefront IN ('mobile', 'store', 'form', 'social')
-            AND fo.completed_at BETWEEN DATE_TRUNC('month', ad.datemonth)
+            AND DATE(fo.completed_at) BETWEEN DATE_TRUNC('month', ad.datemonth)
             AND ad.datemonth THEN fo.total_in_usd_billing
           END
         ),
@@ -147,7 +147,7 @@ SELECT
           SUM(
             CASE
               WHEN fo.storefront IN ('mobile', 'store', 'form', 'social')
-              AND fo.completed_at BETWEEN DATE_TRUNC('month', ad.datemonth)
+              AND DATE(fo.completed_at) BETWEEN DATE_TRUNC('month', ad.datemonth)
               AND ad.datemonth THEN fo.total_in_local_currency
             END
           ),
@@ -159,7 +159,7 @@ SELECT
         COUNT(
           CASE
             WHEN fo.storefront IN ('mobile', 'store', 'form', 'social')
-            AND fo.completed_at BETWEEN DATEADD(DAY, -90, ad.datemonth)
+            AND DATE(fo.completed_at) BETWEEN DATEADD(DAY, -90, ad.datemonth)
             AND ad.datemonth THEN fo.id
           END
         ),
@@ -171,7 +171,7 @@ SELECT
           CASE
             WHEN fo.storefront NOT IN ('mobile', 'store', 'form', 'social')
             AND fo.storefront IS NOT NULL
-            AND fo.completed_at BETWEEN DATE_TRUNC('month', ad.datemonth)
+            AND DATE(fo.completed_at) BETWEEN DATE_TRUNC('month', ad.datemonth)
             AND ad.datemonth THEN fo.id
           END
         ),
@@ -182,7 +182,7 @@ SELECT
           CASE
             WHEN fo.storefront NOT IN ('mobile', 'store', 'form', 'social')
             AND fo.storefront IS NOT NULL
-            AND fo.completed_at BETWEEN DATE_TRUNC('month', ad.datemonth)
+            AND DATE(fo.completed_at) BETWEEN DATE_TRUNC('month', ad.datemonth)
             AND ad.datemonth THEN fo.total_in_usd_billing
           END
         ),
@@ -194,7 +194,7 @@ SELECT
             CASE
               WHEN fo.storefront NOT IN ('mobile', 'store', 'form', 'social')
               AND fo.storefront IS NOT NULL
-              AND fo.completed_at BETWEEN DATE_TRUNC('month', ad.datemonth)
+              AND DATE(fo.completed_at) BETWEEN DATE_TRUNC('month', ad.datemonth)
               AND ad.datemonth THEN fo.total_in_local_currency
             END
           ),
@@ -207,7 +207,7 @@ SELECT
           CASE
             WHEN fo.storefront NOT IN ('mobile', 'store', 'form', 'social')
             AND fo.storefront IS NOT NULL
-            AND fo.completed_at BETWEEN DATEADD(DAY, -90, ad.datemonth)
+            AND DATE(fo.completed_at) BETWEEN DATEADD(DAY, -90, ad.datemonth)
             AND ad.datemonth THEN fo.id
           END
         ),
