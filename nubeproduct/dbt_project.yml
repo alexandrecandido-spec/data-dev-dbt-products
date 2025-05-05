@@ -48,8 +48,16 @@ models:
       +materialized: ephemeral
       finance:
         +tags: ["finance"]
+      fintech:
+        +tags: ["fintech"]
+      Logistics:
+        +tags: ["Logistics"]
       marketing:
         +tags: ["marketing"]
+      marketing:
+        +tags: ["midmarket"]
+      product:
+        +tags: ["product"]
 
     data_product:
       +materialized: table
@@ -58,10 +66,26 @@ models:
         +schema: finance
         +tags: ["finance"]
         +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/data_product/finance/"
+      fintech:
+        +schema: fintech
+        +tags: ["fintech"]
+        +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/data_product/fintech/"
+      Logistics:
+        +schema: Logistics
+        +tags: ["Logistics"]
+        +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/data_product/fintech/"
       marketing:
         +schema: marketing
         +tags: ["marketing"]
         +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/data_product/marketing/"
+      midmarket:
+        +schema: midmarket
+        +tags: ["midmarket"]
+        +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/data_product/midmarket/"
+      product:
+        +schema: product
+        +tags: ["product"]
+        +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/data_product/product/"
 
 vars:
   'dbt_date:time_zone': 'America/Argentina/Buenos_Aires'
