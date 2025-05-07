@@ -2,7 +2,7 @@
   materialized='table',
   unique_key=['id'],
   on_schema_change='fail',
-  tags=["marketing", "attribution", "daily-4:30"]
+  tags=["marketing", "attribution", "daily-4:30am"]
 ) }}
 
 SELECT

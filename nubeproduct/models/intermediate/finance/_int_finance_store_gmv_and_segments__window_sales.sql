@@ -14,12 +14,12 @@ FROM
 	(
 	SELECT
 		DISTINCT DATE_TRUNC('month',
-		completed_at) AS generated_date
+		DATE(completed_at)) AS generated_date
 	FROM
 		{{ ref('orders__mwp_orders') }}
 	WHERE
-		completed_at >= '2021-09-01'
-		AND completed_at <= current_date
+		DATE(completed_at) >= '2021-09-01'
+		AND DATE(completed_at) <= DATE(current_date)
         )
     ),
 stores AS (
@@ -28,7 +28,7 @@ SELECT
 FROM
 	{{ ref('orders__mwp_orders') }}
 WHERE
-	completed_at >= DATEADD(DAY,
+	DATE(completed_at) >= DATEADD(DAY,
   CASE WHEN {{ is_incremental() }} THEN -120 ELSE
 	-1460
   END,
@@ -44,7 +44,7 @@ UNION
 SELECT
 	DISTINCT store_id
 FROM
-	{{ ref('_int_finance_store_segments__active_merchants') }}
+	{{ ref('_int_finance_store_gmv_and_segments__active_merchants') }}
     ),
     
     
@@ -58,14 +58,14 @@ UNION
 SELECT
 	DISTINCT datemonth
 FROM
-	{{ ref('_int_finance_store_segments__active_merchants') }}
+	{{ ref('_int_finance_store_gmv_and_segments__active_merchants') }}
     )
 
 SELECT
 	ad.datemonth,
 	cs.store_id,
 	msi.country,
-	fo.local_currency,
+	fo.country_currency,
 	DATE(msi.created_at),
     ROUND(
           GREATEST(1,
@@ -74,19 +74,19 @@ SELECT
         ) AS proportional,
 	CASE
 		WHEN DATEDIFF(ad.datemonth,
-		msi.created_at) < 90 THEN 1
-		ELSE 0
+		msi.created_at) < 90 THEN TRUE
+		ELSE FALSE
 	END AS proportional_segment,
 	CASE
-		WHEN am.store_id IS NOT NULL THEN 1
-		ELSE 0
+		WHEN am.store_id IS NOT NULL THEN TRUE
+		ELSE FALSE
 	END AS is_paying_merchant,
 	-- General (todas las órdenes)
       COALESCE(
-        SUM(
+        COUNT(
           CASE
-            WHEN fo.completed_at BETWEEN DATE_TRUNC('month', ad.datemonth)
-            AND ad.datemonth THEN fo.orders
+            WHEN DATE(fo.completed_at) BETWEEN DATE_TRUNC('month', ad.datemonth)
+            AND ad.datemonth THEN fo.id
           END
         ),
 	0
@@ -94,8 +94,8 @@ SELECT
 	COALESCE(
         SUM(
           CASE
-            WHEN fo.completed_at BETWEEN DATE_TRUNC('month', ad.datemonth)
-            AND ad.datemonth THEN fo.gmv_usd
+            WHEN DATE(fo.completed_at) BETWEEN DATE_TRUNC('month', ad.datemonth)
+            AND ad.datemonth THEN fo.total_in_usd
           END
         ),
 	0
@@ -104,8 +104,8 @@ SELECT
         ROUND(
           SUM(
             CASE
-              WHEN fo.completed_at BETWEEN DATE_TRUNC('month', ad.datemonth)
-              AND ad.datemonth THEN fo.gmv_local_currency
+              WHEN DATE(fo.completed_at) BETWEEN DATE_TRUNC('month', ad.datemonth)
+              AND ad.datemonth THEN fo.total
             END
           ),
 	2
@@ -113,21 +113,21 @@ SELECT
 	0
       ) AS gmv_local_general_month,
 	COALESCE(
-        SUM(
+        COUNT(
           CASE
-            WHEN fo.completed_at BETWEEN DATEADD(DAY, -90, ad.datemonth)
-            AND ad.datemonth THEN fo.orders
+            WHEN DATE(fo.completed_at) BETWEEN DATEADD(DAY, -90, ad.datemonth)
+            AND ad.datemonth THEN fo.id
           END
         ),
 	0
       ) AS orders_general_90d,
 	-- On Platform (storefront en 'mobile', 'store', 'form', 'social')
       COALESCE(
-        SUM(
+        COUNT(
           CASE
-            WHEN fo.storefront IN ('mobile', 'store', 'form', 'social')
-            AND fo.completed_at BETWEEN DATE_TRUNC('month', ad.datemonth)
-            AND ad.datemonth THEN fo.orders
+            WHEN fo.platform_type = 'on'
+            AND DATE(fo.completed_at) BETWEEN DATE_TRUNC('month', ad.datemonth)
+            AND ad.datemonth THEN fo.id
           END
         ),
 	0
@@ -135,9 +135,9 @@ SELECT
 	COALESCE(
         SUM(
           CASE
-            WHEN fo.storefront IN ('mobile', 'store', 'form', 'social')
-            AND fo.completed_at BETWEEN DATE_TRUNC('month', ad.datemonth)
-            AND ad.datemonth THEN fo.gmv_usd
+            WHEN fo.platform_type = 'on'
+            AND DATE(fo.completed_at) BETWEEN DATE_TRUNC('month', ad.datemonth)
+            AND ad.datemonth THEN fo.total_in_usd
           END
         ),
 	0
@@ -146,9 +146,9 @@ SELECT
         ROUND(
           SUM(
             CASE
-              WHEN fo.storefront IN ('mobile', 'store', 'form', 'social')
-              AND fo.completed_at BETWEEN DATE_TRUNC('month', ad.datemonth)
-              AND ad.datemonth THEN fo.gmv_local_currency
+              WHEN fo.platform_type = 'on'
+              AND DATE(fo.completed_at) BETWEEN DATE_TRUNC('month', ad.datemonth)
+              AND ad.datemonth THEN fo.total
             END
           ),
 	2
@@ -156,23 +156,23 @@ SELECT
 	0
       ) AS gmv_local_on_platform_month,
 	COALESCE(
-        SUM(
+        COUNT(
           CASE
-            WHEN fo.storefront IN ('mobile', 'store', 'form', 'social')
-            AND fo.completed_at BETWEEN DATEADD(DAY, -90, ad.datemonth)
-            AND ad.datemonth THEN fo.orders
+            WHEN fo.platform_type = 'on'
+            AND DATE(fo.completed_at) BETWEEN DATEADD(DAY, -90, ad.datemonth)
+            AND ad.datemonth THEN fo.id
           END
         ),
 	0
       ) AS orders_on_platform_90d,
 	-- Off Platform (lo contrario a On Platform)
       COALESCE(
-        SUM(
+        COUNT(
           CASE
-            WHEN fo.storefront NOT IN ('mobile', 'store', 'form', 'social')
+            WHEN fo.platform_type = 'off'
             AND fo.storefront IS NOT NULL
-            AND fo.completed_at BETWEEN DATE_TRUNC('month', ad.datemonth)
-            AND ad.datemonth THEN fo.orders
+            AND DATE(fo.completed_at) BETWEEN DATE_TRUNC('month', ad.datemonth)
+            AND ad.datemonth THEN fo.id
           END
         ),
 	0
@@ -180,10 +180,10 @@ SELECT
 	COALESCE(
         SUM(
           CASE
-            WHEN fo.storefront NOT IN ('mobile', 'store', 'form', 'social')
+            WHEN fo.platform_type = 'off'
             AND fo.storefront IS NOT NULL
-            AND fo.completed_at BETWEEN DATE_TRUNC('month', ad.datemonth)
-            AND ad.datemonth THEN fo.gmv_usd
+            AND DATE(fo.completed_at) BETWEEN DATE_TRUNC('month', ad.datemonth)
+            AND ad.datemonth THEN fo.total_in_usd
           END
         ),
 	0
@@ -192,10 +192,10 @@ SELECT
         ROUND(
           SUM(
             CASE
-              WHEN fo.storefront NOT IN ('mobile', 'store', 'form', 'social')
+              WHEN fo.platform_type = 'off'
               AND fo.storefront IS NOT NULL
-              AND fo.completed_at BETWEEN DATE_TRUNC('month', ad.datemonth)
-              AND ad.datemonth THEN fo.gmv_local_currency
+              AND DATE(fo.completed_at) BETWEEN DATE_TRUNC('month', ad.datemonth)
+              AND ad.datemonth THEN fo.total
             END
           ),
 	2
@@ -203,12 +203,12 @@ SELECT
 	0
       ) AS gmv_local_off_platform_month,
 	COALESCE(
-        SUM(
+        COUNT(
           CASE
-            WHEN fo.storefront NOT IN ('mobile', 'store', 'form', 'social')
+            WHEN fo.platform_type = 'off'
             AND fo.storefront IS NOT NULL
-            AND fo.completed_at BETWEEN DATEADD(DAY, -90, ad.datemonth)
-            AND ad.datemonth THEN fo.orders
+            AND DATE(fo.completed_at) BETWEEN DATEADD(DAY, -90, ad.datemonth)
+            AND ad.datemonth THEN fo.id
           END
         ),
 	0
@@ -216,9 +216,9 @@ SELECT
 FROM
 	all_dates ad
 CROSS JOIN combined_stores cs
-LEFT JOIN {{ ref('finance_paid_orders_summary') }} fo ON
+LEFT JOIN {{ ref('finance_paid_orders_store_summary') }} fo ON
 	cs.store_id = fo.store_id
-LEFT JOIN {{ ref('_int_finance_store_segments__active_merchants') }} am ON
+LEFT JOIN {{ ref('_int_finance_store_gmv_and_segments__active_merchants') }} am ON
 	cs.store_id = am.store_id
 	AND ad.datemonth = am.datemonth
 INNER JOIN {{ ref('moltres__mwp_store_info') }} msi ON
@@ -237,6 +237,6 @@ GROUP BY
 	ad.datemonth,
 	cs.store_id,
 	is_paying_merchant,
-	fo.local_currency,
+	fo.country_currency,
 	DATE(msi.created_at),
 	msi.country
