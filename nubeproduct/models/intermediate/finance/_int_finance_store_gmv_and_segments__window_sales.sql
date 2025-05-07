@@ -74,12 +74,12 @@ SELECT
         ) AS proportional,
 	CASE
 		WHEN DATEDIFF(ad.datemonth,
-		msi.created_at) < 90 THEN 1
-		ELSE 0
+		msi.created_at) < 90 THEN TRUE
+		ELSE FALSE
 	END AS proportional_segment,
 	CASE
-		WHEN am.store_id IS NOT NULL THEN 1
-		ELSE 0
+		WHEN am.store_id IS NOT NULL THEN TRUE
+		ELSE FALSE
 	END AS is_paying_merchant,
 	-- General (todas las órdenes)
       COALESCE(
@@ -95,7 +95,7 @@ SELECT
         SUM(
           CASE
             WHEN DATE(fo.completed_at) BETWEEN DATE_TRUNC('month', ad.datemonth)
-            AND ad.datemonth THEN fo.total_in_usd_billing
+            AND ad.datemonth THEN fo.total_in_usd
           END
         ),
 	0
@@ -105,7 +105,7 @@ SELECT
           SUM(
             CASE
               WHEN DATE(fo.completed_at) BETWEEN DATE_TRUNC('month', ad.datemonth)
-              AND ad.datemonth THEN fo.total_in_local_currency
+              AND ad.datemonth THEN fo.total
             END
           ),
 	2
@@ -125,7 +125,7 @@ SELECT
       COALESCE(
         COUNT(
           CASE
-            WHEN fo.storefront IN ('mobile', 'store', 'form', 'social')
+            WHEN fo.platform_type = 'on'
             AND DATE(fo.completed_at) BETWEEN DATE_TRUNC('month', ad.datemonth)
             AND ad.datemonth THEN fo.id
           END
@@ -135,9 +135,9 @@ SELECT
 	COALESCE(
         SUM(
           CASE
-            WHEN fo.storefront IN ('mobile', 'store', 'form', 'social')
+            WHEN fo.platform_type = 'on'
             AND DATE(fo.completed_at) BETWEEN DATE_TRUNC('month', ad.datemonth)
-            AND ad.datemonth THEN fo.total_in_usd_billing
+            AND ad.datemonth THEN fo.total_in_usd
           END
         ),
 	0
@@ -146,9 +146,9 @@ SELECT
         ROUND(
           SUM(
             CASE
-              WHEN fo.storefront IN ('mobile', 'store', 'form', 'social')
+              WHEN fo.platform_type = 'on'
               AND DATE(fo.completed_at) BETWEEN DATE_TRUNC('month', ad.datemonth)
-              AND ad.datemonth THEN fo.total_in_local_currency
+              AND ad.datemonth THEN fo.total
             END
           ),
 	2
@@ -158,7 +158,7 @@ SELECT
 	COALESCE(
         COUNT(
           CASE
-            WHEN fo.storefront IN ('mobile', 'store', 'form', 'social')
+            WHEN fo.platform_type = 'on'
             AND DATE(fo.completed_at) BETWEEN DATEADD(DAY, -90, ad.datemonth)
             AND ad.datemonth THEN fo.id
           END
@@ -169,7 +169,7 @@ SELECT
       COALESCE(
         COUNT(
           CASE
-            WHEN fo.storefront NOT IN ('mobile', 'store', 'form', 'social')
+            WHEN fo.platform_type = 'off'
             AND fo.storefront IS NOT NULL
             AND DATE(fo.completed_at) BETWEEN DATE_TRUNC('month', ad.datemonth)
             AND ad.datemonth THEN fo.id
@@ -180,10 +180,10 @@ SELECT
 	COALESCE(
         SUM(
           CASE
-            WHEN fo.storefront NOT IN ('mobile', 'store', 'form', 'social')
+            WHEN fo.platform_type = 'off'
             AND fo.storefront IS NOT NULL
             AND DATE(fo.completed_at) BETWEEN DATE_TRUNC('month', ad.datemonth)
-            AND ad.datemonth THEN fo.total_in_usd_billing
+            AND ad.datemonth THEN fo.total_in_usd
           END
         ),
 	0
@@ -192,10 +192,10 @@ SELECT
         ROUND(
           SUM(
             CASE
-              WHEN fo.storefront NOT IN ('mobile', 'store', 'form', 'social')
+              WHEN fo.platform_type = 'off'
               AND fo.storefront IS NOT NULL
               AND DATE(fo.completed_at) BETWEEN DATE_TRUNC('month', ad.datemonth)
-              AND ad.datemonth THEN fo.total_in_local_currency
+              AND ad.datemonth THEN fo.total
             END
           ),
 	2
@@ -205,7 +205,7 @@ SELECT
 	COALESCE(
         COUNT(
           CASE
-            WHEN fo.storefront NOT IN ('mobile', 'store', 'form', 'social')
+            WHEN fo.platform_type = 'off'
             AND fo.storefront IS NOT NULL
             AND DATE(fo.completed_at) BETWEEN DATEADD(DAY, -90, ad.datemonth)
             AND ad.datemonth THEN fo.id

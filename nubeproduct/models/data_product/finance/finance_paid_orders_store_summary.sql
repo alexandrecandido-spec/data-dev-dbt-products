@@ -5,7 +5,7 @@
         incremental_strategy='merge',
         on_schema_change='fail',
         partition_by='year_month_day_code',
-        tags=["daily-morning"]
+        tags=["daily-9am"]
     )
 }}
 
@@ -30,11 +30,11 @@ SELECT
         WHEN orders.country = 'CL' THEN 'CLP'
         ELSE orders.currency
     END AS country_currency,
-    orders.total,
+    --orders.total,
     orders.shipping_cost,
-    orders.total_in_usd,
-    orders.total_in_usd_billing,
-    orders.total_in_local_currency,
+    --orders.total_in_usd,
+    orders.total_in_usd_billing as total_in_usd,
+    orders.total_in_local_currency as total,
     orders.gateway_integration_type,
     orders.shipping_option,
     orders.shipping_pickup_type,
@@ -61,8 +61,11 @@ SELECT
     'data-dev-dbt-products' AS sys_audit_updated_by
 FROM {{ ref('_int_finance_paid_orders_store_summary__get_store_info') }} orders
 LEFT JOIN existing_data e ON orders.id = e.id
-{% if is_incremental() %}
-WHERE 
+WHERE
+{% if not is_incremental() %}
+    orders.completed_at > '2018-01-01'
+{% endif %}
+{% if is_incremental() %} 
     orders.completed_at
     >= (SELECT MAX(DATE(sys_audit_updated_on)) FROM {{ this }})
     OR orders.cancelled_at
