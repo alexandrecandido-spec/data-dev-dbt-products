@@ -4,7 +4,7 @@
         unique_key='id',
         partition_by='year_month_day_code',
         on_schema_change='fail',
-        tags=["finance","daily-morning"]
+        tags=["finance","daily-9am"]
     )
 }}
 

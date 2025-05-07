@@ -49,9 +49,9 @@ LEFT JOIN {{ source('int_moltres', 'mwp_apps') }} apps on apps.id = paid_orders.
 LEFT JOIN {{ source('int_moltres', 'mwp_shipping_carriers') }} shipping_carriers on shipping_carriers.id = paid_orders.shipping_method
 LEFT JOIN {{ source('int_moltres', 'mwp_apps') }} apps_2 on apps_2.id = shipping_carriers.app_id
 LEFT JOIN payment_date on paid_orders.id = payment_date.order_id
-LEFT JOIN {{ ref('finance_exchange_rate') }} exchange_rate on DATE(payment_date.paid_at) = DATE(exchange_rate.processed_at) 
+LEFT JOIN {{ ref('finance_exchange_rate') }} exchange_rate on DATE(paid_orders.completed_at) = DATE(exchange_rate.processed_at) 
     AND paid_orders.currency = exchange_rate.isocode
-LEFT JOIN {{ ref('finance_exchange_rate') }} exchange_rate_country on DATE(payment_date.paid_at) = DATE(exchange_rate_country.processed_at) 
+LEFT JOIN {{ ref('finance_exchange_rate') }} exchange_rate_country on DATE(paid_orders.completed_at) = DATE(exchange_rate_country.processed_at) 
     AND store_info.country = exchange_rate_country.country_currency_code
 WHERE 
     paid_orders.store_id not in (SELECT related_id FROM blocked_stores)

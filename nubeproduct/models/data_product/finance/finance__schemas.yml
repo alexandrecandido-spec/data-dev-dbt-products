@@ -37,20 +37,14 @@ models:
       - name: country_currency
         description: Expected local currency based on the store’s country.
 
-      - name: total
-        description: Total order amount in the original currency.
-
       - name: shipping_cost
         description: Shipping cost in the original currency.
 
       - name: total_in_usd
-        description: Total amount converted to USD from orders with the currency layer API.
-
-      - name: total_in_usd_billing
         description: Total amount converted to USD considering the dollar sell rate value for Argentina.
 
-      - name: total_in_local_currency
-        description: Total amount converted to the expected local currency considering the dollar sell rate value for Argentina..
+      - name: total
+        description: Total amount converted to the expected local currency considering the dollar sell rate value for Argentina.
 
       - name: gateway_integration_type
         description: Type of integration with the payment gateway.
@@ -141,17 +135,17 @@ models:
       - name: is_paying_merchant
         description: Boolean indicating if the store is a paying merchant.
 
-      - name: orders_last_closed_month
+      - name: orders_monthly
         description: Total number of orders in the last closed month.
         tests:
           - dbt_expectations.expect_column_values_to_be_between:
               min_value: 0
-              row_condition: "orders_last_closed_month IS NOT NULL"
+              row_condition: "orders_monthly IS NOT NULL"
 
-      - name: gmv_usd_last_closed_month
+      - name: gmv_usd_monthly
         description: Gross Merchandise Value (GMV) in USD for the last closed month.
 
-      - name: gmv_local_currency_last_closed_month
+      - name: gmv_local_currency_monthly
         description: GMV in the local currency for the last closed month.
 
       - name: orders_general_90d
@@ -164,13 +158,13 @@ models:
           - accepted_values:
               values: ["top-seller", "large-seller", "medium-seller", "small-seller", "tiny-seller", "struggling-seller", "no-seller"]
 
-      - name: orders_on_plaftorm_last_closed_month
+      - name: orders_on_plaftorm_monthly
         description: Number of orders made on the platform during the last closed month.
 
-      - name: gmv_usd_on_platform_last_closed_month
+      - name: gmv_usd_on_platform_monthly
         description: GMV in USD for orders made on the platform during the last closed month.
 
-      - name: gmv_local_currency_on_platform_last_closed_month
+      - name: gmv_local_currency_on_platform_monthly
         description: GMV in local currency for on-platform orders during the last closed month.
 
       - name: orders_on_platform_90d
@@ -182,13 +176,13 @@ models:
           - accepted_values:
               values: ["top-seller", "large-seller", "medium-seller", "small-seller", "tiny-seller", "struggling-seller", "no-seller"]
 
-      - name: orders_off_plaftorm_last_closed_month
+      - name: orders_off_plaftorm_monthly
         description: Number of orders made off-platform during the last closed month.
 
-      - name: gmv_usd_off_platform_last_closed_month
+      - name: gmv_usd_off_platform_monthly
         description: GMV in USD for off-platform orders during the last closed month.
 
-      - name: gmv_local_currency_off_platform_last_closed_month
+      - name: gmv_local_currency_off_platform_monthly
         description: GMV in local currency for off-platform orders during the last closed month.
 
       - name: orders_off_platform_90d

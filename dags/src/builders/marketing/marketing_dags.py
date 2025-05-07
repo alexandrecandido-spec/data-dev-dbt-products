@@ -24,7 +24,7 @@ default_args = {
 # Crear el DAG frecuencia diaraia
 dag = create_dbt_dag(
     dag_id='dbt_marketing_daily_afternoon',
-    schedule_interval_tag='daily-morning',
+    schedule_interval_tag='daily-9am',
     default_args=default_args,
     tags=['marketing', 'daily-afternoon']
 )
