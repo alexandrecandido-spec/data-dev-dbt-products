@@ -1,0 +1,9 @@
+selectors:
+  - name: marketing_attribution_models
+    description: Models with both marketing and attribution tags
+    definition:
+      intersection:
+        - method: tag
+          value: marketing
+        - method: tag
+          value: attribution
