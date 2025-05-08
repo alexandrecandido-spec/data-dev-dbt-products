@@ -23,9 +23,9 @@ default_args = {
 # Crear el DAG frecuencia diaria
 dag = create_dbt_dag(
     dag_id='dbt_finance_daily',
-    schedule_interval_tag='daily-9am',
+    schedule_interval_tag='daily-6am',
     default_args=default_args,
-    tags=['finance','daily-9am']
+    tags=['finance','daily-6am']
 )
 
 # Crear el DAG frecuencia mensual
