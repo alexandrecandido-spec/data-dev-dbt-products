@@ -16,6 +16,7 @@ sources:
         description: "Maps available plans to the countries where Tiendanube / Nuvemshop offers its platform."
       - name: mwp_shipping_carriers
         description: "Provides details about the shipping carriers integrated or used by stores."
+
   - name: int_finance
     database: null
     schema: finance
@@ -23,7 +24,11 @@ sources:
     tables:
       - name: active_merchants
         description: "List of currently active merchants, based on plan subscriptions and payment activity."
+
   - name: int_third_party
+    description: "Raw tables loaded from the ingestion of external data sources"
     schema: third_party
     tables:
       - name: finance_exchange_rate_ars_to_usd
+      - name: marketing_github_mkt_attribution
+        description: "List of marketing github issues/inputs created by the marketing team"
