@@ -32,4 +32,3 @@ sources:
       - name: finance_exchange_rate_ars_to_usd
       - name: marketing_github_mkt_attribution
         description: "List of marketing github issues/inputs created by the marketing team"
-  
