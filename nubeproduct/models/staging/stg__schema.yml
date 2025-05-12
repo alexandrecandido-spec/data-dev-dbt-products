@@ -15,6 +15,7 @@ models:
       - name: created_at
         tests:
           - not_null
+
   - name: orders__mwp_orders
     columns:
       - name: id

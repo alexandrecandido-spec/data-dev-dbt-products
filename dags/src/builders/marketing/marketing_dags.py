@@ -8,23 +8,26 @@ from functools import partial
 
 SLACK_IDS= ast.literal_eval(Variable.get('slack_ids_analytics_engineer_alert'))
 
-
-
-
 default_args = {
-    'owner': 'Santiago Gandolfo',
+    'owner': 'ronald.corcho@tiendanube.com',
     'depends_on_past': False,
-    'start_date': datetime(2024, 10, 1),
+    'start_date': datetime(2025, 5, 8),
     'email_on_failure': False,
     'email_on_retry': False,
     'on_failure_callback': partial(task_fail_slack_alert_bi,slack_ids=SLACK_IDS)
 }
 
+# Crear el DAG frecuencia diaria 4:30am
+dag = create_dbt_dag(
+    dag_id='dbt_marketing_early_daily',
+    schedule_interval_tag='daily-4:30am',
+    default_args=default_args,
+    tags=['marketing', 'daily-4:30am']
+)
 
-# Crear el DAG frecuencia diaraia
+# Crear el DAG frecuencia diaria
 dag = create_dbt_dag(
     dag_id='dbt_marketing_daily_afternoon',
-    schedule_interval_tag='daily-6am',
     default_args=default_args,
     tags=['marketing', 'daily-afternoon']
 )
