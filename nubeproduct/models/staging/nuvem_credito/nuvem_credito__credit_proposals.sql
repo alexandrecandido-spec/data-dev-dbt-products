@@ -2,7 +2,7 @@
     config(
         materialized='incremental',
         unique_key='id',
-        tags=["daily-morning"]
+        tags=["fintech", "daily-morning"]
     )
 }}
 
@@ -37,5 +37,5 @@ SELECT
         c.lending_hub,
         c.payer_id,
         c.original_contract_id
-    FROM {{ source('stg_credits', 'contracts') }} c
-    LEFT JOIN {{ source('stg_credits', 'payers') }} p ON p.id = c.payer_id
+    FROM {{ source('stg_nuvem_credito', 'contracts') }} c
+    LEFT JOIN {{ source('stg_nuvem_credito', 'payers') }} p ON p.id = c.payer_id

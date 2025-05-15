@@ -1,8 +1,8 @@
 version: 1
-
 models:
-  - name: stg_credit_proposals
-    description: "Staging model credit proposals, cleaning data."
+  - name: fintech_contracts
+    description: >
+      Contains all disbursed contracts with risk classification, policy and offer id.
     columns:
       - name: id
         description: "Unique internal identifier for each proposal."
