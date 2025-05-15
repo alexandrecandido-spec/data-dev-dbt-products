@@ -21,3 +21,10 @@ sources:
     schema: dp_finance
     tables:
       - name: finance_exchange_rate
+  - name: dp_marketing
+    database: null
+    schema: marketing
+    description: "Final marketing data products for acquisition tracking, behavioral analysis, and performance measurement."
+    tables:
+      - name: ga4_sessions_with_dimensions
+        description: "Aggregated GA4 session-level data combining login, trial, payment, engagement, and navigation information for acquisition analytics."

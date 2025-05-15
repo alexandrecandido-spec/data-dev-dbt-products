@@ -39,3 +39,91 @@ models:
       - name: total
         tests:
           - not_null
+
+
+  - name: ga4__event_info
+    description: "Staging model for GA4 events information. Includes user sessions and event metadata."
+    config:
+      meta:
+        owner: "sofia.torres@tiendanube.com"
+        domain: "marketing"
+    columns:
+      - name: unique_session
+        description: "Unique identifier for the user session."
+        tests:
+          - not_null
+      - name: event_name
+        description: "Name of the event triggered during the session."
+      - name: event_date
+        description: "Date when the event occurred."
+
+  - name: ga4__tp_info
+    description: "Staging model for trials and payments information from GA4."
+    config:
+      meta:
+        owner: "sofia.torres@tiendanube.com"
+        domain: "marketing"
+    columns:
+      - name: unique_session
+        description: "Unique identifier for the user session."
+        tests:
+          - not_null
+      - name: trial_timestamp
+        description: "Timestamp when the trial started, if available."
+      - name: payment_timestamp
+        description: "Timestamp when the payment was made, if available."
+      - name: trial_date
+        description: "Date when the trial started."
+      - name: payment_date
+        description: "Date when the payment was made."
+
+  - name: ga4__session_info
+    description: "Staging model for user sessions duration and engagement flags."
+    config:
+      meta:
+        owner: "sofia.torres@tiendanube.com"
+        domain: "marketing"
+    columns:
+      - name: unique_session
+        description: "Unique identifier for the user session."
+        tests:
+          - not_null
+      - name: start_session_time
+        description: "Timestamp when the session started."
+      - name: end_session_time
+        description: "Timestamp when the session ended."
+      - name: engage
+        description: "Engagement flag for the session."
+      - name: start_session_date
+        description: "Start date of the session."
+
+  - name: ga4__mod_pv_info
+    description: "Staging model for GA4 pageviews enriched with traffic source and landing page information."
+    config:
+      meta:
+        owner: "sofia.torres@tiendanube.com"
+        domain: "marketing"
+    columns:
+      - name: unique_session
+        description: "Unique identifier for the user session."
+        tests:
+          - not_null
+      - name: mpv_event_timestamp
+        description: "Timestamp of the pageview event."
+      - name: event_date_parsed
+        description: "Parsed event date from GA4."
+      - name: user_pseudo_id
+        description: "Anonymized identifier for the user."
+      - name: source
+        description: "Traffic source classification, taken directly from source field in mod_pv_info."
+      - name: mpv_country
+        description: "User's original country, based on mpv_country field in mod_pv_info."
+      - name: mpv_env
+        description: "Navigation environment, based on mpv_env field in mod_pv_info."
+      - name: mpv_landing_page
+        description: "Landing page of the session, extracted from mpv_landing_page field in mod_pv_info."
+      - name: mpv_last_source
+        description: "Last known traffic source for the session."
+      - name: mpv_last_medium
+        description: "Last known traffic medium for the session."
+
