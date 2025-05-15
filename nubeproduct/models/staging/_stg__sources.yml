@@ -12,3 +12,11 @@ sources:
     schema: orders
     tables:
       - name: mwp_orders
+
+  - name: stg_github_data
+    database: null
+    schema: github_data
+    tables:
+      - name: issue_events  
+      - name: issue
+      - name: issue_label
