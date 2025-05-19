@@ -39,6 +39,8 @@ SELECT
         p.collection_strategy,
         p.state as payer_state,
         'data-dev-dbt-products' AS sys_audit_created_by,
-        CURRENT_TIMESTAMP AS sys_audit_created_on
+        CURRENT_TIMESTAMP AS sys_audit_created_on,
+        'data-dev-dbt-products' AS sys_audit_updated_by,
+        CURRENT_TIMESTAMP AS sys_audit_updated_on
     FROM {{ source('stg_nuvem_credito', 'contracts') }} c
     LEFT JOIN {{ source('stg_nuvem_credito', 'payers') }} p ON p.id = c.payer_id

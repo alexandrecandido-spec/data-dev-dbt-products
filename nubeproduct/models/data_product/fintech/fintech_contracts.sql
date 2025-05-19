@@ -17,7 +17,9 @@ SELECT
             o.risk_classification
         ) AS policy_classification,
         'data-dev-dbt-products' AS sys_audit_created_by,
-        CURRENT_TIMESTAMP AS sys_audit_created_on
+        CURRENT_TIMESTAMP AS sys_audit_created_on,
+        'data-dev-dbt-products' AS sys_audit_updated_by,
+        CURRENT_TIMESTAMP AS sys_audit_updated_on
     FROM {{ ref('int_fintech_contracts_with_offer_id') }} cwo
     LEFT JOIN {{ source('dp_credito', 'engine_offers') }} o ON cwo.engine_offer_id = o.id
     LEFT JOIN {{ source('dp_credito', 'policies') }} p ON p.id_policy = o.policy_id
