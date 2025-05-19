@@ -1,8 +1,9 @@
 {{
     config(
-        materialized='incremental',
+        materialized='table',
         unique_key='id',
-        tags=["fintech", "daily-morning"]
+        on_schema_change='fail',
+        tags=["fintech", "daily-9am", "daily-4pm"]
     )
 }}
 
@@ -13,8 +14,6 @@ SELECT
         c.borrower_document,
         c.borrower_name,
         CAST(c.disbursed_at AS DATE) AS disbursed_at,
-        p.collection_strategy,
-        p.state as payer_state,
         CAST(date_trunc('month', c.disbursed_at) AS DATE) AS disbursed_month,
         CAST(c.created_at AS DATE) AS created_at,
         CAST(c.updated_at AS DATE) AS updated_at,
@@ -28,14 +27,18 @@ SELECT
             ELSE 'general'
         END AS portfolio_type,
         c.installments_number,
-        CAST(p.external_id AS INT) AS store_id,
         CAST(c.operation_total_taxes_amount AS DECIMAL(18,4)) / 100 AS operation_total_taxes_amount,
         CAST(c.operation_total_costs_amount AS DECIMAL(18,4)) / 100 AS operation_total_costs_amount,
         CAST(c.operation_gross_amount AS DECIMAL(18,4)) / 100 AS operation_gross_amount,
         CAST(c.operation_net_amount AS DECIMAL(18,4)) / 100 AS operation_net_amount,
-        c.interest_monthly_rate,
+        CAST(c.interest_monthly_rate AS DECIMAL(18,10)) AS interest_monthly_rate,
         c.lending_hub,
         c.payer_id,
-        c.original_contract_id
+        c.original_contract_id,
+        CAST(p.external_id AS INT) AS store_id,
+        p.collection_strategy,
+        p.state as payer_state,
+        'data-dev-dbt-products' AS sys_audit_created_by,
+        CURRENT_TIMESTAMP AS sys_audit_created_on
     FROM {{ source('stg_nuvem_credito', 'contracts') }} c
     LEFT JOIN {{ source('stg_nuvem_credito', 'payers') }} p ON p.id = c.payer_id
