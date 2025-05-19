@@ -36,3 +36,10 @@ sources:
         description: "Intermediate table that combines GA4 session-level data, enriched with login, trial, payment flags, engagement markers, and navigation metrics."
       - name: ga4_first_visit
         description: "Primera fecha de visita registrada para cada usuario"
+  - name: int_ga4
+    database: null
+    schema: ga4
+    description: "GA4 refined tables available in Danubio"
+    tables:
+      - name: first_visit
+        description: "Table from GA4 containing the first visit date for each user_pseudo_id."
