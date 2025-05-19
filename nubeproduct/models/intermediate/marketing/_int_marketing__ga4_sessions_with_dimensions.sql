@@ -1,7 +1,7 @@
 WITH login_sessions AS (
     SELECT DISTINCT unique_session, 1 AS login_in_session
     FROM {{ ref('ga4__event_info') }}
-    WHERE event_name LIKE '%login%'
+    WHERE event_name LIKE '%login%' AND unique_session IS NOT NULL
 ),
 
 trials AS (
@@ -35,6 +35,11 @@ classified_pageview AS (
 session_data AS (
     SELECT *
     FROM {{ ref('ga4__session_info') }}
+),
+
+first_visits AS (
+    SELECT *
+    FROM {{ ref('_int_marketing__ga4_first_visit') }}
 )
 
 SELECT 
@@ -63,7 +68,13 @@ SELECT
 
     s.engage,
     s.session_duration_minutes,
-    pps.pageviews_per_session
+    pps.pageviews_per_session,
+
+    CASE
+        WHEN fv.first_visit_date = cp.event_date THEN 'New'
+        WHEN fv.first_visit_date < cp.event_date THEN 'Returning'
+        ELSE 'Unknown'
+    END AS user_type
 
 FROM classified_pageview cp
 LEFT JOIN login_sessions ls ON cp.unique_session = ls.unique_session
@@ -71,3 +82,4 @@ LEFT JOIN trials t ON cp.unique_session = t.unique_session
 LEFT JOIN payments p ON cp.unique_session = p.unique_session
 LEFT JOIN session_data s ON cp.unique_session = s.unique_session
 LEFT JOIN pageviews_per_session pps ON cp.unique_session = pps.unique_session
+LEFT JOIN first_visits fv ON cp.user_pseudo_id = fv.user_pseudo_id

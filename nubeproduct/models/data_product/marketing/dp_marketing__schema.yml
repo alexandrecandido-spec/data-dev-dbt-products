@@ -146,7 +146,7 @@ models:
         description: "System identifier of the process that last updated this record"
 
   - name: ga4_sessions_with_dimensions
-    description: Final data product for GA4 session analysis, excluding only-login sessions, enriched with traffic source, country, environment, and engagement metrics."
+    description: "Final data product for GA4 session analysis, enriched with traffic source, country, environment, login flags, engagement status, and user classification (new vs. returning). Includes both only-login and full sessions, grouped for comparison."
     config:
       meta:
         owner: "sofia.torres@tiendanube.com"
@@ -170,6 +170,21 @@ models:
         description: "Last recorded source in the session, from mpv_last_source in mod_pv_info."
       - name: event_medium
         description: "Last recorded medium in the session, from mpv_last_medium in mod_pv_info."
+      - name: only_login_session
+        description: "Flag indicating whether the session only involved login actions (without trial or payment)."
+        tests:
+          - accepted_values:
+              values: [0, 1]
+      - name: user_type
+        description: "User classification: 'New' if the session date matches their first_visit date; 'Returning' otherwise."
+        tests:
+          - accepted_values:
+              values: ['New', 'Returning', 'Unknown']
+      - name: engage
+        description: "Engagement flag for the session, based on session_info (1 = engaged, 0 = not engaged)."
+        tests:
+          - accepted_values:
+              values: [0, 1]
       - name: distinct_user_count
         description: "Count of distinct user_pseudo_id within the session and dimension combination."
       - name: distinct_session_count

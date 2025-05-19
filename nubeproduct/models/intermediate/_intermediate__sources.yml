@@ -34,3 +34,5 @@ sources:
     tables:
       - name: ga4_sessions_with_dimensions
         description: "Intermediate table that combines GA4 session-level data, enriched with login, trial, payment flags, engagement markers, and navigation metrics."
+      - name: ga4_first_visit
+        description: "Primera fecha de visita registrada para cada usuario"

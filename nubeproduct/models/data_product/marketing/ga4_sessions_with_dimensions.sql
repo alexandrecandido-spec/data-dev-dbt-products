@@ -1,13 +1,31 @@
 {{ config(
-    materialized='incremental',
-    incremental_strategy='merge',
-    unique_key=['date', 'source_ga4_classification', 'original_user_country', 'env', 'landing_page', 'event_source', 'event_medium'],
-    tags=['daily-morning'],
-    on_schema_change='fail'
+    materialized = 'incremental',
+    incremental_strategy = 'merge',
+    unique_key = ['date', 'source_ga4_classification', 'original_user_country', 'env', 'landing_page', 'event_source', 'event_medium', 'only_login_session', 'user_type', 'engage'],
+    tags = ['ga4', 'marketing', 'daily'],
+    on_schema_change = 'fail'
 ) }}
 
 WITH base AS (
-    SELECT *
+    SELECT
+        date,
+        source_ga4_classification,
+        original_user_country,
+        env,
+        landing_page,
+        event_source,
+        event_medium,
+        user_pseudo_id,
+        unique_session,
+        login_in_session,
+        landing_is_login,
+        only_login_session,
+        engage,
+        session_duration_minutes,
+        pageviews_per_session,
+        trial,
+        payment,
+        user_type
     FROM {{ ref('_int_marketing__ga4_sessions_with_dimensions') }}
 )
 
@@ -47,6 +65,9 @@ SELECT
     landing_page,
     event_source,
     event_medium,
+    only_login_session,
+    user_type,
+    engage,
 
     COUNT(DISTINCT user_pseudo_id) AS distinct_user_count,
     COUNT(DISTINCT unique_session) AS distinct_session_count,
@@ -65,12 +86,14 @@ SELECT
     'data-dev-dbt-products' AS sys_audit_updated_by
 
 FROM base
-WHERE COALESCE(only_login_session, 0) = 0
-GROUP BY
+GROUP BY 
     date,
     source_ga4_classification,
     original_user_country,
     env,
     landing_page,
     event_source,
-    event_medium
+    event_medium,
+    only_login_session,
+    user_type,
+    engage
