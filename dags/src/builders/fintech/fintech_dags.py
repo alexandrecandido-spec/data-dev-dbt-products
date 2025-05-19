@@ -6,7 +6,7 @@ from src.core.run_dbt_custom import create_dbt_dag
 from src.core.utils.slack_manager import task_fail_slack_alert_bi
 from functools import partial
 
-SLACK_IDS= ast.literal_eval(Variable.get('slack_ids_analytics_engineer_alert'))
+SLACK_IDS= ast.literal_eval(Variable.get('slack_ids_fintech_alert'))
 
 
 
