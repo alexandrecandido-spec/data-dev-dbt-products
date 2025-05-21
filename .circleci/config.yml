@@ -396,7 +396,7 @@ orbs:
             type: string
             default: .circleci/continue-config.yml
         docker:
-          - image: cimg/python:3.12.8
+          - image: cimg/python:3.11.9
         steps:
           - checkout
           - run:

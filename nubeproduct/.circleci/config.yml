@@ -36,21 +36,21 @@ jobs:
             fi
   test-dbt-nubeproduct:
     docker:
-      - image: 'cimg/python:3.12.8'
+      - image: 'cimg/python:3.11.9'
     steps:
       - test-dbt-project:
           dp-dbt-project-location: "nubeproduct"
           skip-tests: << pipeline.parameters.dags-or-nbks-only-changes >>
   bi-dbt-nubeproduct:
     docker:
-      - image: 'cimg/python:3.12.8'
+      - image: 'cimg/python:3.11.9'
     steps:
       - deploy-dbt-project:
           dp-dbt-project-location: "nubeproduct"
       - run: echo 'Deployed Nubeproduct DBT Project into S3 Airflow Artifacts Bucket'
   upload-and-clean-seeds:
     docker:
-      - image: 'cimg/python:3.12.8'
+      - image: 'cimg/python:3.11.9'
     steps:
       - add_ssh_keys:
           fingerprints:
