@@ -216,7 +216,7 @@ SELECT
 FROM
 	all_dates ad
 CROSS JOIN combined_stores cs
-LEFT JOIN {{ ref('finance_paid_orders_store_summary') }} fo ON
+LEFT JOIN {{ ref('finance_paid_orders') }} fo ON
 	cs.store_id = fo.store_id
 LEFT JOIN {{ ref('_int_finance_store_gmv_and_segments__active_merchants') }} am ON
 	cs.store_id = am.store_id

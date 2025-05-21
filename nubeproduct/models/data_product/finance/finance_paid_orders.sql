@@ -59,7 +59,7 @@ SELECT
     COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by,
     current_timestamp AS sys_audit_updated_on,
     'data-dev-dbt-products' AS sys_audit_updated_by
-FROM {{ ref('_int_finance_paid_orders_store_summary__get_store_info') }} orders
+FROM {{ ref('_int_finance_paid_orders__get_store_info') }} orders
 LEFT JOIN existing_data e ON orders.id = e.id
 WHERE
 {% if not is_incremental() %}

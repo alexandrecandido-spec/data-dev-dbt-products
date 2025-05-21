@@ -36,18 +36,66 @@ jobs:
             fi
   test-dbt-nubeproduct:
     docker:
-      - image: 'cimg/python:3.9'
+      - image: 'cimg/python:3.12.8'
     steps:
       - test-dbt-project:
           dp-dbt-project-location: "nubeproduct"
           skip-tests: << pipeline.parameters.dags-or-nbks-only-changes >>
   bi-dbt-nubeproduct:
     docker:
-      - image: 'cimg/python:3.9'
+      - image: 'cimg/python:3.12.8'
     steps:
       - deploy-dbt-project:
           dp-dbt-project-location: "nubeproduct"
       - run: echo 'Deployed Nubeproduct DBT Project into S3 Airflow Artifacts Bucket'
+  upload-and-clean-seeds:
+    docker:
+      - image: 'cimg/python:3.12.8'
+    steps:
+      - add_ssh_keys:
+          fingerprints:
+            - "SHA256:FpEJk6Zv654Vi8ROSs6KlwxRAXwHO8fGbu6oObvrAOg"
+      - checkout
+      - aws-cli/setup:
+          role_arn: "arn:aws:iam::362686812061:role/CircleCIRoleForOIDC_Generic"
+          region: us-east-1
+      - run:
+          name: Handle Python version
+          command: |
+            # Remove the .python-version file completely
+            rm -f .python-version
+      - run:
+          name: Setup DBT environment
+          command: |
+            pip install dbt-core dbt-databricks
+      - create-dbt-profiles
+      - run:
+          name: Run DBT deps
+          command: |
+            cd nubeproduct
+            dbt deps
+      - run:
+          name: Run DBT seeds
+          command: |
+            cd nubeproduct
+            dbt seed --target prod
+      - run:
+          name: Remove csv files from repo
+          command: |
+            SEEDS_DIR="nubeproduct/seeds"
+            CSV_COUNT=$(find "$SEEDS_DIR" -type f -name "*.csv" | wc -l)
+            if [ -d "$SEEDS_DIR" ] && [ "$CSV_COUNT" -gt 0 ]; then
+              echo "Files uploaded. Removing CSVs from repo..."
+              find $SEEDS_DIR -type f -name "*.csv" -exec git rm --cached {} \;
+              find $SEEDS_DIR -type f -name "*.csv" -exec rm {} \;
+              git config user.email "data-arch@tiendanube.com"
+              git config user.name "DBT-svc"
+              git remote set-url origin git@github.com:TiendaNube/data-dev-dbt-products.git
+              git commit -am "CI: Remove processed CSV seed files from repo"
+              git push origin $(git rev-parse --abbrev-ref HEAD)
+            else
+              echo "No csv files to be removed."
+            fi
 
 workflows:
   nubeproduct-dbt-production:
@@ -67,7 +115,15 @@ workflows:
               ignore: main
           context:
             - dbt-data-products-prd01
+      - upload-and-clean-seeds:
+          filters:
+            branches:
+              only: main
+          context:
+            - dbt-data-products-prd01
       - bi-dbt-nubeproduct:
+          requires:
+            - upload-and-clean-seeds
           filters:
             branches:
               only: main

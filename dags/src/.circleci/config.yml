@@ -6,14 +6,14 @@ version: 2.1
 jobs:
   test-dbt-nubeproduct:
     docker:
-      - image: 'cimg/python:3.9'
+      - image: 'cimg/python:3.12.8'
     steps:
       - test-dbt-project:
           dp-dbt-project-location: "nubeproduct"
           skip-tests: << pipeline.parameters.dags-or-nbks-only-changes >>
   bi-dags-nubeproduct:
     docker:
-      - image: 'cimg/python:3.9'
+      - image: 'cimg/python:3.12.8'
     steps:
       - deploy-dp-dags:
           dp-dags-location: "dags/src"
