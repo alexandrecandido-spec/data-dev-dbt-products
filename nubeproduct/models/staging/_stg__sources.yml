@@ -17,6 +17,8 @@ sources:
     database: null
     schema: github_data
     tables:
-      - name: issue_events  
-      - name: issue
+      - name: issue_events 
       - name: issue_label
+      - name: issue_store
+      - name: issue
+      - name: store_impact

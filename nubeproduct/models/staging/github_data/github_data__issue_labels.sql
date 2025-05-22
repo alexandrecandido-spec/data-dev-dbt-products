@@ -36,7 +36,7 @@ FROM
             concat_ws('; ', collect_list(CASE WHEN name IN ('1 - WIP - Identificando problema', '2 - WIP - Entendiendo solución', '3 - WIP - Ejecutando solución', '4 - WIP - Monitoreando solución') THEN name END)) AS labels_wip,
             concat_ws('; ', collect_list(CASE WHEN name IN ('No Quick Fix', 'Quick Fix', 'Quickfix') THEN name END)) AS labels_quick_fix
         FROM
-            {{ source('stg_github_data', 'issue_label') }} l  -- Corregido: sin la palabra clave FROM
+            {{ source('stg_github_data', 'issue_label') }} l  
         GROUP BY
             repo_name,
             issue_number

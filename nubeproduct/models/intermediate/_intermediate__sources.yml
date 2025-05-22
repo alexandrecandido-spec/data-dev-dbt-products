@@ -27,3 +27,15 @@ sources:
     schema: third_party
     tables:
       - name: finance_exchange_rate_ars_to_usd
+      - name: midmarket_hubspot_deals
+  - name: int_github_data
+    description: "Information about Issues and Problems in Github"
+    database: null
+    schema: github_data
+    tables:
+      - name: issue
+      - name: issue_milestone
+      - name: issue_label
+      - name: issue_comment
+      - name: issue_store
+      - name: store_impact
