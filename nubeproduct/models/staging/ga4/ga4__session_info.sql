@@ -2,8 +2,8 @@
     materialized = 'incremental',
     incremental_strategy = 'merge',
     unique_key = 'unique_session',
-    partition_by = ['year_month_day_code'],
-    tags = ['ga4', 'marketing', 'daily'],
+    partition_by = ['year_month_code'],
+    tags = ['daily-5am'],
     on_schema_change = 'fail'
 ) }}
 
@@ -14,7 +14,7 @@ SELECT
     CAST(ROUND((end_session_time - start_session_time) / 60000000.0, 2) AS DECIMAL(10,2)) AS session_duration_minutes,
     engage,
     start_session_date,
-    CAST(to_char(start_session_date, 'yyyyMMdd') AS STRING) AS year_month_day_code,
+    CAST(to_char(start_session_date, 'yyyyMM') AS STRING) AS year_month_code,
     current_timestamp AS sys_audit_created_on,
     'data-dev-dbt-products' AS sys_audit_created_by,
     current_timestamp AS sys_audit_updated_on,

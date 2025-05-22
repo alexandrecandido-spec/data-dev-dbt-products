@@ -1,8 +1,25 @@
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'merge',
-    unique_key = ['date', 'source_ga4_classification', 'original_user_country', 'env', 'landing_page', 'event_source', 'event_medium', 'only_login_session', 'user_type', 'engage'],
-    tags = ['ga4', 'marketing', 'daily'],
+    unique_key = [
+  'date',
+  'source_ga4_classification',
+  'original_user_country',
+  'classified_country',
+  'env',
+  'landing_page',
+  'last_source',
+  'last_medium',
+  'last_campaign',
+  'only_login_session',
+  'user_type',
+  'engage',
+  'first_event_device',
+  'last_event_device',
+  'team',
+  'subteam'
+],
+    tags = ['daily-5am'],
     on_schema_change = 'fail'
 ) }}
 
@@ -13,8 +30,9 @@ WITH base AS (
         original_user_country,
         env,
         landing_page,
-        event_source,
-        event_medium,
+        last_source,
+        last_medium,
+        last_campaign,
         user_pseudo_id,
         unique_session,
         login_in_session,
@@ -25,8 +43,12 @@ WITH base AS (
         pageviews_per_session,
         trial,
         payment,
-        user_type
-    FROM {{ ref('_int_marketing__ga4_sessions_with_dimensions') }}
+        user_type,
+        first_event_device,
+        last_event_device,
+        team,
+        subteam
+    FROM {{ ref('_int_marketing__ga4_sessions_with_team') }}
 )
 
 SELECT
@@ -63,11 +85,16 @@ SELECT
 
     env,
     landing_page,
-    event_source,
-    event_medium,
+    last_source,
+    last_medium,
+    last_campaign,
+    first_event_device,
+    last_event_device,
     only_login_session,
     user_type,
     engage,
+    team,
+    subteam,
 
     COUNT(DISTINCT user_pseudo_id) AS distinct_user_count,
     COUNT(DISTINCT unique_session) AS distinct_session_count,
@@ -86,14 +113,25 @@ SELECT
     'data-dev-dbt-products' AS sys_audit_updated_by
 
 FROM base
+WHERE 1 = 1
+  {% if is_incremental() %}
+    AND sys_audit_updated_on > (SELECT COALESCE(MAX(sys_audit_updated_on), DATE '1900-01-01') FROM {{ this }})
+  {% endif %}
+
 GROUP BY 
     date,
     source_ga4_classification,
     original_user_country,
+    classified_country,
     env,
     landing_page,
-    event_source,
-    event_medium,
+    last_source,
+    last_medium,
+    last_campaign,
+    first_event_device,
+    last_event_device,
     only_login_session,
     user_type,
-    engage
+    engage,
+    team,
+    subteam

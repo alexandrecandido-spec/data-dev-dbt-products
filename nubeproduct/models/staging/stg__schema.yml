@@ -56,6 +56,8 @@ models:
         description: "Name of the event triggered during the session."
       - name: event_date
         description: "Date when the event occurred."
+      - name: event_device
+        description: "Device category (mobile, desktop, etc.) associated with each event."
 
   - name: ga4__tp_info
     description: "Staging model for trials and payments information from GA4."
@@ -126,4 +128,7 @@ models:
         description: "Last known traffic source for the session."
       - name: mpv_last_medium
         description: "Last known traffic medium for the session."
+      - name: mpv_last_campaign
+        description: "Last recorded campaign associated with the session from GA4 pageviews."
+
 

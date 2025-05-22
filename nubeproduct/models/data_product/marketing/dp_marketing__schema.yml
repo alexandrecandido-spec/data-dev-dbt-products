@@ -166,10 +166,20 @@ models:
         description: "Navigation environment, based on mpv_env field in mod_pv_info."
       - name: landing_page
         description: "Landing page of the session, extracted from mpv_landing_page field in mod_pv_info."
-      - name: event_source
+      - name: last_source
         description: "Last recorded source in the session, from mpv_last_source in mod_pv_info."
-      - name: event_medium
+      - name: last_medium
         description: "Last recorded medium in the session, from mpv_last_medium in mod_pv_info."
+      - name: last_campaign
+        description: "Last campaign recorded for the session, derived from mod_pv_info."
+      - name: first_event_device
+        description: "First device type detected for the session, derived from event_info."
+      - name: last_event_device
+        description: "Last device type detected for the session, derived from event_info." 
+      - name: team
+        description: "Marketing team classification based on custom attribution logic."
+      - name: subteam
+        description: "Marketing subteam classification based on custom attribution logic."
       - name: only_login_session
         description: "Flag indicating whether the session only involved login actions (without trial or payment)."
         tests:

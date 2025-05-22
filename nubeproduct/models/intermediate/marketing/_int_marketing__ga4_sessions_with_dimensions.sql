@@ -40,7 +40,17 @@ session_data AS (
 first_visits AS (
     SELECT *
     FROM {{ ref('_int_marketing__ga4_first_visit') }}
+),
+
+event_devices AS (
+    SELECT
+        unique_session,
+        FIRST_VALUE(event_device) OVER (PARTITION BY unique_session ORDER BY event_date ASC) AS first_event_device,
+        FIRST_VALUE(event_device) OVER (PARTITION BY unique_session ORDER BY event_date DESC) AS last_event_device
+    FROM {{ ref('ga4__event_info') }}
+    WHERE unique_session IS NOT NULL AND event_device IS NOT NULL
 )
+
 
 SELECT 
     cp.event_date AS date,
@@ -48,10 +58,13 @@ SELECT
     cp.original_user_country,
     cp.env_pagegroup AS env,
     cp.landing_page,
-    cp.event_source,
-    cp.event_medium,
+    cp.last_source,
+    cp.last_medium,
+    cp.last_campaign,
     cp.user_pseudo_id,
     cp.unique_session,
+    ed.first_event_device,
+    ed.last_event_device,
     
     COALESCE(ls.login_in_session, 0) AS login_in_session,
     COALESCE(t.trial, 0) AS trial,
@@ -83,3 +96,5 @@ LEFT JOIN payments p ON cp.unique_session = p.unique_session
 LEFT JOIN session_data s ON cp.unique_session = s.unique_session
 LEFT JOIN pageviews_per_session pps ON cp.unique_session = pps.unique_session
 LEFT JOIN first_visits fv ON cp.user_pseudo_id = fv.user_pseudo_id
+LEFT JOIN event_devices ed ON cp.unique_session = ed.unique_session
+

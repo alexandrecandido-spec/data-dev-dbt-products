@@ -2,8 +2,7 @@
     materialized = 'incremental',
     incremental_strategy = 'merge',
     unique_key = 'unique_session',
-    partition_by = ['year_month_day_code'],
-    tags = ['ga4', 'marketing', 'daily'],
+    tags = ['daily-5am'],
     on_schema_change = 'fail'
 ) }}
 
@@ -13,7 +12,6 @@ SELECT
     payment_timestamp,
     trial_date,
     payment_date,
-    CAST(to_char(trial_date, 'yyyyMMdd') AS STRING) AS year_month_day_code,
     current_timestamp AS sys_audit_created_on,
     'data-dev-dbt-products' AS sys_audit_created_by,
     current_timestamp AS sys_audit_updated_on,
