@@ -27,17 +27,6 @@ sources:
     schema: third_party
     tables:
       - name: finance_exchange_rate_ars_to_usd
-  - name: int_marketing
-    database: null
-    schema: marketing
-    description: "Intermediate marketing tables combining session-level data for acquisition and behavior analysis."
-    tables:
-      - name: ga4_sessions_with_dimensions
-        description: "Intermediate table that combines GA4 session-level data, enriched with login, trial, payment flags, engagement markers, and navigation metrics."
-      - name: ga4_first_visit
-        description: "firstvisit by user_pseudo_id"
-      - name: ga4_sessions_with_team
-        description: "Intermediate table that combines GA4 session-level data, enriched with team information."
   - name: int_ga4    
     database: null
     schema: ga4
