@@ -1,1 +1,0 @@
-select * from {{ ref('_int_github_data_issues_problems_hubspot_onboarding') }}
