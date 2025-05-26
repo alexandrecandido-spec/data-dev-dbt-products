@@ -2,6 +2,7 @@
     config(
         materialized='incremental',
         unique_key=['repo_name', 'issue_number', 'wip_label'],
+		incremental_strategy='merge',
         on_schema_change='fail',
         tags=["product","daily-4am"]
     )
@@ -35,9 +36,18 @@ with labels as (
 		la.issue_number, 
         la.wip_label,
 		cast(la.first_label_creation_date as date) as wip_last_updated, 
-		cast(ul.last_unlabel_date as date) as wip_last_deleted
+		cast(ul.last_unlabel_date as date) as wip_last_deleted,
+		CAST(to_date(wip_last_updated, 'yyyyMMdd') AS STRING) AS year_month_day_code,
+    	current_timestamp AS sys_audit_created_on,
+    	'data-dev-dbt-products' AS sys_audit_created_by,
+    	current_timestamp AS sys_audit_updated_on,
+    	'data-dev-dbt-products' AS sys_audit_updated_by
 	from labels la 
 	left join unlabels ul on la.repo_name = ul.repo_name 
 		and ul.issue_number = la.issue_number
 		and ul.last_unlabel_date > la.last_label_creation_date
         and ul.wip_label = la.wip_label
+	    {% if is_incremental() %}
+    WHERE
+        sys_audit_updated_on >= (select coalesce(max(sys_audit_updated_at),'1900-01-01') from {{ source('stg_github_data', 'issue_label') }} )
+    {% endif %}

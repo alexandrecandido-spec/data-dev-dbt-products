@@ -2,7 +2,7 @@
 
 {{
     config(
-        materialized='incremental',
+        materialized='table',
         unique_key=['repo_name', 'issue_number', 'wip_label'],
         on_schema_change='fail',
         tags=["product","daily-4am"]
@@ -38,6 +38,17 @@ WITH data AS (
 )
 
 SELECT
-    *
+    store_id,
+    repo_name,
+    issue_number,
+    issue_state,
+    store_impact,
+    sum_gmv,
+    avg_gmv_usd,
+    CAST(to_date(current_timestamp, 'yyyyMMdd') AS STRING) AS year_month_day_code,
+    current_timestamp AS sys_audit_created_on,
+    'data-dev-dbt-products' AS sys_audit_created_by,
+    current_timestamp AS sys_audit_updated_on,
+    'data-dev-dbt-products' AS sys_audit_updated_by
 FROM data
 WHERE rank = 1

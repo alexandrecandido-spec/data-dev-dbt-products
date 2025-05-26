@@ -41,7 +41,11 @@ select
     mi.milestone_title,
     mi.milestone_created_at,
     case when onb.country = 'AR' then 1 end as onboarding_ar,
-    case when onb.country = 'BR' then 1 end as onboarding_br
+    case when onb.country = 'BR' then 1 end as onboarding_br,
+    current_timestamp AS sys_audit_created_on,
+    'data-dev-dbt-products' AS sys_audit_created_by,
+    current_timestamp AS sys_audit_updated_on,
+    'data-dev-dbt-products' AS sys_audit_updated_by
 from {{ ref('_int_github_data_issues_problems_main') }} i
     left join {{ ref('github_data__merchant_impact') }} v
         on i.repo_name = v.repo_name 
@@ -85,3 +89,8 @@ from {{ ref('_int_github_data_issues_problems_main') }} i
         on i.repo_name = db.repo_name 
 		    and i.issue_number = db.issue_number 
 		    and v.store_id = db.store_id
+
+        {% if is_incremental() %}
+    WHERE 
+        sys_audit_updated_on >= (select coalesce(max(sys_audit_updated_at),'1900-01-01') from {{ this }} )
+    {% endif %}
