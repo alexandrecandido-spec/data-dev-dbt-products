@@ -25,6 +25,6 @@ dag = create_dbt_dag(
     dag_id='dbt_product_daily',
     schedule_interval_tag='daily-4am',
     default_args=default_args,
-    tags=['product','daily-6am']
+    tags=['product','daily-4am']
 )
 
