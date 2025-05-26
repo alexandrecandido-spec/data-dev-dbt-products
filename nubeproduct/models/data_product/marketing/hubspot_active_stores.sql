@@ -1,7 +1,7 @@
 {{
     config(
         on_schema_change='fail',
-        tags=["daily-afternoon"]
+        tags=["marketing","daily-9am"]
     )
 }}
 

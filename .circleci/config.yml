@@ -29,6 +29,41 @@ parameters:
 
 # Custom commands aimed for the main workflows and jobs
 commands:
+  create-dbt-profiles:
+    steps:
+      - run:
+          name: Create DBT profiles directory and configuration
+          command: |
+            # Create the profiles directory
+            mkdir -p ~/.dbt
+            
+            # Create the profiles.yml file with environment variables
+            cat > ~/.dbt/profiles.yml \<< EOF
+            nubeproduct:
+              outputs:
+                dev:
+                  catalog: null
+                  host: dbc-ff5dddaf-fe0f.cloud.databricks.com
+                  http_path: /sql/1.0/warehouses/2f8b52bf3d2088a2
+                  schema: testing
+                  threads: 4
+                  token: ${DBT_TOKEN}
+                  type: databricks
+                prod:
+                  catalog: null
+                  host: dbc-ff5dddaf-fe0f.cloud.databricks.com
+                  http_path: /sql/1.0/warehouses/2f8b52bf3d2088a2
+                  schema: data
+                  threads: 4
+                  token: ${DBT_TOKEN}
+                  type: databricks
+              target: dev
+            EOF
+            
+            # Make sure the file exists and has content (for debugging)
+            echo "DBT profiles.yml created:"
+            ls -la ~/.dbt/
+            cat ~/.dbt/profiles.yml | grep -v token # Print file without exposing token
   deploy-nbks-workspace:
     parameters:
       nbk-location:
@@ -119,39 +154,7 @@ commands:
                 name: Setup DBT environment
                 command: |
                   pip install dbt-core dbt-databricks
-            - run:
-                name: Create DBT profiles directory and configuration
-                command: |
-                  # Create the profiles directory
-                  mkdir -p ~/.dbt
-                  
-                  # Create the profiles.yml file with environment variables
-                  cat > ~/.dbt/profiles.yml \<< EOF
-                  nubeproduct:
-                    outputs:
-                      dev:
-                        catalog: null
-                        host: dbc-ff5dddaf-fe0f.cloud.databricks.com
-                        http_path: /sql/1.0/warehouses/2f8b52bf3d2088a2
-                        schema: testing
-                        threads: 4
-                        token: ${DBT_TOKEN}
-                        type: databricks
-                      prod:
-                        catalog: null
-                        host: dbc-ff5dddaf-fe0f.cloud.databricks.com
-                        http_path: /sql/1.0/warehouses/2f8b52bf3d2088a2
-                        schema: data
-                        threads: 4
-                        token: ${DBT_TOKEN}
-                        type: databricks
-                    target: dev
-                  EOF
-                  
-                  # Make sure the file exists and has content (for debugging)
-                  echo "DBT profiles.yml created:"
-                  ls -la ~/.dbt/
-                  cat ~/.dbt/profiles.yml | grep -v token # Print file without exposing token
+            - create-dbt-profiles
             - run:
                 name: Run DBT deps
                 command: |
@@ -225,39 +228,7 @@ commands:
           name: Setup DBT environment
           command: |
             pip install dbt-core dbt-databricks
-      - run:
-          name: Create DBT profiles directory and configuration
-          command: |
-            # Create the profiles directory
-            mkdir -p ~/.dbt
-            
-            # Create the profiles.yml file with environment variables
-            cat > ~/.dbt/profiles.yml \<< EOF
-            nubeproduct:
-              outputs:
-                dev:
-                  catalog: null
-                  host: dbc-ff5dddaf-fe0f.cloud.databricks.com
-                  http_path: /sql/1.0/warehouses/2f8b52bf3d2088a2
-                  schema: testing
-                  threads: 4
-                  token: ${DBT_TOKEN}
-                  type: databricks
-                prod:
-                  catalog: null
-                  host: dbc-ff5dddaf-fe0f.cloud.databricks.com
-                  http_path: /sql/1.0/warehouses/2f8b52bf3d2088a2
-                  schema: data
-                  threads: 4
-                  token: ${DBT_TOKEN}
-                  type: databricks
-              target: dev
-            EOF
-            
-            # Make sure the file exists and has content (for debugging)
-            echo "DBT profiles.yml created:"
-            ls -la ~/.dbt/
-            cat ~/.dbt/profiles.yml | grep -v token # Print file without exposing token
+      - create-dbt-profiles
       - run:
           name: Run DBT deps
           command: |
@@ -425,7 +396,7 @@ orbs:
             type: string
             default: .circleci/continue-config.yml
         docker:
-          - image: cimg/python:3.9
+          - image: cimg/python:3.11.9
         steps:
           - checkout
           - run:

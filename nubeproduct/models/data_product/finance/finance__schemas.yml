@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: finance_paid_orders_store_summary
+  - name: finance_paid_orders
     description: >
       Contains the summary of paid orders by store, including currency-related data,
       payment gateways, shipping methods, and audit metadata.

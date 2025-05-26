@@ -12,6 +12,7 @@ sources:
     schema: orders
     tables:
       - name: mwp_orders
+<<<<<<< HEAD
   
   - name: stg_third_party
     description: "Raw tables loaded from the ingestion of external data sources"
@@ -34,3 +35,6 @@ sources:
         description: "Raw table containing aggregated session data, including start and end times and engagement flags."
       - name: mod_pv_info
         description: "Raw table with enriched pageview data from GA4, including source and landing page details."
+=======
+  
+>>>>>>> main

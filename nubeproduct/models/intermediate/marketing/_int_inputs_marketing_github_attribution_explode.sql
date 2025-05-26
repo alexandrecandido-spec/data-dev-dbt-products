@@ -25,7 +25,7 @@ issues AS (
     current_timestamp AS sys_audit_updated_on,
     COALESCE(git_mkt.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by, 
     'data-dev-dbt-products' AS sys_audit_updated_by
-    FROM {{source('stg_third_party', 'marketing_github_mkt_attribution')}} as git_mkt
+    FROM {{source('int_third_party', 'marketing_github_mkt_attribution')}} as git_mkt
 )
 
 SELECT
