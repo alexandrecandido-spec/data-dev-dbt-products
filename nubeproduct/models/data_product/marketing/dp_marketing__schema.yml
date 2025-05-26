@@ -145,7 +145,7 @@ models:
       - name: sys_audit_updated_by
         description: "System identifier of the process that last updated this record"
 
-  - name: ga4_sessions_with_dimensions
+  - name: ga4_sessions_with_dimensions_team
     description: "Final data product for GA4 session analysis, enriched with traffic source, country, environment, login flags, engagement status, and user classification (new vs. returning). Includes both only-login and full sessions, grouped for comparison."
     config:
       meta:

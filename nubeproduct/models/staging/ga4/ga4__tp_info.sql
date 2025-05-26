@@ -20,7 +20,7 @@ FROM {{ source('stg_ga4', 'tp_info') }}
 WHERE 1=1
 AND unique_session IS NOT NULL
   {% if not is_incremental() %}
-    AND (trial_date >= DATE '2024-01-01' OR payment_date >= DATE '2024-01-01')
+    AND (trial_date >= DATE '2025-05-01' OR payment_date >= DATE '2025-05-01')
   {% endif %}
 
   {% if is_incremental() %}

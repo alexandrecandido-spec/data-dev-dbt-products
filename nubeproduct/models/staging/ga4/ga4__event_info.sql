@@ -21,7 +21,7 @@ FROM {{ source('stg_ga4', 'event_info') }}
 WHERE 1=1
 AND unique_session IS NOT NULL
   {% if not is_incremental() %}
-    AND event_date >= DATE '2024-01-01'
+    AND event_date >= DATE '2025-05-01'
   {% endif %}
 
   {% if is_incremental() %}
