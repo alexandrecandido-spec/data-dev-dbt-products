@@ -3,6 +3,10 @@ models:
   - name: fintech_contracts
     description: >
       Contains all disbursed contracts with risk classification, policy and offer id.
+    config:
+      meta:
+        owner: "sofia.sanchez@tiendanube.com"
+        domain: "fintech"
     columns:
       - name: id
         description: "Unique internal identifier for each proposal."
