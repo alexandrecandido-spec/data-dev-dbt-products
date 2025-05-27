@@ -39,3 +39,27 @@ models:
       - name: total
         tests:
           - not_null
+
+  - name: nuvem_credito__credit_proposals
+    description: "Staging model with credit proposals, clean data with current store_id"
+    columns:
+      - name: id
+        description: "Unique internal identifier for each proposal."
+        tests:
+          - unique
+          - not_null
+      - name: hub_contract_id
+        description: "Unique external identifier for each proposal."
+        tests:
+          - unique
+          - not_null
+      - name: store_id
+        description: "Store identifier."
+        tests:
+          - not_null
+      - name: disbursed_at
+        description: "Date when the credit amount was disbursed."
+      - name: finished_at
+        description: "Date when the credit was finalized (It could be by being renegotiated or fully paid)."
+      - name: original_contract_id
+        description: "Not null only if the credit is a renegotiation."
