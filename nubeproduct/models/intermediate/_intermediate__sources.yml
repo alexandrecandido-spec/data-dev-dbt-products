@@ -30,7 +30,8 @@ sources:
     schema: third_party
     tables:
       - name: finance_exchange_rate_ars_to_usd
-<<<<<<< HEAD
+      - name: marketing_github_mkt_attribution
+        description: "List of marketing github issues/inputs created by the marketing team"
   - name: int_ga4    
     database: null
     schema: ga4
@@ -38,7 +39,3 @@ sources:
     tables:
       - name: first_visit
         description: "Table from GA4 containing the first visit date for each user_pseudo_id."
-=======
-      - name: marketing_github_mkt_attribution
-        description: "List of marketing github issues/inputs created by the marketing team"
->>>>>>> main
