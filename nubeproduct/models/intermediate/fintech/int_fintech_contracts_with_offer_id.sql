@@ -3,12 +3,12 @@ WITH renegociaciones AS (
     FROM {{ ref('nuvem_credito__credit_proposals') }}
     WHERE original_contract_id IS NOT NULL
 
-    UNION ALL
+    UNION
 
     SELECT DISTINCT id AS contract_id
     FROM {{ ref('nuvem_credito__credit_proposals') }}
     WHERE hub_contract_id IN ('138981','524183', '290246', '1198863',
-        '205429', '3685878', '717868', '1198863')
+        '205429', '3685878', '717868')
 )
     SELECT 
         c.id,
@@ -39,12 +39,12 @@ WITH renegociaciones AS (
         c.payer_state,
         COALESCE(o.external_offer_id, hco.offer_id) AS engine_offer_id,
         CASE 
-            WHEN o.external_offer_id IS NULL THEN 'Historical' 
-            ELSE 'New' 
+            WHEN o.external_offer_id IS NOT NULL THEN 'New' 
+            WHEN o.external_offer_id IS NULL AND hco.offer_id IS NOT NULL THEN 'Historical' 
+            ELSE 'Unknown' 
         END AS evaluation_link_type,
         CASE 
             WHEN r.contract_id IS NOT NULL THEN 'renegotiated'
-            WHEN c.hub_contract_id = '290246' THEN 'renegotiated'
             WHEN c.hub_contract_id = '665436' THEN 'canceled'
             ELSE c.status 
         END AS custom_status
