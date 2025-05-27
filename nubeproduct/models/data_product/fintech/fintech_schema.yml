@@ -1,0 +1,24 @@
+version: 1
+models:
+  - name: fintech_contracts
+    description: >
+      Contains all disbursed contracts with risk classification, policy and offer id.
+    config:
+      meta:
+        owner: "sofia.sanchez@tiendanube.com"
+        domain: "fintech"
+    columns:
+      - name: id
+        description: "Unique internal identifier for each proposal."
+        tests:
+          - unique
+          - not_null
+      - name: hub_contract_id
+        description: "Unique external identifier for each proposal."
+        tests:
+          - unique
+          - not_null
+      - name: store_id
+        description: "Store identifier."
+        tests:
+          - not_null
