@@ -12,9 +12,15 @@ SELECT
         CAST(date_trunc('month', o.evaluation_date) AS DATE) AS evaluation_month,
         o.risk_classification, 
         p.policy,
-        CONCAT(
-            regexp_replace(policy, '[^A-Za-z0-9]', ''), 
-            o.risk_classification
+        concat(
+        array_join(
+            transform(
+                split(policy, ' '),
+                x -> substring(x, 1, 1)
+            ),
+            ''
+            ),
+            risk_classification
         ) AS policy_classification,
         'data-dev-dbt-products' AS sys_audit_created_by,
         CURRENT_TIMESTAMP AS sys_audit_created_on,
