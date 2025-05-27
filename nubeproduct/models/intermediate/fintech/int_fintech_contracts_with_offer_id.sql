@@ -7,10 +7,36 @@ WITH renegociaciones AS (
 
     SELECT DISTINCT id AS contract_id
     FROM {{ ref('nuvem_credito__credit_proposals') }}
-    WHERE hub_contract_id IN ('138981','524183')
+    WHERE hub_contract_id IN ('138981','524183', '290246', '1198863',
+        '205429', '3685878', '717868', '1198863')
 )
     SELECT 
-        c.*, 
+        c.id,
+        c.hub_contract_id,
+        c.quotation_id,
+        c.borrower_document,
+        c.borrower_name,
+        c.disbursed_at,
+        c.disbursed_month,
+        c.created_at,
+        c.updated_at,
+        c.finished_at,
+        c.first_installment_at,
+        c.last_installment_at,
+        c.status,
+        c.portfolio_type,
+        c.installments_number,
+        c.operation_total_taxes_amount,
+        c.operation_total_costs_amount,
+        c.operation_gross_amount,
+        c.operation_net_amount,
+        c.interest_monthly_rate,
+        c.lending_hub,
+        c.payer_id,
+        c.original_contract_id,
+        c.store_id,
+        c.collection_strategy,
+        c.payer_state,
         COALESCE(o.external_offer_id, hco.offer_id) AS engine_offer_id,
         CASE 
             WHEN o.external_offer_id IS NULL THEN 'Historical' 
