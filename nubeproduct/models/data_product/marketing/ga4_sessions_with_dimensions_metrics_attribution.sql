@@ -16,16 +16,18 @@
       'only_login_session',
       'user_type',
       'engage',
-      'team',
-      'subteam'
+      'utm_team',
+      'utm_subteam',
+      'url_team',
+      'url_subteam',
+      'ref_team',
+      'ref_subteam'
     ],
     tags = ['daily-5am'],
     on_schema_change = 'fail'
 ) }}
 
 WITH
-
--- 1) Base raw del data product (sin agrupar)
 base AS (
   SELECT
     date,
@@ -46,18 +48,18 @@ base AS (
     trial,
     payment,
     session_duration_minutes,
-    pageviews_per_session,
-    current_timestamp AS sys_audit_updated_on
+    pageviews_per_session
   FROM {{ ref('_int_marketing__ga4_sessions_with_dimensions') }}
+  WHERE 1 = 1
   {% if is_incremental() %}
-    WHERE sys_audit_updated_on > (
-      SELECT COALESCE(MAX(sys_audit_updated_on), DATE '1900-01-01')
+    AND date > (
+      SELECT COALESCE(MAX(date), DATE '1900-01-01')
       FROM {{ this }}
     )
   {% endif %}
 ),
 
--- 2) Agregación principal (sin team/subteam)
+
 aggregated AS (
   SELECT
     date,
@@ -68,30 +70,32 @@ aggregated AS (
       WHEN date <= DATE '2024-09-07' THEN
         CASE
           WHEN source_ga4_classification = 'inst-br'
-               OR (source_ga4_classification NOT LIKE '%inst%' AND landing_page LIKE '%nuvemshop%')
+             OR (source_ga4_classification NOT LIKE '%inst%'
+                 AND landing_page LIKE '%nuvemshop%')
           THEN 'BR'
           WHEN source_ga4_classification = 'inst-ar' THEN 'AR'
           WHEN source_ga4_classification = 'inst-mx' THEN 'MX'
           WHEN source_ga4_classification = 'inst-co' THEN 'CO'
           WHEN source_ga4_classification = 'inst-cl' THEN 'CL'
-          WHEN source_ga4_classification NOT LIKE '%inst%' AND original_user_country = 'Argentina' THEN 'AR'
-          WHEN source_ga4_classification NOT LIKE '%inst%' AND original_user_country = 'Mexico' THEN 'MX'
-          WHEN source_ga4_classification NOT LIKE '%inst%' AND original_user_country = 'Chile' THEN 'CL'
-          WHEN source_ga4_classification NOT LIKE '%inst%' AND original_user_country = 'Colombia' THEN 'CO'
           WHEN source_ga4_classification NOT LIKE '%inst%'
-               AND original_user_country NOT IN ('Brazil','Mexico','Argentina','Chile','Colombia')
-          THEN 'Other'
-          ELSE original_user_country
+             AND original_user_country = 'Argentina' THEN 'AR'
+          WHEN source_ga4_classification NOT LIKE '%inst%'
+             AND original_user_country = 'Mexico' THEN 'MX'
+          WHEN source_ga4_classification NOT LIKE '%inst%'
+             AND original_user_country = 'Chile' THEN 'CL'
+          WHEN source_ga4_classification NOT LIKE '%inst%'
+             AND original_user_country = 'Colombia' THEN 'CO'
+          ELSE 'Other'
         END
       ELSE
         CASE
-          WHEN source_ga4_classification = 'inst-br' OR landing_page LIKE '%nuvemshop%' THEN 'BR'
+          WHEN source_ga4_classification = 'inst-br'
+             OR landing_page LIKE '%nuvemshop%' THEN 'BR'
           WHEN original_user_country = 'Argentina' THEN 'AR'
           WHEN original_user_country = 'Mexico' THEN 'MX'
           WHEN original_user_country = 'Chile' THEN 'CL'
           WHEN original_user_country = 'Colombia' THEN 'CO'
-          WHEN original_user_country NOT IN ('Brazil','Mexico','Argentina','Chile','Colombia') THEN 'Other'
-          ELSE original_user_country
+          ELSE 'Other'
         END
     END AS classified_country,
 
@@ -141,24 +145,74 @@ aggregated AS (
     engage
 ),
 
--- 3) Input de UTMs para team/subteam
+-- 1) Inputs de SUBTEAM_MKT (prioridad)
+subteam_attr AS (
+  SELECT
+    utm_source,
+    utm_medium,
+    team    AS subteam_team,
+    subteam AS subteam_subteam
+  FROM {{ ref('inputs_marketing_attribution') }}
+  WHERE input_type = 'UTM_SUBTEAM'
+),
+
+-- 2) Inputs de UTM (fallback)
 utm_attr AS (
   SELECT
     utm_source,
     utm_medium,
-    team,
-    subteam
+    team    AS utm_team,
+    subteam AS utm_subteam
   FROM {{ ref('inputs_marketing_attribution') }}
   WHERE input_type = 'UTM'
+),
+
+-- 3) Inputs URL/INSTI
+url_inst_attr AS (
+  SELECT
+    landing_page_path,
+    team    AS url_team,
+    subteam AS url_subteam
+  FROM {{ ref('inputs_marketing_attribution') }}
+  WHERE input_type IN ('URL','INSTI')
+),
+
+-- 4) Inputs REFERRER
+ref_attr AS (
+  SELECT
+    referrer,
+    team    AS ref_team,
+    subteam AS ref_subteam
+  FROM {{ ref('inputs_marketing_attribution') }}
+  WHERE input_type = 'REFERRER'
 )
 
--- 4) Asignación final de team y subteam sobre los datos ya agregados
+-- 5) Unión final: métricas + atribución
 SELECT
-  a.*,
-  COALESCE(u.team,   'Others') AS team,
-  COALESCE(u.subteam,'Others') AS subteam
-FROM aggregated a
+  m.*,
+  COALESCE(s.subteam_team, u.utm_team,   'Others')   AS utm_team,
+  COALESCE(s.subteam_subteam, u.utm_subteam, 'Others') AS utm_subteam,
+  ui.url_team,
+  ui.url_subteam,
+  rf.ref_team,
+  rf.ref_subteam
+FROM aggregated m
+LEFT JOIN subteam_attr s
+  ON m.last_source = s.utm_source
+ AND m.last_medium = s.utm_medium
 LEFT JOIN utm_attr u
-  ON a.source_ga4_classification = u.utm_source
- AND a.last_medium               = u.utm_medium
+  ON m.last_source = u.utm_source
+ AND m.last_medium = u.utm_medium
+LEFT JOIN url_inst_attr ui
+  ON m.landing_page LIKE ui.landing_page_path
+LEFT JOIN ref_attr rf
+  ON m.landing_page LIKE rf.referrer
+
+
+
+
+
+
+
+
 
