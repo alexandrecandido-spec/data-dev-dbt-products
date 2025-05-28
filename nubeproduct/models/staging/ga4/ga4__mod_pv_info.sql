@@ -1,7 +1,7 @@
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'merge',
-    unique_key = 'unique_session',
+    unique_key = ['unique_session', 'event_timestamp', 'user_pseudo_id'],
     partition_by = ['year_month_code'],
     tags = ['daily-5am'],
     on_schema_change = 'fail'

@@ -40,7 +40,6 @@ models:
         tests:
           - not_null
 
-<<<<<<< HEAD
 
   - name: ga4__event_info
     description: "Staging model for GA4 events information. Includes user sessions and event metadata."
@@ -133,7 +132,6 @@ models:
         description: "Last recorded campaign associated with the session from GA4 pageviews."
 
 
-=======
   - name: nuvem_credito__credit_proposals
     description: "Staging model with credit proposals, clean data with current store_id"
     columns:
@@ -157,4 +155,3 @@ models:
         description: "Date when the credit was finalized (It could be by being renegotiated or fully paid)."
       - name: original_contract_id
         description: "Not null only if the credit is a renegotiation."
->>>>>>> main
