@@ -22,8 +22,24 @@ default_args = {
 
 # Crear el DAG frecuencia diaria
 dag = create_dbt_dag(
-    dag_id='dbt_finance_daily-6am',
+    dag_id='dbt_operations_daily-6am',
     schedule_interval_tag='daily-6am',
     default_args=default_args,
-    tags=['finance','daily-6am']
+    tags=['operations','daily-6am-6pm']
+)
+
+# Crear el DAG frecuencia diaria
+dag = create_dbt_dag(
+    dag_id='dbt_operations_daily-6pm',
+    schedule_interval_tag='daily-6pm',
+    default_args=default_args,
+    tags=['operations','daily-6am-6pm']
+)
+
+# Crear el DAG frecuencia mensual
+dag = create_dbt_dag(
+    dag_id='dbt_operations_monthly-1st-12AM',
+    schedule_interval_tag='monthly-1st-12AM',
+    default_args=default_args,
+    tags=['operations','monthly-1st-12AM']
 )

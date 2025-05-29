@@ -17,6 +17,10 @@ models:
           - not_null
 
   - name: orders__mwp_orders
+    config:
+      meta:
+        owner: "rodrigo.torres@tiendanube.com"
+        domain: "finance"
     columns:
       - name: id
         tests:

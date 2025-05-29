@@ -46,6 +46,8 @@ models:
 
     intermediate:
       +materialized: ephemeral
+      operations:
+        +tags: ["operations"]
       finance:
         +tags: ["finance"]
       fintech:
@@ -62,6 +64,10 @@ models:
     data_product:
       +materialized: table
       +file_format: delta
+      operations:
+        +schema: operations
+        +tags: ["operations"]
+        +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/data_product/operations/"
       finance:
         +schema: finance
         +tags: ["finance"]

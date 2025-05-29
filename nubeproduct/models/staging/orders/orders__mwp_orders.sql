@@ -4,7 +4,7 @@
         unique_key='id',
         partition_by='year_month_day_code',
         on_schema_change='fail',
-        tags=["finance","daily-6am-6pm"]
+        tags=["operations","daily-6am-6pm"]
     )
 }}
 
@@ -34,6 +34,7 @@ WITH source AS (
         shipping_province,
         gateway_integration_type,
         gateway_installments,
+        app_id,
         CONCAT(CAST(DATE(completed_at) AS STRING),'-',CAST(store_id AS STRING)) order_date_store_id,
         CAST(to_date(completed_at, 'yyyyMMdd') AS STRING) AS year_month_day_code
 
@@ -78,6 +79,7 @@ SELECT
     gateway_integration_type,
     gateway_installments,
     order_date_store_id,
+    app_id,
     year_month_day_code,
     CASE  
         WHEN status != 'cancelled' 
