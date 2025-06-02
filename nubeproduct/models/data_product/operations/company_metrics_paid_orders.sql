@@ -5,7 +5,8 @@
         incremental_strategy='merge',
         on_schema_change='fail',
         partition_by='year_month_day_code',
-        tags=["daily-6am-6pm"]
+        tags=["daily-6am-6pm"],
+        post_hook=["DELETE FROM {{ this }} WHERE id in (SELECT id FROM {{ ref('orders__mwp_orders') }} WHERE status = 'cancelled' and cancelled_at is not null) "]
     )
 }}
 
@@ -71,3 +72,4 @@ WHERE
     OR orders.cancelled_at
     >= (SELECT MAX(DATE(sys_audit_updated_on)) FROM {{ this }})
 {% endif %}
+;
