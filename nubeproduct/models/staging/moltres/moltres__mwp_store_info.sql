@@ -57,4 +57,4 @@ SELECT
     current_timestamp AS sys_audit_updated_on,
     'data-dev-dbt-products' AS sys_audit_updated_by
 FROM source
-LEFT JOIN existing_data e ON source.id = e.store_id
+LEFT JOIN existing_data e ON source.id = e.store_id 
