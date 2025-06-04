@@ -15,6 +15,8 @@ with labels as (
                 iel.content as wip_label,
 				min(github_created_at) as first_label_creation_date,
 				max(github_created_at) as last_label_creation_date,
+				max(sys_audit_updated_at) as max_sys_audit_updated_at,
+				min(sys_audit_updated_at) as min_sys_audit_updated_at,
 				count(*) as q_registros
 			from {{ source('stg_github_data', 'issue_events') }} iel
 			where iel.event = 'labeled'
@@ -26,6 +28,7 @@ with labels as (
 				iel.issue_number,
                 iel.content as wip_label,
 				max(github_created_at) as last_unlabel_date,
+				max(sys_audit_updated_at) as max_sys_audit_updated_at,
 				count(*) as q_registros
 			from {{ source('stg_github_data', 'issue_events') }} iel
 			where iel.event = 'unlabeled'
@@ -49,5 +52,7 @@ with labels as (
         and ul.wip_label = la.wip_label
 	    {% if is_incremental() %}
     WHERE
-        sys_audit_updated_on >= (select coalesce(max(sys_audit_updated_at),'1900-01-01') from {{ source('stg_github_data', 'issue_label') }} )
+        la.max_sys_audit_updated_at >= (select coalesce(max(sys_audit_updated_on),'1900-01-01') from {{ this }} )
+		or la.min_sys_audit_updated_at >= (select coalesce(max(sys_audit_updated_on),'1900-01-01') from {{ this }} )
+		or ul.max_sys_audit_updated_at >= (select coalesce(max(sys_audit_updated_on),'1900-01-01') from {{ this }} )
     {% endif %}

@@ -41,7 +41,8 @@ FROM
             concat_ws('; ', collect_list(CASE WHEN name IN ('Shipping App', 'Payments App', 'Marketing App', 'Management App', 'Channels App', 'Others App') THEN name END)) AS labels_ecosystem,
             concat_ws('; ', collect_list(CASE WHEN name LIKE '%Nube -%' THEN name END)) AS labels_core,
             concat_ws('; ', collect_list(CASE WHEN name IN ('1 - WIP - Identificando problema', '2 - WIP - Entendiendo solución', '3 - WIP - Ejecutando solución', '4 - WIP - Monitoreando solución') THEN name END)) AS labels_wip,
-            concat_ws('; ', collect_list(CASE WHEN name IN ('No Quick Fix', 'Quick Fix', 'Quickfix') THEN name END)) AS labels_quick_fix
+            concat_ws('; ', collect_list(CASE WHEN name IN ('No Quick Fix', 'Quick Fix', 'Quickfix') THEN name END)) AS labels_quick_fix,
+            max(sys_audit_updated_at) as sys_audit_updated_at
         FROM
             {{ source('stg_github_data', 'issue_label') }} l  
         GROUP BY
@@ -51,6 +52,6 @@ FROM
     
     {% if is_incremental() %}
     WHERE
-        sys_audit_updated_on >= (select coalesce(max(sys_audit_updated_at),'1900-01-01') from {{ source('stg_github_data', 'issue_label') }} )
+        sys_audit_updated_at >= (select coalesce(max(j.sys_audit_updated_on),'1900-01-01') from {{ this }} j)
     {% endif %}
 

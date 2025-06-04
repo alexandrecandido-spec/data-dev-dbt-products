@@ -92,5 +92,5 @@ from {{ ref('_int_github_data_issues_problems_main') }} i
 
         {% if is_incremental() %}
     WHERE 
-        sys_audit_updated_on >= (select coalesce(max(sys_audit_updated_at),'1900-01-01') from {{ this }} )
+        l.sys_audit_updated_on >= (select coalesce(max(a.sys_audit_updated_on),'1900-01-01') from {{ this }} a )
     {% endif %}
