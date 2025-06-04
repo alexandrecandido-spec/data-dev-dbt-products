@@ -1,20 +1,43 @@
 version: 2
 models:
   - name: moltres__mwp_store_info
+    description: "Staging model that contains data about each store, such as store ID, country, creation and churn dates and other attributes."
     config:
       meta:
         owner: "rodrigo.torres@tiendanube.com"
         domain: "finance"
     columns:
       - name: store_id
+        description: "Store identifier."
         tests:
           - unique
-      - name: store_id
-        tests:
           - not_null
+      - name: country
+        description: "Country of the store."
+      - name: current_segment
+        description: "Current segment of the store."
+      - name: churned_at
+        description: "Date when the store was churned."
+      - name: first_payment
+        description: "Date when the store made its first payment."
       - name: created_at
+        description: "Date when the store was created."
         tests:
           - not_null
+      - name: currency
+        description: "Currency of the store."
+      - name: plan
+        description: "Current plan of the store."
+      - name: verified
+        description: "Code indicating the device used during store creation."
+      - name: register_url
+        description: "URL of the store's registration page."
+      - name: partner_id
+        description: "ID of the store's partner, if a partner was involved in the store's creation."
+      - name: partner_code
+        description: "Code of the store's partner, if a partner was involved in the store's creation."
+      - name: partnership_type
+        description: "Type of partnership, if a partner was involved in the store's creation."
 
   - name: orders__mwp_orders
     config:
