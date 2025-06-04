@@ -67,7 +67,7 @@ jobs:
       - run:
           name: Setup DBT environment
           command: |
-            pip install dbt-core dbt-databricks
+            pip install dbt-core==1.9.1 dbt-databricks==1.9.1
       - create-dbt-profiles
       - run:
           name: Run DBT deps
