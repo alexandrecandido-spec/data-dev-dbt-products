@@ -23,8 +23,8 @@ main_data AS (
     main_source.created_at >= DATE '2010-01-01'
   {% endif %}
   {% if is_incremental() %}
-    AND main_source.created_at > (
-      SELECT COALESCE(MAX(main_source.created_at), DATE '1900-01-01')
+    main_source.created_at > (
+      SELECT COALESCE(MAX(created_at), DATE '1900-01-01')
       FROM {{ this }}
     )
   {% endif %}
