@@ -21,7 +21,6 @@ WITH source AS (
         verified,
         register_url,
         partner_id,
-        partner_code,
         partnership_type
     FROM {{ source('stg_moltres', 'mwp_store_info') }}
     WHERE state != 4 
@@ -50,7 +49,6 @@ SELECT
     verified,
     register_url,
     partner_id,
-    partner_code,
     partnership_type,
     COALESCE(e.sys_audit_created_on, current_timestamp) AS sys_audit_created_on,
     COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by,
