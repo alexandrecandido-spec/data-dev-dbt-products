@@ -1,5 +1,5 @@
 SELECT
-    pp.store_id,
+    DISTINCT pp.store_id,
     mv.model_id,
     pp.predicted_prob
 FROM  {{source('int_data_predictors', 'marketing_new_payment_predictor')}} AS pp

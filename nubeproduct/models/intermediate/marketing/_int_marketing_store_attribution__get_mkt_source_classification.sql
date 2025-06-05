@@ -30,26 +30,6 @@ SELECT
 	WHERE ai.input_type = 'UTM'			
 	AND ai.state = 'open'
 ),
-affiliates_classification_inputs AS (
-	SELECT				
-    ai.affiliate_code			
-    , MIN(ai.affiliate_classification) AS affiliate_classification				
-	FROM {{ ref('inputs_marketing_attribution') }} ai	
-	--Includes only records associated with affiliate classification		
-	WHERE ai.input_type = 'AFFILIATE_LIST'
-	AND ai.state = 'open'				
-	GROUP BY 1		
-),
-partner_exceptions_inputs AS (
-	SELECT				
-	ai.partner_code				
-	, ai.team				
-	, ai.subteam				
-	FROM {{ ref('inputs_marketing_attribution') }} ai					
-	--Includes only records associated with partners not related to affiliate team
-	WHERE ai.input_type = 'PARTNER_CODE'			
-	AND ai.state = 'open'
-),
 referrer_inputs AS (
 	SELECT	
     referrer		
@@ -108,7 +88,7 @@ att.*
         AND (position(urls.landing_page_path IN att.landing_page_path) > 0) 
         AND (position(urls.landing_page_domain IN att.landing_page_domain) > 0) THEN urls.team		
 	WHEN (att.source = '' OR att.source IS NULL) AND att.referrer_domain = 'direct' AND att.partner_id IS NULL THEN 'Direct'
-	WHEN utms.source_mkt IS NULL AND att.partner_id IS NOT NULL AND att.partner_code = partners.partner_code THEN partners.team	
+	WHEN utms.source_mkt IS NULL AND att.partner_id IS NOT NULL AND att.flag_partner_exception = 1 THEN att.partner_team	
 	WHEN utms.source_mkt IS NULL AND att.medium = 'direct' AND att.campaign = 'direct' 
         AND (position(urls.landing_page_path IN att.landing_page_path) > 0)
         AND (position(urls.landing_page_domain IN att.landing_page_domain) > 0) THEN urls.team
@@ -143,18 +123,16 @@ att.*
         AND (position(gii.landing_page_domain IN att.landing_page_domain) > 0) THEN gii.subteam
 	WHEN utms.subteam IS NULL AND mkt_source = referrer.team 
         AND (position(referrer.referrer IN att.referrer_domain) > 0) THEN referrer.subteam	
-	WHEN utms.subteam IS NULL AND mkt_source = partners.team AND att.partner_code = partners.partner_code AND att.partner_id IS NOT NULL THEN partners.subteam
+	WHEN utms.subteam IS NULL AND mkt_source = att.partner_team AND att.flag_partner_exception = 1 AND att.partner_id IS NOT NULL THEN att.partner_subteam
     WHEN aflp.landing_page IS NOT NULL 
-        AND (position('/partners/' IN att.landing_page_path) > 0) THEN afc.affiliate_classification
-    WHEN utms.subteam IS NULL AND att.partner_id IS NOT NULL AND att.partnership_type = 'affiliate' THEN afc.affiliate_classification
+        AND (position('/partners/' IN att.landing_page_path) > 0) THEN att.affiliate_type
+    WHEN utms.subteam IS NULL AND att.partner_id IS NOT NULL AND att.partnership_type = 'affiliate' THEN att.affiliate_type
 	WHEN utms.source_mkt IS NULL THEN mkt_source				
 	WHEN utms.subteam IS NOT NULL THEN utms.subteam				
 	ELSE mkt_source END AS mkt_subteam
-FROM {{ref('_int_marketing_store_attribution__get_store_partner_ql_info')}} att
+FROM {{ref('_int_marketing_store_attribution__get_store_partner_info')}} att
 LEFT JOIN affiliate_landing_pages aflp ON att.click_id = aflp.id
-LEFT JOIN referrer_inputs referrer ON position(referrer.referrer IN att.referrer_domain) > 0	
-LEFT JOIN affiliates_classification_inputs afc ON att.partner_code = afc.affiliate_code										
-LEFT JOIN partner_exceptions_inputs partners ON att.partner_code = partners.partner_code				
+LEFT JOIN referrer_inputs referrer ON position(referrer.referrer IN att.referrer_domain) > 0														
 LEFT JOIN subteam_inputs sub ON position(sub.utm_campaign IN att.campaign) > 0	AND  position(sub.utm_source IN att.source) > 0	AND position(sub.utm_medium IN att.medium) > 0 	
 LEFT JOIN utm_inputs utms ON att.source = utms.source AND att.medium = utms.medium
 LEFT JOIN urls_inputs urls ON position(urls.landing_page_path IN att.landing_page_path) > 0	AND position(urls.landing_page_domain IN att.landing_page_domain) > 0

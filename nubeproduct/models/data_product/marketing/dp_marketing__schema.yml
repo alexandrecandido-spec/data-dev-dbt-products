@@ -145,7 +145,7 @@ models:
       - name: sys_audit_updated_by
         description: "System identifier of the process that last updated this record"
   
-  - name: attribution_mkt_attribution
+  - name: marketing_attribution_model
     description: "data product contains granular click-level data used in the marketing attribution model. Each click is linked to the responsible marketing team or source, enabling the attribution of acquisition results—such as store creation—to specific marketing efforts. This dataset supports performance analysis, reporting, and decision-making across acquisition channels"
     config:
       meta:
@@ -158,8 +158,18 @@ models:
           - not_null
       - name: click_order 
         description: "Order of the click"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 1
+              strictly: false
       - name: click_qty
         description: "Quantity of clicks involved on the journey to the store creation"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 1
+              strictly: false
       - name: click_id 
         description: "Unique identifier for each click"
         tests:
