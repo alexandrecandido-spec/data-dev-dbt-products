@@ -38,3 +38,21 @@ models:
       - name: total
         tests:
           - not_null
+  - name: github_data__issue_labels
+    description: "Staging model that concatenates every label associated to the issue in one row, to avoid duplicates. We use this table to categorize the Issue/Problem in different ways."
+    config:
+      meta:
+        owner: "fabrizio.crivella@tiendanube.com"
+        domain: "product"
+  - name: github_data__wip_labels
+    description: "Staging model that persists information about Working in Progress labels, becouse we need to know when they started and ended, to determine de duration of the lifecycle of an Issue/Problem"
+    config:
+      meta:
+        owner: "fabrizio.crivella@tiendanube.com"
+        domain: "product"
+  - name: github_data__merchant_impact
+    description: "Staging model that gets information about merchants associated to an Issue/Problem. Information such as GMV and impact"
+    config:
+      meta:
+        owner: "fabrizio.crivella@tiendanube.com"
+        domain: "product"
