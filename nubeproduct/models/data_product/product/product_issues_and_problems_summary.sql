@@ -8,7 +8,7 @@
     )
 }}
 
-select 
+select distinct
     i.repo_name,
     i.issue_number,
     i.created_at,
@@ -42,6 +42,8 @@ select
     mi.milestone_created_at,
     case when onb.country = 'AR' then 1 end as onboarding_ar,
     case when onb.country = 'BR' then 1 end as onboarding_br,
+    db.comment_date,
+    db.impact,
     current_timestamp AS sys_audit_created_on,
     'data-dev-dbt-products' AS sys_audit_created_by,
     current_timestamp AS sys_audit_updated_on,
@@ -93,4 +95,14 @@ from {{ ref('_int_github_data_issues_problems_main') }} i
         {% if is_incremental() %}
     WHERE 
         l.sys_audit_updated_on >= (select coalesce(max(a.sys_audit_updated_on),'1900-01-01') from {{ this }} a )
+        or v.sys_audit_updated_on >= (select coalesce(max(a.sys_audit_updated_on),'1900-01-01') from {{ this }} a )
+        or i.sys_audit_updated_at >= (select coalesce(max(a.sys_audit_updated_on),'1900-01-01') from {{ this }} a )
+        or s.sys_audit_updated_on >= (select coalesce(max(a.sys_audit_updated_on),'1900-01-01') from {{ this }} a )
+        or onb.sys_audit_updated_on >= (select coalesce(max(a.sys_audit_updated_on),'1900-01-01') from {{ this }} a )
+        or w1.sys_audit_updated_on >= (select coalesce(max(a.sys_audit_updated_on),'1900-01-01') from {{ this }} a )
+        or w2.sys_audit_updated_on >= (select coalesce(max(a.sys_audit_updated_on),'1900-01-01') from {{ this }} a )
+        or w3.sys_audit_updated_on >= (select coalesce(max(a.sys_audit_updated_on),'1900-01-01') from {{ this }} a )
+        or w4.sys_audit_updated_on >= (select coalesce(max(a.sys_audit_updated_on),'1900-01-01') from {{ this }} a )
+        or mi.sys_audit_updated_at >= (select coalesce(max(a.sys_audit_updated_on),'1900-01-01') from {{ this }} a )
+        or db.sys_audit_updated_at >= (select coalesce(max(a.sys_audit_updated_on),'1900-01-01') from {{ this }} a )
     {% endif %}

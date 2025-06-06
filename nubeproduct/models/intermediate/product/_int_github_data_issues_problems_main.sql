@@ -7,6 +7,7 @@ SELECT
     comments,
     author,
     html_url,
-    title
+    title,
+    sys_audit_updated_at
 FROM
     {{ source('int_github_data', 'issue') }}

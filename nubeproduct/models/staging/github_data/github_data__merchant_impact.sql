@@ -3,7 +3,7 @@
 {{
     config(
         materialized='table',
-        unique_key=['repo_name', 'issue_number', 'wip_label'],
+        unique_key=['repo_name', 'issue_number', 'store_id'],
         on_schema_change='fail',
         tags=["product","daily-4am"]
     )

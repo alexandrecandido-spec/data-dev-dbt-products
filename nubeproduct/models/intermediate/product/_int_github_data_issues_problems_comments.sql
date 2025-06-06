@@ -4,7 +4,8 @@ WITH base_comments AS (
     ic.issue_number,
     s.impact,
     iss.store_id,
-    ic.github_created_at AS comment_date
+    ic.github_created_at AS comment_date,
+    ic.sys_audit_updated_at
   FROM {{ source('int_github_data', 'issue_comment') }} ic
   INNER JOIN {{ source('int_github_data', 'issue_store') }} iss 
     ON ic.repo_name = iss.repo_name 
@@ -25,6 +26,7 @@ latest_comments AS (
     store_id,
     comment_date,
     impact,
+    sys_audit_updated_at,
     ROW_NUMBER() OVER (PARTITION BY repo_name, issue_number, store_id ORDER BY comment_date DESC) AS rn -- aca no entiendo porque hace el max con github_created_at, pensaria que deberia hacerse con comment_date.
   FROM base_comments
 )
@@ -33,6 +35,7 @@ SELECT
   issue_number,
   store_id,
   impact,
-  CAST(comment_date AS DATE) AS comment_date 
+  CAST(comment_date AS DATE) AS comment_date,
+  sys_audit_updated_at
 FROM latest_comments
 WHERE rn = 1
