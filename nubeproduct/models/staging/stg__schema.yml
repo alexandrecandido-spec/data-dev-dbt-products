@@ -90,3 +90,25 @@ models:
         description: "Date when the credit was finalized (It could be by being renegotiated or fully paid)."
       - name: original_contract_id
         description: "Not null only if the credit is a renegotiation."
+
+  - name: antifraud_service__vertifier_store_inferences
+    description: "Staging model with vertifier of current store_id provided by antifraud inferences."
+    columns:
+      - name: store_id
+        description: "Unique identifier of the store. External key."
+        tests:
+          - not_null
+      - name: vertifier
+        description: "Identification of a possible vertical for the store."
+      - name: created_at
+        description: "Timestamp when the vertifier was originally created."
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created."
+      - name: sys_audit_created_by
+        description: "System or user that created the row."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the most recent update to the row."
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row."
