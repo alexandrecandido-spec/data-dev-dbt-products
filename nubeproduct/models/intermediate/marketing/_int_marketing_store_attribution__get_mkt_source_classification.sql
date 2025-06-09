@@ -4,65 +4,12 @@ WITH affiliate_landing_pages AS (
 		, matt.landing_page
 	FROM {{source('int_moltres', 'mwp_attribution')}} matt
 	--Includes only records associated with affiliate landing pages
-	WHERE position('%gclid%' IN  matt.landing_page ) > 0
-),
-subteam_inputs AS (
-	SELECT				
-    ai.utm_source			
-    , ai.utm_medium
-    , ai.utm_campaign							
-    , ai.utm_content				
-    , ai.team				
-    , ai.subteam				
-	FROM {{ ref('inputs_marketing_attribution') }} ai					
-	--Includes only records associated with subteams
-	WHERE ai.input_type = 'SUBTEAM_MKT'			
-	AND ai.state = 'open'
-),
-utm_inputs AS (
-SELECT				
-    lower(ai.utm_source) AS source				
-    , lower(ai.utm_medium) AS medium				
-    , ai.team AS source_mkt				
-    , ai.subteam				
-	FROM {{ ref('inputs_marketing_attribution') }} ai					
-	--Includes only records associated with UTM campaigns
-	WHERE ai.input_type = 'UTM'			
-	AND ai.state = 'open'
-),
-referrer_inputs AS (
-	SELECT	
-    referrer		
-    , ai.team				
-    , ai.subteam				
-	FROM {{ ref('inputs_marketing_attribution') }} ai					
-	--Includes only records associated with referrers landing pages
-	WHERE ai.input_type = 'REFERRER'			
-	AND ai.state = 'open'
-),
-insti_inputs AS (
-	SELECT				
-    ai.landing_page_domain				
-    , ai.landing_page_path				
-    , ai.team				
-    , ai.subteam				
-	FROM {{ ref('inputs_marketing_attribution') }} ai					
-	--Includes only records associated with INSTI landing pages
-	WHERE ai.input_type = 'INSTI'			
-	AND ai.state = 'open'	
-),
-urls_inputs AS (
-	SELECT				
-    ai.landing_page_domain,				
-    ai.landing_page_path,				
-    ai.team,				
-    ai.subteam				
-	FROM {{ ref('inputs_marketing_attribution') }} ai			
-	--Includes only records associated with URLs landing pages
-	WHERE ai.input_type = 'URL'			
-	AND ai.state = 'open'					
+	WHERE position('gclid' IN  matt.landing_page ) > 0
 )
 
+SELECT 
+*
+FROM (
 SELECT
 att.*
 , CASE					
@@ -71,7 +18,7 @@ att.*
 	WHEN att.source IN ('yahoo', 'google', 'bing') AND att.medium = 'organic'
         AND (position(urls.landing_page_path IN att.landing_page_path) > 0)				
         AND (position(urls.landing_page_domain IN att.landing_page_domain) > 0) THEN urls.team					
-	WHEN aflp.landing_page IS NOT NULL AND (position('%/partners/%' IN att.landing_page_path) > 0) THEN 'Affiliates'
+	WHEN aflp.landing_page IS NOT NULL AND (position('/partners/' IN att.landing_page_path) > 0) THEN 'Affiliates'
 	WHEN att.source IN ('yahoo', 'google', 'bing') AND att.medium = 'organic'				
 		AND (position(gii.landing_page_path IN att.landing_page_path) > 0)
         AND (position(gii.landing_page_domain IN att.landing_page_domain) > 0) THEN gii.team
@@ -82,7 +29,7 @@ att.*
 		AND (position(gii.landing_page_path IN att.landing_page_path) > 0)
         AND (position(gii.landing_page_domain IN att.landing_page_domain) > 0) THEN gii.team
 	WHEN utms.source_mkt = 'Communications' THEN 'Communications'				
-	WHEN utms.source_mkt = 'Performance' AND (att.source IN ('google','bing') AND (position('%-brand%' IN att.campaign) > 0)) THEN 'Performance Brand'		
+	WHEN utms.source_mkt = 'Performance' AND (att.source IN ('google','bing') AND (position('-brand' IN att.campaign) > 0)) THEN 'Performance Brand'		
 	WHEN utms.source_mkt = 'Performance' THEN 'Performance No Brand'
 	WHEN (att.source = '' OR att.source IS NULL) AND att.referrer_domain = 'direct' 
         AND (position(urls.landing_page_path IN att.landing_page_path) > 0) 
@@ -106,7 +53,7 @@ att.*
 	ELSE utms.source_mkt END AS mkt_source
 , CASE					
 	WHEN utms.source_mkt = 'Performance' AND att.source = 'google' 
-        AND (position('%max-perf%' IN att.campaign) > 0) THEN 'Google pMax'			
+        AND (position('max-perf' IN att.campaign) > 0) THEN 'Google pMax'			
 	WHEN utms.source_mkt = 'Performance' AND att.source IN ('google','bing') 
         AND (position(sub.utm_campaign IN att.campaign) > 0) THEN sub.subteam				
 	WHEN utms.source_mkt = 'Product Marketing' 
@@ -130,10 +77,13 @@ att.*
 	WHEN utms.source_mkt IS NULL THEN mkt_source				
 	WHEN utms.subteam IS NOT NULL THEN utms.subteam				
 	ELSE mkt_source END AS mkt_subteam
+, ROW_NUMBER() OVER (PARTITION BY att.store_id, att.click_id ORDER BY att.click_timestamp DESC) AS rownumber
 FROM {{ref('_int_marketing_store_attribution__get_store_partner_info')}} att
 LEFT JOIN affiliate_landing_pages aflp ON att.click_id = aflp.id
-LEFT JOIN referrer_inputs referrer ON position(referrer.referrer IN att.referrer_domain) > 0														
-LEFT JOIN subteam_inputs sub ON position(sub.utm_campaign IN att.campaign) > 0	AND  position(sub.utm_source IN att.source) > 0	AND position(sub.utm_medium IN att.medium) > 0 	
-LEFT JOIN utm_inputs utms ON att.source = utms.source AND att.medium = utms.medium
-LEFT JOIN urls_inputs urls ON position(urls.landing_page_path IN att.landing_page_path) > 0	AND position(urls.landing_page_domain IN att.landing_page_domain) > 0
-LEFT JOIN insti_inputs gii ON position(gii.landing_page_path IN att.landing_page_path) > 0	AND position(gii.landing_page_domain IN att.landing_page_domain) > 0
+LEFT JOIN {{ref('_int_marketing_inputs_attribution__utm')}} utms ON att.source = utms.source AND att.medium = utms.medium
+LEFT JOIN {{ref('_int_marketing_inputs_attribution__subteam')}} sub ON position(sub.utm_campaign IN att.campaign) > 0	AND  att.source = sub.utm_source AND att.medium = sub.utm_medium	
+LEFT JOIN {{ref('_int_marketing_inputs_attribution__referrer')}} referrer ON position(referrer.referrer IN att.referrer_path) > 0														
+LEFT JOIN {{ref('_int_marketing_inputs_attribution__url')}}  urls ON position(urls.landing_page_path IN att.landing_page_path) > 0	AND position(urls.landing_page_domain IN att.landing_page_domain) > 0
+LEFT JOIN {{ref('_int_marketing_inputs_attribution__insti')}} gii ON position(gii.landing_page_path IN att.landing_page_path) > 0	AND position(gii.landing_page_domain IN att.landing_page_domain) > 0  
+)
+WHERE rownumber = 1

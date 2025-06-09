@@ -145,6 +145,7 @@ models:
       - name: sys_audit_updated_by
         description: "System identifier of the process that last updated this record"
   
+
   - name: marketing_attribution_model
     description: "data product contains granular click-level data used in the marketing attribution model. Each click is linked to the responsible marketing team or source, enabling the attribution of acquisition results—such as store creation—to specific marketing efforts. This dataset supports performance analysis, reporting, and decision-making across acquisition channels"
     config:
@@ -196,9 +197,9 @@ models:
       - name: attribution_source
         description: "Indicates the source system from which the attribution click data was retrieved. Possible values include local_db, amplitude, or empty (when no click data was available). This field helps track data lineage and diagnose attribution completeness."
       - name: country
-        description: "Country of the store"
+        description: "Country associated with each store, based on registration data."
       - name: created_at
-        description: "Date when the data was created"
+        description: "Date when the store was officially created in the system."
         tests:
           - not_null
       - name: first_payment
@@ -206,7 +207,11 @@ models:
       - name: churned_at
         description: "Date when the store was churned"
       - name: device
-        description: "Device used during the store creation"
+        description: "Device type used by the user during the store creation process (e.g., desktop, app, mobile)."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['desktop', 'app', 'mobile', 'tablet', 'undefined']
       - name: register_url
         description: "URL of the store's registration page."
       - name: partner_id
@@ -259,4 +264,52 @@ models:
       - name: sys_audit_updated_by
         description: "System identifier of the process that last updated this record"
   
-  
+
+  - name: marketing_attribution_completeness
+    description: "data product contains the completeness data quality checks of the marketing attribution model"
+    config:
+      meta:
+        owner: "ronald.corcho@tiendanube.com"
+        domain: "marketing" 
+    columns:
+      - name: country
+        description: "Country associated with each store, based on registration data."
+        tests:
+          - not_null
+      - name: created_at
+        description: "Date when the store was officially created in the system."
+        tests:
+          - not_null
+      - name: device
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['desktop', 'app', 'mobile', 'tablet', 'undefined']
+      - name: stores_source_local_db
+        description: "Count of stores attributed to the 'local_db' source, indicating origin from internal backend systems."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              strictly: false
+      - name: stores_source_amplitude
+        description: "Count of stores attributed to the 'amplitude' source, typically originating from user interactions tracked via Amplitude analytics."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              strictly: false
+      - name: stores_source_empty
+        description: "Count of stores for which the source attribution is missing or not specified. This typically occurs when users disable tracking mechanisms or clear their cookies, preventing source identification."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              strictly: false
+      - name: stores_total
+        description: "Total count of stores adquired on this date from all sources."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              strictly: false

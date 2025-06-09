@@ -10,7 +10,7 @@ partner_fraud_data AS (
 	SELECT				
     ai.partner_code,
     ai.fraude			
-	FROM {{ ref('inputs_marketing_attribution') }} ai	
+	FROM {{ ref('marketing_inputs_attribution') }} ai	
 	--Includes only records associated with partners tagged as fraud			
 	WHERE ai.input_type = 'PARTNER_FRAUD'	
 	AND ai.state = 'open'	
@@ -19,7 +19,7 @@ affiliates_classification_inputs AS (
 	SELECT				
 	ai.affiliate_code,				
 	MIN(ai.affiliate_classification) AS affiliate_classification				
-	FROM {{ ref('inputs_marketing_attribution') }} ai	
+	FROM {{ ref('marketing_inputs_attribution') }} ai	
 	--Includes only records associated with affiliate classification		
 	WHERE ai.input_type = 'AFFILIATE_LIST'
 	AND ai.state = 'open'				
@@ -30,7 +30,7 @@ partner_exceptions_inputs AS (
 	ai.partner_code				
 	, ai.team				
 	, ai.subteam				
-	FROM {{ ref('inputs_marketing_attribution') }} ai					
+	FROM {{ ref('marketing_inputs_attribution') }} ai					
 	--Includes only records associated with partners not related to affiliate team
 	WHERE ai.input_type = 'PARTNER_CODE'			
 	AND ai.state = 'open'
@@ -46,10 +46,10 @@ att.store_id
 , lower(att.medium) AS medium
 , lower(att.campaign) AS campaign
 , lower(att.content) AS content
-, att.referrer_domain
-, att.referrer_path
-, att.landing_page_domain
-, att.landing_page_path
+, lower(att.referrer_domain) AS referrer_domain
+, lower(att.referrer_path) AS referrer_path
+, lower(att.landing_page_domain) AS landing_page_domain
+, lower(att.landing_page_path) AS landing_page_path
 , att.attribution_source
 , msi.country
 , msi.created_at
@@ -73,7 +73,7 @@ att.store_id
 , afc.affiliate_classification AS affiliate_type
 , CASE WHEN att.order = att.quantity THEN 1 ELSE 0 END AS trials_last_click
 , CASE WHEN att.order = 1 THEN 1 ELSE 0 END  AS trials_first_click
-, 1/cast(att.quantity AS FLOAT) AS trials_mean_click
+, 1 / att.quantity AS trials_mean_click
 FROM {{source('int_attribution', 'store_attribution')}} att
 INNER JOIN {{ ref('_int_marketing_store_info__get_quality_leads_info') }} msi ON att.store_id = msi.store_id						
 LEFT JOIN {{source('int_ecosystem', 'mwp_partners')}} p ON msi.partner_id = p.id
