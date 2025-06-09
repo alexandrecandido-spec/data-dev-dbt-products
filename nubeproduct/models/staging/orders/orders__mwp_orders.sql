@@ -36,7 +36,7 @@ WITH source AS (
         gateway_installments,
         app_id,
         CONCAT(CAST(DATE(completed_at) AS STRING),'-',CAST(store_id AS STRING)) order_date_store_id,
-        CAST(to_date(completed_at, 'yyyyMMdd') AS STRING) AS year_month_day_code
+        CAST(date_format(completed_at, 'yyyyMMdd') AS INT) AS year_month_day_code
 
     FROM {{ source('stg_orders', 'mwp_orders') }}
     WHERE total_in_usd <= 10000 and total_in_usd >= 0
