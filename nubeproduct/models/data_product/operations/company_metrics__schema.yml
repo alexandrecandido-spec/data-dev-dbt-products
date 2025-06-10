@@ -146,7 +146,7 @@ models:
           - not_null
           - accepted_values:
               values: ["top-seller", "large-seller", "medium-seller", "small-seller", "tiny-seller", "struggling-seller", "no-seller"]
-      - name: orders_on_plaftorm_monthly
+      - name: orders_on_platform_monthly
         description: Number of orders made on the platform during the last closed month.
       - name: gmv_usd_on_platform_monthly
         description: GMV in USD for orders made on the platform during the last closed month.
@@ -159,7 +159,7 @@ models:
         tests:
           - accepted_values:
               values: ["top-seller", "large-seller", "medium-seller", "small-seller", "tiny-seller", "struggling-seller", "no-seller"]
-      - name: orders_off_plaftorm_monthly
+      - name: orders_off_platform_monthly
         description: Number of orders made off-platform during the last closed month.
       - name: gmv_usd_off_platform_monthly
         description: GMV in USD for off-platform orders during the last closed month.
@@ -181,3 +181,28 @@ models:
       - name: sys_audit_updated_by
         description: System or user that last updated the row.
   
+  - name: company_metrics_merchant_vertical
+    config:
+      meta:
+        owner: "djalma.dias@nuvemshop.com"
+        domain: "operations"
+    description: "This table informs the stores vertical like clothing, digital, cars, etc."
+    columns:
+      - name: store_id
+        description: "Unique identifier of the store. External key."
+        tests:
+          - not_null
+      - name: country
+        description: "Country where the store belongs."
+      - name: vertical
+        description: "Business segment of the store."
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created."
+      - name: sys_audit_created_by
+        description: "System or user that created the row."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the most recent update to the row."
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row."
