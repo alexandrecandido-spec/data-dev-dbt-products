@@ -136,7 +136,7 @@ models:
       meta:
         tech_steward: "fabrizio.crivella@tiendanube.com"
         domain: "product"
-        owner: ""
+        owner: "Wagner Moynier"
   - name: github_data__wip_labels
     description: "Staging model that persists information about Working in Progress labels, becouse we need to know when they started and ended, to determine de duration of the lifecycle of an Issue/Problem"
     columns:
@@ -152,8 +152,9 @@ models:
         description: "Date when the WIP label was removed"
     config:
       meta:
-        owner: "fabrizio.crivella@tiendanube.com"
+        tech_steward: "fabrizio.crivella@tiendanube.com"
         domain: "product"
+        owner: "Wagner Moynier"
   - name: github_data__merchant_impact
     description: "Staging model that gets information about merchants associated to an Issue/Problem. Information such as GMV and impact"
     columns:
@@ -173,5 +174,6 @@ models:
         description: "Monthly average GMV from the last 4 closed months in USD"
     config:
       meta:
-        owner: "fabrizio.crivella@tiendanube.com"
+        tech_steward: "fabrizio.crivella@tiendanube.com"
         domain: "product"
+        owner: "Wagner Moynier"
