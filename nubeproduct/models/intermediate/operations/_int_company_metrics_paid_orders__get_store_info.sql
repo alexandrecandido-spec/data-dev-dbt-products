@@ -61,4 +61,4 @@ LEFT JOIN {{ ref('finance_exchange_rate') }} exchange_rate_country on DATE(paid_
 WHERE 
     paid_orders.store_id not in (SELECT related_id FROM blocked_stores)
     AND is_paid_order = TRUE AND storefront <> 'permalink'
-    AND paid_orders.completed_at <= (SELECT MAX(processed_at) FROM {{ ref('finance_exchange_rate') }})
+    AND DATE(paid_orders.completed_at) <= DATE(SELECT MAX(processed_at) FROM {{ ref('finance_exchange_rate') }})
