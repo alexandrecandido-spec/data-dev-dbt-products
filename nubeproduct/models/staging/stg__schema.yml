@@ -115,18 +115,62 @@ models:
 
   - name: github_data__issue_labels
     description: "Staging model that concatenates every label associated to the issue in one row, to avoid duplicates. We use this table to categorize the Issue/Problem in different ways."
+    columns: 
+      - name: repo_name
+        description: "Determines if row is related to an Issue or Problem"
+      - name: issue_number
+        description: "Identifies the identification of the Issue/Problem. Combined with repo_name, they make the unique key"
+      - name: labels_tipo
+        description: "Type of Issue/Problem, based on the nature of the domain. It can be App, Others or Core"
+      - name: labels_domain
+        description: "Domain related to the Issue/Problem"
+      - name: labels
+        description: "List of all labels related to the Issue/Problem"
+      - name: labels_country
+        description: "Used only for Platform Development. Specifies which country is affected by an Issue/Problem"
+      - name: labels_wip
+        description: "Labels that determine if the Issue/Problem is being solved, and which step is it in"
+      - name: labels_quick_fix
+        description: "If the issue has a quick fix, will have a label with that name"
     config:
       meta:
-        owner: "fabrizio.crivella@tiendanube.com"
+        tech_steward: "fabrizio.crivella@tiendanube.com"
         domain: "product"
+        owner: ""
   - name: github_data__wip_labels
     description: "Staging model that persists information about Working in Progress labels, becouse we need to know when they started and ended, to determine de duration of the lifecycle of an Issue/Problem"
+    columns:
+      - name: repo_name
+        description: "Determines if row is related to an Issue or Problem"
+      - name: issue_number
+        description: "Identifies the identification of the Issue/Problem. Combined with repo_name, they make the unique key"
+      - name: wip_label
+        description: "Step of Working in Progress in whitch the Issue/Problem is right now"
+      - name: wip_last_updated
+        description: "Date when the WIP label was included"
+      - name: wip_last_deleted
+        description: "Date when the WIP label was removed"
     config:
       meta:
         owner: "fabrizio.crivella@tiendanube.com"
         domain: "product"
   - name: github_data__merchant_impact
     description: "Staging model that gets information about merchants associated to an Issue/Problem. Information such as GMV and impact"
+    columns:
+      - name: repo_name
+        description: "Determines if row is related to an Issue or Problem"
+      - name: issue_number
+        description: "Identifies the identification of the Issue/Problem. Combined with repo_name, they make the unique key"
+      - name: issue_state
+        description: "Determines if the Issue/Problem is Open or Closed"
+      - name: store_id
+        description: "Unique identifier to the store related to the Issue/Problem"
+      - name: store_impact
+        description: "Only for Mid Market stores, determines the criticity of the comment"
+      - name: sum_gmv
+        description: "Monthly average GMV from the last 4 closed months"
+      - name: sum_gmv_usd
+        description: "Monthly average GMV from the last 4 closed months in USD"
     config:
       meta:
         owner: "fabrizio.crivella@tiendanube.com"
