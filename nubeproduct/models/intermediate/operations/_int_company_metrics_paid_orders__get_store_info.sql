@@ -21,10 +21,10 @@ SELECT
     paid_orders.*,
     paid_orders.total / exchange_rate.direct_exchange_rate AS total_in_usd_billing,
     CASE 
-        WHEN exchange_rate_country.isocode = store_info.country THEN
+        WHEN exchange_rate_country.country_currency_code = store_info.country THEN
             (paid_orders.total / exchange_rate.direct_exchange_rate) * exchange_rate_country.direct_exchange_rate 
         ELSE
-            paid_orders.total_in_usd / exchange_rate_country.indirect_exchange_rate
+            paid_orders.total_in_usd / exchange_rate.indirect_exchange_rate
     END AS total_in_local_currency,
     CASE
         WHEN storefront in ('mobile', 'store', 'form', 'social', 'pos') or (storefront = 'api' and paid_orders.app_id=12217) THEN 'on'
