@@ -4,8 +4,8 @@
         incremental_strategy='merge',
         unique_key=['datemonth','store_id'],
         on_schema_change='fail',
-        partition_by='datemonth',
-        tags=["monthly-1st-12AM"]
+        partition_by='year_month_code',
+        tags=["monthly-1st-9AM"]
     )
 }}
 
@@ -34,7 +34,7 @@ SELECT
         WHEN orders_general_90d * proportional BETWEEN 1 AND 6 THEN 'struggling-seller'
         ELSE 'no-seller'
     END AS segment,
-    orders_on_platform_month AS orders_on_plaftorm_monthly,
+    orders_on_platform_month AS orders_on_platform_monthly,
     gmv_on_platform_month AS gmv_usd_on_platform_monthly,
     gmv_local_on_platform_month AS gmv_local_currency_on_platform_monthly,
     orders_on_platform_90d,
@@ -47,7 +47,7 @@ SELECT
         WHEN orders_on_platform_90d * proportional BETWEEN 1 AND 6 THEN 'struggling-seller'
         ELSE 'no-seller'
     END AS segment_on_platform,
-    orders_off_platform_month AS orders_off_plaftorm_monthly,
+    orders_off_platform_month AS orders_off_platform_monthly,
     gmv_off_platform_month AS gmv_usd_off_platform_monthly,
     gmv_local_off_platform_month AS gmv_local_currency_off_platform_monthly,
     orders_off_platform_90d,
@@ -60,6 +60,7 @@ SELECT
         WHEN orders_off_platform_90d * proportional BETWEEN 1 AND 6 THEN 'struggling-seller'
         ELSE 'no-seller'
     END AS segment_off_platform,
+    CAST(date_format(completed_at, 'yyyyMM') AS INT) AS year_month_code,
     COALESCE(e.sys_audit_created_on, current_timestamp) AS sys_audit_created_on,
     COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by,
     current_timestamp AS sys_audit_updated_on,
