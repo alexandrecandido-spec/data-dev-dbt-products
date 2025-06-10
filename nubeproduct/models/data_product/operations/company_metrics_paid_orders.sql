@@ -41,6 +41,7 @@ SELECT
     orders.shipping_pickup_type,
     orders.shipping_province,
     orders.gateway_installments,
+    orders.gateway_method,
     orders.contact_email,
     orders.paid_at,
     orders.store_status,
