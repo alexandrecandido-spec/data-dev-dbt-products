@@ -34,6 +34,7 @@ WITH source AS (
         shipping_province,
         gateway_integration_type,
         gateway_installments,
+        gateway_method,
         app_id,
         CONCAT(CAST(DATE(completed_at) AS STRING),'-',CAST(store_id AS STRING)) order_date_store_id,
         CAST(date_format(completed_at, 'yyyyMMdd') AS INT) AS year_month_day_code
@@ -78,6 +79,7 @@ SELECT
     shipping_province,
     gateway_integration_type,
     gateway_installments,
+    gateway_method,
     order_date_store_id,
     app_id,
     year_month_day_code,
