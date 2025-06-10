@@ -109,3 +109,4 @@ venv/
 
 *.csv
 profiles.yml
+!/nubeproduct/seeds/*.csv

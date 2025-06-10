@@ -1,0 +1,37 @@
+version: 2
+models:
+  - name: finance_exchange_rate
+    config:
+      meta:
+        owner: "gustavo.braga@nuvemshop.com.br"
+        domain: "finance"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: 
+            - isocode
+            - processed_at
+    columns:
+      - name: processed_at
+        description: Date when the exchange rate data was processed or recorded. This field and iso code form the unique key of the table
+        tests:
+          - not_null
+      - name: isocode
+        description: ISO 4217 currency code (e.g., BOB for Bolivianos). External key.
+        tests:
+          - not_null
+      - name: name
+        description: Full name of the currency
+      - name: country_currency_code
+        description: 	ISO 3166-1 alpha-2 country code associated with the currency (e.g., BO for Bolivia).
+      - name: indirect_exchange_rate
+        description: The amount of USD you get for 1 unit of local currency.
+        tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              row_condition: "indirect_exchange_rate IS NOT NULL"
+      - name: direct_exchange_rate
+        description: The amount of local currency required to buy 1 USD.
+        tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              row_condition: "direct_exchange_rate IS NOT NULL"

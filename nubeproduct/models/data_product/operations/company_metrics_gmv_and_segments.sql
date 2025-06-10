@@ -64,7 +64,7 @@ SELECT
     COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by,
     current_timestamp AS sys_audit_updated_on,
     'data-dev-dbt-products' AS sys_audit_updated_by
-FROM {{ ref('_int_finance_store_gmv_and_segments__window_sales') }} source 
+FROM {{ ref('_int_company_metrics_gmv_and_segments__window_sales') }} source 
 LEFT JOIN existing_data e ON source.store_id = e.store_id and source.datemonth = e.datemonth
 WHERE is_paying_merchant = TRUE OR (is_paying_merchant = FALSE AND orders_general_90d>0) and 
 {% if not is_incremental() %}

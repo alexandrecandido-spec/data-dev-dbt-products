@@ -4,7 +4,7 @@
         unique_key='id',
         partition_by='year_month_day_code',
         on_schema_change='fail',
-        tags=["finance","daily-6am"]
+        tags=["operations","daily-6am-6pm"]
     )
 }}
 
@@ -34,8 +34,9 @@ WITH source AS (
         shipping_province,
         gateway_integration_type,
         gateway_installments,
+        app_id,
         CONCAT(CAST(DATE(completed_at) AS STRING),'-',CAST(store_id AS STRING)) order_date_store_id,
-        CAST(to_date(completed_at, 'yyyyMMdd') AS STRING) AS year_month_day_code
+        CAST(date_format(completed_at, 'yyyyMMdd') AS INT) AS year_month_day_code
 
     FROM {{ source('stg_orders', 'mwp_orders') }}
     WHERE total_in_usd <= 10000 and total_in_usd >= 0
@@ -45,7 +46,7 @@ WITH source AS (
     -- this filter will only be applied on an incremental run
     -- (uses >= to include records whose timestamp occurred since the last run of this model)
     -- (If event_time is NULL or the table is truncated, the condition will always be true and load all records)
-    AND sys_audit_updated_on >= (select coalesce(max(sys_audit_updated_on),'1900-01-01') from {{ source('stg_orders','mwp_orders') }} )
+    AND sys_audit_updated_on >= (select coalesce(max(sys_audit_updated_on),'1900-01-01') - INTERVAL '1 hour' from {{ this }} )
 
     {% endif %}
 ),
@@ -78,6 +79,7 @@ SELECT
     gateway_integration_type,
     gateway_installments,
     order_date_store_id,
+    app_id,
     year_month_day_code,
     CASE  
         WHEN status != 'cancelled' 

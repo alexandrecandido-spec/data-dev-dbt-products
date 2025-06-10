@@ -1,21 +1,49 @@
 version: 2
 models:
   - name: moltres__mwp_store_info
+    description: "Staging model that contains data about each store, such as store ID, country, creation and churn dates and other attributes."
     config:
       meta:
         owner: "rodrigo.torres@tiendanube.com"
         domain: "finance"
     columns:
       - name: store_id
+        description: "Store identifier."
         tests:
           - unique
-      - name: store_id
-        tests:
           - not_null
+      - name: country
+        description: "Country of the store."
+      - name: current_segment
+        description: "Current segment of the store."
+      - name: churned_at
+        description: "Date when the store was churned."
+      - name: first_payment
+        description: "Date when the store made its first payment."
       - name: created_at
+        description: "Date when the store was created."
         tests:
           - not_null
+      - name: currency
+        description: "Currency of the store."
+      - name: plan
+        description: "Current plan of the store."
+      - name: verified
+        description: "Code indicating the device used during store creation."
+      - name: register_url
+        description: "URL of the store's registration page."
+      - name: partner_id
+        description: "ID of the store's partner, if a partner was involved in the store's creation."
+      - name: partner_code
+        description: "Code of the store's partner, if a partner was involved in the store's creation."
+      - name: partnership_type
+        description: "Type of partnership, if a partner was involved in the store's creation."
+
   - name: orders__mwp_orders
+    config:
+      meta:
+        owner: "rodrigo.torres@tiendanube.com"
+        domain: "finance"
     columns:
       - name: id
         tests:
@@ -38,21 +66,49 @@ models:
       - name: total
         tests:
           - not_null
-  - name: github_data__issue_labels
-    description: "Staging model that concatenates every label associated to the issue in one row, to avoid duplicates. We use this table to categorize the Issue/Problem in different ways."
-    config:
-      meta:
-        owner: "fabrizio.crivella@tiendanube.com"
-        domain: "product"
-  - name: github_data__wip_labels
-    description: "Staging model that persists information about Working in Progress labels, becouse we need to know when they started and ended, to determine de duration of the lifecycle of an Issue/Problem"
-    config:
-      meta:
-        owner: "fabrizio.crivella@tiendanube.com"
-        domain: "product"
-  - name: github_data__merchant_impact
-    description: "Staging model that gets information about merchants associated to an Issue/Problem. Information such as GMV and impact"
-    config:
-      meta:
-        owner: "fabrizio.crivella@tiendanube.com"
-        domain: "product"
+
+  - name: nuvem_credito__credit_proposals
+    description: "Staging model with credit proposals, clean data with current store_id"
+    columns:
+      - name: id
+        description: "Unique internal identifier for each proposal."
+        tests:
+          - unique
+          - not_null
+      - name: hub_contract_id
+        description: "Unique external identifier for each proposal."
+        tests:
+          - unique
+          - not_null
+      - name: store_id
+        description: "Store identifier."
+        tests:
+          - not_null
+      - name: disbursed_at
+        description: "Date when the credit amount was disbursed."
+      - name: finished_at
+        description: "Date when the credit was finalized (It could be by being renegotiated or fully paid)."
+      - name: original_contract_id
+        description: "Not null only if the credit is a renegotiation."
+
+  - name: antifraud_service__vertifier_store_inferences
+    description: "Staging model with vertifier of current store_id provided by antifraud inferences."
+    columns:
+      - name: store_id
+        description: "Unique identifier of the store. External key."
+        tests:
+          - not_null
+      - name: vertifier
+        description: "Identification of a possible vertical for the store."
+      - name: created_at
+        description: "Timestamp when the vertifier was originally created."
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created."
+      - name: sys_audit_created_by
+        description: "System or user that created the row."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the most recent update to the row."
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row."
