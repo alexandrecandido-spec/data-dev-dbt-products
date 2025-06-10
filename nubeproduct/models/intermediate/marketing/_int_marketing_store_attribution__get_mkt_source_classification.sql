@@ -80,10 +80,10 @@ att.*
 , ROW_NUMBER() OVER (PARTITION BY att.store_id, att.click_id ORDER BY att.click_timestamp DESC) AS rownumber
 FROM {{ref('_int_marketing_store_attribution__get_store_partner_info')}} att
 LEFT JOIN affiliate_landing_pages aflp ON att.click_id = aflp.id
-LEFT JOIN {{ref('_int_marketing_inputs_attribution__utm')}} utms ON att.source = utms.source AND att.medium = utms.medium
-LEFT JOIN {{ref('_int_marketing_inputs_attribution__subteam')}} sub ON position(sub.utm_campaign IN att.campaign) > 0	AND  att.source = sub.utm_source AND att.medium = sub.utm_medium	
-LEFT JOIN {{ref('_int_marketing_inputs_attribution__referrer')}} referrer ON position(referrer.referrer IN att.referrer_path) > 0														
-LEFT JOIN {{ref('_int_marketing_inputs_attribution__url')}}  urls ON position(urls.landing_page_path IN att.landing_page_path) > 0	AND position(urls.landing_page_domain IN att.landing_page_domain) > 0
-LEFT JOIN {{ref('_int_marketing_inputs_attribution__insti')}} gii ON position(gii.landing_page_path IN att.landing_page_path) > 0	AND position(gii.landing_page_domain IN att.landing_page_domain) > 0  
+LEFT JOIN {{ref('marketing_inputs_attribution__utm')}} utms ON att.source = utms.source AND att.medium = utms.medium
+LEFT JOIN {{ref('marketing_inputs_attribution__subteam')}} sub ON position(sub.utm_campaign IN att.campaign) > 0	AND  att.source = sub.utm_source AND att.medium = sub.utm_medium	
+LEFT JOIN {{ref('marketing_inputs_attribution__referrer')}} referrer ON position(referrer.referrer IN att.referrer_path) > 0														
+LEFT JOIN {{ref('marketing_inputs_attribution__url')}}  urls ON position(urls.landing_page_path IN att.landing_page_path) > 0	AND position(urls.landing_page_domain IN att.landing_page_domain) > 0
+LEFT JOIN {{ref('marketing_inputs_attribution__insti')}} gii ON position(gii.landing_page_path IN att.landing_page_path) > 0	AND position(gii.landing_page_domain IN att.landing_page_domain) > 0  
 )
 WHERE rownumber = 1

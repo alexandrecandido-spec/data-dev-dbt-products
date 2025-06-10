@@ -5,35 +5,6 @@ WITH blocked_stores AS (
 	FROM {{ source('int_moltres', 'mwp_tags') }} as tg
 	WHERE tg.type = 'store'
 	AND (tg.tag = 'sre-block-store-429' OR tg.tag = 'sre-block-store-404')
-),
-partner_fraud_data AS (
-	SELECT				
-    ai.partner_code,
-    ai.fraude			
-	FROM {{ ref('marketing_inputs_attribution') }} ai	
-	--Includes only records associated with partners tagged as fraud			
-	WHERE ai.input_type = 'PARTNER_FRAUD'	
-	AND ai.state = 'open'	
-),
-affiliates_classification_inputs AS (
-	SELECT				
-	ai.affiliate_code,				
-	MIN(ai.affiliate_classification) AS affiliate_classification				
-	FROM {{ ref('marketing_inputs_attribution') }} ai	
-	--Includes only records associated with affiliate classification		
-	WHERE ai.input_type = 'AFFILIATE_LIST'
-	AND ai.state = 'open'				
-	GROUP BY 1			
-),
-partner_exceptions_inputs AS (
-	SELECT				
-	ai.partner_code				
-	, ai.team				
-	, ai.subteam				
-	FROM {{ ref('marketing_inputs_attribution') }} ai					
-	--Includes only records associated with partners not related to affiliate team
-	WHERE ai.input_type = 'PARTNER_CODE'			
-	AND ai.state = 'open'
 )
 
 SELECT
@@ -78,7 +49,7 @@ FROM {{source('int_attribution', 'store_attribution')}} att
 INNER JOIN {{ ref('_int_marketing_store_info__get_quality_leads_info') }} msi ON att.store_id = msi.store_id						
 LEFT JOIN {{source('int_ecosystem', 'mwp_partners')}} p ON msi.partner_id = p.id
 LEFT JOIN blocked_stores bls ON att.store_id = bls.related_id
-LEFT JOIN partner_fraud_data pf ON p.code = pf.partner_code	
-LEFT JOIN affiliates_classification_inputs afc ON p.code = afc.affiliate_code						
-LEFT JOIN partner_exceptions_inputs partners ON p.code = partners.partner_code
+LEFT JOIN {{ ref('marketing_inputs_attribution__partner_fraud') }} pf ON p.code = pf.partner_code	
+LEFT JOIN {{ ref('marketing_inputs_attribution__affiliate_classification') }} afc ON p.code = afc.affiliate_code						
+LEFT JOIN {{ ref('marketing_inputs_attribution__partner_exception') }} partners ON p.code = partners.partner_code
 		
