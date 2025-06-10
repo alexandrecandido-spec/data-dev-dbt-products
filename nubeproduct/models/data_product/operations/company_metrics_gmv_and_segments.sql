@@ -60,7 +60,7 @@ SELECT
         WHEN orders_off_platform_90d * proportional BETWEEN 1 AND 6 THEN 'struggling-seller'
         ELSE 'no-seller'
     END AS segment_off_platform,
-    CAST(date_format(completed_at, 'yyyyMM') AS INT) AS year_month_code,
+    CAST(date_format(datemonth, 'yyyyMM') AS INT) AS year_month_code,
     COALESCE(e.sys_audit_created_on, current_timestamp) AS sys_audit_created_on,
     COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by,
     current_timestamp AS sys_audit_updated_on,
