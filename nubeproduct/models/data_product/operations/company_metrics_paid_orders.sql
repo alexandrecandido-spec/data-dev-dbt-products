@@ -65,7 +65,7 @@ FROM {{ ref('_int_company_metrics_paid_orders__get_store_info') }} orders
 LEFT JOIN existing_data e ON orders.id = e.id
 WHERE
 {% if not is_incremental() %}
-    orders.completed_at > '2018-01-01'
+    orders.completed_at >= '2018-01-01'
 {% endif %}
 {% if is_incremental() %} 
     orders.completed_at

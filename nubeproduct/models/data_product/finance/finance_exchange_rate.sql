@@ -4,7 +4,7 @@
         unique_key=['isocode','processed_at'],
         incremental_strategy='merge',
         on_schema_change='fail',
-        tags=["daily-2pm"]
+        tags=["daily-4am"]
     )
 }}
 
@@ -23,7 +23,7 @@ FROM
 LEFT JOIN existing_data e ON source.isocode = e.isocode and source.processed_at = e.processed_at
 WHERE
     {% if not is_incremental() %}
-        source.processed_at > '2018-01-01'
+        source.processed_at >= '2018-01-01'
     {% endif %}
     {% if is_incremental() %}
         source.processed_at > (SELECT MAX(processed_at) AS max_processed_at
