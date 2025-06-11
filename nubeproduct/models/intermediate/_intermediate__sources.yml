@@ -32,6 +32,7 @@ sources:
       - name: finance_exchange_rate_ars_to_usd
       - name: marketing_github_mkt_attribution
         description: "List of marketing github issues/inputs created by the marketing team"
+      - name: midmarket_hubspot_deals
 
   - name: int_nuvem_credito
     description: "Source containing tables related to Nuvem credito"
@@ -54,7 +55,7 @@ sources:
     tables:
       - name: historical_credits_offers
         description: "Credit proposals link with engine offer id"
-        
+
   - name: int_github_data
     description: "Information about Issues and Problems in Github"
     database: null
