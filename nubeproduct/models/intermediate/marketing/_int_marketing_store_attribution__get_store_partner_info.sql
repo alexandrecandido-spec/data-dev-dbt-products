@@ -29,6 +29,7 @@ att.store_id
 , msi.device
 , msi.register_url
 , msi.partner_id
+, p.code as partner_code
 , msi.partnership_type
 , msi.new_payment_probability
 , msi.prod_cutoff

@@ -33,6 +33,7 @@ SELECT
 , main_source.device
 , main_source.register_url
 , main_source.partner_id
+, main_source.partner_code
 , main_source.partnership_type
 , main_source.new_payment_probability
 , main_source.prod_cutoff
