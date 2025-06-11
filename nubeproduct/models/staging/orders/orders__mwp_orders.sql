@@ -4,7 +4,7 @@
         unique_key='id',
         partition_by='year_month_day_code',
         on_schema_change='fail',
-        tags=["operations","daily-6am-6pm"]
+        tags=["operations","daily-8am-8pm"]
     )
 }}
 
