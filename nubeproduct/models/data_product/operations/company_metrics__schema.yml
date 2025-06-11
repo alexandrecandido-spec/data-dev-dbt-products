@@ -146,7 +146,7 @@ models:
           - not_null
           - accepted_values:
               values: ["top-seller", "large-seller", "medium-seller", "small-seller", "tiny-seller", "struggling-seller", "no-seller"]
-      - name: orders_on_plaftorm_monthly
+      - name: orders_on_platform_monthly
         description: Number of orders made on the platform during the last closed month.
       - name: gmv_usd_on_platform_monthly
         description: GMV in USD for orders made on the platform during the last closed month.
@@ -159,7 +159,7 @@ models:
         tests:
           - accepted_values:
               values: ["top-seller", "large-seller", "medium-seller", "small-seller", "tiny-seller", "struggling-seller", "no-seller"]
-      - name: orders_off_plaftorm_monthly
+      - name: orders_off_platform_monthly
         description: Number of orders made off-platform during the last closed month.
       - name: gmv_usd_off_platform_monthly
         description: GMV in USD for off-platform orders during the last closed month.
