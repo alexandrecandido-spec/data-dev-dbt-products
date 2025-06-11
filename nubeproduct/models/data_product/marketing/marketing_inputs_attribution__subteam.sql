@@ -1,0 +1,29 @@
+{{ config(
+  unique_key=['id'],
+  on_schema_change='fail',
+  tags=["marketing", "daily-4_30am"]
+) }}
+
+SELECT				
+    ai.id
+    , ai.input_number
+    , ai.input_title
+    , ai.input_type
+    , ai.state
+    , ai.utm_source			
+    , ai.utm_medium
+    , ai.utm_campaign							
+    , ai.utm_content				
+    , ai.team				
+    , ai.subteam
+    , ai.created_at
+    , ai.updated_at
+    , ai.closed_at
+    , ai.sys_audit_created_on
+    , ai.sys_audit_created_by
+    , ai.sys_audit_updated_on
+    , ai.sys_audit_updated_by				
+FROM {{ ref('marketing_inputs_attribution') }} ai					
+--Includes only records associated with subteams
+WHERE ai.input_type = 'SUBTEAM_MKT'			
+AND ai.state = 'open'
