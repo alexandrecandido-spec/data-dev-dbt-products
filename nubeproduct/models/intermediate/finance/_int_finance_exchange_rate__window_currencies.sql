@@ -1,6 +1,6 @@
 WITH ars_exchange_rate AS (
     SELECT
-        DATE(processed_at) processed_at,
+        date_add(DATE(processed_at),1) processed_at,
         'ARS' isocode,
         'Pesos Argentinos' name,
         'AR' as country_currency_code,
@@ -9,7 +9,7 @@ WITH ars_exchange_rate AS (
     FROM
         {{ source('int_third_party', 'finance_exchange_rate_ars_to_usd') }}
     WHERE
-    processed_at >= DATE '2018-01-01'
+    processed_at >= DATE '2017-12-31'
 ),
 orders_exchange_rates AS (
 SELECT 

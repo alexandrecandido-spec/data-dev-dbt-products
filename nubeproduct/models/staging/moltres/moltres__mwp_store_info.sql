@@ -3,7 +3,7 @@
         materialized='incremental',
         unique_key='store_id',
         on_schema_change='fail',
-        tags=["operations","daily-6am-6pm"]
+        tags=["operations","daily-8am-8pm"]
     )
 }}
 
