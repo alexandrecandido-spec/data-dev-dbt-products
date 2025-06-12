@@ -34,6 +34,7 @@ sources:
       - name: finance_exchange_rate_ars_to_usd
       - name: marketing_github_mkt_attribution
         description: "List of marketing github issues/inputs created by the marketing team"
+      - name: midmarket_hubspot_deals
 
   - name: int_nuvem_credito
     description: "Source containing tables related to Nuvem credito"
@@ -56,6 +57,24 @@ sources:
     tables:
       - name: historical_credits_offers
         description: "Credit proposals link with engine offer id"
+
+  - name: int_github_data
+    description: "Information about Issues and Problems in Github"
+    database: null
+    schema: github_data
+    tables:
+      - name: issue
+        description: "Issue/Problem list"
+      - name: issue_milestone
+        description: "If an Issue/Problem is considered a part of a roadmap, it should have a milestone asociated, such as a date"
+      - name: issue_label
+        description: "Labels are properties associated to an Issue/Problem to identify the domain, affected countries, state."
+      - name: issue_comment
+        description: "Comments are the +1 of the Issue/Problem. They should always be associated to a store."
+      - name: issue_store
+        description: "Stores that reported an issue/problem"
+      - name: store_impact
+        description: "Lists the priority or impact of the comment associated to a store. It only applies in Mid Market stores."
   
   - name: int_attribution
     database: null

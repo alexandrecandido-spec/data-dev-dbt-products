@@ -1,0 +1,41 @@
+version: 2
+models:
+  - name: product_issues_and_problems_summary
+    description: >
+      Contains the summary of Issues and Problems with their respective comments and associated stores. 
+    config:
+      meta:
+        owner: "fabrizio.crivella@tiendanube.com"
+        domain: "product"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: 
+            - repo_name
+            - issue_number
+            - store_id
+    columns:
+      - name: repo_name
+        description: Type Issue/Problem
+        tests:
+          - not_null
+      
+      - name: issue_number
+        description: Unique identifier of the Issue/Problem.
+        tests:
+          - not_null
+
+      - name: store_id
+        description: Store related to the Issue/Problem.
+
+      - name: state
+        description: Status of the Issue/Problem. It can be open or closed.
+
+      - name: author
+        description: Creator of the Issue/Problem.
+
+      - name: wip_1_last_updated
+        description: >
+          Label that identifies if the Issue/Problem is on its first Working in Progress step. Each Issue/Problem
+          may or may not be in a WIP status.
+
+        
