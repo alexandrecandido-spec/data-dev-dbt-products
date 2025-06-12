@@ -11,9 +11,9 @@ SLACK_IDS= ast.literal_eval(Variable.get('slack_ids_analytics_engineer_alert'))
 
 
 default_args = {
-    'owner': 'Rodrigo Nicolás Torres',
+    'owner': 'Fabrizio Crivella',
     'depends_on_past': False,
-    'start_date': datetime(2024, 10, 1),
+    'start_date': datetime(2025, 5, 1),
     'email_on_failure': False,
     'email_on_retry': False,
     'on_failure_callback': partial(task_fail_slack_alert_bi,slack_ids=SLACK_IDS)
@@ -22,8 +22,9 @@ default_args = {
 
 # Crear el DAG frecuencia diaria
 dag = create_dbt_dag(
-    dag_id='dbt_finance_daily-8am',
-    schedule_interval_tag='daily-8am',
+    dag_id='dbt_product_daily',
+    schedule_interval_tag='daily-4am',
     default_args=default_args,
-    tags=['finance','daily-8am']
+    tags=['product','daily-4am']
 )
+

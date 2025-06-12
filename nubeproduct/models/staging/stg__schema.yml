@@ -1,22 +1,49 @@
 version: 2
 models:
   - name: moltres__mwp_store_info
+    description: "Staging model that contains data about each store, such as store ID, country, creation and churn dates and other attributes."
     config:
       meta:
         owner: "rodrigo.torres@tiendanube.com"
         domain: "finance"
     columns:
       - name: store_id
+        description: "Store identifier."
         tests:
           - unique
-      - name: store_id
-        tests:
           - not_null
+      - name: country
+        description: "Country of the store."
+      - name: current_segment
+        description: "Current segment of the store."
+      - name: churned_at
+        description: "Date when the store was churned."
+      - name: first_payment
+        description: "Date when the store made its first payment."
       - name: created_at
+        description: "Date when the store was created."
         tests:
           - not_null
+      - name: currency
+        description: "Currency of the store."
+      - name: plan
+        description: "Current plan of the store."
+      - name: verified
+        description: "Code indicating the device used during store creation."
+      - name: register_url
+        description: "URL of the store's registration page."
+      - name: partner_id
+        description: "ID of the store's partner, if a partner was involved in the store's creation."
+      - name: partner_code
+        description: "Code of the store's partner, if a partner was involved in the store's creation."
+      - name: partnership_type
+        description: "Type of partnership, if a partner was involved in the store's creation."
 
   - name: orders__mwp_orders
+    config:
+      meta:
+        owner: "rodrigo.torres@tiendanube.com"
+        domain: "finance"
     columns:
       - name: id
         tests:
@@ -157,3 +184,90 @@ models:
         description: "Date when the credit was finalized (It could be by being renegotiated or fully paid)."
       - name: original_contract_id
         description: "Not null only if the credit is a renegotiation."
+
+  - name: antifraud_service__vertifier_store_inferences
+    description: "Staging model with vertifier of current store_id provided by antifraud inferences."
+    columns:
+      - name: store_id
+        description: "Unique identifier of the store. External key."
+        tests:
+          - not_null
+      - name: vertifier
+        description: "Identification of a possible vertical for the store."
+      - name: created_at
+        description: "Timestamp when the vertifier was originally created."
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created."
+      - name: sys_audit_created_by
+        description: "System or user that created the row."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the most recent update to the row."
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row."
+
+  - name: github_data__issue_labels
+    description: "Staging model that concatenates every label associated to the issue in one row, to avoid duplicates. We use this table to categorize the Issue/Problem in different ways."
+    columns: 
+      - name: repo_name
+        description: "Determines if row is related to an Issue or Problem"
+      - name: issue_number
+        description: "Identifies the identification of the Issue/Problem. Combined with repo_name, they make the unique key"
+      - name: labels_tipo
+        description: "Type of Issue/Problem, based on the nature of the domain. It can be App, Others or Core"
+      - name: labels_domain
+        description: "Domain related to the Issue/Problem"
+      - name: labels
+        description: "List of all labels related to the Issue/Problem"
+      - name: labels_country
+        description: "Used only for Platform Development. Specifies which country is affected by an Issue/Problem"
+      - name: labels_wip
+        description: "Labels that determine if the Issue/Problem is being solved, and which step is it in"
+      - name: labels_quick_fix
+        description: "If the issue has a quick fix, will have a label with that name"
+    config:
+      meta:
+        tech_steward: "fabrizio.crivella@tiendanube.com"
+        domain: "product"
+        owner: "Martin Palombo"
+  - name: github_data__wip_labels
+    description: "Staging model that persists information about Working in Progress labels, becouse we need to know when they started and ended, to determine de duration of the lifecycle of an Issue/Problem"
+    columns:
+      - name: repo_name
+        description: "Determines if row is related to an Issue or Problem"
+      - name: issue_number
+        description: "Identifies the identification of the Issue/Problem. Combined with repo_name, they make the unique key"
+      - name: wip_label
+        description: "Step of Working in Progress in whitch the Issue/Problem is right now"
+      - name: wip_last_updated
+        description: "Date when the WIP label was included"
+      - name: wip_last_deleted
+        description: "Date when the WIP label was removed"
+    config:
+      meta:
+        tech_steward: "fabrizio.crivella@tiendanube.com"
+        domain: "product"
+        owner: "Martin Palombo"
+  - name: github_data__merchant_impact
+    description: "Staging model that gets information about merchants associated to an Issue/Problem. Information such as GMV and impact"
+    columns:
+      - name: repo_name
+        description: "Determines if row is related to an Issue or Problem"
+      - name: issue_number
+        description: "Identifies the identification of the Issue/Problem. Combined with repo_name, they make the unique key"
+      - name: issue_state
+        description: "Determines if the Issue/Problem is Open or Closed"
+      - name: store_id
+        description: "Unique identifier to the store related to the Issue/Problem"
+      - name: store_impact
+        description: "Only for Mid Market stores, determines the criticity of the comment"
+      - name: sum_gmv
+        description: "Monthly average GMV from the last 4 closed months"
+      - name: sum_gmv_usd
+        description: "Monthly average GMV from the last 4 closed months in USD"
+    config:
+      meta:
+        tech_steward: "fabrizio.crivella@tiendanube.com"
+        domain: "product"
+        owner: "Martin Palombo"

@@ -3,7 +3,7 @@
         materialized='incremental',
         unique_key='store_id',
         on_schema_change='fail',
-        tags=["finance","daily-6am-6pm"]
+        tags=["operations","daily-8am-8pm"]
     )
 }}
 
@@ -17,7 +17,11 @@ WITH source AS (
         created_at,
         first_payment,
         currency,
-        plan
+        plan,
+        verified,
+        register_url,
+        partner_id,
+        partnership_type
     FROM {{ source('stg_moltres', 'mwp_store_info') }}
     WHERE state != 4 
     {% if is_incremental() %}
@@ -42,9 +46,13 @@ SELECT
     churned_at,
     created_at,
     plan,
+    verified,
+    register_url,
+    partner_id,
+    partnership_type,
     COALESCE(e.sys_audit_created_on, current_timestamp) AS sys_audit_created_on,
     COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by,
     current_timestamp AS sys_audit_updated_on,
     'data-dev-dbt-products' AS sys_audit_updated_by
 FROM source
-LEFT JOIN existing_data e ON source.id = e.store_id
+LEFT JOIN existing_data e ON source.id = e.store_id 

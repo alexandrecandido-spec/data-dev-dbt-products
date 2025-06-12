@@ -145,6 +145,73 @@ models:
       - name: sys_audit_updated_by
         description: "System identifier of the process that last updated this record"
 
+  - name: ga4_sessions_with_dimensions
+    description: "Final data product for GA4 session analysis, enriched with traffic source, country, environment, login flags, engagement status, and user classification (new vs. returning). Includes both only-login and full sessions, grouped for comparison."
+    config:
+      meta:
+        owner: "sofia.torres@tiendanube.com"
+        domain: "marketing"
+    columns:
+      - name: date
+        description: "Date of the session, extracted from the event_date_parsed of the first pageview per session."
+        tests:
+          - not_null
+      - name: source_ga4_classification
+        description: "Traffic source classification, taken directly from source field in mod_pv_info."
+      - name: original_user_country
+        description: "User's original country, based on mpv_country field in mod_pv_info."
+      - name: classified_country
+        description: "Derived country code based on original_user_country and source classification logic."
+      - name: env
+        description: "Navigation environment, based on mpv_env field in mod_pv_info."
+      - name: landing_page
+        description: "Landing page of the session, extracted from mpv_landing_page field in mod_pv_info."
+      - name: event_source
+        description: "Last recorded source in the session, from mpv_last_source in mod_pv_info."
+      - name: event_medium
+        description: "Last recorded medium in the session, from mpv_last_medium in mod_pv_info."
+      - name: only_login_session
+        description: "Flag indicating whether the session only involved login actions (without trial or payment)."
+        tests:
+          - accepted_values:
+              values: [0, 1]
+      - name: user_type
+        description: "User classification: 'New' if the session date matches their first_visit date; 'Returning' otherwise."
+        tests:
+          - accepted_values:
+              values: ['New', 'Returning', 'Unknown']
+      - name: engage
+        description: "Engagement flag for the session, based on session_info (1 = engaged, 0 = not engaged)."
+        tests:
+          - accepted_values:
+              values: [0, 1]
+      - name: distinct_user_count
+        description: "Count of distinct user_pseudo_id within the session and dimension combination."
+      - name: distinct_session_count
+        description: "Count of distinct unique_session_id within the session and dimension combination."
+      - name: total_trials
+        description: "Total number of sessions where a trial event was recorded (from tp_info)."
+      - name: total_payments
+        description: "Total number of sessions where a payment event was recorded (from tp_info)."
+      - name: total_engagements
+        description: "Sum of sessions marked as engaged, based on session_info."
+      - name: avg_session_duration_engaged
+        description: "Average session duration in minutes, considering only engaged sessions."
+      - name: median_session_duration_engaged
+        description: "Median session duration in minutes, calculated with APPROX_PERCENTILE over engaged sessions."
+      - name: avg_pageviews_per_session_engaged
+        description: "Average number of pageviews per engaged session."
+      - name: median_pageviews_per_session_engaged
+        description: "Median number of pageviews per engaged session, calculated with APPROX_PERCENTILE."
+      - name: sys_audit_created_on
+        description: "System timestamp when the record was created."
+      - name: sys_audit_created_by
+        description: "System identifier for the process that created the record."
+      - name: sys_audit_updated_on
+        description: "System timestamp when the record was last updated."
+      - name: sys_audit_updated_by
+        description: "System identifier for the process that last updated the record."
+
   
   - name: ga4_sessions_metrics
     description: "Aggregated metrics for GA4 sessions, including counts, sums, averages, and percentiles."

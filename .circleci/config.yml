@@ -153,7 +153,7 @@ commands:
             - run:
                 name: Setup DBT environment
                 command: |
-                  pip install dbt-core dbt-databricks
+                  pip install dbt-core==1.9.1 dbt-databricks==1.9.1
             - create-dbt-profiles
             - run:
                 name: Run DBT deps
@@ -205,6 +205,7 @@ commands:
                   fi
                   
                   echo "Successfully ran all modified models and their dependencies"
+                no_output_timeout: 30m
   deploy-dbt-project:
     parameters:
       dp-dbt-project-location:
@@ -227,7 +228,7 @@ commands:
       - run:
           name: Setup DBT environment
           command: |
-            pip install dbt-core dbt-databricks
+            pip install dbt-core==1.9.1 dbt-databricks==1.9.1
       - create-dbt-profiles
       - run:
           name: Run DBT deps
