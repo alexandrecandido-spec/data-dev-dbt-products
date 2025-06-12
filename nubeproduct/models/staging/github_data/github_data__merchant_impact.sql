@@ -29,7 +29,7 @@ WITH data AS (
             store_id,
             SUM(gmv_usd_monthly) AS sum_gmv,
             AVG(gmv_usd_monthly) AS avg_gmv_usd
-        FROM {{ ref('finance_store_gmv_and_segments') }}
+        FROM {{ ref('company_metrics_gmv_and_segments') }}
         WHERE datemonth >= date_add(month, -4, current_date) -- For BigQuery
         -- WHERE datemonth >= DATEADD(month, -4, CURRENT_DATE()) -- For Snowflake
         GROUP BY 1
