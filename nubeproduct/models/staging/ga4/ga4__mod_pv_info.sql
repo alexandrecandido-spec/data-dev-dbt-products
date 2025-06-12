@@ -20,6 +20,7 @@ SELECT
     mpv_last_source AS last_source,
     mpv_last_medium AS last_medium,
     mpv_last_campaign AS last_campaign,
+    regexp_extract(mpv_landing_page, 'id_([0-9]+)&utm', 1) AS utm_ad_id,
     current_timestamp AS sys_audit_created_on,
     'data-dev-dbt-products' AS sys_audit_created_by,
     current_timestamp AS sys_audit_updated_on,

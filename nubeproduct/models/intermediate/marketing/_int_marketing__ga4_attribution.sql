@@ -8,7 +8,8 @@ WITH source AS (
     landing_page,
     last_source,
     last_medium,
-    last_campaign
+    last_campaign,
+    utm_ad_id
   FROM {{ ref('ga4_sessions_metrics') }}
 ),
 
@@ -33,13 +34,22 @@ utm_attr AS (
   WHERE input_type = 'UTM'
 ),
 
-url_inst_attr AS (
+url_attr AS (
   SELECT
-    landing_page_path,
+    url,
     team        AS url_team,
     subteam     AS url_subteam
   FROM {{ ref('inputs_marketing_attribution') }}
-  WHERE input_type IN ('URL','INSTI')
+  WHERE input_type ='URL'
+),
+
+inst_attr AS (
+  SELECT
+    landing_page_path,
+    team        AS inst_team,
+    subteam     AS inst_subteam
+  FROM {{ ref('inputs_marketing_attribution') }}
+  WHERE input_type ='INSTI'
 ),
 
 ref_attr AS (
@@ -55,8 +65,10 @@ SELECT
   s.*,
   COALESCE(sub.subteam_team, u.utm_team, 'Others')      AS utm_team,
   COALESCE(sub.subteam_subteam, u.utm_subteam, 'Others') AS utm_subteam,
-  ui.url_team,
-  ui.url_subteam,
+  ur.url_team,
+  ur.url_subteam,
+  ins.url_team,
+  ins.url_subteam,
   rf.ref_team,
   rf.ref_subteam
 FROM source s
@@ -68,13 +80,18 @@ LEFT JOIN subteam_attr sub
  AND s.last_campaign = sub.utm_campaign
 
 -- Fallback UTM 
-LEFT JOIN utm_attr u
+LEFT JOIN utm_attr url
   ON s.last_source   = u.utm_source
  AND s.last_medium   = u.utm_medium
 
--- URL/INSTI sigue sólo sobre landing_page
-LEFT JOIN url_inst_attr ui
-  ON s.landing_page LIKE ui.landing_page_path
+-- URL sigue sólo sobre landing_page
+LEFT JOIN url_attr ur
+  ON s.landing_page LIKE ur.url
+
+
+-- INSTI sigue sólo sobre landing_page
+LEFT JOIN url_inst_attr ins
+  ON s.landing_page LIKE ins.landing_page_path
 
 -- REFERRER sobre landing_page
 LEFT JOIN ref_attr rf

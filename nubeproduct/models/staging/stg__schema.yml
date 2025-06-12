@@ -130,6 +130,8 @@ models:
         description: "Last known traffic medium for the session."
       - name: mpv_last_campaign
         description: "Last recorded campaign associated with the session from GA4 pageviews."
+      - name: utm_ad_id
+        description: "ad id associated with the session from GA4 pageviews."
 
 
   - name: nuvem_credito__credit_proposals
