@@ -9,8 +9,8 @@ SELECT
     gi.input_number,
     gi.input_title,
     CASE WHEN gi.issue_type IN ('UTM', 'SUBTEAM_MKT', 'REFERRER', 'PARTNER_CODE', 'PARTNER_FRAUD', 'AFFILIATE_LIST') THEN gi.issue_type
-        WHEN gi.issue_type = 'URL' AND gi.url IS NOT NULL THEN 'URL'
-        WHEN gi.issue_type = 'URL' AND gi.url IS NULL THEN 'INSTI' END AS input_type,
+         WHEN gi.issue_type = 'URL' AND gi.url = 'nan' THEN 'INSTI' 
+         WHEN gi.issue_type = 'URL' AND gi.url IS NOT NULL THEN 'URL' END AS input_type,
     CASE WHEN gi.utm_source = 'nan' THEN NULL ELSE gi.utm_source END AS utm_source,
     CASE WHEN gi.utm_medium = 'nan' THEN NULL ELSE gi.utm_medium END AS utm_medium,
     CASE WHEN gi.utm_campaign = 'nan' THEN NULL ELSE gi.utm_campaign END AS utm_campaign,
