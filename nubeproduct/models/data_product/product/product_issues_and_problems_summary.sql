@@ -4,7 +4,7 @@
         incremental_strategy='merge',
         unique_key=['repo_name','store_id','issue_number'],
         on_schema_change='fail',
-        tags=["daily-4am"]
+        tags=["daily-8am"]
     )
 }}
 
