@@ -10,6 +10,7 @@ SELECT
     , ai.input_title
     , ai.input_type
     , ai.state
+    , ai.url
     , ai.landing_page_domain			
     , ai.landing_page_path				
     , ai.team

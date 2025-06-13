@@ -557,6 +557,8 @@ models:
         description: "Type of input, extracted from the issue title"
       - name: state
         description: "Current status of the GitHub issue/input (open or closed)"
+      - name: url
+        description: "Complete URL associated with the record, typically pointing to a landing page."
       - name: landing_page_domain
         description: "Domain of the landing page where the user first arrived"
       - name: landing_page_path
