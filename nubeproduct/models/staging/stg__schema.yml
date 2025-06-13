@@ -1,4 +1,4 @@
-version: 2
+xversion: 2
 models:
   - name: moltres__mwp_store_info
     description: "Staging model that contains data about each store, such as store ID, country, creation and churn dates and other attributes."
@@ -68,7 +68,7 @@ models:
           - not_null
 
 
-  - name: ga4__event_info
+ - name: ga4__event_info
     description: "Staging model for GA4 events information. Includes user sessions and event metadata."
     config:
       meta:
