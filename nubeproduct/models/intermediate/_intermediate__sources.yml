@@ -1,5 +1,6 @@
 version: 2
 
+
 sources:
   - name: int_moltres
     database: null
@@ -34,14 +35,7 @@ sources:
       - name: finance_exchange_rate_ars_to_usd
       - name: marketing_github_mkt_attribution
         description: "List of marketing github issues/inputs created by the marketing team"
-
-  - name: int_ga4    
-    database: null
-    schema: ga4
-    description: "GA4 refined tables available in Danubio"
-    tables:
-      - name: first_visit
-        description: "Table from GA4 containing the first visit date for each user_pseudo_id."
+      - name: midmarket_hubspot_deals
 
   - name: int_nuvem_credito
     description: "Source containing tables related to Nuvem credito"
@@ -62,10 +56,6 @@ sources:
     database: null
     schema: credito_dev
     tables:
-      - name: ga4_sessions_with_dimensions
-        description: "Intermediate table that combines GA4 session-level data, enriched with login, trial, payment flags, engagement markers, and navigation metrics."
-      - name: ga4_first_visit
-        description: "Primera fecha de visita registrada para cada usuario"
       - name: historical_credits_offers
         description: "Credit proposals link with engine offer id"
 
@@ -113,3 +103,11 @@ sources:
     tables:
       - name: mwp_partners
         description: "Contains information about the partners of the ecosystem."
+
+  - name: int_ga4    
+    database: null
+    schema: ga4
+    description: "GA4 refined tables available in Danubio"
+    tables:
+      - name: first_visit
+        description: "Table from GA4 containing the first visit date for each user_pseudo_id."
