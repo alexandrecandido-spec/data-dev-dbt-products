@@ -17,11 +17,7 @@ WITH all_pageviews AS (
         ROW_NUMBER() OVER (
             PARTITION BY unique_session
             ORDER BY event_timestamp ASC
-        ) AS rn,
-        -- total pageviews per session 
-        COUNT(*) OVER (
-            PARTITION BY unique_session
-        ) AS pageviews_per_session
+        ) AS rn
     FROM {{ ref('ga4__mod_pv_info') }}
     WHERE unique_session IS NOT NULL
 )
