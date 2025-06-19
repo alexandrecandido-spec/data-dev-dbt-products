@@ -48,6 +48,8 @@ models:
       +materialized: ephemeral
       operations:
         +tags: ["operations"]
+      agencies:
+        +tags: ["agencies"]
       finance:
         +tags: ["finance"]
       fintech:
@@ -60,6 +62,8 @@ models:
         +tags: ["midmarket"]
       product:
         +tags: ["product"]
+      support:
+        +tags: ["support"]
 
     data_product:
       +materialized: table
@@ -68,6 +72,10 @@ models:
         +schema: operations
         +tags: ["operations"]
         +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/data_product/operations/"
+      agencies:
+        +schema: agencies
+        +tags: ["agencies"]
+        +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/data_product/agencies/"
       finance:
         +schema: finance
         +tags: ["finance"]
@@ -92,6 +100,10 @@ models:
         +schema: product
         +tags: ["product"]
         +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/data_product/product/"
+      support:
+        +schema: support
+        +tags: ["support"]
+        +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/data_product/support/"
 
   dbt_artifacts:
     +materialized: table
