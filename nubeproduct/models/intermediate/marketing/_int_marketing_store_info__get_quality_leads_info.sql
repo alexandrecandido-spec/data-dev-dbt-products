@@ -2,6 +2,7 @@ WITH store_info_data AS (
   SELECT
     msi.store_id
     , msi.country
+    , CAST(date_format(msi.created_at, 'yyyyMMdd') AS INT) AS year_month_day_code
     , DATE(msi.created_at) AS created_at
     , DATE(msi.first_payment) AS first_payment
     , DATE(msi.churned_at) AS churned_at

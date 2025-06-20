@@ -2,7 +2,7 @@
     materialized = 'incremental',
     incremental_strategy = 'merge',
     unique_key = ['click_id', 'store_id'],
-    partition_by = 'created_at',
+    partition_by = 'year_month_day_code',
     on_schema_change = 'fail',
     tags = ["marketing", 'daily-9am']
 ) }}
@@ -27,6 +27,7 @@ SELECT
 , main_source.landing_page_path
 , main_source.attribution_source
 , main_source.country
+, main_source.year_month_day_code
 , main_source.created_at
 , main_source.first_payment
 , main_source.churned_at
