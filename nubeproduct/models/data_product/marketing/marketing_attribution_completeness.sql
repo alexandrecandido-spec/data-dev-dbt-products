@@ -2,7 +2,7 @@
     materialized = 'incremental',
     incremental_strategy = 'merge',
     unique_key = ['country', 'created_at', 'device'],
-    partition_by = 'created_at',
+    partition_by = 'year_month_day_code',
     on_schema_change = 'fail',
     tags = ["marketing", 'daily-9am'] 
 ) }}
@@ -14,6 +14,7 @@ WITH existing_data AS (
 SELECT 
   main_source.country
 , main_source.created_at
+, main_source.year_month_day_code
 , main_source.device
 , main_source.stores_source_local_db
 , main_source.stores_source_amplitude
