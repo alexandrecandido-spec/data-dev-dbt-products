@@ -1,31 +1,33 @@
 {{ config(
-    materialized = 'incremental',
+    materialized         = 'incremental',
     incremental_strategy = 'merge',
-    unique_key = ['unique_session', 'event_name', 'event_date', 'event_device'],
-    partition_by = ['year_month_code'],
-    tags = ['daily-5am'],
-    on_schema_change = 'fail'
+    partition_by         = ['year_month_day_code'],
+    unique_key           = ['unique_session','event_name','event_date','event_device'],
+    on_schema_change     = 'sync_all_columns',
+    tags                 = ['daily-5am']
 ) }}
 
-SELECT
-    unique_session,
-    event_name,
-    event_date,
-    event_device,
-    date_format(event_date, 'yyyyMM') AS year_month_code,
-    current_timestamp AS sys_audit_created_on,
-    'data-dev-dbt-products' AS sys_audit_created_by,
-    current_timestamp AS sys_audit_updated_on,
-    'data-dev-dbt-products' AS sys_audit_updated_by
-FROM {{ source('stg_ga4', 'event_info') }}
-WHERE 1=1
-  AND unique_session IS NOT NULL
-  {% if not is_incremental() %}
-    AND event_date >= DATE '2024-01-01'
-  {% endif %}
-  {% if is_incremental() %}
-    AND sys_audit_updated_on > (
-      SELECT COALESCE(MAX(sys_audit_updated_on), DATE '1900-01-01')
-      FROM {{ this }}
-    )
-  {% endif %}
+WITH base AS (
+    SELECT
+        unique_session,
+        event_name,
+        event_date,
+        event_device,
+        CASE WHEN instr(lower(event_name),'login')>0 THEN 'login' ELSE 'other' END AS event_type,
+        CAST(date_format(event_date,'yyyyMMdd') AS int)         AS year_month_day_code,
+        current_timestamp()                                      AS sys_audit_updated_on
+    FROM {{ source('stg_ga4','event_info') }}
+    WHERE unique_session IS NOT NULL
+      AND event_date >= DATE '2024-01-01'             
+)
+
+SELECT *
+FROM   base
+WHERE
+    {% if is_incremental() %}
+        year_month_day_code >= CAST(date_format(date_sub(current_date(),3),'yyyyMMdd') AS int)
+        AND sys_audit_updated_on >= (
+              SELECT COALESCE(MAX(sys_audit_updated_on), TIMESTAMP '1900-01-01')
+              FROM {{ this }}
+            )
+    {% endif %}

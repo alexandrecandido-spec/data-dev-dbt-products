@@ -1,8 +1,21 @@
--- Optimized ordering of pageviews with session-level count
-WITH all_pageviews AS (
+WITH ranked AS (               
+    SELECT
+        mpv.*,
+        ROW_NUMBER() OVER (
+            PARTITION BY unique_session
+            ORDER BY event_timestamp
+        ) AS rn,
+        COUNT(*) OVER (
+            PARTITION BY unique_session
+        ) AS pageviews_per_session
+    FROM {{ ref('ga4__mod_pv_info') }} mpv
+),
+
+first_pv AS (                    
     SELECT
         event_timestamp,
         event_date,
+        year_month_day_code,
         user_pseudo_id,
         unique_session,
         source_ga4_classification,
@@ -12,15 +25,16 @@ WITH all_pageviews AS (
         last_source,
         last_medium,
         last_campaign,
-        utm_ad_id,
-        -- sequential rank per session by timestamp
-        ROW_NUMBER() OVER (
-            PARTITION BY unique_session
-            ORDER BY event_timestamp ASC
-        ) AS rn
-    FROM {{ ref('ga4__mod_pv_info') }}
-    WHERE unique_session IS NOT NULL
+        pageviews_per_session,
+
+        regexp_extract(landing_page,'id_([0-9]+)&utm',1) AS utm_ad_id,
+        CASE WHEN instr(lower(landing_page),'login')>0
+             THEN 'login' ELSE 'other' END             AS landing_page_type
+    FROM ranked
+    WHERE rn = 1
 )
 
-SELECT *
-FROM all_pageviews
+SELECT * FROM first_pv
+
+
+

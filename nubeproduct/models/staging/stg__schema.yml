@@ -195,8 +195,10 @@ models:
         description: "Date when the event occurred."
       - name: event_device
         description: "Device category (mobile, desktop, etc.) associated with each event."
-      - name: year_month_code
-        description: "YYYYMM code for monthly partitioning."
+      - name: year_month_day_code
+        description: "YYYYMMDD code for monthly partitioning."
+      - name: event_type
+        description: "Classifies the event as 'login' or 'other' based on event_name content."
 
   - name: ga4__tp_info
     description: "Staging model for trials and payments information from GA4."
@@ -219,8 +221,8 @@ models:
         description: "Date when the payment was made."
       - name: trial_year_month_code
         description: "YYYYMM code based on trial_date."
-      - name: payment_year_month_code
-        description: "YYYYMM code based on payment_date."
+      - name: payment_year_month_day_code
+        description: "YYYYMMDD code based on payment_date."
 
   - name: ga4__session_info
     description: "Staging model for user sessions duration and engagement flags."
@@ -243,8 +245,8 @@ models:
         description: "Engagement flag for the session."
       - name: start_session_date
         description: "Start date of the session."
-      - name: year_month_code
-        description: "YYYYMM code for monthly partitioning."
+      - name: year_month_day_code
+        description: "YYYYMMDD code for monthly partitioning."
 
   - name: ga4__mod_pv_info
     description: "Staging model for GA4 pageviews enriched with traffic source and landing page information."
@@ -257,7 +259,7 @@ models:
         description: "Timestamp of the pageview event."
       - name: event_date
         description: "Parsed event date from GA4."
-      - name: year_month_code
+      - name: year_month_day_code
         description: "YYYYMM code for monthly partitioning."
       - name: user_pseudo_id
         description: "Anonymized identifier for the user."
@@ -281,3 +283,5 @@ models:
         description: "Last recorded campaign."
       - name: utm_ad_id
         description: "Ad ID extracted from landing page."
+      - name: landing_page_type
+        description: "Classifies the landing page as 'login' or 'other' based on URL content."

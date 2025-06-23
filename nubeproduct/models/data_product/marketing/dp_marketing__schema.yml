@@ -791,80 +791,85 @@ models:
         description: "System identifier of the process that last updated this record"
 
 
-  - name: marketing_ga4_sessions_dimensions_metrics_attributed
-    description: "Data product layer exposing aggregated GA4 sessions with marketing source and subteam."
+  - name: marketing_ga4_sessions_classified
+    description:  Session-level table produced once per day.  
+      Adds the heavy country-classification logic to the raw
+      “sessions + dimensions” model and persists it for reuse.
     config:
       meta:
-        owner: "sofia.torres@tiendanube.com"
-        domain: "marketing" 
+        owner: sofia.torres@tiendanube.com
+        domain: marketing
     columns:
+      - name: year_month_day_code
+        description: "Daily partition code (YYYYMMDD)."
+        tests: [not_null]
       - name: date
-        description: "aggreated session date."
-        tests:
-          - not_null
-      - name: year_month_code
-        description: "YYYYMM code derived from date for partitioning and incremental loads."
-        tests:
-          - not_null
-      - name: source_ga4_classification
-        description: "Original GA4 source classification field."
-      - name: original_user_country
-        description: "User's original country."
+        description: "Session date."
+        tests: [not_null]
+      - name: unique_session
+        description: "Unique session identifier."
+        tests: [not_null]
       - name: classified_country
-        description: "Country classification applied."
+        description: "Country after business classification."
+      - name: source_ga4_classification
+        description: "Original GA4 source label."
       - name: env
-        description: "Environment."
-      - name: landing_page
-        description: "URL of the landing page."
-      - name: last_source
-        description: "Last marketing source."
-      - name: last_medium
-        description: "Last medium (e.g., organic, cpc, direct)."
-      - name: last_campaign
-        description: "Last campaign name."
-      - name: first_event_device
-        description: "Device of the first event in the session."
-      - name: last_event_device
-        description: "Device of the last event in the session."
-      - name: only_login_session
-        description: "Flag indicating sessions only for login."
-      - name: user_type
-        description: "User type classification (e.g., new vs returning)."
+        description: "Navigation environment (web, admin, etc.)."
+      - name: engage
+        description: "GA4 engage flag (0/1)."
+      - name: trial
+        description: "1 if a trial started during the session."
+      - name: payment
+        description: "1 if a payment event happened during the session."
+
+  - name: marketing_ga4_sessions_aggregated
+    description: Daily aggregation of GA4 sessions with engagement, trial and payment
+      metrics.  One row per unique combination of traffic dimensions +
+      country + device + session flags.
+    config:
+      meta:
+        owner: sofia.torres@tiendanube.com
+        domain: marketing
+    columns:
+      - name: year_month_day_code
+        description: "Daily partition code (YYYYMMDD)."
+        tests: [not_null]
+      - name: date
+        description: "Session date."
+        tests: [not_null]
+      - name: classified_country
+        description: "Country bucket used for reporting."
       - name: session_status
-        description: "'Engaged' vs 'Bounced' status."
-      - name: utm_ad_id
-        description: "UTM advertisement identifier."
-      - name: distinct_user_count
-        description: "Count of distinct users."
+        description: "'Engaged' or 'Bounced'."
       - name: distinct_session_count
-        description: "Count of distinct sessions."
+        description: "Number of distinct sessions in the aggregation."
+        tests: [not_null]
       - name: total_trials
-        description: "Total number of trials."
+        description: "Total trial events."
       - name: total_payments
-        description: "Total number of payments."
-      - name: total_engagements
-        description: "Total engagement actions."
+        description: "Total payment events."
       - name: avg_session_duration
-        description: "Average session duration."
-      - name: median_session_duration
-        description: "Median session duration."
+        description: "Average duration (minutes) for engaged sessions."
       - name: avg_pageviews_per_session
-        description: "Average pageviews."
-      - name: median_pageviews_per_session
-        description: "Median pageviews."
+        description: "Average pageviews for engaged sessions."
+
+  - name: marketing_ga4_sessions_daily_attribution
+    description:  Marketing data-product exposing the aggregated sessions table with
+      attribution fields (mkt_source, mkt_subteam) applied.
+    config:
+      meta:
+        owner: sofia.torres@tiendanube.com
+        domain: marketing
+    columns:
+      - name: year_month_day_code
+        description: "Daily partition code (YYYYMMDD)."
+        tests: [not_null]
       - name: mkt_source
-        description: "Assigned marketing source based on mkt_attribution logic."
-        tests:
-          - not_null
+        description: "Marketing source assigned by attribution logic."
+        tests: [not_null]
       - name: mkt_subteam
-        description: "Assigned marketing subteam based on mkt_attribution logic."
-      - name: sys_audit_created_on
-        description: "Timestamp when the record was generated in the data product layer."
-        tests:
-          - not_null
-      - name: sys_audit_created_by
-        description: "User/app that created the record."
-      - name: sys_audit_updated_on
-        description: "Timestamp when the record was last updated in the data product layer."
-      - name: sys_audit_updated_by
-        description: "User/app that last updated the record."
+        description: "Marketing sub-team assigned by attribution logic."
+      - name: distinct_user_count
+        description: "Distinct users in the aggregation."
+      - name: total_engagements
+        description: "Engaged sessions counted after attribution."
