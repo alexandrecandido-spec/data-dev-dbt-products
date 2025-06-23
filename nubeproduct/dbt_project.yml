@@ -48,8 +48,8 @@ models:
       +materialized: ephemeral
       operations:
         +tags: ["operations"]
-      agencies:
-        +tags: ["agencies"]
+      partners:
+        +tags: ["partners"]
       finance:
         +tags: ["finance"]
       fintech:
@@ -74,10 +74,10 @@ models:
         +schema: operations
         +tags: ["operations"]
         +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/data_product/operations/"
-      agencies:
-        +schema: agencies
-        +tags: ["agencies"]
-        +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/data_product/agencies/"
+      partners:
+        +schema: partners
+        +tags: ["partners"]
+        +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/data_product/partners/"
       finance:
         +schema: finance
         +tags: ["finance"]
