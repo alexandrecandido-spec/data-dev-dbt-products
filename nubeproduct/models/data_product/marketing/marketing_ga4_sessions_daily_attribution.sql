@@ -1,22 +1,17 @@
 {{ 
   config(
-    materialized          = 'incremental',
-    incremental_strategy  = 'merge',
-    partition_by          = ['year_month_day_code'],
-    cluster_by            = ['year_month_day_code','session_status'],
-    incremental_predicates= [
-      "year_month_day_code >= CAST(date_format(date_sub(current_date(), 3), 'yyyyMMdd') AS INT)"
-    ],
-    unique_key            = ['row_hash'],
-    on_schema_change      = 'sync_all_columns',
-    tags                  = ['daily-5am']
+    materialized         = "incremental",
+    incremental_strategy = "merge",
+    partition_by         = ["year_month_day_code"],
+    cluster_by           = ["year_month_day_code","session_status"],
+    unique_key           = ["row_hash"],
+    on_schema_change     = "sync_all_columns",
+    tags                 = ["daily-5am"]
   ) 
 }}
 
---------------------------------------------------------------------------------
--- 1) Source CTE: pull only the columns you need + create a single merge key
---------------------------------------------------------------------------------
 WITH source_data AS (
+
   SELECT
     -- daily partition key
     CAST(date_format(date, 'yyyyMMdd') AS INT) AS year_month_day_code,
@@ -50,7 +45,7 @@ WITH source_data AS (
     mkt_source,
     mkt_subteam,
 
-    -- single MD5 hash of all dimensions = one easy unique_key
+    -- single hash for MERGE
     md5(concat_ws('||',
       CAST(date_format(date,'yyyyMMdd') AS INT),
       source_ga4_classification,
@@ -69,14 +64,30 @@ WITH source_data AS (
       utm_ad_id,
       mkt_source,
       mkt_subteam
-    )) AS row_hash
+    )) AS row_hash,
+
+    sys_audit_updated_on
 
   FROM {{ ref('_int_marketing__ga4_sessions_attribution') }}
+
+  {% if is_incremental() %}
+    WHERE 
+      CAST(date_format(date,'yyyyMMdd') AS INT)
+        >= (
+          SELECT COALESCE(MAX(year_month_day_code), 19000101)
+          FROM {{ this }}
+        )
+      AND sys_audit_updated_on 
+        >= (
+          SELECT COALESCE(MAX(sys_audit_updated_on), TIMESTAMP '1900-01-01')
+          FROM {{ this }}
+        )
+  {% else %}
+    WHERE date >= DATE '2024-01-01'
+  {% endif %}
+
 )
 
---------------------------------------------------------------------------------
--- 2) Final SELECT drives the MERGE—only one source alias, no ambiguity
---------------------------------------------------------------------------------
 SELECT
   year_month_day_code,
   CAST(year_month_day_code / 100 AS INT) AS year_month_code,
@@ -109,7 +120,6 @@ SELECT
 
   mkt_source,
   mkt_subteam,
-
   row_hash,
 
   -- audit columns
@@ -119,7 +129,6 @@ SELECT
   'data-dev-dbt-products' AS sys_audit_updated_by
 
 FROM source_data
-
 
 
 
