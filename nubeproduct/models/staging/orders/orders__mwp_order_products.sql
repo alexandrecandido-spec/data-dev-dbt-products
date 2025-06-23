@@ -2,6 +2,7 @@
     materialized = 'incremental',
     unique_key = ['id'],
     incremental_strategy = 'merge',
+    partition_by='year_month_day_code',
     tags=["operations","daily-9am-9pm"]
 ) }}
 
@@ -13,8 +14,7 @@ with source as (
         quantity,
         created_at,
         updated_at,
-        TO_TIMESTAMP(deleted_at, 'yyyy-MM-dd HH:mm:ss') AS deleted_at,
-        CAST(date_format(created_at, 'yyyyMMdd') AS INT) AS year_month_day_code
+        TO_TIMESTAMP(deleted_at, 'yyyy-MM-dd HH:mm:ss') AS deleted_at
     from {{ source('stg_orders', 'mwp_order_products') }}
     where
     {% if not is_incremental() %}
@@ -37,8 +37,8 @@ select
     source.created_at,
     source.updated_at,
     source.deleted_at,
-    source.year_month_day_code,
     greatest(source.created_at, source.updated_at, source.deleted_at) as change_timestamp,
+    CAST(date_format(greatest(source.created_at, source.updated_at, source.deleted_at), 'yyyyMMdd') AS INT) AS year_month_day_code,
     COALESCE(e.sys_audit_created_on, current_timestamp) AS sys_audit_created_on,
     COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by,
     current_timestamp AS sys_audit_updated_on,
