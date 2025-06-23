@@ -48,6 +48,7 @@ SELECT
     orders.payment,
     orders.shipping,
     orders.platform_type,
+    products.product_quantity,
     orders.year_month_day_code,
     CASE
         WHEN orders.country = 'AR' and orders.currency = 'ARS' THEN FALSE
@@ -62,6 +63,7 @@ SELECT
     current_timestamp AS sys_audit_updated_on,
     'data-dev-dbt-products' AS sys_audit_updated_by
 FROM {{ ref('_int_company_metrics_paid_orders__get_store_info') }} orders
+LEFT JOIN {{ ref('company_metrics_products_per_order') }} products ON orders.id = products.order_id
 LEFT JOIN existing_data e ON orders.id = e.id
 WHERE
 {% if not is_incremental() %}
@@ -72,5 +74,6 @@ WHERE
     >= (SELECT MAX(DATE(sys_audit_updated_on)) FROM {{ this }})
     OR orders.cancelled_at
     >= (SELECT MAX(DATE(sys_audit_updated_on)) FROM {{ this }})
+    OR products.sys_audit_updated_on > (SELECT MAX(DATE(sys_audit_updated_on)) FROM {{ this }})
 {% endif %}
 ;

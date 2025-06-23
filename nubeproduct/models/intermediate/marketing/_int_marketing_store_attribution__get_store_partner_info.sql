@@ -23,6 +23,7 @@ att.store_id
 , lower(att.landing_page_path) AS landing_page_path
 , att.attribution_source
 , msi.country
+, msi.year_month_day_code
 , msi.created_at
 , msi.first_payment
 , msi.churned_at

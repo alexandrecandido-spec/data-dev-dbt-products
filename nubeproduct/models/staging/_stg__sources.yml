@@ -11,7 +11,10 @@ sources:
     database: null
     schema: orders
     tables:
-      - name: mwp_orders
+    - name: mwp_orders
+      description: "Orders generated throughout the entire site. Includes the order in its most current state."
+    - name: mwp_order_products
+      description: "Products associated with an order."
   
   - name: stg_third_party
     description: "Raw tables loaded from the ingestion of external data sources"
@@ -34,6 +37,7 @@ sources:
         description: "Raw table containing aggregated session data, including start and end times and engagement flags."
       - name: mod_pv_info
         description: "Raw table with enriched pageview data from GA4, including source and landing page details."
+
 
   - name: stg_nuvem_credito
     description: "Source containing tables related to Nuvem credito"

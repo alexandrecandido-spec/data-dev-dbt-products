@@ -3,8 +3,9 @@ models:
   - name: company_metrics_paid_orders
     config:
       meta:
-        owner: "gustavo.braga@nuvemshop.com.br"
+        tech_steward: "gustavo.braga@nuvemshop.com.br"
         domain: "operations"
+        owner: "Nico Loreti"
     description: >
       Contains the summary of paid orders by store, including currency-related data,
       payment gateways, shipping methods, and audit metadata.
@@ -72,6 +73,8 @@ models:
         description: YYYYMMDD code used for partitioning the data. Partition Key
         tests:
           - not_null
+      - name: product_quantity
+        description: Amount of products in the order 
       - name: is_foreign_currency
         description: Indicates whether the payment was made in a currency different from the expected local currency.
       - name: sys_audit_created_on
@@ -86,8 +89,9 @@ models:
   - name: company_metrics_gmv_and_segments
     config:
       meta:
-        owner: "gustavo.braga@nuvemshop.com.br"
+        tech_steward: "gustavo.braga@nuvemshop.com.br"
         domain: "operations"
+        owner: "Nico Loreti"
     description: >
       Contains monthly GMV, order metrics, and seller segmentation by store, both on and off platform,
       over the last closed month and the past 90 days. Segments are calculated based on proportional 
@@ -186,6 +190,7 @@ models:
       meta:
         owner: "djalma.dias@nuvemshop.com"
         domain: "operations"
+        owner: "Analytics Engineering"
     description: "This table informs the stores vertical like clothing, digital, cars, etc."
     columns:
       - name: store_id

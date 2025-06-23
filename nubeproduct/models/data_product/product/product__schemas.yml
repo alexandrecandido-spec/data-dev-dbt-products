@@ -5,8 +5,9 @@ models:
       Contains the summary of Issues and Problems with their respective comments and associated stores. 
     config:
       meta:
-        owner: "fabrizio.crivella@tiendanube.com"
+        tech_steward: "fabrizio.crivella@tiendanube.com"
         domain: "product"
+        owner: "Martin Palombo"
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: 
