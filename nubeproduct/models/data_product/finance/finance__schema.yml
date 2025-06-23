@@ -3,8 +3,9 @@ models:
   - name: finance_exchange_rate
     config:
       meta:
-        owner: "gustavo.braga@nuvemshop.com.br"
+        tech_steward: "gustavo.braga@nuvemshop.com.br"
         domain: "finance"
+        owner: "operations"
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: 

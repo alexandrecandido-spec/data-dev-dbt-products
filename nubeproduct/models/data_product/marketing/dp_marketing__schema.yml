@@ -32,8 +32,9 @@ models:
      - Perform custom analytics and reporting."
     config:
       meta:
-        owner: "ronald.corcho@tiendanube.com"
-        domain: "marketing" 
+        tech_steward: "ronald.corcho@tiendanube.com"
+        domain: "marketing"
+        owner: "Giselle Galli" 
     columns:
       - name: id
         description: "Unique identifier for the GitHub issue/input record"
@@ -155,8 +156,9 @@ models:
      - Perform custom analytics and reporting."
     config:
       meta:
-        owner: "ronald.corcho@tiendanube.com"
+        tech_steward: "ronald.corcho@tiendanube.com"
         domain: "marketing" 
+        owner: "Giselle Galli" 
     columns:
       - name: id
         description: "Unique identifier for the GitHub issue/input record"
@@ -275,8 +277,9 @@ models:
     description: "data product contains granular click-level data used in the marketing attribution model. Each click is linked to the responsible marketing team or source, enabling the attribution of acquisition results—such as store creation—to specific marketing efforts. This dataset supports performance analysis, reporting, and decision-making across acquisition channels"
     config:
       meta:
-        owner: "ronald.corcho@tiendanube.com"
+        tech_steward: "ronald.corcho@tiendanube.com"
         domain: "marketing" 
+        owner: "Giselle Galli" 
     columns:
       - name: store_id
         description: "Unique identifier for each store"
@@ -397,8 +400,9 @@ models:
     description: "data product contains the completeness data quality checks of the marketing attribution model"
     config:
       meta:
-        owner: "ronald.corcho@tiendanube.com"
+        tech_steward: "ronald.corcho@tiendanube.com"
         domain: "marketing" 
+        owner: "Giselle Galli" 
     columns:
       - name: country
         description: "Country associated with each store, based on registration data."
@@ -450,8 +454,9 @@ models:
      - Monitor and analyze UTM parameter effectiveness in campaign attribution"
     config:
       meta:
-        owner: "ronald.corcho@tiendanube.com"
+        tech_steward: "ronald.corcho@tiendanube.com"
         domain: "marketing"
+        owner: "Giselle Galli" 
     columns:
       - name: id
         description: "Unique identifier for the GitHub issue/input record"
@@ -498,8 +503,9 @@ models:
      - Monitor and analyze subteam parameter effectiveness in campaign attribution"
     config:
       meta:
-        owner: "ronald.corcho@tiendanube.com"
+        tech_steward: "ronald.corcho@tiendanube.com"
         domain: "marketing"
+        owner: "Giselle Galli" 
     columns:
       - name: id
         description: "Unique identifier for the GitHub issue/input record"
@@ -544,8 +550,9 @@ models:
      - Monitor and analyze URL parameter effectiveness in campaign attribution"
     config:
       meta:
-        owner: "ronald.corcho@tiendanube.com"
+        tech_steward: "ronald.corcho@tiendanube.com"
         domain: "marketing"
+        owner: "Giselle Galli" 
     columns:
       - name: id
         description: "Unique identifier for the GitHub issue/input record"
@@ -590,8 +597,9 @@ models:
      - Monitor and analyze INSTI parameter effectiveness in campaign attribution"
     config:
       meta:
-        owner: "ronald.corcho@tiendanube.com"
+        tech_steward: "ronald.corcho@tiendanube.com"
         domain: "marketing"
+        owner: "Giselle Galli" 
     columns:
       - name: id
         description: "Unique identifier for the GitHub issue/input record"
@@ -634,8 +642,9 @@ models:
      - Monitor and analyze referrer parameter effectiveness in campaign attribution"
     config:
       meta: 
-        owner: "ronald.corcho@tiendanube.com"
+        tech_steward: "ronald.corcho@tiendanube.com"
         domain: "marketing"
+        owner: "Giselle Galli" 
     columns:
       - name: id
         description: "Unique identifier for the GitHub issue/input record"
@@ -676,8 +685,9 @@ models:
      - Monitor and analyze partner fraud parameter effectiveness in campaign attribution"
     config:
       meta:
-        owner: "ronald.corcho@tiendanube.com"
+        tech_steward: "ronald.corcho@tiendanube.com"
         domain: "marketing"
+        owner: "Giselle Galli" 
     columns:
       - name: id
         description: "Unique identifier for the GitHub issue/input record"
@@ -716,8 +726,9 @@ models:
      - Monitor and analyze partner exception parameter effectiveness in campaign attribution"
     config:
       meta:
-        owner: "ronald.corcho@tiendanube.com"
+        tech_steward: "ronald.corcho@tiendanube.com"
         domain: "marketing"
+        owner: "Giselle Galli" 
     columns:
       - name: id
         description: "Unique identifier for the GitHub issue/input record"
@@ -758,8 +769,9 @@ models:
      - Monitor and analyze affiliate classification parameter effectiveness in campaign attribution"
     config:
       meta:
-        owner: "ronald.corcho@tiendanube.com"
+        tech_steward: "ronald.corcho@tiendanube.com"
         domain: "marketing"
+        owner: "Giselle Galli" 
     columns:
       - name: id
         description: "Unique identifier for the GitHub issue/input record"
