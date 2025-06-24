@@ -28,7 +28,7 @@ orders_updated (
         ) AS product_quantity
     FROM {{ ref('orders__mwp_order_products') }} products
     {% if is_incremental() %}
-        where order_id in orders_to_update
+        WHERE order_id IN (SELECT order_id FROM orders_to_update)
     {% endif %}
     GROUP BY order_id
 ),
