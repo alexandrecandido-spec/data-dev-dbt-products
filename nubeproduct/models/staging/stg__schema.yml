@@ -6,7 +6,7 @@ models:
       meta:
         tech_steward: "rodrigo.torres@tiendanube.com"
         domain: "finance"
-        owner: "Analytics Engineering"
+        business_owner: "Analytics Engineering"
     columns:
       - name: store_id
         description: "Store identifier."
@@ -40,12 +40,14 @@ models:
       - name: partnership_type
         description: "Type of partnership, if a partner was involved in the store's creation."
 
+
   - name: orders__mwp_orders
+    description: "All the orders in their different statuses"
     config:
       meta:
         tech_steward: "rodrigo.torres@tiendanube.com"
         domain: "finance"
-        owner: "Nico Loreti"
+        business_owner: "Nico Loreti"
     columns:
       - name: id
         description: "Unique identifier for the order."
@@ -131,11 +133,12 @@ models:
 
 
   - name: orders__mwp_order_products
+    description: "Products associated with the order"
     config:
       meta:
         tech_steward: "rodrigo.torres@tiendanube.com"
         domain: "finance"
-        owner: "giselle.galli@tiendanube.com"
+        business_owner: "Giselle Galli"
     columns:
       - name: id
         description: "Identifier of the order associated with the product."
@@ -177,12 +180,12 @@ models:
 
 
   - name: nuvem_credito__credit_proposals
+    description: "Staging model with credit proposals, clean data with current store_id"
     config:
       meta:
         tech_steward: "sofia.sanchez@tiendanube.com"
         domain: "fintech"
-        owner: "Calvin Hetem"
-    description: "Staging model with credit proposals, clean data with current store_id"
+        business_owner: "Calvin Hetem"
     columns:
       - name: id
         description: "Unique internal identifier for each proposal."
@@ -205,13 +208,14 @@ models:
       - name: original_contract_id
         description: "Not null only if the credit is a renegotiation."
 
+
   - name: antifraud_service__vertifier_store_inferences
     description: "Staging model with vertifier of current store_id provided by antifraud inferences."
     config:
       meta:
         tech_steward: "djalma.dias@nuvemshop.com.br"
         domain: "operations"
-        owner: "Analytics Engineering"
+        business_owner: "Analytics Engineering"
     columns:
       - name: store_id
         description: "Unique identifier of the store. External key."
@@ -232,8 +236,14 @@ models:
       - name: sys_audit_updated_by
         description: "System or user that last updated the row."
 
+
   - name: github_data__issue_labels
     description: "Staging model that concatenates every label associated to the issue in one row, to avoid duplicates. We use this table to categorize the Issue/Problem in different ways."
+    config:
+      meta:
+        tech_steward: "fabrizio.crivella@tiendanube.com"
+        domain: "product"
+        business_owner: "Martin Palombo"
     columns: 
       - name: repo_name
         description: "Determines if row is related to an Issue or Problem"
@@ -251,13 +261,16 @@ models:
         description: "Labels that determine if the Issue/Problem is being solved, and which step is it in"
       - name: labels_quick_fix
         description: "If the issue has a quick fix, will have a label with that name"
+
+
+
+  - name: github_data__wip_labels
+    description: "Staging model that persists information about Working in Progress labels, becouse we need to know when they started and ended, to determine de duration of the lifecycle of an Issue/Problem"
     config:
       meta:
         tech_steward: "fabrizio.crivella@tiendanube.com"
         domain: "product"
-        owner: "Martin Palombo"
-  - name: github_data__wip_labels
-    description: "Staging model that persists information about Working in Progress labels, becouse we need to know when they started and ended, to determine de duration of the lifecycle of an Issue/Problem"
+        business_owner: "Martin Palombo"
     columns:
       - name: repo_name
         description: "Determines if row is related to an Issue or Problem"
@@ -269,13 +282,15 @@ models:
         description: "Date when the WIP label was included"
       - name: wip_last_deleted
         description: "Date when the WIP label was removed"
+  
+
+  - name: github_data__merchant_impact
+    description: "Staging model that gets information about merchants associated to an Issue/Problem. Information such as GMV and impact"
     config:
       meta:
         tech_steward: "fabrizio.crivella@tiendanube.com"
         domain: "product"
-        owner: "Martin Palombo"
-  - name: github_data__merchant_impact
-    description: "Staging model that gets information about merchants associated to an Issue/Problem. Information such as GMV and impact"
+        business_owner: "Martin Palombo"
     columns:
       - name: repo_name
         description: "Determines if row is related to an Issue or Problem"
@@ -291,8 +306,3 @@ models:
         description: "Monthly average GMV from the last 4 closed months"
       - name: sum_gmv_usd
         description: "Monthly average GMV from the last 4 closed months in USD"
-    config:
-      meta:
-        tech_steward: "fabrizio.crivella@tiendanube.com"
-        domain: "product"
-        owner: "Martin Palombo"

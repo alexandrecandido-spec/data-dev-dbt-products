@@ -7,7 +7,7 @@ models:
       meta:
         tech_steward: "sofia.sanchez@tiendanube.com"
         domain: "fintech"
-        owner: "Calvin Hetem"
+        business_owner: "Calvin Hetem"
     columns:
       - name: id
         description: "Unique internal identifier for each proposal."

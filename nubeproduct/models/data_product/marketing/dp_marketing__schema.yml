@@ -34,7 +34,7 @@ models:
       meta:
         tech_steward: "ronald.corcho@tiendanube.com"
         domain: "marketing"
-        owner: "Giselle Galli" 
+        business_owner: "Giselle Galli" 
     columns:
       - name: id
         description: "Unique identifier for the GitHub issue/input record"
@@ -158,7 +158,7 @@ models:
       meta:
         tech_steward: "ronald.corcho@tiendanube.com"
         domain: "marketing" 
-        owner: "Giselle Galli" 
+        business_owner: "Giselle Galli" 
     columns:
       - name: id
         description: "Unique identifier for the GitHub issue/input record"
@@ -279,7 +279,7 @@ models:
       meta:
         tech_steward: "ronald.corcho@tiendanube.com"
         domain: "marketing" 
-        owner: "Giselle Galli" 
+        business_owner: "Giselle Galli" 
     columns:
       - name: store_id
         description: "Unique identifier for each store"
@@ -402,7 +402,7 @@ models:
       meta:
         tech_steward: "ronald.corcho@tiendanube.com"
         domain: "marketing" 
-        owner: "Giselle Galli" 
+        business_owner: "Giselle Galli" 
     columns:
       - name: country
         description: "Country associated with each store, based on registration data."
@@ -456,7 +456,7 @@ models:
       meta:
         tech_steward: "ronald.corcho@tiendanube.com"
         domain: "marketing"
-        owner: "Giselle Galli" 
+        business_owner: "Giselle Galli" 
     columns:
       - name: id
         description: "Unique identifier for the GitHub issue/input record"
@@ -505,7 +505,7 @@ models:
       meta:
         tech_steward: "ronald.corcho@tiendanube.com"
         domain: "marketing"
-        owner: "Giselle Galli" 
+        business_owner: "Giselle Galli" 
     columns:
       - name: id
         description: "Unique identifier for the GitHub issue/input record"
@@ -552,7 +552,7 @@ models:
       meta:
         tech_steward: "ronald.corcho@tiendanube.com"
         domain: "marketing"
-        owner: "Giselle Galli" 
+        business_owner: "Giselle Galli" 
     columns:
       - name: id
         description: "Unique identifier for the GitHub issue/input record"
@@ -599,7 +599,7 @@ models:
       meta:
         tech_steward: "ronald.corcho@tiendanube.com"
         domain: "marketing"
-        owner: "Giselle Galli" 
+        business_owner: "Giselle Galli" 
     columns:
       - name: id
         description: "Unique identifier for the GitHub issue/input record"
@@ -644,7 +644,7 @@ models:
       meta: 
         tech_steward: "ronald.corcho@tiendanube.com"
         domain: "marketing"
-        owner: "Giselle Galli" 
+        business_owner: "Giselle Galli" 
     columns:
       - name: id
         description: "Unique identifier for the GitHub issue/input record"
@@ -687,7 +687,7 @@ models:
       meta:
         tech_steward: "ronald.corcho@tiendanube.com"
         domain: "marketing"
-        owner: "Giselle Galli" 
+        business_owner: "Giselle Galli" 
     columns:
       - name: id
         description: "Unique identifier for the GitHub issue/input record"
@@ -728,7 +728,7 @@ models:
       meta:
         tech_steward: "ronald.corcho@tiendanube.com"
         domain: "marketing"
-        owner: "Giselle Galli" 
+        business_owner: "Giselle Galli" 
     columns:
       - name: id
         description: "Unique identifier for the GitHub issue/input record"
@@ -771,7 +771,7 @@ models:
       meta:
         tech_steward: "ronald.corcho@tiendanube.com"
         domain: "marketing"
-        owner: "Giselle Galli" 
+        business_owner: "Giselle Galli" 
     columns:
       - name: id
         description: "Unique identifier for the GitHub issue/input record"

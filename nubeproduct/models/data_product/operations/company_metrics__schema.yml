@@ -5,7 +5,7 @@ models:
       meta:
         tech_steward: "gustavo.braga@nuvemshop.com.br"
         domain: "operations"
-        owner: "Nico Loreti"
+        business_owner: "Nico Loreti"
     description: >
       Contains the summary of paid orders by store, including currency-related data,
       payment gateways, shipping methods, and audit metadata.
@@ -86,12 +86,13 @@ models:
       - name: sys_audit_updated_by
         description: Source or user responsible for the latest update.
 
+
   - name: company_metrics_gmv_and_segments
     config:
       meta:
         tech_steward: "gustavo.braga@nuvemshop.com.br"
         domain: "operations"
-        owner: "Nico Loreti"
+        business_owner: "Nico Loreti"
     description: >
       Contains monthly GMV, order metrics, and seller segmentation by store, both on and off platform,
       over the last closed month and the past 90 days. Segments are calculated based on proportional 
@@ -185,13 +186,14 @@ models:
       - name: sys_audit_updated_by
         description: System or user that last updated the row.
   
+
   - name: company_metrics_merchant_vertical
+    description: "This table informs the stores vertical like clothing, digital, cars, etc."
     config:
       meta:
-        owner: "djalma.dias@nuvemshop.com"
+        business_owner: "djalma.dias@nuvemshop.com"
         domain: "operations"
-        owner: "Analytics Engineering"
-    description: "This table informs the stores vertical like clothing, digital, cars, etc."
+        business_owner: "Analytics Engineering"
     columns:
       - name: store_id
         description: "Unique identifier of the store. External key."
