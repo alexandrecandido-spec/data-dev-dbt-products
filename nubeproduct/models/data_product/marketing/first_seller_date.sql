@@ -6,13 +6,13 @@
 
 with marketing as (
     select *
-    from {{ source('data_marketing', 'marketing_attribution_model') }}
+    from {{ ref('marketing_attribution_model') }}
     where year_month_day_code >= 20250101
 ),
 
 qualified_orders as (
     select *
-    from {{ ref('first_7_orders') }}
+    from {{ ref('_int__first_seller_7_or_more_sales_90d') }}
 )
 
 select
