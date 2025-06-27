@@ -9,7 +9,7 @@ blocked_stores AS (
 ),
 
 paid_orders as (
-    select * from {{ ref('company_metrics_gmv_and_segments') }}
+    select * from {{ ref('company_metrics_paid_orders') }}
     WHERE store_id NOT IN (SELECT related_id FROM blocked_stores)
 ),
 

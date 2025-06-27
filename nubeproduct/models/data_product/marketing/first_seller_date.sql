@@ -20,7 +20,11 @@ qualified_orders as (
 
 select
     ma.store_id,
-    date(min(fs.completed_at)) as first_seller_at
+    date(min(fs.completed_at)) as first_seller_at,
+    current_timestamp AS sys_audit_created_on,
+    'data-dev-dbt-products' AS sys_audit_created_by,
+    current_timestamp AS sys_audit_updated_on,
+    'data-dev-dbt-products' AS sys_audit_updated_by
 from marketing ma
 left join qualified_orders fs
     on ma.store_id = fs.store_id
