@@ -1,15 +1,18 @@
-{{ config(
-  unique_key=['store_id'],
-  on_schema_change='fail',
-  tags=["marketing", "daily-4_30am"]
-) }}
+{{
+    config(
+        materialized='incremental',
+        incremental_strategy='merge',
+        unique_key=['store_id'],
+        on_schema_change='fail',
+        tags=["marketing","daily-9am"]
+    )
+}}
 
 with marketing as (
     select *
     from {{ ref('marketing_attribution_model') }}
     where year_month_day_code >= 20250101
 ),
-
 qualified_orders as (
     select *
     from {{ ref('_int__first_seller_7_or_more_sales_90d') }}
