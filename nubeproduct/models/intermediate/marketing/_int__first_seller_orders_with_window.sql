@@ -9,13 +9,8 @@ blocked_stores AS (
 ),
 
 paid_orders as (
-    select * from {{ ref('orders__mwp_orders') }}
-    WHERE 1 = 1
-        AND mo.completed_at BETWEEN date_add(current_date(), -90) AND current_date()
-        AND mo.store_id NOT IN (SELECT related_id FROM blocked_stores)
-        AND mo.payment_status = 'paid'
-        AND mo.status <> 'cancelled'
-        AND mo.total_in_usd <= 10000 AND total_in_usd >= -10000
+    select * from {{ ref('company_metrics_gmv_and_segments') }}
+    WHERE store_id NOT IN (SELECT related_id FROM blocked_stores)
 ),
 
 paid_orders_window as (
