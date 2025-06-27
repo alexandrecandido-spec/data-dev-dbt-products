@@ -1,3 +1,9 @@
+{{ config(
+  unique_key=['store_id'],
+  on_schema_change='fail',
+  tags=["marketing", "daily-4_30am"]
+) }}
+
 with marketing as (
     select *
     from {{ source('data_marketing', 'marketing_attribution_model') }}
