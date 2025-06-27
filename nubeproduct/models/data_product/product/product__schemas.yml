@@ -33,5 +33,111 @@ models:
         description: >
           Label that identifies if the Issue/Problem is on its first Working in Progress step. Each Issue/Problem
           may or may not be in a WIP status.
+  - name: edit_orders
+    description: >
+      Contains all orders (edited and not edited) with the detail on all the editions and requotes that have been made, along with the total an subtotal changes after each edition
+    config:
+      meta:
+        tech_steward: "sol.abelleyro@tiendanube.com"
+        domain: "product"
+        business_owner: "Martin Palombo"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: 
+            - 
+    columns:
+      - name: store_id
+        description: merchant's store id
+      - name: country
+        description: merchant's country
+      - name: domain
+        description: merchant's domain
+      - name: plan_name
+        description: each merchant's plan
+      - name: current_segment
+        description: each merchant's current segment
+      - name: max_segment
+        description: the max segment a merchant has reached
+      - name: has_edit_orders_disponible
+        description: 1 if the merchant has the edit orders feature available, 0 otherwise
+      - name: fecha_edit_orders_disponible
+        description: the date when the edit orders feature was made available to the merchant (tag was added)
+      - name: year_month_day_code
+        description: partition field from the orders table
+      - name: order_id
+        description: order id for each order
+      - name: fecha_completed_at
+        description: date checkout completed 
+      - name: payment_status
+        description: the payment status of the order
+      - name: status
+        description: the status of the order
+      - name: gmv_usd
+        description: total amount of the order in USD
+      - name: coupon_discount
+        description: total amount of the coupon discount
+      - name: gateway_discount
+        description: total amount of the gateway discount
+      - name: promo_discount
+        description: total amount of the promo discount
+      - name: shipping_discount
+        description: total amount of the shipping discount
+      - name: edit_id
+        description: id for the edition (edit_history table). Can include multiple actions in the same edition
+      - name: skip_shipping_requote
+        description: 1 if the merchant has skipped the shipping requote, 0 otherwise
+      - name: edit_at
+        description: the date when the edit was made (edit_history table)
+      - name: previous_total
+        description: the total amount of the order before the edit
+      - name: total_delta
+        description: the difference between the previous total and the total after the edit
+      - name: previous_total_usd
+        description: the total amount of the order before the edit in USD
+      - name: total_delta_usd
+        description: the difference between the previous total and the total after the edit in USD
+      - name: previous_subtotal
+        description: the subtotal amount of the order before the edit
+      - name: subtotal_delta
+        description: the difference between the previous subtotal and the subtotal after the edit
+      - name: previous_subtotal_usd
+        description: the subtotal amount of the order before the edit in USD
+      - name: subtotal_delta_usd
+        description: the difference between the previous subtotal and the subtotal after the edit in USD
+      - name: line_edit_id
+        description: id for each action within an edition. There are multiple line_edit_id per edit_id (id from the individual edition tables that are unioned in union_edit_types)
+      - name: extra
+        description: extra information about the line edit
+      - name: edit_type
+        description: the type of edit (product, discount)
+      - name: edit_action
+        description: the action of the edit (add, remove)
+      - name: amount
+        description: the amount of the edit when the type is discount
+      - name: amount_usd
+        description: the amount of the edit when the type is discount in USD
+      - name: line_item_id
+        description: the line item id (or product) of the edit when the type is product
+      - name: previous_product_qty
+        description: previous product amount in order
+      - name: new_product_qty
+        description: new product amount in order
+      - name: previous_merchant_cost
+        description: the previous merchant cost shipping
+      - name: new_merchant_cost
+        description: the new merchant cost shipping
+      - name: previous_consumer_cost
+        description: the previous consumer cost shipping
+      - name: new_consumer_cost
+        description: the new consumer cost shipping
+      - name: previous_merchant_cost_usd
+        description: the previous merchant cost shipping in USD
+      - name: new_merchant_cost_usd
+        description: the new merchant cost shipping in USD
+      - name: previous_consumer_cost_usd
+        description: the previous consumer cost shipping in USD
+      - name: new_consumer_cost_usd
+        description: the new consumer cost shipping in USD
 
         
+

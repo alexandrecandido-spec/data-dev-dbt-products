@@ -102,3 +102,18 @@ sources:
     tables:
       - name: mwp_partners
         description: "Contains information about the partners of the ecosystem."
+
+  - name: int_orders
+    database: null
+    schema: orders
+    description: "Intermediate tables built from the multiple edit tables"
+    tables:
+      - name: orders_edit_history_discounts
+        description: "Contains information about all edits on discounts"
+      - name: orders_edit_history_products
+        description: "Contains information about all edits on products"
+      - name: orders_value_history
+        description: "Contains all changes on total and subtotal for an order after each edit"
+      - name: mwp_orders_logging
+        description: "event table with changes for all orders"
+
