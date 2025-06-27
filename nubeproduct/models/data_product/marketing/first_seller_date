@@ -11,7 +11,7 @@ qualified_orders as (
 
 select
     ma.store_id,
-    date(min(fs.completed_at)) as first_seller
+    date(min(fs.completed_at)) as first_seller_at
 from marketing ma
 left join qualified_orders fs
     on ma.store_id = fs.store_id
