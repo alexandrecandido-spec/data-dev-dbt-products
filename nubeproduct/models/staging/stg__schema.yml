@@ -157,6 +157,11 @@ models:
           - not_null
       - name: quantity
         description: "Number of units of the product included in the order."
+        tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              max_value: 998
+              row_condition: "quantity IS NOT NULL"
       - name: created_at
         description: "Timestamp when the order-product record was created."
         tests:

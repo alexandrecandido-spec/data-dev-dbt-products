@@ -4,7 +4,7 @@
         unique_key=['isocode','processed_at'],
         incremental_strategy='merge',
         on_schema_change='fail',
-        tags=["daily-8am"]
+        tags=["daily-8_30am"]
     )
 }}
 
