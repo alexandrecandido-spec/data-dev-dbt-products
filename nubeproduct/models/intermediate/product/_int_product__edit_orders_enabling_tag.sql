@@ -1,10 +1,13 @@
 select 
-related_id as store_id,
+related_id,
 1 as has_edit_orders_disponible,
+sys_audit_updated_on,
+sys_audit_updated_by,
 min(date(created)) as fecha_edit_orders_disponible
+
 from {{ source('int_moltres', 'mwp_tags') }}  mt
-where mt."type" = 'store'
+where mt.type = 'store'
 AND 
 ("tag" = 'new-admin-order-edit'
 OR "tag" = 'new-admin-order-edit-new-features')
-group by 1,2
+group by 1,2,3,4

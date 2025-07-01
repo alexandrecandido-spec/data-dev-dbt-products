@@ -108,7 +108,7 @@ sources:
     schema: orders
     description: "Intermediate tables built from the multiple edit tables"
     tables:
-      - name: orders_edit_history_discounts
+      - name: orders_edit_history_discounts 
         description: "Contains information about all edits on discounts"
       - name: orders_edit_history_products
         description: "Contains information about all edits on products"
