@@ -33,7 +33,9 @@ models:
         description: >
           Label that identifies if the Issue/Problem is on its first Working in Progress step. Each Issue/Problem
           may or may not be in a WIP status.
-  - name: edit_orders
+
+
+  - name: product_edit_orders
     description: >
       Contains all orders (edited and not edited) with the detail on all the editions and requotes that have been made, along with the total an subtotal changes after each edition
     config:
@@ -44,20 +46,21 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: 
-            - 
+            - store_id
+            - order_id
+            - edit_id
+            - line_edit_id
     columns:
       - name: store_id
         description: merchant's store id
+        tests:
+          - not_null
       - name: country
         description: merchant's country
-      - name: domain
-        description: merchant's domain
+        tests:
+          - not_null
       - name: plan_name
         description: each merchant's plan
-      - name: current_segment
-        description: each merchant's current segment
-      - name: max_segment
-        description: the max segment a merchant has reached
       - name: has_edit_orders_disponible
         description: 1 if the merchant has the edit orders feature available, 0 otherwise
       - name: fecha_edit_orders_disponible
@@ -74,14 +77,6 @@ models:
         description: the status of the order
       - name: gmv_usd
         description: total amount of the order in USD
-      - name: coupon_discount
-        description: total amount of the coupon discount
-      - name: gateway_discount
-        description: total amount of the gateway discount
-      - name: promo_discount
-        description: total amount of the promo discount
-      - name: shipping_discount
-        description: total amount of the shipping discount
       - name: edit_id
         description: id for the edition (edit_history table). Can include multiple actions in the same edition
       - name: skip_shipping_requote
@@ -106,6 +101,8 @@ models:
         description: the difference between the previous subtotal and the subtotal after the edit in USD
       - name: line_edit_id
         description: id for each action within an edition. There are multiple line_edit_id per edit_id (id from the individual edition tables that are unioned in union_edit_types)
+        tests:
+          - unique
       - name: extra
         description: extra information about the line edit
       - name: edit_type
@@ -138,6 +135,8 @@ models:
         description: the previous consumer cost shipping in USD
       - name: new_consumer_cost_usd
         description: the new consumer cost shipping in USD
+      - name: churned_at
+        description: the date when the merchant churned
 
         
 

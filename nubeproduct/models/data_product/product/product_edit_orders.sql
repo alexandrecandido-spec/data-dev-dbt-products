@@ -11,6 +11,7 @@
 select distinct
     msi.store_id,
     msi.country,
+    cast(msi.churned_at as date) as churned_at,
     mp.nice_name plan_name,
     t.has_edit_orders_disponible,
     t.fecha_edit_orders_disponible,
@@ -65,8 +66,10 @@ select distinct
     WHERE 
      msi.sys_audit_updated_on >= (select coalesce(max(sys_audit_updated_on),'1900-01-01') from {{ this }})
     or mpc.sys_audit_updated_on >= (select coalesce(max(sys_audit_updated_on),'1900-01-01') from {{ this }})
-    or mp.sys_audit_updated_at >= (select coalesce(max(sys_audit_updated_on),'1900-01-01') from {{ this }})
+    or mp.sys_audit_updated_on >= (select coalesce(max(sys_audit_updated_on),'1900-01-01') from {{ this }})
     or o.sys_audit_updated_on >= (select coalesce(max(sys_audit_updated_on),'1900-01-01') from {{ this }})
     or oe.sys_audit_updated_on >= (select coalesce(max(sys_audit_updated_on),'1900-01-01') from {{ this }})
     or s.sys_audit_updated_on >= (select coalesce(max(sys_audit_updated_on),'1900-01-01') from {{ this }})
+    or vh.sys_audit_updated_on >= (select coalesce(max(sys_audit_updated_on),'1900-01-01') from {{ this }})
+    or t.sys_audit_updated_on >= (select coalesce(max(sys_audit_updated_on),'1900-01-01') from {{ this }})
     {% endif %}
