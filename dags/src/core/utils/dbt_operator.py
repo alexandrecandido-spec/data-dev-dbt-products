@@ -1,5 +1,6 @@
 from airflow.operators.bash import BashOperator
 from airflow.exceptions import AirflowException
+from airflow.providers.slack.operators.slack_webhook import SlackWebhookOperator
 from datetime import datetime
 import os
 import json
@@ -149,6 +150,31 @@ class DBTOperator(BashOperator):
             # Execute main command
             success, output = self._execute_bash_command(self.bash_command)
             
+            if self.dbt_command == 'test':
+                if 'ERROR=' in output:
+                    import re
+                    match = re.search(r'ERROR=(\d+)', output)
+                    if match and int(match.group(1)) > 0:
+
+                        error_msg = f"DBT test failures: {match.group(1)} tests failed.\n\n{output[:2000]}"  # truncate output if needed
+
+                        context['task_instance'].xcom_push(
+                            key='dbt_error_details',
+                            value=error_msg
+                        )
+
+                        SlackWebhookOperator(
+                            task_id='slack_test_warning',
+                            slack_webhook_conn_id='dbt_slack_alert',
+                            message=f""":warning: *Test failures detected in `dbt test`*  
+            *Task:* `{context['task_instance'].task_id}`  
+            *Dag:* `{context['dag'].dag_id}`  
+            *Execution Date:* {context['execution_date']}  
+            *Log Url:* {context['task_instance'].log_url}  
+            *Details:* ```{error_msg}```""",
+                            channel="#dbt-alerts",
+                        ).execute(context=context)
+
             if not success:
                 # Si hay error, extrae y loguea el mensaje de error específico
                 error_details = self._parse_dbt_error(output)
