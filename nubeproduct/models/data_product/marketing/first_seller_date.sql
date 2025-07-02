@@ -37,9 +37,9 @@ WHERE
       sys_audit_updated_on >= DATE '2020-01-01'
     {% endif %}
     {% if is_incremental() %}
-     sys_audit_updated_on > (
+     first_seller_at > (
         SELECT COALESCE(MAX(sys_audit_updated_on), DATE '2020-01-01')
         FROM {{ this }}
       )
     {% endif %}
-GROUP BY ma.store_id, 3, 4, 5
+GROUP BY 1, 3, 4, 5
