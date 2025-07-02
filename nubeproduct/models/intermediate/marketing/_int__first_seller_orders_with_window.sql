@@ -22,8 +22,8 @@ paid_orders_window as (
     inner join paid_orders o2
         on o1.store_id = o2.store_id
         and o2.completed_at between dateadd(day, -90, o1.completed_at) and o1.completed_at
-    where o1.year_month_day_code >= 20250101
-      and o2.year_month_day_code >= 20250101
+    where o1.year_month_day_code >= 20200101
+      and o2.year_month_day_code >= 20200101
     group by o1.store_id, o1.completed_at
 )
 

@@ -11,7 +11,7 @@
 with marketing as (
     select *
     from {{ ref('marketing_attribution_model') }}
-    where year_month_day_code >= 20250101
+    where year_month_day_code >= 20200101
 ),
 qualified_orders as (
     select *
@@ -28,4 +28,14 @@ select
 from marketing ma
 left join qualified_orders fs
     on ma.store_id = fs.store_id
+WHERE
+    {% if not is_incremental() %}
+      sys_audit_updated_on >= DATE '2010-01-01'
+    {% endif %}
+    {% if is_incremental() %}
+     sys_audit_updated_on > (
+        SELECT COALESCE(MAX(sys_audit_updated_on), DATE '1900-01-01')
+        FROM {{ this }}
+      )
+    {% endif %}
 group by ma.store_id

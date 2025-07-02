@@ -814,7 +814,7 @@ models:
         description: "Unique identifier for each store"
         tests:
           - not_null
-      - name: first_seller
+      - name: first_seller_at
         description: "Date when the first seller was made (first time achieving 7 sales in 90 days window)"
         
         
