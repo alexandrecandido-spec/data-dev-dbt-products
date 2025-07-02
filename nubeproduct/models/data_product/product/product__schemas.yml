@@ -47,9 +47,10 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: 
             - store_id
-            - order_id
+            - id
             - edit_id
             - line_edit_id
+            - edit_type
     columns:
       - name: store_id
         description: merchant's store id
@@ -101,8 +102,6 @@ models:
         description: the difference between the previous subtotal and the subtotal after the edit in USD
       - name: line_edit_id
         description: id for each action within an edition. There are multiple line_edit_id per edit_id (id from the individual edition tables that are unioned in union_edit_types)
-        tests:
-          - unique
       - name: extra
         description: extra information about the line edit
       - name: edit_type
