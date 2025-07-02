@@ -34,12 +34,12 @@ LEFT JOIN qualified_orders fs ON ma.store_id = fs.store_id
 LEFT JOIN existing_data e ON ma.store_id = e.store_id 
 WHERE
     {% if not is_incremental() %}
-      sys_audit_updated_on >= DATE '2010-01-01'
+      sys_audit_updated_on >= DATE '2020-01-01'
     {% endif %}
     {% if is_incremental() %}
      sys_audit_updated_on > (
-        SELECT COALESCE(MAX(sys_audit_updated_on), DATE '2010-01-01')
+        SELECT COALESCE(MAX(sys_audit_updated_on), DATE '2020-01-01')
         FROM {{ this }}
       )
     {% endif %}
-GROUP BY ma.store_id
+GROUP BY ma.store_id, sys_audit_created_on, sys_audit_created_by, sys_audit_updated_on, sys_audit_updated_by
