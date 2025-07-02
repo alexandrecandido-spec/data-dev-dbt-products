@@ -21,6 +21,10 @@ models:
         description: "Date when the store was churned."
       - name: first_payment
         description: "Date when the store made its first payment."
+      - name: state
+        description: "Billing state of the store"
+        tests:
+          - not_null
       - name: created_at
         description: "Date when the store was created."
         tests:

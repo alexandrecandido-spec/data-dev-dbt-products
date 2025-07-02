@@ -11,6 +11,7 @@
 WITH source AS (
     SELECT 
         id,
+        state,
         country,
         current_segment,
         churned_at,
@@ -39,6 +40,7 @@ existing_data AS (
 
 SELECT 
     id as store_id,
+    state,
     country,
     currency,
     current_segment,
