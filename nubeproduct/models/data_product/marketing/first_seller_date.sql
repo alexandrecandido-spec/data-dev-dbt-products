@@ -17,20 +17,25 @@ qualified_orders as (
     SELECT *
     FROM {{ ref('_int__first_seller_7_or_more_sales_90d') }}
 ),
+first_seller AS (
+    SELECT 
+        ma.store_id,
+        DATE(min(fs.completed_at)) AS first_seller_at
+FROM marketing ma
+LEFT JOIN qualified_orders fs ON ma.store_id = fs.store_id
+GROUP BY ma.store_id
+),
 existing_data AS (
     {{ get_existing_data(this, ['store_id', 'sys_audit_created_on', 'sys_audit_created_by']) }}
 )
 
-
 SELECT
-    ma.store_id,
-    DATE(min(fs.completed_at)) AS first_seller_at,
+    f.*,
     COALESCE(e.sys_audit_created_on, current_timestamp) AS sys_audit_created_on,
     COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by,
     current_timestamp AS sys_audit_updated_on,
     'data-dev-dbt-products' AS sys_audit_updated_by
-FROM marketing ma
-LEFT JOIN qualified_orders fs ON ma.store_id = fs.store_id
+FROM first_seller f
 LEFT JOIN existing_data e ON ma.store_id = e.store_id 
 WHERE
     {% if not is_incremental() %}
@@ -42,4 +47,3 @@ WHERE
         FROM {{ this }}
       )
     {% endif %}
-GROUP BY 1, 3, 4, 5
