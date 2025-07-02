@@ -42,4 +42,4 @@ WHERE
         FROM {{ this }}
       )
     {% endif %}
-GROUP BY ma.store_id, sys_audit_created_on, sys_audit_created_by, sys_audit_updated_on, sys_audit_updated_by
+GROUP BY ma.store_id, 3, 4, 5
