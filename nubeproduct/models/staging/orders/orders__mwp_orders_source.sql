@@ -11,15 +11,15 @@
 WITH source AS (
     SELECT 
         order_id,
-        LOWER(source) AS source,
-        LOWER(source_details) AS source_details,
-        LOWER(utm_source) AS utm_source,
-        LOWER(utm_medium) AS utm_medium,
-        LOWER(http_referrer) AS http_referrer,
+        source,
+        source_details,
+        utm_source,
+        utm_medium,
+        http_referrer,
         created_at
     FROM {{ source('stg_orders', 'mwp_orders_source') }}
     WHERE --created_at >= '2017-12-31'
-    created_at between '2017-12-31' and '2018-02-28'
+    created_at between '2018-03-01' and '2018-04-30'
     AND created_at IS NOT NULL
     AND order_id IS NOT NULL
 

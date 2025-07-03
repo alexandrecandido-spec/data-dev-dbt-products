@@ -4,7 +4,10 @@ WITH paid_orders AS (
 ),
 
 filtered_traffic AS (
-    SELECT t.*
+    SELECT 
+        t.*, 
+        p.year_month_day_code,
+        p.completed_at
     FROM {{ ref('orders__mwp_orders_source') }} t
     INNER JOIN paid_orders p ON t.order_id = p.id
 )

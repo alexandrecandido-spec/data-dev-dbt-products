@@ -327,11 +327,13 @@ models:
       meta:
         tech_steward: "gustavo.braga@nuvemshop.com.br"
         domain: "product"
+        owner: "Francisco Ramirez"
     columns:
       - name: order_id
         description: ID do pedido
         tests:
           - not_null
+          - unique
       - name: source
         description: Nome bruto da origem de tráfego
       - name: source_details
@@ -344,12 +346,8 @@ models:
         description: Referência HTTP de origem
       - name: created_at
         description: Data de criação do pedido
-      - name: completed_at
-        description: Data de finalização do pedido (usada para cálculo de métricas e partição)
         tests:
           - not_null
-      - name: year_month_day_code
-        description: Código da data de conclusão do pedido (formato yyyyMMdd)
       - name: sys_audit_created_on
         description: Timestamp de criação do registro na modelagem
       - name: sys_audit_created_by
