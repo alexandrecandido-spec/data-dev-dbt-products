@@ -28,7 +28,7 @@ first_seller AS (
         DATE(min(fs.completed_at)) AS first_seller_at
 FROM marketing ma
 LEFT JOIN qualified_orders fs ON ma.store_id = fs.store_id
-GROUP BY ma.store_id
+GROUP BY ma.store_id,  ma.year_month_day_code
 ),
 
 existing_data AS (
