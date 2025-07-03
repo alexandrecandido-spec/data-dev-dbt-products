@@ -20,6 +20,7 @@ with stores_gmv as (
     left join {{ref ('_int__pd_stores_gmv')}} g
         on g.store_id = s.store_id
         and g.country = s.country
+    group by 1,2,3,4,5,6
 ),
 labels as (
     select
