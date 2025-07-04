@@ -10,27 +10,33 @@
 }}
 
 WITH marketing AS (
-    SELECT store_id, 
-            year_month_day_code
+    SELECT 
+        store_id, 
+        year_month_day_code,
+        ROW_NUMBER() OVER (PARTITION BY store_id, year_month_day_code ORDER BY store_id) AS rn
     FROM {{ ref('marketing_attribution_model') }}
     WHERE year_month_day_code >= 20230101
 ),
 qualified_orders as (
-    SELECT *
+    SELECT
+        store_id,
+        DATE(min(completed_at)) AS first_seller_at
     FROM {{ ref('_int__first_seller_7_or_more_sales_90d') }}
+    GROUP BY store_id
 ),
 first_seller AS (
     SELECT 
         ma.store_id,
         ma.year_month_day_code,
-        DATE(min(fs.completed_at)) AS first_seller_at
+        fs.first_seller_at
 FROM marketing ma
 LEFT JOIN qualified_orders fs ON ma.store_id = fs.store_id
-GROUP BY ma.store_id,  ma.year_month_day_code
+WHERE ma.rn = 1
 ),
 existing_data AS (
     {{ get_existing_data(this, ['store_id', 'sys_audit_created_on', 'sys_audit_created_by']) }}
 )
+
 SELECT
     f.store_id, 
     f.year_month_day_code,
@@ -43,9 +49,14 @@ FROM first_seller f
 LEFT JOIN existing_data e ON f.store_id = e.store_id 
 WHERE
     {% if not is_incremental() %}
-      first_seller_at >= DATE '2023-01-01'
+     (first_seller_at >= DATE '2023-01-01' OR first_seller_at IS NULL)
     {% endif %}
     {% if is_incremental() %}
-     first_seller_at > SELECT COALESCE(MAX(first_seller_at), DATE '1900-01-01')
-        FROM {{ this }}
+     (
+        first_seller_at > (
+           SELECT COALESCE(MAX(first_seller_at), DATE '1900-01-01')
+           FROM {{ this }}
+          )
+        OR first_seller_at IS NULL
+     )
     {% endif %}
