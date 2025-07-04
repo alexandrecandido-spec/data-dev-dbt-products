@@ -46,6 +46,6 @@ WHERE
       first_seller_at >= DATE '2023-01-01'
     {% endif %}
     {% if is_incremental() %}
-     first_seller_at is not null
+     first_seller_at > SELECT COALESCE(MAX(first_seller_at), DATE '1900-01-01')
         FROM {{ this }}
     {% endif %}
