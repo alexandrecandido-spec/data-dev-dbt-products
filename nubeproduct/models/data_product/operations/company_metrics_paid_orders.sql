@@ -71,9 +71,9 @@ WHERE
 {% endif %}
 {% if is_incremental() %} 
     orders.completed_at
-    >= (SELECT MAX(DATE(sys_audit_updated_on)) FROM {{ this }})
+    >= (SELECT MAX(DATE(completed_at)) FROM {{ this }})
     OR orders.cancelled_at
-    >= (SELECT MAX(DATE(sys_audit_updated_on)) FROM {{ this }})
+    >= (SELECT MAX(DATE(completed_at)) FROM {{ this }})
     OR products.sys_audit_updated_on > (SELECT MAX(DATE(sys_audit_updated_on)) FROM {{ this }})
 {% endif %}
 ;

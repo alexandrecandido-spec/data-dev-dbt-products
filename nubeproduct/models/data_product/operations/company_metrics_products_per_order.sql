@@ -2,7 +2,7 @@
     materialized = 'incremental',
     unique_key = 'order_id',
     incremental_strategy = 'merge',
-    tags=["operations","daily-9am-9pm"]
+    tags=["operations","daily-8am-8pm"]
 ) }}
 
 WITH orders_to_update (
@@ -20,11 +20,7 @@ orders_updated (
     SELECT
         order_id,
         SUM(
-            CASE 
-                WHEN deleted_at IS NOT NULL THEN 0
-                WHEN quantity > 999 OR quantity = 0 OR quantity IS NULL THEN 1 
-                ELSE quantity 
-            END
+            quantity
         ) AS product_quantity
     FROM {{ ref('orders__mwp_order_products') }} products
     {% if is_incremental() %}

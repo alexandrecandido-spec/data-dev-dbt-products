@@ -3,7 +3,7 @@
         materialized='incremental',
         unique_key='store_id',
         on_schema_change='fail',
-        tags=["operations","daily-9am-9pm"]
+        tags=["operations","daily-8am-8pm"]
     )
 }}
 
@@ -11,6 +11,7 @@
 WITH source AS (
     SELECT 
         id,
+        state,
         country,
         current_segment,
         churned_at,
@@ -39,6 +40,7 @@ existing_data AS (
 
 SELECT 
     id as store_id,
+    state,
     country,
     currency,
     current_segment,

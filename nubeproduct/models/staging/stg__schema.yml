@@ -21,6 +21,10 @@ models:
         description: "Date when the store was churned."
       - name: first_payment
         description: "Date when the store made its first payment."
+      - name: state
+        description: "Billing state of the store"
+        tests:
+          - not_null
       - name: created_at
         description: "Date when the store was created."
         tests:
@@ -157,6 +161,11 @@ models:
           - not_null
       - name: quantity
         description: "Number of units of the product included in the order."
+        tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              max_value: 998
+              row_condition: "quantity IS NOT NULL"
       - name: created_at
         description: "Timestamp when the order-product record was created."
         tests:
