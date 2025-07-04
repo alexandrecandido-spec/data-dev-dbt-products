@@ -14,6 +14,8 @@ sources:
         description: "List of tags assigned to stores."
       - name: mwp_plans_countries
         description: "Maps available plans to the countries where Tiendanube / Nuvemshop offers its platform."
+      - name: mwp_plans
+        description: "Contains information about the plans available to merchants."
       - name: mwp_shipping_carriers
         description: "Provides details about the shipping carriers integrated or used by stores."
       - name: mwp_attribution
@@ -116,4 +118,7 @@ sources:
         description: "Contains all changes on total and subtotal for an order after each edit"
       - name: mwp_orders_logging
         description: "event table with changes for all orders"
-
+      - name: orders_edit_history_shipping
+        description: "Contains information about all requotes after an edit"
+      - name: orders_edit_history
+        description: "Contains information about all editions and their timestamps"

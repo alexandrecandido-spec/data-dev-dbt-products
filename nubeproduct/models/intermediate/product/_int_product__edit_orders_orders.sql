@@ -5,9 +5,7 @@ select
     payment_status,
     status,
     total_in_usd as gmv_usd,
-    year_month_day_code,
-    sys_audit_updated_on,
-    sys_audit_updated_by
+    year_month_day_code
     FROM   {{ ref('orders__mwp_orders') }} 
     where storefront in ('store', 'permalink', 'pos', 'form', 'mobile', 'api') 
     and date(completed_at) >=  DATE_ADD(MONTH, -7, now())

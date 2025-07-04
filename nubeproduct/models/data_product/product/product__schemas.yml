@@ -37,7 +37,11 @@ models:
 
   - name: product_edit_orders
     description: >
-      Contains all orders (edited and not edited) with the detail on all the editions and requotes that have been made, along with the total an subtotal changes after each edition
+      The goal of the edit orders feature is to allow merchants to edit different parts of their orders such as products, discounts and shipping address. The feature also includes a requote system for the cost of shipping.
+      This data product contains all stores and orders and it details:
+      > if the merchant has the edit orders feature available and when it was made available.
+      > if a specific order has been edited
+      > the detail on all the editions and requotes that have been made, along with the total an subtotal changes after each edition. 
     config:
       meta:
         tech_steward: "sol.abelleyro@tiendanube.com"
@@ -46,24 +50,25 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: 
-            - store_id
-            - id
-            - edit_id
             - line_edit_id
             - edit_type
+            - edit_action_id
+            
     columns:
       - name: store_id
         description: merchant's store id
         tests:
           - not_null
       - name: country
-        description: merchant's country
+        description: merchant's country (from the store_info table)
         tests:
           - not_null
       - name: plan_name
         description: each merchant's plan
       - name: has_edit_orders_disponible
-        description: 1 if the merchant has the edit orders feature available, 0 otherwise
+        description: 
+          using tags that enable the edit orders feature (new-admin-order-edit and new-admin-order-edit-new-features) 
+          1 if the merchant has the edit orders feature available, 0 otherwise
       - name: fecha_edit_orders_disponible
         description: the date when the edit orders feature was made available to the merchant (tag was added)
       - name: year_month_day_code
@@ -77,43 +82,49 @@ models:
       - name: status
         description: the status of the order
       - name: gmv_usd
-        description: total amount of the order in USD
+        description: total amount of the order in USD (includes shipping costs and any discounts applied)
       - name: edit_id
-        description: id for the edition (edit_history table). Can include multiple actions in the same edition
+        description: id for the edition (edit_history table). Can include multiple actions in the same edition (2 products added, coupon removed, etc)
       - name: skip_shipping_requote
-        description: 1 if the merchant has skipped the shipping requote, 0 otherwise
+        description: 1 if the merchant has skipped the shipping requote, 0 otherwise. This option was created because requoting fails at times, and this allows the merchant to save the edit anyways.
       - name: edit_at
         description: the date when the edit was made (edit_history table)
       - name: previous_total
-        description: the total amount of the order before the edit
+        description: the total amount of the order before the edit (total includes shipping costs and any discounts applied)
       - name: total_delta
-        description: the difference between the previous total and the total after the edit
+        description: the difference between the previous total and the total after the edit (total includes shipping costs and any discounts applied)
       - name: previous_total_usd
-        description: the total amount of the order before the edit in USD
+        description: the total amount of the order before the edit in USD (total includes shipping costs and any discounts applied)
       - name: total_delta_usd
-        description: the difference between the previous total and the total after the edit in USD
+        description: the difference between the previous total and the total after the edit in USD (total includes shipping costs and any discounts applied)
       - name: previous_subtotal
-        description: the subtotal amount of the order before the edit
+        description: the subtotal amount of the order before the edit (subtotal only includes products)
       - name: subtotal_delta
-        description: the difference between the previous subtotal and the subtotal after the edit
+        description: the difference between the previous subtotal and the subtotal after the edit (subtotal only includes products)
       - name: previous_subtotal_usd
-        description: the subtotal amount of the order before the edit in USD
+        description: the subtotal amount of the order before the edit in USD (subtotal only includes products)
       - name: subtotal_delta_usd
-        description: the difference between the previous subtotal and the subtotal after the edit in USD
+        description: the difference between the previous subtotal and the subtotal after the edit in USD (subtotal only includes products)
       - name: line_edit_id
         description: id for each action within an edition. There are multiple line_edit_id per edit_id (id from the individual edition tables that are unioned in union_edit_types)
       - name: extra
-        description: extra information about the line edit
+        description: extra information about the line edit. This field includes the coupon id that was modified. If the edit is an edition of a coupon discount, it shows the old_coupon data (this helps distinguish edits on coupons vs adding a new coupon)
       - name: edit_type
-        description: the type of edit (product, discount)
+        description: the type of edit (product, discount, shipping-address)
       - name: edit_action
-        description: the action of the edit (add, remove)
+        description: the action of the edit (add, remove, edit). This is the raw action from each of the individual edition tables that are unioned in union_edit_types. However, some additions in the discount table are actually edits. We can differentiate between the two by checking the extra field.
       - name: amount
-        description: the amount of the edit when the type is discount
+        description: the amount of the edit when the type is discount (the value of the deleted/added discount)
       - name: amount_usd
-        description: the amount of the edit when the type is discount in USD
+        description: the amount of the edit when the type is discount in USD (the value of the deleted/added discount)
       - name: line_item_id
-        description: the line item id (or product) of the edit when the type is product
+        description: the line item id (or product) of the edit when the type is product. This is the id of the product that was added/removed/edited.
+      - name: edit_action_id
+        description: unique id for each edit action (combines line_edit_id, edit_type, fulfillment_order_id). This is used to identify unique edits since id field constructed from the unions between individual edition tables may not be unique.
+        tests:
+          - unique
+      - name: fulfillment_order_id
+        description: shipping requotes happen by fulfillment order within each order.
       - name: previous_product_qty
         description: previous product amount in order
       - name: new_product_qty
@@ -136,6 +147,9 @@ models:
         description: the new consumer cost shipping in USD
       - name: churned_at
         description: the date when the merchant churned
+      - name: state
+        description: the state of the merchant. State_Ok > 0 it is not a trial and we are receiving the payments as expected - awaiting_payment > 1 during the first 10 days after the contract expires - admin_down > 2 from day 10 to day 20 after the contract is expired, admin is blocked (but the store is still live) - store_down > 3 the store is blocked from day 20, we consider it as a churn - state_test > 4 a store created as a test by someone from our company, it is not a trial - state_in_development > 5 stores created via Partners Portal while they are being set up.
+
 
         
 
