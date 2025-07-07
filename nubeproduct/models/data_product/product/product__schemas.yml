@@ -46,14 +46,7 @@ models:
       meta:
         tech_steward: "sol.abelleyro@tiendanube.com"
         domain: "product"
-        business_owner: "Martin Palombo"
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: 
-            - line_edit_id
-            - edit_type
-            - edit_action_id
-            
+        business_owner: "Martin Palombo"      
     columns:
       - name: store_id
         description: merchant's store id

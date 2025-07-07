@@ -12,7 +12,7 @@ select distinct
     o.payment_status,
     o.status,
     o.gmv_usd,
-    oe.id edit_id,
+    coalesce(oe.id,ae.edit_id) edit_id,
     oe.skip_shipping_requote,
     cast(coalesce(ae.happened_at,oe.happened_at) as date) edit_at,
     vh.previous_total,
