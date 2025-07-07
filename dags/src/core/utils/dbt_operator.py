@@ -3,6 +3,7 @@ from airflow.exceptions import AirflowException
 from airflow.providers.slack.operators.slack_webhook import SlackWebhookOperator
 from datetime import datetime
 import os
+import re
 import json
 import logging
 from typing import Optional, Tuple, List
@@ -134,6 +135,17 @@ class DBTOperator(BashOperator):
         
         return '\n'.join(error_message) if error_message else None
 
+    def _extract_test_fails(log):
+        pattern1 = r"FAIL.*?\s+(dbt_expectations_.*?)\s+\[.*?FAIL"
+        pattern2 = r"FAIL.*?\s+(not_null_.*?)\s+\[.*?FAIL"
+        pattern3 = r"Failure in test\s+(\S+)"
+
+        fails = re.findall(pattern1, log)
+        fails += re.findall(pattern2, log)
+        fails += re.findall(pattern3, log)
+
+        return sorted(set(fails))  
+
     def execute(self, context):
         """Execute the bash command with real-time output and error handling"""
         try:
@@ -162,6 +174,8 @@ class DBTOperator(BashOperator):
                             key='dbt_error_details',
                             value=error_msg
                         )
+
+                        error_msg= self.extract_test_fails(error_msg)
 
                         SlackWebhookOperator(
                             task_id='slack_test_warning',
