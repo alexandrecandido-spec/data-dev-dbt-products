@@ -135,7 +135,7 @@ class DBTOperator(BashOperator):
         
         return '\n'.join(error_message) if error_message else None
 
-    def _extract_test_fails(log):
+    def _extract_test_fails(self, log):
         pattern1 = r"FAIL.*?\s+(dbt_expectations_.*?)\s+\[.*?FAIL"
         pattern2 = r"FAIL.*?\s+(not_null_.*?)\s+\[.*?FAIL"
         pattern3 = r"Failure in test\s+(\S+)"
