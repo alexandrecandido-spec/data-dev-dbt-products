@@ -51,7 +51,8 @@ SELECT
     cp.original_user_country,
     cp.env_pagegroup                           AS env,
     cp.landing_page,
-    cp.last_source,
+    cp.landing_page_type,
+        cp.last_source,
     cp.last_medium,
     cp.last_campaign,
     cp.utm_ad_id,
@@ -62,12 +63,13 @@ SELECT
     COALESCE(ls.login_in_session, 0)           AS login_in_session,
     COALESCE(t.trial, 0)                       AS trial,
     COALESCE(p.payment, 0)                     AS payment,
-    CASE
-        WHEN (COALESCE(ls.login_in_session, 0) = 1
-              OR cp.landing_page_type = 'login')
-             AND t.trial = 0 AND p.payment = 0
-        THEN 1 ELSE 0
-    END                                        AS only_login_session,
+CASE
+  WHEN (COALESCE(ls.login_in_session, 0) = 1
+        OR COALESCE(cp.landing_page_type, '') = 'login')
+       AND COALESCE(t.trial, 0) = 0
+       AND COALESCE(p.payment, 0) = 0
+  THEN 1 ELSE 0
+END AS only_login_session,
     sd.engage,
     sd.session_duration_minutes,
     cp.pageviews_per_session,                  

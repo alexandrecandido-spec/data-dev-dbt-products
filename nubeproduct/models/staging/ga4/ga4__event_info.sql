@@ -13,7 +13,10 @@ WITH base AS (
         event_name,
         event_date,
         event_device,
-        CASE WHEN instr(lower(event_name),'login')>0 THEN 'login' ELSE 'other' END AS event_type,
+CASE
+  WHEN position('login' IN lower(event_name)) > 0 THEN 'login'
+  ELSE 'other'
+END AS event_type
         CAST(date_format(event_date,'yyyyMMdd') AS int)         AS year_month_day_code,
         current_timestamp()                                      AS sys_audit_updated_on
     FROM {{ source('stg_ga4','event_info') }}

@@ -16,6 +16,7 @@ WITH src AS (
         original_user_country,
         env,
         landing_page,
+        landing_page_type,
         last_source,
         last_medium,
         last_campaign,

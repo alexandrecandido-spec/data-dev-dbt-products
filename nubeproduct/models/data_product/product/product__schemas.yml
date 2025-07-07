@@ -7,11 +7,7 @@ models:
       meta:
         tech_steward: "fabrizio.crivella@tiendanube.com"
         domain: "product"
-<<<<<<< HEAD
         business_owner: "Martin Palombo"
-=======
-        owner: "Martin Palombo"
->>>>>>> recuperar-trabajo
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: 

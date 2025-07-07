@@ -3,10 +3,11 @@
     incremental_strategy = 'merge',
     partition_by         = ['year_month_day_code'],
     cluster_by           = ['year_month_day_code'],     
-    unique_key           = [
+        unique_key = [
         'year_month_day_code','date',
         'source_ga4_classification','original_user_country','classified_country',
-        'env','landing_page','last_source','last_medium','last_campaign',
+        'env','landing_page','landing_page_domain','landing_page_path',
+        'last_source','last_medium','last_campaign',
         'first_event_device','last_event_device','only_login_session',
         'user_type','session_status','utm_ad_id'
     ],
@@ -17,7 +18,9 @@
 WITH prepared AS (
   SELECT
     *,
-    CASE WHEN engage = 1 THEN 'Engaged' ELSE 'Bounced' END AS session_status
+    CASE WHEN engage = 1 THEN 'Engaged' ELSE 'Bounced' END AS session_status,
+    REGEXP_EXTRACT(landing_page, '^https?://([^/]+)', 1)       AS landing_page_domain,
+    REGEXP_EXTRACT(landing_page, '^https?://[^/]+(/[^?]*)', 1) AS landing_page_path
   FROM {{ ref('marketing_ga4_sessions_classified') }}
   {% if is_incremental() %}
     WHERE year_month_day_code
@@ -34,6 +37,8 @@ aggregated AS (
     classified_country,
     env,
     landing_page,
+    landing_page_domain,
+    landing_page_path,
     last_source,
     last_medium,
     last_campaign,
@@ -57,7 +62,8 @@ aggregated AS (
   GROUP BY
     date, year_month_day_code,
     source_ga4_classification, original_user_country, classified_country,
-    env, landing_page, last_source, last_medium, last_campaign,
+    env, landing_page, landing_page_domain, landing_page_path,
+    last_source, last_medium, last_campaign,
     first_event_device, last_event_device,
     only_login_session, user_type, session_status, utm_ad_id
 )

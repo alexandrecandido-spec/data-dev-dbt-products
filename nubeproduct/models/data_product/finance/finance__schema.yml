@@ -5,11 +5,7 @@ models:
       meta:
         tech_steward: "gustavo.braga@nuvemshop.com.br"
         domain: "finance"
-<<<<<<< HEAD
         business_owner: "operations"
-=======
-        owner: "operations"
->>>>>>> recuperar-trabajo
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: 

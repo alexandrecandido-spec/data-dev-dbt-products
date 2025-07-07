@@ -26,10 +26,11 @@ first_pv AS (
         last_medium,
         last_campaign,
         pageviews_per_session,
-
-        regexp_extract(landing_page,'id_([0-9]+)&utm',1) AS utm_ad_id,
-        CASE WHEN instr(lower(landing_page),'login')>0
-             THEN 'login' ELSE 'other' END             AS landing_page_type
+        regexp_extract(landing_page, 'id_([0-9]+)', 1) AS utm_ad_id,
+CASE
+  WHEN position('login' IN lower(landing_page)) > 0 THEN 'login'
+  ELSE 'other'
+END AS landing_page_type
     FROM ranked
     WHERE rn = 1
 )

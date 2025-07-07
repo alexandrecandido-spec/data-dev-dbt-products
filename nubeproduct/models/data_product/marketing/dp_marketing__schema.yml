@@ -34,11 +34,7 @@ models:
       meta:
         tech_steward: "ronald.corcho@tiendanube.com"
         domain: "marketing"
-<<<<<<< HEAD
         business_owner: "Giselle Galli" 
-=======
-        owner: "Giselle Galli" 
->>>>>>> recuperar-trabajo
     columns:
       - name: id
         description: "Unique identifier for the GitHub issue/input record"
@@ -162,11 +158,7 @@ models:
       meta:
         tech_steward: "ronald.corcho@tiendanube.com"
         domain: "marketing" 
-<<<<<<< HEAD
         business_owner: "Giselle Galli" 
-=======
-        owner: "Giselle Galli" 
->>>>>>> recuperar-trabajo
     columns:
       - name: id
         description: "Unique identifier for the GitHub issue/input record"
@@ -287,11 +279,7 @@ models:
       meta:
         tech_steward: "ronald.corcho@tiendanube.com"
         domain: "marketing" 
-<<<<<<< HEAD
         business_owner: "Giselle Galli" 
-=======
-        owner: "Giselle Galli" 
->>>>>>> recuperar-trabajo
     columns:
       - name: store_id
         description: "Unique identifier for each store"
@@ -414,11 +402,7 @@ models:
       meta:
         tech_steward: "ronald.corcho@tiendanube.com"
         domain: "marketing" 
-<<<<<<< HEAD
         business_owner: "Giselle Galli" 
-=======
-        owner: "Giselle Galli" 
->>>>>>> recuperar-trabajo
     columns:
       - name: country
         description: "Country associated with each store, based on registration data."
@@ -472,11 +456,7 @@ models:
       meta:
         tech_steward: "ronald.corcho@tiendanube.com"
         domain: "marketing"
-<<<<<<< HEAD
         business_owner: "Giselle Galli" 
-=======
-        owner: "Giselle Galli" 
->>>>>>> recuperar-trabajo
     columns:
       - name: id
         description: "Unique identifier for the GitHub issue/input record"
@@ -525,11 +505,7 @@ models:
       meta:
         tech_steward: "ronald.corcho@tiendanube.com"
         domain: "marketing"
-<<<<<<< HEAD
         business_owner: "Giselle Galli" 
-=======
-        owner: "Giselle Galli" 
->>>>>>> recuperar-trabajo
     columns:
       - name: id
         description: "Unique identifier for the GitHub issue/input record"
@@ -576,11 +552,7 @@ models:
       meta:
         tech_steward: "ronald.corcho@tiendanube.com"
         domain: "marketing"
-<<<<<<< HEAD
         business_owner: "Giselle Galli" 
-=======
-        owner: "Giselle Galli" 
->>>>>>> recuperar-trabajo
     columns:
       - name: id
         description: "Unique identifier for the GitHub issue/input record"
@@ -627,11 +599,7 @@ models:
       meta:
         tech_steward: "ronald.corcho@tiendanube.com"
         domain: "marketing"
-<<<<<<< HEAD
         business_owner: "Giselle Galli" 
-=======
-        owner: "Giselle Galli" 
->>>>>>> recuperar-trabajo
     columns:
       - name: id
         description: "Unique identifier for the GitHub issue/input record"
@@ -676,11 +644,7 @@ models:
       meta: 
         tech_steward: "ronald.corcho@tiendanube.com"
         domain: "marketing"
-<<<<<<< HEAD
         business_owner: "Giselle Galli" 
-=======
-        owner: "Giselle Galli" 
->>>>>>> recuperar-trabajo
     columns:
       - name: id
         description: "Unique identifier for the GitHub issue/input record"
@@ -723,11 +687,7 @@ models:
       meta:
         tech_steward: "ronald.corcho@tiendanube.com"
         domain: "marketing"
-<<<<<<< HEAD
         business_owner: "Giselle Galli" 
-=======
-        owner: "Giselle Galli" 
->>>>>>> recuperar-trabajo
     columns:
       - name: id
         description: "Unique identifier for the GitHub issue/input record"
@@ -768,11 +728,7 @@ models:
       meta:
         tech_steward: "ronald.corcho@tiendanube.com"
         domain: "marketing"
-<<<<<<< HEAD
         business_owner: "Giselle Galli" 
-=======
-        owner: "Giselle Galli" 
->>>>>>> recuperar-trabajo
     columns:
       - name: id
         description: "Unique identifier for the GitHub issue/input record"
@@ -815,11 +771,7 @@ models:
       meta:
         tech_steward: "ronald.corcho@tiendanube.com"
         domain: "marketing"
-<<<<<<< HEAD
         business_owner: "Giselle Galli" 
-=======
-        owner: "Giselle Galli" 
->>>>>>> recuperar-trabajo
     columns:
       - name: id
         description: "Unique identifier for the GitHub issue/input record"
@@ -912,6 +864,10 @@ models:
         description: "Average duration (minutes) for engaged sessions."
       - name: avg_pageviews_per_session
         description: "Average pageviews for engaged sessions."
+      - name: langing_page_domain
+        description: "Landing page domain for the session."
+      - name: landing_page_path
+        description: "Landing page path for the session."
 
   - name: marketing_ga4_sessions_daily_attribution
     description:  Marketing data-product exposing the aggregated sessions table with
