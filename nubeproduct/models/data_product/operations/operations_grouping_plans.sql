@@ -72,4 +72,4 @@ select
     current_timestamp AS sys_audit_created_on,
     'data-dev-dbt-products' AS sys_audit_created_by
 from 
-    plan_group pg;
+    plan_group pg; 
