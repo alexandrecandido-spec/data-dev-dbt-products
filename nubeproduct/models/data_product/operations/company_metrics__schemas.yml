@@ -237,5 +237,11 @@ models:
         description: If the plan existed before freemium launch.
       - name: namev2
         description: Name of the plan as seen by the merchant.
+      - name: sys_audit_created_on
+        description: Timestamp when the row was initially created in the summary table.
+      - name: sys_audit_created_by
+        description: Source or user responsible for the initial row creation.
       - name: sys_audit_updated_on
         description: Timestamp of the latest update to the row.
+      - name: sys_audit_updated_by
+        description: Source or user responsible for the latest update.
