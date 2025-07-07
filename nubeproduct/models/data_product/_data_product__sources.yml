@@ -41,3 +41,9 @@ sources:
     schema: third_party
     tables:
       - name: midmarket_hubspot_deals
+
+  - name: dp_data_manual
+    database: null
+    schema: data_manual
+    tables:
+      - name: operations__grouping_plans_aux

@@ -33,7 +33,7 @@ with plan_group as (
     from {{ source("dp_moltres", "mwp_plans_countries") }} pc
         left join {{ source("dp_moltres", "mwp_plans") }} p
             on pc.plan = p.id
-        left join {{ref('operations__grouping_plans_aux')}} gpa
+        left join {{ source("dp_data_manual", "operations__grouping_plans_aux") }} gpa
             on pc.id = gpa.plan
 )
 select 
