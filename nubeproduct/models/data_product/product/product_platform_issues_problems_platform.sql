@@ -29,7 +29,7 @@ labels as (
         ,label_country
         ,label_created_at    
         ,label_updated_at
-    from {{ref('pd_issues_problems_tags')}}
+    from {{ref('github_data__platform_solved_tags')}}
 ),
 issues as (
     SELECT
