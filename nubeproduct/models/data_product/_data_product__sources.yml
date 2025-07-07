@@ -15,8 +15,6 @@ sources:
       - name: mwp_plans_countries
       - name: mwp_store_info
       - name: mwp_store_settings
-      - name: mwp_plans_countries
-      - name: mwp_plans
   - name: dp_finances
     database: null
     schema: finances
