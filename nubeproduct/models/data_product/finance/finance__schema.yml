@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: finance_exchange_rate
+  - name: finance_exchange_rate 
     config:
       meta:
         tech_steward: "gustavo.braga@nuvemshop.com.br"

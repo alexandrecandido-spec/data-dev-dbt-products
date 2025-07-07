@@ -1,0 +1,15 @@
+version: 2
+
+seeds:
+  - name: operations__grouping_plans_aux
+    description: Group-type upload of the first historical plans.
+    columns:
+      - name: plan
+        description: ID from plan_countries.
+        tests:
+          - not_null
+          - unique
+      - name: grupo
+        description: Plan group name.
+        tests:
+          - not_null

@@ -1,0 +1,24 @@
+version: 2
+models:
+  - name: midmarket_success_stores
+    config:
+      meta:
+        tech_steward: "guillermo.defelice@tiendanube.com"
+        domain: "midmarket"
+        business_owner: "Franco Tiberti"
+    description: Contains a unique combination of Success deal_id and its respective store_id.
+    columns:
+      - name: deal_id
+        description: Unique identifier of the deal_id.
+        tests:
+          - not_null
+          - unique
+      - name: store_id
+        description: Unique identifier of the store_id.
+        tests:
+          - not_null
+          - unique
+      - name: in_portfolio
+        description: Flag to detect stores that are currently active in the portfolio.
+      - name: sys_audit_updated_on
+        description: Timestamp of the latest update to the row.
