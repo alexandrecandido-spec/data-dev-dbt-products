@@ -34,7 +34,11 @@ models:
       meta:
         tech_steward: "ronald.corcho@tiendanube.com"
         domain: "marketing"
+<<<<<<< HEAD
         business_owner: "Giselle Galli" 
+=======
+        owner: "Giselle Galli" 
+>>>>>>> recuperar-trabajo
     columns:
       - name: id
         description: "Unique identifier for the GitHub issue/input record"
@@ -158,7 +162,11 @@ models:
       meta:
         tech_steward: "ronald.corcho@tiendanube.com"
         domain: "marketing" 
+<<<<<<< HEAD
         business_owner: "Giselle Galli" 
+=======
+        owner: "Giselle Galli" 
+>>>>>>> recuperar-trabajo
     columns:
       - name: id
         description: "Unique identifier for the GitHub issue/input record"
@@ -279,7 +287,11 @@ models:
       meta:
         tech_steward: "ronald.corcho@tiendanube.com"
         domain: "marketing" 
+<<<<<<< HEAD
         business_owner: "Giselle Galli" 
+=======
+        owner: "Giselle Galli" 
+>>>>>>> recuperar-trabajo
     columns:
       - name: store_id
         description: "Unique identifier for each store"
@@ -402,7 +414,11 @@ models:
       meta:
         tech_steward: "ronald.corcho@tiendanube.com"
         domain: "marketing" 
+<<<<<<< HEAD
         business_owner: "Giselle Galli" 
+=======
+        owner: "Giselle Galli" 
+>>>>>>> recuperar-trabajo
     columns:
       - name: country
         description: "Country associated with each store, based on registration data."
@@ -456,7 +472,11 @@ models:
       meta:
         tech_steward: "ronald.corcho@tiendanube.com"
         domain: "marketing"
+<<<<<<< HEAD
         business_owner: "Giselle Galli" 
+=======
+        owner: "Giselle Galli" 
+>>>>>>> recuperar-trabajo
     columns:
       - name: id
         description: "Unique identifier for the GitHub issue/input record"
@@ -505,7 +525,11 @@ models:
       meta:
         tech_steward: "ronald.corcho@tiendanube.com"
         domain: "marketing"
+<<<<<<< HEAD
         business_owner: "Giselle Galli" 
+=======
+        owner: "Giselle Galli" 
+>>>>>>> recuperar-trabajo
     columns:
       - name: id
         description: "Unique identifier for the GitHub issue/input record"
@@ -552,7 +576,11 @@ models:
       meta:
         tech_steward: "ronald.corcho@tiendanube.com"
         domain: "marketing"
+<<<<<<< HEAD
         business_owner: "Giselle Galli" 
+=======
+        owner: "Giselle Galli" 
+>>>>>>> recuperar-trabajo
     columns:
       - name: id
         description: "Unique identifier for the GitHub issue/input record"
@@ -599,7 +627,11 @@ models:
       meta:
         tech_steward: "ronald.corcho@tiendanube.com"
         domain: "marketing"
+<<<<<<< HEAD
         business_owner: "Giselle Galli" 
+=======
+        owner: "Giselle Galli" 
+>>>>>>> recuperar-trabajo
     columns:
       - name: id
         description: "Unique identifier for the GitHub issue/input record"
@@ -644,7 +676,11 @@ models:
       meta: 
         tech_steward: "ronald.corcho@tiendanube.com"
         domain: "marketing"
+<<<<<<< HEAD
         business_owner: "Giselle Galli" 
+=======
+        owner: "Giselle Galli" 
+>>>>>>> recuperar-trabajo
     columns:
       - name: id
         description: "Unique identifier for the GitHub issue/input record"
@@ -687,7 +723,11 @@ models:
       meta:
         tech_steward: "ronald.corcho@tiendanube.com"
         domain: "marketing"
+<<<<<<< HEAD
         business_owner: "Giselle Galli" 
+=======
+        owner: "Giselle Galli" 
+>>>>>>> recuperar-trabajo
     columns:
       - name: id
         description: "Unique identifier for the GitHub issue/input record"
@@ -728,7 +768,11 @@ models:
       meta:
         tech_steward: "ronald.corcho@tiendanube.com"
         domain: "marketing"
+<<<<<<< HEAD
         business_owner: "Giselle Galli" 
+=======
+        owner: "Giselle Galli" 
+>>>>>>> recuperar-trabajo
     columns:
       - name: id
         description: "Unique identifier for the GitHub issue/input record"
@@ -771,7 +815,11 @@ models:
       meta:
         tech_steward: "ronald.corcho@tiendanube.com"
         domain: "marketing"
+<<<<<<< HEAD
         business_owner: "Giselle Galli" 
+=======
+        owner: "Giselle Galli" 
+>>>>>>> recuperar-trabajo
     columns:
       - name: id
         description: "Unique identifier for the GitHub issue/input record"
@@ -801,10 +849,87 @@ models:
         description: "System identifier of the process that created this record"
       - name: sys_audit_updated_by
         description: "System identifier of the process that last updated this record"
-    
 
-        
-        
-        
-        
-        
+
+  - name: marketing_ga4_sessions_classified
+    description:  Session-level table produced once per day.  
+      Adds the heavy country-classification logic to the raw
+      “sessions + dimensions” model and persists it for reuse.
+    config:
+      meta:
+        owner: sofia.torres@tiendanube.com
+        domain: marketing
+    columns:
+      - name: year_month_day_code
+        description: "Daily partition code (YYYYMMDD)."
+        tests: [not_null]
+      - name: date
+        description: "Session date."
+        tests: [not_null]
+      - name: unique_session
+        description: "Unique session identifier."
+        tests: [not_null]
+      - name: classified_country
+        description: "Country after business classification."
+      - name: source_ga4_classification
+        description: "Original GA4 source label."
+      - name: env
+        description: "Navigation environment (web, admin, etc.)."
+      - name: engage
+        description: "GA4 engage flag (0/1)."
+      - name: trial
+        description: "1 if a trial started during the session."
+      - name: payment
+        description: "1 if a payment event happened during the session."
+
+  - name: marketing_ga4_sessions_aggregated
+    description: Daily aggregation of GA4 sessions with engagement, trial and payment
+      metrics.  One row per unique combination of traffic dimensions +
+      country + device + session flags.
+    config:
+      meta:
+        owner: sofia.torres@tiendanube.com
+        domain: marketing
+    columns:
+      - name: year_month_day_code
+        description: "Daily partition code (YYYYMMDD)."
+        tests: [not_null]
+      - name: date
+        description: "Session date."
+        tests: [not_null]
+      - name: classified_country
+        description: "Country bucket used for reporting."
+      - name: session_status
+        description: "'Engaged' or 'Bounced'."
+      - name: distinct_session_count
+        description: "Number of distinct sessions in the aggregation."
+        tests: [not_null]
+      - name: total_trials
+        description: "Total trial events."
+      - name: total_payments
+        description: "Total payment events."
+      - name: avg_session_duration
+        description: "Average duration (minutes) for engaged sessions."
+      - name: avg_pageviews_per_session
+        description: "Average pageviews for engaged sessions."
+
+  - name: marketing_ga4_sessions_daily_attribution
+    description:  Marketing data-product exposing the aggregated sessions table with
+      attribution fields (mkt_source, mkt_subteam) applied.
+    config:
+      meta:
+        owner: sofia.torres@tiendanube.com
+        domain: marketing
+    columns:
+      - name: year_month_day_code
+        description: "Daily partition code (YYYYMMDD)."
+        tests: [not_null]
+      - name: mkt_source
+        description: "Marketing source assigned by attribution logic."
+        tests: [not_null]
+      - name: mkt_subteam
+        description: "Marketing sub-team assigned by attribution logic."
+      - name: distinct_user_count
+        description: "Distinct users in the aggregation."
+      - name: total_engagements
+        description: "Engaged sessions counted after attribution."

@@ -5,7 +5,11 @@ models:
       meta:
         tech_steward: "gustavo.braga@nuvemshop.com.br"
         domain: "operations"
+<<<<<<< HEAD:nubeproduct/models/data_product/operations/company_metrics__schemas.yml
         business_owner: "Nico Loreti"
+=======
+        owner: "Nico Loreti"
+>>>>>>> recuperar-trabajo:nubeproduct/models/data_product/operations/company_metrics__schema.yml
     description: >
       Contains the summary of paid orders by store, including currency-related data,
       payment gateways, shipping methods, and audit metadata.
@@ -92,7 +96,11 @@ models:
       meta:
         tech_steward: "gustavo.braga@nuvemshop.com.br"
         domain: "operations"
+<<<<<<< HEAD:nubeproduct/models/data_product/operations/company_metrics__schemas.yml
         business_owner: "Nico Loreti"
+=======
+        owner: "Nico Loreti"
+>>>>>>> recuperar-trabajo:nubeproduct/models/data_product/operations/company_metrics__schema.yml
     description: >
       Contains monthly GMV, order metrics, and seller segmentation by store, both on and off platform,
       over the last closed month and the past 90 days. Segments are calculated based on proportional 
@@ -193,7 +201,12 @@ models:
       meta:
         business_owner: "djalma.dias@nuvemshop.com"
         domain: "operations"
+<<<<<<< HEAD:nubeproduct/models/data_product/operations/company_metrics__schemas.yml
         business_owner: "Analytics Engineering"
+=======
+        owner: "Analytics Engineering"
+    description: "This table informs the stores vertical like clothing, digital, cars, etc."
+>>>>>>> recuperar-trabajo:nubeproduct/models/data_product/operations/company_metrics__schema.yml
     columns:
       - name: store_id
         description: "Unique identifier of the store. External key."

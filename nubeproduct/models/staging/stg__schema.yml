@@ -1,4 +1,4 @@
-version: 2
+xversion: 2
 models:
   - name: moltres__mwp_store_info
     description: "Staging model that contains data about each store, such as store ID, country, creation and churn dates and other attributes."
@@ -6,7 +6,11 @@ models:
       meta:
         tech_steward: "rodrigo.torres@tiendanube.com"
         domain: "finance"
+<<<<<<< HEAD
         business_owner: "Analytics Engineering"
+=======
+        owner: "Analytics Engineering"
+>>>>>>> recuperar-trabajo
     columns:
       - name: store_id
         description: "Store identifier."
@@ -51,7 +55,11 @@ models:
       meta:
         tech_steward: "rodrigo.torres@tiendanube.com"
         domain: "finance"
+<<<<<<< HEAD
         business_owner: "Nico Loreti"
+=======
+        owner: "Nico Loreti"
+>>>>>>> recuperar-trabajo
     columns:
       - name: id
         description: "Unique identifier for the order."
@@ -137,12 +145,19 @@ models:
 
 
   - name: orders__mwp_order_products
+<<<<<<< HEAD
     description: "Products associated with the order"
+=======
+>>>>>>> recuperar-trabajo
     config:
       meta:
         tech_steward: "rodrigo.torres@tiendanube.com"
         domain: "finance"
+<<<<<<< HEAD
         business_owner: "Giselle Galli"
+=======
+        owner: "giselle.galli@tiendanube.com"
+>>>>>>> recuperar-trabajo
     columns:
       - name: id
         description: "Identifier of the order associated with the product."
@@ -161,11 +176,14 @@ models:
           - not_null
       - name: quantity
         description: "Number of units of the product included in the order."
+<<<<<<< HEAD
         tests:
           - dbt_expectations.expect_column_values_to_be_between:
               min_value: 0
               max_value: 998
               row_condition: "quantity IS NOT NULL"
+=======
+>>>>>>> recuperar-trabajo
       - name: created_at
         description: "Timestamp when the order-product record was created."
         tests:
@@ -189,6 +207,11 @@ models:
 
 
   - name: nuvem_credito__credit_proposals
+    config:
+      meta:
+        tech_steward: "sofia.sanchez@tiendanube.com"
+        domain: "fintech"
+        owner: "Calvin Hetem"
     description: "Staging model with credit proposals, clean data with current store_id"
     config:
       meta:
@@ -224,7 +247,11 @@ models:
       meta:
         tech_steward: "djalma.dias@nuvemshop.com.br"
         domain: "operations"
+<<<<<<< HEAD
         business_owner: "Analytics Engineering"
+=======
+        owner: "Analytics Engineering"
+>>>>>>> recuperar-trabajo
     columns:
       - name: store_id
         description: "Unique identifier of the store. External key."
@@ -314,4 +341,121 @@ models:
       - name: sum_gmv
         description: "Monthly average GMV from the last 4 closed months"
       - name: sum_gmv_usd
+<<<<<<< HEAD
         description: "Monthly average GMV from the last 4 closed months in USD"
+=======
+        description: "Monthly average GMV from the last 4 closed months in USD"
+    config:
+      meta:
+        tech_steward: "fabrizio.crivella@tiendanube.com"
+        domain: "product"
+        owner: "Martin Palombo"
+
+  - name: ga4__event_info
+    description: "Staging model for GA4 events information. Includes user sessions and event metadata."
+    config:
+      meta:
+        owner: "sofia.torres@tiendanube.com"
+        domain: "marketing"
+    columns:
+      - name: unique_session
+        description: "Unique identifier for the user session."
+        tests:
+          - not_null
+      - name: event_name
+        description: "Name of the event triggered during the session."
+      - name: event_date
+        description: "Date when the event occurred."
+      - name: event_device
+        description: "Device category (mobile, desktop, etc.) associated with each event."
+      - name: year_month_day_code
+        description: "YYYYMMDD code for monthly partitioning."
+      - name: event_type
+        description: "Classifies the event as 'login' or 'other' based on event_name content."
+
+  - name: ga4__tp_info
+    description: "Staging model for trials and payments information from GA4."
+    config:
+      meta:
+        owner: "sofia.torres@tiendanube.com"
+        domain: "marketing"
+    columns:
+      - name: unique_session
+        description: "Unique identifier for the user session."
+        tests:
+          - not_null
+      - name: trial_timestamp
+        description: "Timestamp when the trial started, if available."
+      - name: payment_timestamp
+        description: "Timestamp when the payment was made, if available."
+      - name: trial_date
+        description: "Date when the trial started."
+      - name: payment_date
+        description: "Date when the payment was made."
+      - name: trial_year_month_code
+        description: "YYYYMM code based on trial_date."
+      - name: payment_year_month_day_code
+        description: "YYYYMMDD code based on payment_date."
+
+  - name: ga4__session_info
+    description: "Staging model for user sessions duration and engagement flags."
+    config:
+      meta:
+        owner: "sofia.torres@tiendanube.com"
+        domain: "marketing"
+    columns:
+      - name: unique_session
+        description: "Unique identifier for the user session."
+        tests:
+          - not_null
+      - name: start_session_time
+        description: "Timestamp when the session started."
+      - name: end_session_time
+        description: "Timestamp when the session ended."
+      - name: session_duration_minutes
+        description: "Duration in minutes."
+      - name: engage
+        description: "Engagement flag for the session."
+      - name: start_session_date
+        description: "Start date of the session."
+      - name: year_month_day_code
+        description: "YYYYMMDD code for monthly partitioning."
+
+  - name: ga4__mod_pv_info
+    description: "Staging model for GA4 pageviews enriched with traffic source and landing page information."
+    config:
+      meta:
+        owner: "sofia.torres@tiendanube.com"
+        domain: "marketing"
+    columns:
+      - name: event_timestamp
+        description: "Timestamp of the pageview event."
+      - name: event_date
+        description: "Parsed event date from GA4."
+      - name: year_month_day_code
+        description: "YYYYMM code for monthly partitioning."
+      - name: user_pseudo_id
+        description: "Anonymized identifier for the user."
+      - name: unique_session
+        description: "Unique identifier for the user session."
+        tests:
+          - not_null
+      - name: source_ga4_classification
+        description: "Traffic source classification."
+      - name: original_user_country
+        description: "User's original country."
+      - name: env_pagegroup
+        description: "Navigation environment."
+      - name: landing_page
+        description: "Landing page of the session."
+      - name: last_source
+        description: "Last known traffic source."
+      - name: last_medium
+        description: "Last known traffic medium."
+      - name: last_campaign
+        description: "Last recorded campaign."
+      - name: utm_ad_id
+        description: "Ad ID extracted from landing page."
+      - name: landing_page_type
+        description: "Classifies the landing page as 'login' or 'other' based on URL content."
+>>>>>>> recuperar-trabajo

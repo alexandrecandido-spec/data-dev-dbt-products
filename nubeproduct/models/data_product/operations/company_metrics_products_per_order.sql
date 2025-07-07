@@ -2,7 +2,11 @@
     materialized = 'incremental',
     unique_key = 'order_id',
     incremental_strategy = 'merge',
+<<<<<<< HEAD
     tags=["operations","daily-8am-8pm"]
+=======
+    tags=["operations","daily-9am-9pm"]
+>>>>>>> recuperar-trabajo
 ) }}
 
 WITH orders_to_update (
@@ -20,11 +24,23 @@ orders_updated (
     SELECT
         order_id,
         SUM(
+<<<<<<< HEAD
             quantity
         ) AS product_quantity
     FROM {{ ref('orders__mwp_order_products') }} products
     {% if is_incremental() %}
         WHERE order_id IN (SELECT order_id FROM orders_to_update)
+=======
+            CASE 
+                WHEN deleted_at IS NOT NULL THEN 0
+                WHEN quantity > 999 OR quantity = 0 OR quantity IS NULL THEN 1 
+                ELSE quantity 
+            END
+        ) AS product_quantity
+    FROM {{ ref('orders__mwp_order_products') }} products
+    {% if is_incremental() %}
+        where order_id in orders_to_update
+>>>>>>> recuperar-trabajo
     {% endif %}
     GROUP BY order_id
 ),
@@ -40,4 +56,8 @@ SELECT
     current_timestamp AS sys_audit_updated_on,
     'data-dev-dbt-products' AS sys_audit_updated_by
 FROM orders_updated order
+<<<<<<< HEAD
 LEFT JOIN existing_data e ON order.order_id = e.order_id
+=======
+LEFT JOIN existing_data e ON order.order_id = e.order_id
+>>>>>>> recuperar-trabajo
