@@ -175,7 +175,7 @@ class DBTOperator(BashOperator):
                             value=error_msg
                         )
 
-                        error_msg= self.extract_test_fails(error_msg)
+                        error_msg= self._extract_test_fails(error_msg)
 
                         SlackWebhookOperator(
                             task_id='slack_test_warning',
