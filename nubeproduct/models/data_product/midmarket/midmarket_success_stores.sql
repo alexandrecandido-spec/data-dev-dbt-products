@@ -1,5 +1,3 @@
--- Owner: Guille De Felice
-
 {{ 
     config(
         materialized='table', 
@@ -25,7 +23,10 @@ SELECT
     deal_id,
     store_id,
     in_portfolio,
-    current_timestamp AS sys_audit_updated_on
+    current_timestamp AS sys_audit_updated_on,
+    'data-dev-dbt-products' AS sys_audit_updated_by,
+    current_timestamp AS sys_audit_created_on,
+    'data-dev-dbt-products' AS sys_audit_created_by
 FROM ranked_deals
 WHERE 
     rn = 1

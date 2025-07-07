@@ -1,5 +1,3 @@
--- Owner: Guille De Felice
-
 {{
     config(
         materialized='table',
@@ -69,7 +67,9 @@ select
         -- Group: zero-fee
         WHEN grupo = 'zero-fee' THEN 'colaboradores' -- Same for all
     END AS namev2,
-    current_timestamp AS sys_audit_updated_on
+    current_timestamp AS sys_audit_updated_on,
+    'data-dev-dbt-products' AS sys_audit_updated_by,
+    current_timestamp AS sys_audit_created_on,
+    'data-dev-dbt-products' AS sys_audit_created_by
 from 
-    plan_group pg
-order by 1;
+    plan_group pg;
