@@ -135,7 +135,7 @@ class DBTOperator(BashOperator):
         
         return '\n'.join(error_message) if error_message else None
 
-    def _extract_test_fails(log):
+    def _extract_test_fails(self, log):
         pattern1 = r"FAIL.*?\s+(dbt_expectations_.*?)\s+\[.*?FAIL"
         pattern2 = r"FAIL.*?\s+(not_null_.*?)\s+\[.*?FAIL"
         pattern3 = r"Failure in test\s+(\S+)"
@@ -175,7 +175,7 @@ class DBTOperator(BashOperator):
                             value=error_msg
                         )
 
-                        error_msg= self.extract_test_fails(error_msg)
+                        error_msg= self._extract_test_fails(error_msg)
 
                         SlackWebhookOperator(
                             task_id='slack_test_warning',
