@@ -1,6 +1,6 @@
 WITH paid_orders AS (
-    SELECT DISTINCT id
-    FROM {{ ref('_int_company_metrics_paid_orders__get_store_info') }}
+    SELECT DISTINCT id, year_month_day_code, completed_at
+    FROM {{ ref('company_metrics_paid_orders') }}
 ),
 
 filtered_traffic AS (

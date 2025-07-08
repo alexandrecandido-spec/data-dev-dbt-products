@@ -2,7 +2,7 @@
     config(
         materialized='incremental',
         unique_key='order_id',
-        partition_by='created_at',
+        partition_by='year_month_code',
         on_schema_change='fail',
         tags=["operations", "daily-8am-8pm"]
     )
@@ -16,10 +16,11 @@ WITH source AS (
         utm_source,
         utm_medium,
         http_referrer,
-        created_at
+        created_at,
+        year_month_code
     FROM {{ source('stg_orders', 'mwp_orders_source') }}
     WHERE --created_at >= '2017-12-31'
-    created_at between '2018-03-01' and '2018-04-30'
+    year_month_code >= 201801
     AND created_at IS NOT NULL
     AND order_id IS NOT NULL
 
@@ -40,7 +41,7 @@ SELECT
     source.utm_medium,
     source.http_referrer,
     source.created_at,
-    
+    source.year_month_code,
     -- Auditoria
     COALESCE(e.sys_audit_created_on, current_timestamp) AS sys_audit_created_on,
     COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by,

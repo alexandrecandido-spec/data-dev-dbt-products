@@ -356,4 +356,5 @@ models:
         description: Timestamp da última atualização
       - name: sys_audit_updated_by
         description: Responsável pela última atualização
->>>>>>> f88df0d (criando tabela de mwp_orders_source em staging)
+      - name: year_month_code
+        description: Partition de ano e mês
