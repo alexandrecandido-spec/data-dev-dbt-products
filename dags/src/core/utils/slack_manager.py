@@ -1,12 +1,25 @@
 from airflow.contrib.operators.slack_webhook_operator import SlackWebhookOperator
 from airflow.models import TaskInstance
 from airflow.utils.db import provide_session
+import re
 
 
 def task_fail_slack_alert_bi(context,slack_ids:list=[]):
     SLACK_CONN_ID = 'dbt_slack_alert'
     channel = '#dbt-alerts'
     return _send_slack_alert(SLACK_CONN_ID, channel, context,slack_ids)
+
+def extract_error(text):
+    errores = re.findall(
+        r"Database Error in model .*?\n.*?\[(.*?)\](.*?)\n",
+        text,
+        re.DOTALL
+    )
+    result = []
+    for match in errores:
+        error_code, detalle = match
+        result.append(f"[{error_code.strip()}]{detalle.strip()}")
+    return result
 
 @provide_session
 def get_task_logs(task_instance: TaskInstance, session=None):
@@ -45,7 +58,7 @@ def _send_slack_alert(conn_id: str, channel: str, context, slack_ids:list=[]):
         logs = get_task_logs(task_instance)
         error_details = logs if logs else "No se pudo extraer el error específico"
     else:
-        error_details = dbt_error
+        error_details = extract_error(dbt_error)
 
     slack_msg = """
             {alert_type}
@@ -58,7 +71,7 @@ def _send_slack_alert(conn_id: str, channel: str, context, slack_ids:list=[]):
             *Responsible*: {responsible}
             *DBT Error Details*: ```{error}```
             """.format(
-        alert_type=':large_yellow_circle: Task Retrying...' if state == 'up_for_retry' else ':red_circle: Task Failed.',
+        alert_type=':alert: Task Retrying...' if state == 'up_for_retry' else ':red_circle: Task Failed.',
         task=task_instance.task_id,
         dag=task_instance.dag_id,
         exec_date=context.get('execution_date'),
