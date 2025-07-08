@@ -6,6 +6,7 @@ sources:
     schema: moltres
     tables:
       - name: mwp_store_info
+        description: "Contains all the list of stores with their information"
       - name: mwp_apps_stores
         description: "Contains all the list of stores who installed and or uninstalled an app"
 

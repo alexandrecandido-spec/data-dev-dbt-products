@@ -32,7 +32,7 @@ install_groups AS (
     -- Consolidar períodos de instalación en una sola fila
     SELECT 
         concat(cast(store_id as varchar),cast(app_id as varchar)) as store_app_id
-        store_id
+        ,store_id
         ,app_id
         ,MIN(app_install_date) AS app_install_date
         ,case when MAX(app_uninstall_date) > current_date then null else MAX(app_uninstall_date) end AS app_uninstall_date
