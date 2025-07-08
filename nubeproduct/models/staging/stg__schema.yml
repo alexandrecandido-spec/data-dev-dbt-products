@@ -307,51 +307,25 @@ models:
       - name: sum_gmv_usd
         description: "Monthly average GMV from the last 4 closed months in USD"
 
-  - name: product_platform_issues_problems_platform
-    description: "Issues & Problems models tailored for Platform Development Team."
+  - name: moltres__platform_mwp_apps_stores
+    description: "Extracted data of apps installed and uninstalled by stores"
     config:
       meta:
         tech_steward: "fernando.martinez@tiendanube.com"
         domain: "product"
         business_owner: "Nicolas Loreti"
     columns:
-      - name: repo_name
+      - name: app_id
         description: "Determines if row is related to an Issue or Problem"
-      - name: issue_number
-        description: "Identifies the identification of the Issue/Problem. Combined with repo_name, they make the unique key"
-      - name: state
-        description: "Determines if the Issue/Problem is Open or Closed"
-      - name: platform_country_status
-        description: "Determines if the Issue/Problem is Open or Closed"
-      - name: platform_country_closed_at
-        description: "Date when the Issue/Problem was closed based on platform's business logic. if a problem has solved_by_app_country, it will be the date when the problem was solved by the app country"
-      - name: created_at
-        description: "Date when the Issue/Problem was created"
-      - name: closed_at
-        description: "Date when the Issue/Problem was closed"
-      - name: title
-        description: "Title of the Issue/Problem"
-      - name: labels_domain
-        description: "Domain related to the Issue/Problem"
-      - name: labels_country
-        description: "Used only for Platform Development. Specifies which countries are affected by an Issue/Problem"
-      - name: country
-        description: "Country of the store related to the Issue/Problem"
       - name: store_id
-        description: "Unique identifier to the store related to the Issue/Problem"
-      - name: comments
-        description: "ammount of comments related to the Issue/Problem"
-      - name: is_solved_by_app_country
-        description: "Determines if the Issue/Problem was solved by the app country"
-      - name: label_created_at
-        description: "Date when the label was created. It is the date when the label was created, not the date when the issue/problem was created"
-      - name: label_updated_at
-        description: "Date when the label was updated. It is the date when the label was updated, not the date when the issue/problem was updated"
-      - name: has_non_tech_enable_tag
-        description: "Determines if the Issue/Problem has a non-tech enable tag"
-      - name: has_product_dependent_tag
-        description: "Determines if the Issue/Problem has a product dependent tag"
-      - name: avg_gmv_lc_last_3months
-        description: "Average GMV from the last 3 months. Used to determine the impacted GMV of the issue/problem"
-      - name: avg_orders_last_3months
-        description: "Average number of orders from the last 3 months. Used to determine the impacted orders of the issue/problem"
+        description: "Determines if row is related to an Issue or Problem"
+      - name: installed_app_id
+        description: "Determines if row is related to an Issue or Problem"
+      - name: app_install_date
+        description: "Determines if row is related to an Issue or Problem"
+      - name: app_uninstall_date
+        description: "Determines if row is related to an Issue or Problem"
+      - name: sys_admin_created_at
+        description: "Determines if row is related to an Issue or Problem"
+      - name: sys_audit_updated_at
+        description: "Determines if row is related to an Issue or Problem"

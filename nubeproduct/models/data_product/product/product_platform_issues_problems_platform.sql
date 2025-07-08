@@ -1,9 +1,10 @@
 {{ config(
     materialized = 'incremental',
+    incremental_strategy='merge',
     unique_key = 'issue_number',
     partition_by = 'created_at',
     on_schema_change = 'fail',
-    tags = ['platform','daily-9am']
+    tags = ['platform','daily-8am']
 ) }}
 
 with stores_gmv as (
