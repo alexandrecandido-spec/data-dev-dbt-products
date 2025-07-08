@@ -11,8 +11,8 @@
 WITH source AS (
     SELECT 
         id,
-        state,
         domain,
+        state,
         country,
         current_segment,
         churned_at,
