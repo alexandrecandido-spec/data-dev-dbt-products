@@ -1,145 +1,165 @@
-WITH base AS (
-
+WITH source_data AS (
   SELECT
-    src.*,
-    CAST(date_format(src.date, 'yyyyMMdd') AS int) AS year_month_day_code
-  FROM {{ ref('marketing_ga4_sessions_aggregated') }} src
 
+    REGEXP_REPLACE(
+      src.landing_page_domain,
+      '^(?:https?://)?(?:www\.)?',
+      ''
+    ) AS domain_clean,
+    src.landing_page_path AS path_clean
+
+  FROM {{ ref('_int_marketing__ga4_sessions_aggregated') }} AS src
 ),
 
-joined AS (
+inputs_url AS (
+  SELECT landing_page_domain, landing_page_path, team AS url_team, subteam AS url_subteam
+  FROM {{ ref('marketing_inputs_attribution__url') }}
+),
 
-  SELECT
-  b.date,
-  b.session_id,
-  b.user_pseudo_id,
-  b.landing_page_domain,
-  b.landing_page_path,
-  b.last_source,
-  b.last_medium,
-  b.last_campaign,
-  b.utm_ad_id,
-  b.only_login_session,
-  b.source_ga4_classification,
-  b.env,
-  b.trial,
-  b.payment,
-  b.session_duration_minutes,
-  b.pageviews_per_session,
-  b.first_event_device,
-  b.last_event_device,
-  b.original_user_country,
-  b.user_type,
-  b.engage,
-  b.year_month_day_code,
+inputs_insti AS (
+  SELECT landing_page_domain, landing_page_path, team AS insti_team, subteam AS insti_subteam
+  FROM {{ ref('marketing_inputs_attribution__insti') }}
+),
 
-  matches.team AS matched_team,
-  matches.subteam AS matched_subteam
+utm AS (
+  SELECT source AS utm_source, medium AS utm_medium, source_mkt, subteam AS utm_subteam
+  FROM {{ ref('marketing_inputs_attribution__utm') }}
+),
 
-FROM base b
-LEFT JOIN {{ ref('_int_marketing__ga4_url_matches') }} matches
-  ON POSITION(matches.landing_page_path IN b.landing_page_path) > 0
- AND POSITION(matches.landing_page_domain IN b.landing_page_domain) > 0
-
+sub_cam AS (
+  SELECT utm_source, utm_medium, utm_campaign, subteam
+  FROM {{ ref('marketing_inputs_attribution__subteam') }}
 )
 
 SELECT
-  *,
-  
-  /* ───────────────  MKT SOURCE  ─────────────── */
+  sd.*,               
+  sd.domain_clean,
+  sd.path_clean,
+
+  /* ──────────── MKT SOURCE ──────────── */
   CASE
-    WHEN last_source = 'direct'
-         AND last_medium IS NULL
-         AND last_campaign IS NULL
-         AND (
-              POSITION('partners.tiendanube.com' IN landing_page_domain) > 0 OR
-              POSITION('partners.nuvemshop.com.br' IN landing_page_domain) > 0
-         )
+    WHEN sd.last_source = 'direct'
+         AND sd.last_medium IS NULL
+         AND sd.last_campaign IS NULL
+         AND sd.domain_clean IN ('partners.tiendanube.com','partners.nuvemshop.com.br')
       THEN 'Partners'
-
-    WHEN last_source IN ('yahoo', 'google', 'bing')
-         AND last_medium = 'organic'
-         AND matched_team IS NOT NULL
-      THEN matched_team
-
-    WHEN POSITION('/partners/' IN landing_page_path) > 0
-      THEN 'Affiliates'
-
-    WHEN last_source IN ('chatgpt.com', 'claude.ai', 'copilot.microsoft.com')
-         AND matched_team IS NOT NULL
-      THEN matched_team
-
-    WHEN utms.source_mkt = 'Communications'
-      THEN 'Communications'
-
-    WHEN utms.source_mkt = 'Performance'
-         AND last_source IN ('google', 'bing')
-         AND POSITION('-brand' IN last_campaign) > 0
+    WHEN sd.last_source IN ('yahoo','google','bing')
+         AND sd.last_medium = 'organic'
+         AND EXISTS (
+           SELECT 1
+           FROM inputs_url u
+           WHERE sd.domain_clean = u.landing_page_domain
+             AND sd.path_clean   = u.landing_page_path
+         )
+      THEN (
+        SELECT u.url_team
+        FROM inputs_url u
+        WHERE sd.domain_clean = u.landing_page_domain
+          AND sd.path_clean   = u.landing_page_path
+        LIMIT 1
+      )
+    WHEN sd.last_source IN ('yahoo','google','bing')
+         AND sd.last_medium = 'organic'
+         AND EXISTS (
+           SELECT 1
+           FROM inputs_insti i
+           WHERE sd.domain_clean = i.landing_page_domain
+             AND sd.path_clean   = i.landing_page_path
+         )
+      THEN (
+        SELECT i.insti_team
+        FROM inputs_insti i
+        WHERE sd.domain_clean = i.landing_page_domain
+          AND sd.path_clean   = i.landing_page_path
+        LIMIT 1
+      )
+    WHEN sd.last_source IN ('chatgpt.com','claude.ai','copilot.microsoft.com')
+         AND EXISTS (
+           SELECT 1
+           FROM inputs_url u
+           WHERE sd.domain_clean = u.landing_page_domain
+             AND sd.path_clean   = u.landing_page_path
+         )
+      THEN (
+        SELECT u.url_team
+        FROM inputs_url u
+        WHERE sd.domain_clean = u.landing_page_domain
+          AND sd.path_clean   = u.landing_page_path
+        LIMIT 1
+      )
+    WHEN sd.last_source IN ('chatgpt.com','claude.ai','copilot.microsoft.com')
+         AND EXISTS (
+           SELECT 1
+           FROM inputs_insti i
+           WHERE sd.domain_clean = i.landing_page_domain
+             AND sd.path_clean   = i.landing_page_path
+         )
+      THEN (
+        SELECT i.insti_team
+        FROM inputs_insti i
+        WHERE sd.domain_clean = i.landing_page_domain
+          AND sd.path_clean   = i.landing_page_path
+        LIMIT 1
+      )
+    WHEN utm.source_mkt = 'Communications' THEN 'Communications'
+    WHEN utm.source_mkt = 'Performance'
+         AND sd.last_source IN ('google','bing')
+         AND POSITION('-brand' IN sd.last_campaign) > 0
       THEN 'Performance Brand'
-
-    WHEN utms.source_mkt = 'Performance'
-      THEN 'Performance No Brand'
-
-    WHEN (last_source = '' OR last_source IS NULL)
-         AND last_medium = 'direct'
-         AND matched_team IS NOT NULL
-      THEN matched_team
-
-    WHEN (last_source = '' OR last_source IS NULL)
-         AND last_medium = 'direct'
+    WHEN utm.source_mkt = 'Performance' THEN 'Performance No Brand'
+    WHEN (sd.last_source = '' OR sd.last_source IS NULL)
+         AND sd.last_medium = 'direct'
       THEN 'Direct'
-
-    WHEN utms.source_mkt IS NULL
-         AND last_medium = 'direct'
-      THEN 'Direct'
-
-    WHEN utms.source_mkt IS NULL
-         AND last_source = 'youtube'
-         AND last_medium = 'social'
-         AND matched_team IS NOT NULL
-      THEN matched_team
-
-    WHEN (last_source = '' OR last_source IS NULL)
-         AND (last_medium = '' OR last_medium IS NULL)
-      THEN 'Others'
-
-    WHEN utms.source_mkt IS NULL
-      THEN 'Others'
-
-    ELSE utms.source_mkt
+    WHEN utm.source_mkt IS NULL THEN 'Others'
+    ELSE utm.source_mkt
   END AS mkt_source,
 
-  /* ───────────────  MKT SUBTEAM  ─────────────── */
+  /* ──────────── MKT SUBTEAM ──────────── */
   CASE
-    WHEN utms.source_mkt = 'Performance'
-         AND last_source = 'google'
-         AND POSITION('max-perf' IN last_campaign) > 0
+    WHEN utm.source_mkt = 'Performance'
+         AND sd.last_source = 'google'
+         AND POSITION('max-perf' IN sd.last_campaign) > 0
       THEN 'Google pMax'
-
-    WHEN utms.source_mkt = 'Performance'
-         AND last_source IN ('google', 'bing')
-         AND POSITION(sub.utm_campaign IN last_campaign) > 0
-      THEN sub.subteam
-
-    WHEN utms.source_mkt = 'Product Marketing'
-         AND POSITION(sub.utm_campaign IN last_campaign) > 0
-      THEN sub.subteam
-
-    WHEN last_source = 'chatgpt.com'
-         AND (last_medium = '' OR last_medium IS NULL)
+    WHEN utm.source_mkt = 'Performance'
+         AND sd.last_source IN ('google','bing')
+         AND POSITION(sub_cam.utm_campaign IN sd.last_campaign) > 0
+      THEN sub_cam.subteam
+    WHEN utm.source_mkt = 'Product Marketing'
+         AND POSITION(sub_cam.utm_campaign IN sd.last_campaign) > 0
+      THEN sub_cam.subteam
+    WHEN sd.last_source = 'chatgpt.com'
+         AND (sd.last_medium = '' OR sd.last_medium IS NULL)
       THEN 'AI'
-
-    WHEN matched_subteam IS NOT NULL
-      THEN matched_subteam
-
-    WHEN utms.subteam IS NOT NULL
-      THEN utms.subteam
-
+    WHEN utm.utm_subteam IS NOT NULL THEN utm.utm_subteam
+    WHEN EXISTS (
+           SELECT 1
+           FROM inputs_url u
+           WHERE sd.domain_clean = u.landing_page_domain
+             AND sd.path_clean   = u.landing_page_path
+         )
+      THEN (
+        SELECT u.url_subteam
+        FROM inputs_url u
+        WHERE sd.domain_clean = u.landing_page_domain
+          AND sd.path_clean   = u.landing_page_path
+        LIMIT 1
+      )
+    WHEN EXISTS (
+           SELECT 1
+           FROM inputs_insti i
+           WHERE sd.domain_clean = i.landing_page_domain
+             AND sd.path_clean   = i.landing_page_path
+         )
+      THEN (
+        SELECT i.insti_subteam
+        FROM inputs_insti i
+        WHERE sd.domain_clean = i.landing_page_domain
+          AND sd.path_clean   = i.landing_page_path
+        LIMIT 1
+      )
     ELSE mkt_source
   END AS mkt_subteam
 
-FROM joined
-LEFT JOIN {{ ref('marketing_inputs_attribution__utm') }} utms
-  ON last_source = utms.source AND last_medium = utms.medium
-LEFT JOIN {{ ref('marketing_inputs_attribution__subteam') }} sub
-  ON last_source = sub.utm_source AND last_medium = sub.utm_medium
+FROM source_data sd
+LEFT JOIN utm     ON sd.last_source = utm.utm_source   AND sd.last_medium = utm.utm_medium
+LEFT JOIN sub_cam ON sd.last_source = sub_cam.utm_source AND sd.last_medium = sub_cam.utm_medium

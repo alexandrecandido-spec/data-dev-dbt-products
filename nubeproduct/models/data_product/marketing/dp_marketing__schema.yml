@@ -802,90 +802,101 @@ models:
       - name: sys_audit_updated_by
         description: "System identifier of the process that last updated this record"
 
+version: 2
 
-  - name: marketing_ga4_sessions_classified
-    description:  Session-level table produced once per day.  
-      Adds the heavy country-classification logic to the raw
-      “sessions + dimensions” model and persists it for reuse.
+models:
+  - name: marketing_ga4_sessions_daily_attribution
+    description: "Data product: daily attribution of GA4 sessions, including UTM parameters and original landing page dimensions."
     config:
       meta:
-        owner: sofia.torres@tiendanube.com
-        domain: marketing
+        owner: "sofia.torres@tiendanube.com"
+        domain: "marketing"
     columns:
       - name: year_month_day_code
         description: "Daily partition code (YYYYMMDD)."
-        tests: [not_null]
+        tests:
+          - not_null
       - name: date
         description: "Session date."
-        tests: [not_null]
-      - name: unique_session
-        description: "Unique session identifier."
-        tests: [not_null]
-      - name: classified_country
-        description: "Country after business classification."
+        tests:
+          - not_null
       - name: source_ga4_classification
         description: "Original GA4 source label."
+      - name: original_user_country
+        description: "Country from the user's GA4 record."
+      - name: classified_country
+        description: "Business‐classified country bucket."
       - name: env
         description: "Navigation environment (web, admin, etc.)."
-      - name: engage
-        description: "GA4 engage flag (0/1)."
-      - name: trial
-        description: "1 if a trial started during the session."
-      - name: payment
-        description: "1 if a payment event happened during the session."
-
-  - name: marketing_ga4_sessions_aggregated
-    description: Daily aggregation of GA4 sessions with engagement, trial and payment
-      metrics.  One row per unique combination of traffic dimensions +
-      country + device + session flags.
-    config:
-      meta:
-        owner: sofia.torres@tiendanube.com
-        domain: marketing
-    columns:
-      - name: year_month_day_code
-        description: "Daily partition code (YYYYMMDD)."
-        tests: [not_null]
-      - name: date
-        description: "Session date."
-        tests: [not_null]
-      - name: classified_country
-        description: "Country bucket used for reporting."
-      - name: session_status
-        description: "'Engaged' or 'Bounced'."
-      - name: distinct_session_count
-        description: "Number of distinct sessions in the aggregation."
-        tests: [not_null]
-      - name: total_trials
-        description: "Total trial events."
-      - name: total_payments
-        description: "Total payment events."
-      - name: avg_session_duration
-        description: "Average duration (minutes) for engaged sessions."
-      - name: avg_pageviews_per_session
-        description: "Average pageviews for engaged sessions."
-      - name: langing_page_domain
-        description: "Landing page domain for the session."
+      - name: landing_page
+        description: "Full landing page URL."
+      - name: landing_page_domain
+        description: "Domain portion of the landing page URL (e.g. 'www.nuvemshop.com.br')."
       - name: landing_page_path
-        description: "Landing page path for the session."
-
-  - name: marketing_ga4_sessions_daily_attribution
-    description:  Marketing data-product exposing the aggregated sessions table with
-      attribution fields (mkt_source, mkt_subteam) applied.
-    config:
-      meta:
-        owner: sofia.torres@tiendanube.com
-        domain: marketing
-    columns:
-      - name: year_month_day_code
-        description: "Daily partition code (YYYYMMDD)."
-        tests: [not_null]
+        description: "Path portion of the landing page URL (e.g. '/loja-virtual')."
+      - name: last_source
+        description: "Last known traffic source."
+      - name: last_medium
+        description: "Last known traffic medium."
+      - name: last_campaign
+        description: "Last recorded campaign."
+      - name: utm_ad_id
+        description: "Ad ID extracted from landing page URL between 'id_' and '&'."
+      - name: utm_content
+        description: "UTM content parameter extracted from the landing page URL."
+      - name: utm_term
+        description: "UTM term parameter extracted from the landing page URL."
+      - name: first_event_device
+        description: "Device category of the first event in the session."
+      - name: last_event_device
+        description: "Device category of the last event in the session."
+      - name: only_login_session
+        description: "Flag = 1 if session contains only login events with no trial/payment."
+      - name: login_in_session
+        description: "Flag = 1 if any login event occurred in the session."
+      - name: trial
+        description: "Flag = 1 if a trial started during the session."
+      - name: payment
+        description: "Flag = 1 if a payment occurred during the session."
+      - name: engage
+        description: "GA4 engagement flag (0/1)."
+      - name: session_duration_minutes
+        description: "Session duration in minutes."
+      - name: pageviews_per_session
+        description: "Number of pageviews in the session."
+      - name: user_type
+        description: "‘New’ or ‘Returning’ user, based on first visit date."
+      - name: session_status
+        description: "'Engaged' or 'Bounced' based on engagement flag."
+      - name: distinct_user_count
+        description: "Distinct users per grouping."
+      - name: distinct_session_count
+        description: "Distinct sessions per grouping."
+      - name: total_trials
+        description: "Total trial events per grouping."
+      - name: total_payments
+        description: "Total payment events per grouping."
+      - name: total_engagements
+        description: "Count of engaged sessions."
+      - name: avg_session_duration
+        description: "Average session duration for engaged sessions (minutes)."
+      - name: median_session_duration
+        description: "Median session duration for engaged sessions (minutes)."
+      - name: avg_pageviews_per_session
+        description: "Average pageviews per session."
+      - name: median_pageviews_per_session
+        description: "Median pageviews per session."
       - name: mkt_source
         description: "Marketing source assigned by attribution logic."
-        tests: [not_null]
       - name: mkt_subteam
-        description: "Marketing sub-team assigned by attribution logic."
-      - name: distinct_user_count
-        description: "Distinct users in the aggregation."
-      - name: total_engagements
-        description: "Engaged sessions counted after attribution."
+        description: "Marketing sub‐team assigned by attribution logic."
+      - name: row_hash
+        description: "MD5 hash of concatenated key fields to detect changes."
+      - name: sys_audit_created_on
+        description: "Record creation timestamp."
+      - name: sys_audit_created_by
+        description: "System user who created the record."
+      - name: sys_audit_updated_on
+        description: "Record last update timestamp."
+      - name: sys_audit_updated_by
+        description: "System user who last updated the record."

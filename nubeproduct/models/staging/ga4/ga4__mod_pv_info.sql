@@ -9,20 +9,53 @@
 
 WITH base AS (
     SELECT
-        mpv_event_timestamp                                        AS event_timestamp,
-        event_date_parsed                                          AS event_date,
-        CAST(date_format(event_date_parsed,'yyyyMMdd') AS int)     AS year_month_day_code,
+        mpv_event_timestamp           AS event_timestamp,
+        event_date_parsed             AS event_date,
+        CAST(date_format(event_date_parsed,'yyyyMMdd') AS INT) AS year_month_day_code,
 
         user_pseudo_id,
         unique_session,
-        source                    AS source_ga4_classification,
-        mpv_country               AS original_user_country,
-        mpv_env                   AS env_pagegroup,
-        mpv_landing_page          AS landing_page,
-        mpv_last_source           AS last_source,
-        mpv_last_medium           AS last_medium,
-        mpv_last_campaign         AS last_campaign,
-        current_timestamp()       AS sys_audit_updated_on
+        source                         AS source_ga4_classification,
+        mpv_country                    AS original_user_country,
+        mpv_env                        AS env_pagegroup,
+        mpv_landing_page               AS landing_page,
+
+        -- Dominio y ruta de la URL
+        REGEXP_EXTRACT(
+          mpv_landing_page,
+          '^https?://([^/]+)',
+          1
+        )                               AS landing_page_domain,
+        REGEXP_EXTRACT(
+          mpv_landing_page,
+          '^https?://[^/]+(/[^?]*)',
+          1
+        )                               AS landing_page_path,
+
+        mpv_last_source                AS last_source,
+        mpv_last_medium                AS last_medium,
+        mpv_last_campaign              AS last_campaign,
+
+        -- Parámetros UTM ajustados
+        REGEXP_EXTRACT(
+          mpv_landing_page,
+          'utm_term=([^&]+)',
+          1
+        )                               AS utm_term,
+        REGEXP_EXTRACT(
+          mpv_landing_page,
+          'utm_content=([^&]+)',
+          1
+        )                               AS utm_content,
+        -- utm_ad_id: todo lo que sigue a "id_" hasta el siguiente &
+        REGEXP_EXTRACT(
+          mpv_landing_page,
+          'id_([^&]+)',
+          1
+        )                               AS utm_ad_id,
+
+
+        current_timestamp()            AS sys_audit_updated_on
     FROM {{ source('stg_ga4','mod_pv_info') }}
     WHERE unique_session IS NOT NULL
       AND source <> 'ecosystem'
@@ -32,12 +65,10 @@ WITH base AS (
 SELECT *
 FROM   base
 WHERE
-    {% if is_incremental() %}
-        year_month_day_code >= CAST(date_format(date_sub(current_date(),3),'yyyyMMdd') AS int)
-        AND sys_audit_updated_on >= (
-              SELECT COALESCE(MAX(sys_audit_updated_on), TIMESTAMP '1900-01-01')
-              FROM {{ this }}
-            )
-    {% endif %}
-
-
+  {% if is_incremental() %}
+    year_month_day_code >= CAST(date_format(date_sub(current_date(),3),'yyyyMMdd') AS INT)
+    AND sys_audit_updated_on >= (
+          SELECT COALESCE(MAX(sys_audit_updated_on), TIMESTAMP '1900-01-01')
+          FROM {{ this }}
+        )
+  {% endif %}

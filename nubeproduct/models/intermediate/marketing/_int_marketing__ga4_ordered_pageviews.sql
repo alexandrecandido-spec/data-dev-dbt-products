@@ -1,4 +1,4 @@
-WITH ranked AS (               
+WITH ranked AS (
     SELECT
         mpv.*,
         ROW_NUMBER() OVER (
@@ -11,7 +11,7 @@ WITH ranked AS (
     FROM {{ ref('ga4__mod_pv_info') }} mpv
 ),
 
-first_pv AS (                    
+first_pv AS (
     SELECT
         event_timestamp,
         event_date,
@@ -22,20 +22,25 @@ first_pv AS (
         original_user_country,
         env_pagegroup,
         landing_page,
+        landing_page_domain,
+        landing_page_path,
         last_source,
         last_medium,
         last_campaign,
+        utm_ad_id,
+        utm_content,
+        utm_term,
         pageviews_per_session,
-        regexp_extract(landing_page, 'id_([0-9]+)', 1) AS utm_ad_id,
-CASE
-  WHEN position('login' IN lower(landing_page)) > 0 THEN 'login'
-  ELSE 'other'
-END AS landing_page_type
+        CASE
+          WHEN lower(landing_page) LIKE '%login%' THEN 'login'
+          ELSE 'other'
+        END AS landing_page_type
     FROM ranked
     WHERE rn = 1
 )
 
-SELECT * FROM first_pv
+SELECT * 
+FROM first_pv
 
 
 
