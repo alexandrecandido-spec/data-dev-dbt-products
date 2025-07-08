@@ -22,6 +22,7 @@ WITH source AS (
         plan,
         verified,
         register_url,
+        main_user_id,
         partner_id,
         partnership_type
     FROM {{ source('stg_moltres', 'mwp_store_info') }}
@@ -52,6 +53,7 @@ SELECT
     plan,
     verified,
     register_url,
+    main_user_id,
     partner_id,
     partnership_type,
     COALESCE(e.sys_audit_created_on, current_timestamp) AS sys_audit_created_on,
