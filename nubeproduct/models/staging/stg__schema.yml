@@ -329,3 +329,23 @@ models:
         description: "Determines if row is related to an Issue or Problem"
       - name: sys_audit_updated_at
         description: "Determines if row is related to an Issue or Problem"
+
+  - name: github_data__platform_solved_tags
+    description: "Extract the solved_by_app tags from github dat"
+    config:
+      meta:
+        tech_steward: "fernando.martinez@tiendanube.com"
+        domain: "product"
+        business_owner: "Nicolas Loreti"
+    columns:
+        - name: app_id
+        description: "Determines if row is related to an Issue or Problem"
+        - name: issue_label_name
+        description: "name of the label"
+        - name: label_country
+        description: "determines the country of the label"
+        - name: label_created_at
+        description: "date when the label was created"
+        - name: label_updated_at
+        description: "date when the label was updated"
+
