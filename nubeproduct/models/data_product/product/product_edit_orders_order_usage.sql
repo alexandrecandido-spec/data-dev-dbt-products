@@ -5,7 +5,7 @@
         unique_key=['id'],
         partition_by=['year_month_day_code'],
         on_schema_change='fail',
-        tags=["daily-8am"]
+        tags=["daily-9am"]
     )
 }}
 
@@ -17,12 +17,12 @@ select
     o.status,
     o.gmv_usd,
     o.year_month_day_code,
-    o.was_order_edited,
+    case when o.order_edit_count > 0 then 1 else 0 end as was_order_edited,
     o.order_first_edited_at,
     o.order_last_edited_at,
     o.order_edit_count,
     --data on store
-    e.store_id,
+    o.store_id,
     e.state,
     e.country,
     e.currency,
@@ -43,7 +43,7 @@ select
     current_timestamp AS sys_audit_updated_on,
     'data-dev-dbt-products' AS sys_audit_updated_by
 FROM {{ ref('_int_product__edit_orders_orders_usage') }} o
-RIGHT JOIN {{ ref('_int_product__edit_orders_stores_enablement_and_usage') }} e on e.store_id = o.store_id
+JOIN {{ ref('_int_product__edit_orders_stores_enablement_and_usage') }} e on e.store_id = o.store_id
  {% if is_incremental() %}
     WHERE 
         o.sys_audit_updated_on >= (select coalesce(max(sys_audit_updated_on),'1900-01-01') from {{ this }} a )

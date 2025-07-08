@@ -57,7 +57,7 @@ models:
           - fulfillment_order_id
     columns:
       - name: edit_action_id
-        description: unique id for each edit action (combines line_edit_id, edit_type, fulfillment_order_id). This is used to identify unique edits since id field constructed from the unions between individual edition tables may not be unique.
+        description: unique id for each edit action (combines line_edit_id, edit_type, order_id, fulfillment_order_id). This is used to identify unique edits since id field constructed from the unions between individual edition tables may not be unique.
         tests:
           - unique
           - not_null

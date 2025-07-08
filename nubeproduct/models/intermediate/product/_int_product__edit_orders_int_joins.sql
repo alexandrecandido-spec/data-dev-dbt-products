@@ -1,6 +1,6 @@
 select distinct
     --unique id
-    concat(ae.id,ae.edit_type,s.fulfillment_order_id) as edit_action_id,
+    concat(ae.id,ae.edit_type,o.id,coalesce(s.fulfillment_order_id,"")) as edit_action_id,
     --data on edit action
     ae.id as line_edit_id,
     ae.extra,
@@ -13,7 +13,7 @@ select distinct
     ae.new_product_qty,
     --data on edit
     ae.id as edit_id,
-    cast(coalesce(ae.happened_at,oe.happened_at) as date) edit_at,
+    cast(coalesce(ae.happened_at, oe.happened_at) as date) as edit_at,
     --data on total values and shipping costs
     oe.skip_shipping_requote,
     vh.previous_total,
@@ -41,7 +41,7 @@ select distinct
     o.status,
     o.gmv_usd,
     o.year_month_day_code,
-    o.was_order_edited,
+    case when o.order_edit_count > 0 then 1 else 0 end as was_order_edited,
     o.order_first_edited_at,
     o.order_last_edited_at,
     o.order_edit_count,
@@ -63,7 +63,8 @@ select distinct
     o.store_edit_last_use,
     o.store_edit_count
     FROM {{ ref('_int_product__edit_orders_union_edit_types') }} ae
-    LEFT JOIN {{ ref('product_edit_orders_order_usage') }} o on o.id = ae.order_id
+    JOIN {{ ref('product_edit_orders_order_usage') }} o on o.id = ae.order_id
     LEFT JOIN {{ source('int_orders', 'orders_edit_history') }} oe on oe.id = ae.edit_id
     LEFT JOIN {{ source('int_orders', 'orders_edit_history_shipping') }} s on s.edit_id = ae.edit_id
     LEFT JOIN {{ ref('_int_product__edit_orders_value_history') }} vh on vh.id = oe.order_value_history_id
+WHERE o.state<4

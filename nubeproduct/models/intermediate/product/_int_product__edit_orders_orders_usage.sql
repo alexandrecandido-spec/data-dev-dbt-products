@@ -6,7 +6,6 @@ select
     o.gmv_usd,
     o.year_month_day_code,
     o.store_id,
-    case when h.id is not null then 1 else 0 end as was_order_edited,
     max(o.sys_audit_updated_on) as sys_audit_updated_on,
     min(date(happened_at)) order_first_edited_at,
     max(date(happened_at)) order_last_edited_at,
@@ -20,5 +19,4 @@ o.payment_status,
 o.status,
 o.gmv_usd,
 o.year_month_day_code,
-o.store_id,
-was_order_edited
+o.store_id
