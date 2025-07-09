@@ -1,11 +1,11 @@
 {{
     config(
-        tags = ["finance","daily-morning"],
-        partition_by = ["year_month_day_code"]
+        tags = ["product","daily-morning"]
     )
 }}
 
 SELECT
+	id,
 	order_id,
 	price_table_id,
 	percentage_applied,

@@ -15,6 +15,8 @@ sources:
         description: "Orders generated throughout the entire site. Includes the order in its most current state."
       - name: mwp_order_products
         description: "Products associated with an order."
+      - name: mwp_orders_b2b
+        description: "Orders generated through the B2B solution."
 
   - name: stg_nuvem_credito
     description: "Source containing tables related to Nuvem credito"
