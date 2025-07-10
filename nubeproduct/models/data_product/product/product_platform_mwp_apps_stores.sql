@@ -12,10 +12,6 @@ installs AS (
     SELECT  
       *
     FROM {{ ref('moltres__platform_mwp_apps_stores') }}
-    {% if is_incremental() %}
-      -- Only get records updated since the last run
-      WHERE sys_audit_updated_at >= (SELECT COALESCE(MAX(sys_audit_updated_at), '1900-01-01') FROM {{ this }})
-    {% endif %}
 ),
 install_lag AS (
     SELECT 
@@ -32,8 +28,8 @@ install_groups AS (
     FROM install_lag
 )
 SELECT 
-    concat(cast(store_id as string), '_', cast(app_id as string), '_', cast(MIN(app_install_date) as string)) as store_app_id,
-    store_id,
+    concat(cast(i.store_id as string), '_', cast(app_id as string), '_', cast(MIN(app_install_date) as string)) as store_app_id,
+    i.store_id,
     app_id,
     MIN(app_install_date) AS app_install_date,
     CASE WHEN MAX(app_uninstall_date) > current_date THEN null ELSE MAX(app_uninstall_date) END AS app_uninstall_date,
@@ -44,10 +40,10 @@ SELECT
         current_timestamp as sys_admin_created_at,
     {% endif %}
     current_timestamp as sys_audit_updated_at
-FROM install_groups
+FROM install_groups i
 -- For merge strategy, join to target to get existing created_at
 {% if is_incremental() %}
 LEFT JOIN {{ this }} target
-    ON concat(cast(store_id as string), cast(app_id as string)) = target.store_app_id
+    ON concat(cast(i.store_id as string), cast(app_id as string)) = target.store_app_id
 {% endif %}
 GROUP BY 1,2,3
