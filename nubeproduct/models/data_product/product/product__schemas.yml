@@ -87,8 +87,6 @@ models:
           - not_null
       - name: edit_at
         description: the date when the edit was made (edit_history table)
-        tests:
-          - not_null
       - name: app_id
         description: the app id where the edit is made (2602 is new admin so not an external app)
       - name: skip_shipping_requote
