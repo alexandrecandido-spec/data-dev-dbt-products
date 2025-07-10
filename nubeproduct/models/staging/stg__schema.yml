@@ -43,7 +43,8 @@ models:
         description: "Code of the store's partner, if a partner was involved in the store's creation."
       - name: partnership_type
         description: "Type of partnership, if a partner was involved in the store's creation."
-
+      - name: domain
+        description: "Custom store domain name created by the client."
 
   - name: orders__mwp_orders
     description: "All the orders in their different statuses"
