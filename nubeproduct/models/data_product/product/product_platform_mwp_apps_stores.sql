@@ -12,6 +12,7 @@ installs AS (
     SELECT  
       *
     FROM {{ ref('moltres__platform_mwp_apps_stores') }}
+
 ),
 install_lag AS (
     SELECT 
@@ -28,11 +29,11 @@ install_groups AS (
     FROM install_lag
 )
 SELECT 
-    concat(cast(i.store_id as string), '_', cast(app_id as string), '_', cast(MIN(app_install_date) as string)) as store_app_id,
+    concat(cast(i.store_id as string), '_', cast(i.app_id as string), '_', cast(MIN(i.app_install_date) as string)) as store_app_id,
     i.store_id,
-    app_id,
-    MIN(app_install_date) AS app_install_date,
-    CASE WHEN MAX(app_uninstall_date) > current_date THEN null ELSE MAX(app_uninstall_date) END AS app_uninstall_date,
+    i.app_id,
+    MIN(i.app_install_date) AS app_install_date,
+    CASE WHEN MAX(i.app_uninstall_date) > current_date THEN null ELSE MAX(i.app_uninstall_date) END AS app_uninstall_date,
     -- Set created_at only for new records, updated_at always
     {% if is_incremental() %}
         COALESCE(target.sys_admin_created_at, current_timestamp) as sys_admin_created_at,
@@ -44,6 +45,6 @@ FROM install_groups i
 -- For merge strategy, join to target to get existing created_at
 {% if is_incremental() %}
 LEFT JOIN {{ this }} target
-    ON concat(cast(i.store_id as string), cast(app_id as string)) = target.store_app_id
+    ON concat(cast(i.store_id as string), '_', cast(i.app_id as string), '_', cast(MIN(i.app_install_date) as string)) = target.store_app_id
 {% endif %}
 GROUP BY 1,2,3
