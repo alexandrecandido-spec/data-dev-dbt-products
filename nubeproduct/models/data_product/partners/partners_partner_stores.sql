@@ -4,14 +4,18 @@
         incremental_strategy = 'merge',
         unique_key = ['store_id'],
         on_schema_change = 'fail',
-        tags = ["partners", 'daily-11am']
+        tags = ["partners", 'daily-9am']
 ) }}
-WITH partner_stores AS    
+
+WITH existing_data AS (
+    {{ get_existing_data(this, ['store_id', 'sys_audit_created_on', 'sys_audit_created_by']) }}
+),
+partner_stores AS    
 (
     SELECT
         SI.store_id,
         SI.main_user_id,
-        SI.doimain,
+        SI.domain,
         SI.country_code,
         SI.state,
         SI.current_segment,
@@ -73,4 +77,24 @@ WITH partner_stores AS
     LEFT JOIN {{ ref('operations_grouping_plans') }} AS OGP
         ON SI.plan = OGP.plan    
 )
-SELECT * FROM partner_stores;
+SELECT 
+    *,
+    COALESCE(e.sys_audit_created_on, current_timestamp) AS sys_audit_created_on,
+    COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by,
+    current_timestamp AS sys_audit_updated_on,
+    'data-dev-dbt-products' AS sys_audit_updated_by
+FROM partner_stores
+LEFT JOIN existing_data e
+    ON partner_stores.store_id = e.store_id 
+/*
+WHERE 
+    {% if not is_incremental() %}
+      partner_stores.created_at_ts >= DATE '2000-01-01'
+    {% endif %}
+    {% if is_incremental() %}
+      partner_stores.sys_audit_updated_on > (
+        SELECT COALESCE(MAX(sys_audit_updated_on), TIMESTAMP '1900-01-01')
+        FROM {{ this }}
+      )
+    {% endif %}
+*/
