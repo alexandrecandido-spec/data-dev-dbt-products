@@ -34,4 +34,41 @@ models:
           Label that identifies if the Issue/Problem is on its first Working in Progress step. Each Issue/Problem
           may or may not be in a WIP status.
 
+
+
+  - name: product_platform_mwp_apps_stores
+    description: >
+      Contains a clean version of the mwp_apps_stores tables after deleting the reinstallations made by the support team
+    config:
+      meta:
+        tech_steward: "fernando.martinez@tiendanube.com"
+        domain: "product"
+        business_owner: "Nicolas Loreti"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: 
+            - store_id
+            - app_id
+    columns:
+      - name: store_app_id
+        description: Unique store and app ids combination. used for unique key.
+        tests:
+          - not_null
+      - name: store_id
+        description: store related to the app_id installed.
+        tests:
+          - not_null
+      - name: app_id
+        description: app_id installed by the store.
+          - not_null
+      - name: app_install_date
+        description: date in which the app was installed.
+          - not_null
+      - name: app_uninstall_date
+        description: app in which the app was uninstalled. in case of null, the app is still active.
+      - name: sys_admin_created_at
+        description: date in which the record was created.
+      - name: sys_admin_updated_at
+        description: date in which the record was last updated.
+
         

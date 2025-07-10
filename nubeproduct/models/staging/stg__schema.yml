@@ -318,19 +318,19 @@ models:
         business_owner: "Nicolas Loreti"
     columns:
       - name: app_id
-        description: "Determines if row is related to an Issue or Problem"
+        description: "determines the app_id of the installation"
       - name: store_id
-        description: "Determines if row is related to an Issue or Problem"
+        description: "determines the store_id of the installation"
       - name: installed_app_id
-        description: "Determines if row is related to an Issue or Problem"
+        description: "determines the unique identifier of the installation"
       - name: app_install_date
-        description: "Determines if row is related to an Issue or Problem"
+        description: "determines the date when the app was installed"
       - name: app_uninstall_date
-        description: "Determines if row is related to an Issue or Problem"
+        description: "determines the date when the app was uninstalled"
       - name: sys_admin_created_at
-        description: "Determines if row is related to an Issue or Problem"
+        description: "determines the date when the installation was created"
       - name: sys_audit_updated_at
-        description: "Determines if row is related to an Issue or Problem"
+        description: "determines the date when the installation was updated"
 
 
 
