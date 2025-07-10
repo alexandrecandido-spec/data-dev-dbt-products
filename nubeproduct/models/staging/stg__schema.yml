@@ -45,6 +45,8 @@ models:
         description: "Type of partnership, if a partner was involved in the store's creation."
       - name: domain
         description: "Domain of the store." 
+      - name: main_user_id
+        description: "Main user ID of the store."
 
 
   - name: orders__mwp_orders
