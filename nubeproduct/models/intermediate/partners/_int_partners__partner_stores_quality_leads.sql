@@ -46,6 +46,8 @@ ranked_store_info AS (
 )
 SELECT 
     store_id,
-    prod_cutoff
+    new_payment_probability,
+    prod_cutoff,
+    device    
 FROM ranked_store_info
 WHERE rownumber = 1

@@ -1,0 +1,17 @@
+version: 2
+models:
+  - name: partner_stores     
+    config:
+      meta:
+        tech_steward: "felipe.lorenzo@tiendanube.com"
+        domain: "partners"
+        business_owner: "Franco Tiberti"
+    description: >
+      Contains the list of stores associated with a partner, classification,
+      and audit metadata.
+    columns:
+      - name: id
+        description: Unique identifier of the order. Unique key.
+        tests:
+          - not_null
+          - unique
