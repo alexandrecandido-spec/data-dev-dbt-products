@@ -47,4 +47,4 @@ FROM install_groups i
 LEFT JOIN {{ this }} target
     ON concat(cast(i.store_id as string), '_', cast(i.app_id as string), '_', cast(MIN(i.app_install_date) as string)) = target.store_app_id
 {% endif %}
-GROUP BY 1,2,3
+GROUP BY 2,3
