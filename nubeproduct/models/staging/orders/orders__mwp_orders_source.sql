@@ -19,13 +19,15 @@ WITH source AS (
         created_at,
         year_month_code
     FROM {{ source('stg_orders', 'mwp_orders_source') }}
-    WHERE --created_at >= '2017-12-31'
-    year_month_code >= 201801
+    WHERE 1=1
     AND created_at IS NOT NULL
     AND order_id IS NOT NULL
 
     {% if is_incremental() %}
         AND created_at >= (SELECT MAX(created_at) FROM {{ this }})
+        AND year_month_code >= (SELECT MAX(year_month_code) FROM {{ this }})
+    {% else %}
+        AND year_month_code >= 201801
     {% endif %}
 ),
 
