@@ -13,24 +13,25 @@ WITH base AS (
         event_name,
         event_date,
         event_device,
-CASE
-  WHEN position('login' IN lower(event_name)) > 0 THEN 'login'
-  ELSE 'other'
-END AS event_type
-        CAST(date_format(event_date,'yyyyMMdd') AS int)         AS year_month_day_code,
-        current_timestamp()                                      AS sys_audit_updated_on
+        CASE 
+            WHEN POSITION('login' IN LOWER(event_name)) > 0 THEN 'login'
+            ELSE 'other'
+        END AS event_type, 
+        CAST(date_format(event_date, 'yyyyMMdd') AS INT) AS year_month_day_code,
+        current_timestamp()                              AS sys_audit_updated_on
     FROM {{ source('stg_ga4','event_info') }}
     WHERE unique_session IS NOT NULL
-      AND event_date >= DATE '2024-01-01'             
+      AND event_date >= DATE '2024-01-01'
 )
 
 SELECT *
-FROM   base
+FROM base
 WHERE
     {% if is_incremental() %}
-        year_month_day_code >= CAST(date_format(date_sub(current_date(),3),'yyyyMMdd') AS int)
-        AND sys_audit_updated_on >= (
-              SELECT COALESCE(MAX(sys_audit_updated_on), TIMESTAMP '1900-01-01')
-              FROM {{ this }}
-            )
+      year_month_day_code >= CAST(date_format(date_sub(current_date(),3),'yyyyMMdd') AS INT)
+      AND sys_audit_updated_on >= (
+          SELECT COALESCE(MAX(sys_audit_updated_on), TIMESTAMP '1900-01-01')
+          FROM {{ this }}
+      )
     {% endif %}
+

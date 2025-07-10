@@ -321,9 +321,6 @@ models:
       - name: sum_gmv_usd
         description: "Monthly average GMV from the last 4 closed months in USD"
 
-version: 2
-
-models:
   - name: ga4__event_info
     description: "Staging model for GA4 events information. Includes user sessions and event metadata."
     config:

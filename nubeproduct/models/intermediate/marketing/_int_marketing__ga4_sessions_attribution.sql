@@ -1,165 +1,131 @@
-WITH source_data AS (
-  SELECT
-
-    REGEXP_REPLACE(
-      src.landing_page_domain,
-      '^(?:https?://)?(?:www\.)?',
-      ''
-    ) AS domain_clean,
-    src.landing_page_path AS path_clean
-
-  FROM {{ ref('_int_marketing__ga4_sessions_aggregated') }} AS src
+WITH base AS (          -- 1. Limpieza de dominio y path
+    SELECT
+        agg.*,
+        REGEXP_REPLACE(agg.landing_page_domain,
+                       '^(?:https?://)?(?:www\\.)?', '')  AS domain_clean,
+        agg.landing_page_path                            AS path_clean
+    FROM {{ ref('marketing_ga4_sessions_aggregated') }} agg
 ),
 
-inputs_url AS (
-  SELECT landing_page_domain, landing_page_path, team AS url_team, subteam AS url_subteam
-  FROM {{ ref('marketing_inputs_attribution__url') }}
+/* -------------------------------- 2. Mejor coincidencia de URL -------------------------------- */
+url_enriched AS (
+    SELECT
+        b.*,
+        u.team    AS url_team,
+        u.subteam AS url_subteam
+    FROM base b
+    LEFT JOIN LATERAL (      
+        SELECT team , subteam
+        FROM {{ ref('marketing_inputs_attribution__url') }} u
+        WHERE  u.landing_page_domain = b.domain_clean
+          AND STARTSWITH(b.path_clean, u.landing_page_path)
+        ORDER BY LENGTH(u.landing_page_path) DESC
+        LIMIT 1
+    ) u ON TRUE
 ),
 
-inputs_insti AS (
-  SELECT landing_page_domain, landing_page_path, team AS insti_team, subteam AS insti_subteam
-  FROM {{ ref('marketing_inputs_attribution__insti') }}
+/* ---------------------------- 3. Mejor coincidencia insti ----------------------------- */
+insti_enriched AS (
+    SELECT
+        u.*,
+        i.team    AS insti_team,
+        i.subteam AS insti_subteam
+    FROM url_enriched u
+    LEFT JOIN LATERAL (
+        SELECT team , subteam
+        FROM {{ ref('marketing_inputs_attribution__insti') }} i
+        WHERE  i.landing_page_domain = u.domain_clean
+          AND STARTSWITH(u.path_clean, i.landing_page_path)
+        ORDER BY LENGTH(i.landing_page_path) DESC
+        LIMIT 1
+    ) i ON TRUE
 ),
 
-utm AS (
-  SELECT source AS utm_source, medium AS utm_medium, source_mkt, subteam AS utm_subteam
-  FROM {{ ref('marketing_inputs_attribution__utm') }}
+/* ------------------------------------ 4. UTM & sub-campaign ----------------------------------- */
+utm_enriched AS (
+    SELECT
+        i.*,
+        ut.source_mkt,
+        ut.subteam    AS utm_subteam
+    FROM insti_enriched i
+    LEFT JOIN {{ ref('marketing_inputs_attribution__utm') }} ut
+      ON  i.last_source = ut.source
+     AND i.last_medium = ut.medium
 ),
 
-sub_cam AS (
-  SELECT utm_source, utm_medium, utm_campaign, subteam
-  FROM {{ ref('marketing_inputs_attribution__subteam') }}
+subcam_enriched AS (
+    SELECT
+        u.*,
+        sc.subteam      AS subteam_cam,
+        sc.utm_campaign AS utm_campaign_cam
+    FROM utm_enriched u
+    LEFT JOIN {{ ref('marketing_inputs_attribution__subteam') }} sc
+      ON  u.last_source = sc.utm_source
+     AND u.last_medium = sc.utm_medium
 )
 
+/* ------------------------------------ 5. Reglas de negocio ------------------------------------ */
 SELECT
-  sd.*,               
-  sd.domain_clean,
-  sd.path_clean,
+    s.* EXCEPT(url_team , url_subteam , insti_team , insti_subteam ,
+               source_mkt , utm_subteam , subteam_cam , utm_campaign_cam),
 
-  /* ──────────── MKT SOURCE ──────────── */
-  CASE
-    WHEN sd.last_source = 'direct'
-         AND sd.last_medium IS NULL
-         AND sd.last_campaign IS NULL
-         AND sd.domain_clean IN ('partners.tiendanube.com','partners.nuvemshop.com.br')
-      THEN 'Partners'
-    WHEN sd.last_source IN ('yahoo','google','bing')
-         AND sd.last_medium = 'organic'
-         AND EXISTS (
-           SELECT 1
-           FROM inputs_url u
-           WHERE sd.domain_clean = u.landing_page_domain
-             AND sd.path_clean   = u.landing_page_path
-         )
-      THEN (
-        SELECT u.url_team
-        FROM inputs_url u
-        WHERE sd.domain_clean = u.landing_page_domain
-          AND sd.path_clean   = u.landing_page_path
-        LIMIT 1
-      )
-    WHEN sd.last_source IN ('yahoo','google','bing')
-         AND sd.last_medium = 'organic'
-         AND EXISTS (
-           SELECT 1
-           FROM inputs_insti i
-           WHERE sd.domain_clean = i.landing_page_domain
-             AND sd.path_clean   = i.landing_page_path
-         )
-      THEN (
-        SELECT i.insti_team
-        FROM inputs_insti i
-        WHERE sd.domain_clean = i.landing_page_domain
-          AND sd.path_clean   = i.landing_page_path
-        LIMIT 1
-      )
-    WHEN sd.last_source IN ('chatgpt.com','claude.ai','copilot.microsoft.com')
-         AND EXISTS (
-           SELECT 1
-           FROM inputs_url u
-           WHERE sd.domain_clean = u.landing_page_domain
-             AND sd.path_clean   = u.landing_page_path
-         )
-      THEN (
-        SELECT u.url_team
-        FROM inputs_url u
-        WHERE sd.domain_clean = u.landing_page_domain
-          AND sd.path_clean   = u.landing_page_path
-        LIMIT 1
-      )
-    WHEN sd.last_source IN ('chatgpt.com','claude.ai','copilot.microsoft.com')
-         AND EXISTS (
-           SELECT 1
-           FROM inputs_insti i
-           WHERE sd.domain_clean = i.landing_page_domain
-             AND sd.path_clean   = i.landing_page_path
-         )
-      THEN (
-        SELECT i.insti_team
-        FROM inputs_insti i
-        WHERE sd.domain_clean = i.landing_page_domain
-          AND sd.path_clean   = i.landing_page_path
-        LIMIT 1
-      )
-    WHEN utm.source_mkt = 'Communications' THEN 'Communications'
-    WHEN utm.source_mkt = 'Performance'
-         AND sd.last_source IN ('google','bing')
-         AND POSITION('-brand' IN sd.last_campaign) > 0
-      THEN 'Performance Brand'
-    WHEN utm.source_mkt = 'Performance' THEN 'Performance No Brand'
-    WHEN (sd.last_source = '' OR sd.last_source IS NULL)
-         AND sd.last_medium = 'direct'
-      THEN 'Direct'
-    WHEN utm.source_mkt IS NULL THEN 'Others'
-    ELSE utm.source_mkt
-  END AS mkt_source,
+    /* ---- URL owner & content type ---- */
+    COALESCE(s.url_team ,   s.insti_team   ) AS url_owner,
+    COALESCE(s.url_subteam , s.insti_subteam) AS url_content_type,
 
-  /* ──────────── MKT SUBTEAM ──────────── */
-  CASE
-    WHEN utm.source_mkt = 'Performance'
-         AND sd.last_source = 'google'
-         AND POSITION('max-perf' IN sd.last_campaign) > 0
-      THEN 'Google pMax'
-    WHEN utm.source_mkt = 'Performance'
-         AND sd.last_source IN ('google','bing')
-         AND POSITION(sub_cam.utm_campaign IN sd.last_campaign) > 0
-      THEN sub_cam.subteam
-    WHEN utm.source_mkt = 'Product Marketing'
-         AND POSITION(sub_cam.utm_campaign IN sd.last_campaign) > 0
-      THEN sub_cam.subteam
-    WHEN sd.last_source = 'chatgpt.com'
-         AND (sd.last_medium = '' OR sd.last_medium IS NULL)
-      THEN 'AI'
-    WHEN utm.utm_subteam IS NOT NULL THEN utm.utm_subteam
-    WHEN EXISTS (
-           SELECT 1
-           FROM inputs_url u
-           WHERE sd.domain_clean = u.landing_page_domain
-             AND sd.path_clean   = u.landing_page_path
-         )
-      THEN (
-        SELECT u.url_subteam
-        FROM inputs_url u
-        WHERE sd.domain_clean = u.landing_page_domain
-          AND sd.path_clean   = u.landing_page_path
-        LIMIT 1
-      )
-    WHEN EXISTS (
-           SELECT 1
-           FROM inputs_insti i
-           WHERE sd.domain_clean = i.landing_page_domain
-             AND sd.path_clean   = i.landing_page_path
-         )
-      THEN (
-        SELECT i.insti_subteam
-        FROM inputs_insti i
-        WHERE sd.domain_clean = i.landing_page_domain
-          AND sd.path_clean   = i.landing_page_path
-        LIMIT 1
-      )
-    ELSE mkt_source
-  END AS mkt_subteam
+    /* ------------------ MKT SOURCE ------------------ */
+    CASE
+        WHEN s.last_source = 'direct'
+             AND s.last_medium IS NULL
+             AND s.last_campaign IS NULL
+             AND s.domain_clean IN ('partners.tiendanube.com',
+                                     'partners.nuvemshop.com.br')
+          THEN 'Partners'
 
-FROM source_data sd
-LEFT JOIN utm     ON sd.last_source = utm.utm_source   AND sd.last_medium = utm.utm_medium
-LEFT JOIN sub_cam ON sd.last_source = sub_cam.utm_source AND sd.last_medium = sub_cam.utm_medium
+        WHEN s.last_source IN ('yahoo','google','bing')
+             AND s.last_medium = 'organic'
+          THEN COALESCE(s.url_team , s.insti_team)
+
+        WHEN s.source_mkt = 'Communications' THEN 'Communications'
+
+        WHEN s.source_mkt = 'Performance'
+             AND s.last_source IN ('google','bing')
+             AND POSITION('-brand' IN s.last_campaign) > 0
+          THEN 'Performance Brand'
+
+        WHEN s.source_mkt = 'Performance'            THEN 'Performance No Brand'
+        WHEN (s.last_source = '' OR s.last_source IS NULL)
+             AND s.last_medium = 'direct'            THEN 'Direct'
+        WHEN s.source_mkt IS NULL                    THEN 'Others'
+        ELSE s.source_mkt
+    END AS mkt_source,
+
+    /* ------------------ MKT SUBTEAM ------------------ */
+    CASE
+        WHEN s.source_mkt = 'Performance'
+             AND s.last_source = 'google'
+             AND POSITION('max-perf' IN s.last_campaign) > 0
+          THEN 'Google pMax'
+
+        WHEN s.source_mkt = 'Performance'
+             AND s.last_source IN ('google','bing')
+             AND POSITION(s.utm_campaign_cam IN s.last_campaign) > 0
+          THEN s.subteam_cam
+
+        WHEN s.source_mkt = 'Product Marketing'
+             AND POSITION(s.utm_campaign_cam IN s.last_campaign) > 0
+          THEN s.subteam_cam
+
+        WHEN s.last_source = 'chatgpt.com'
+             AND (s.last_medium = '' OR s.last_medium IS NULL)
+          THEN 'AI'
+
+        WHEN s.utm_subteam   IS NOT NULL               THEN s.utm_subteam
+        WHEN s.url_subteam   IS NOT NULL               THEN s.url_subteam
+        WHEN s.insti_subteam IS NOT NULL               THEN s.insti_subteam
+
+        ELSE mkt_source
+    END AS mkt_subteam
+
+FROM subcam_enriched s
+
