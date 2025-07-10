@@ -58,6 +58,10 @@ sources:
     tables:
       - name: historical_credits_offers
         description: "Credit proposals link with engine offer id"
+      - name: renegotiated_contracts
+        description: "Renegotiated contracts with offer id"
+      - name: renegotiation_offers
+        description: "Renegotiation offers"
 
   - name: int_github_data
     description: "Information about Issues and Problems in Github"

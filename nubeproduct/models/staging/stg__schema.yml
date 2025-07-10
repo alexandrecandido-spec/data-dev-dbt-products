@@ -219,8 +219,8 @@ models:
         description: "Date when the credit amount was disbursed."
       - name: finished_at
         description: "Date when the credit was finalized (It could be by being renegotiated or fully paid)."
-      - name: original_contract_id
-        description: "Not null only if the credit is a renegotiation."
+      - name: original_contract_ids
+        description: "Not null only if the credit is a renegotiation. It contains all contracts ids that were renegotiated."
 
 
   - name: antifraud_service__vertifier_store_inferences
