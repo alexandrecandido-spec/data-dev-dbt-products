@@ -12,7 +12,7 @@ select distinct
     ae.previous_product_qty,
     ae.new_product_qty,
     --data on edit
-    ae.id as edit_id,
+    ae.edit_id as edit_id,
     cast(coalesce(ae.happened_at, oe.happened_at) as date) as edit_at,
     --data on total values and shipping costs
     oe.skip_shipping_requote,
@@ -68,4 +68,3 @@ select distinct
     LEFT JOIN {{ source('int_orders', 'orders_edit_history') }} oe on oe.id = ae.edit_id
     LEFT JOIN {{ source('int_orders', 'orders_edit_history_shipping') }} s on s.edit_id = ae.edit_id
     LEFT JOIN {{ ref('_int_product__edit_orders_value_history') }} vh on vh.id = oe.order_value_history_id
-WHERE o.state<4
