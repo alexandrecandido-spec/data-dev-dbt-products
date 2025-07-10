@@ -24,6 +24,7 @@ select distinct
     --data on edit
     edit_id,
     edit_at,
+    app_id,
     --data on total values and shipping costs
     skip_shipping_requote,
     previous_total,

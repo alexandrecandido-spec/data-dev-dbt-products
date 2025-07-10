@@ -34,6 +34,7 @@ select distinct
     s.previous_consumer_cost_usd,
     s.new_consumer_cost_usd,
     oe.sys_audit_updated_on,
+    oe.app_id,
     --data on order
     o.id,
     o.fecha_completed_at,
