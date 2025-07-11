@@ -12,7 +12,6 @@ installs AS (
     SELECT  
       *
     FROM {{ ref('moltres__platform_mwp_apps_stores') }}
-
 ),
 install_lag AS (
     SELECT 
