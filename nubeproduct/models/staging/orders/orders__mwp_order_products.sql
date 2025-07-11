@@ -25,11 +25,7 @@ with source as (
     {% endif %}
 ),
 existing_data AS (
-<<<<<<< HEAD
     {{ get_existing_data(this, ['id', 'sys_audit_created_on', 'sys_audit_created_by']) }}
-=======
-    {{ get_existing_data(this, ['order_id', 'product_id', 'sys_audit_created_on', 'sys_audit_created_by']) }}
->>>>>>> recuperar-trabajo
 )
 
 
@@ -48,8 +44,4 @@ select
     current_timestamp AS sys_audit_updated_on,
     'data-dev-dbt-products' AS sys_audit_updated_by
 from source
-<<<<<<< HEAD
 LEFT JOIN existing_data e ON source.id = e.id
-=======
-LEFT JOIN existing_data e ON source.order_id = e.order_id AND source.product_id = e.product_id
->>>>>>> recuperar-trabajo
