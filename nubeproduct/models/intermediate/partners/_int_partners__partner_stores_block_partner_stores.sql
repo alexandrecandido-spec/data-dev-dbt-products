@@ -1,6 +1,6 @@
 SELECT DISTINCT
     related_id AS store_id 
-FROM curated.moltres.mwp_tags
+FROM {{ source('int_moltres', 'mwp_tags') }}
 WHERE tag IN
             (
                 'sre-block-store-404',

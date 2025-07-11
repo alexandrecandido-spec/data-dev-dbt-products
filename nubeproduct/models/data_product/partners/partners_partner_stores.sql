@@ -44,7 +44,7 @@ partner_stores AS
                     ) 
             THEN TRUE 
         ELSE FALSE 
-        END AS first_payment_flg
+        END AS first_payment_flg,
         CASE 
             WHEN SI.partnership_type = 'affiliate'
             THEN 'Affiliate'
@@ -55,7 +55,7 @@ partner_stores AS
         SI.created_at_ts,
         SI.first_payment_ts,
         SI.churned_at_ts,
-        SI.plan AS plan_id,
+        SI.plan_id,
         OGP.grupo AS plan_group,
         OGP.namev2 AS plan_name,
         SI.partner_id,
@@ -76,7 +76,7 @@ partner_stores AS
     LEFT JOIN {{ ref('_int_partners__partner_stores_tag_acquired_by') }} AS TAB
         ON SI.store_id = TAB.store_id
     LEFT JOIN {{ ref('operations_grouping_plans') }} AS OGP
-        ON SI.plan = OGP.plan   
+        ON SI.plan_id = OGP.plan   
     LEFT JOIN {{ ref('_int_partners__partner_stores_block_partner_stores') }} AS BP
         ON SI.store_id = BP.store_id
 )

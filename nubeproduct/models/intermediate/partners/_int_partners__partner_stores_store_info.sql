@@ -1,5 +1,5 @@
 SELECT 
-    id as store_id,
+    store_id,
     domain,
     state,
     country AS country_code,
