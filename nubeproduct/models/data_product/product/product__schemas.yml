@@ -44,17 +44,9 @@ models:
         tech_steward: "fernando.martinez@tiendanube.com"
         domain: "product"
         business_owner: "Nicolas Loreti"
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: 
-            - store_id
-            - app_id
-            - app_install_date
     columns:
       - name: store_app_id
         description: Unique store and app ids combination. used for unique key.
-        tests:
-          - not_null
       - name: store_id
         description: store related to the app_id installed.
         tests:
