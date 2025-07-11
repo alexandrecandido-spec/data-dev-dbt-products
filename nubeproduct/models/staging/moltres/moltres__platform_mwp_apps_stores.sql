@@ -4,7 +4,7 @@
         unique_key=['installed_app_id'],
         incremental_strategy='merge',
         on_schema_change='fail',
-        tags=["product","daily-7am"]
+        tags=["product","daily-8am"]
     )
 }}
 
