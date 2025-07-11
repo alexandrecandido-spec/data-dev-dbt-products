@@ -21,6 +21,10 @@ models:
         description: "Date when the store was churned."
       - name: first_payment
         description: "Date when the store made its first payment."
+      - name: state
+        description: "Billing state of the store"
+        tests:
+          - not_null
       - name: created_at
         description: "Date when the store was created."
         tests:
@@ -39,7 +43,8 @@ models:
         description: "Code of the store's partner, if a partner was involved in the store's creation."
       - name: partnership_type
         description: "Type of partnership, if a partner was involved in the store's creation."
-
+      - name: domain
+        description: "Custom store domain name created by the client."
 
   - name: orders__mwp_orders
     description: "All the orders in their different statuses"
@@ -157,6 +162,11 @@ models:
           - not_null
       - name: quantity
         description: "Number of units of the product included in the order."
+        tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              max_value: 998
+              row_condition: "quantity IS NOT NULL"
       - name: created_at
         description: "Timestamp when the order-product record was created."
         tests:
@@ -205,8 +215,8 @@ models:
         description: "Date when the credit amount was disbursed."
       - name: finished_at
         description: "Date when the credit was finalized (It could be by being renegotiated or fully paid)."
-      - name: original_contract_id
-        description: "Not null only if the credit is a renegotiation."
+      - name: original_contract_ids
+        description: "Not null only if the credit is a renegotiation. It contains all contracts ids that were renegotiated."
 
 
   - name: antifraud_service__vertifier_store_inferences

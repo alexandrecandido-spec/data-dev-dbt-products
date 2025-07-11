@@ -22,7 +22,7 @@ SELECT
         CAST(c.last_installment_at AS DATE) AS last_installment_at,
         c.status,
         CASE
-            WHEN c.original_contract_id IS NOT NULL
+            WHEN c.original_contract_ids IS NOT NULL
               OR c.hub_contract_id IN ('566774','668824','691318') THEN 'renegotiation'
             ELSE 'general'
         END AS portfolio_type,
@@ -34,7 +34,7 @@ SELECT
         CAST(c.interest_monthly_rate AS DECIMAL(18,10)) AS interest_monthly_rate,
         c.lending_hub,
         c.payer_id,
-        c.original_contract_id,
+        c.original_contract_ids,
         CAST(p.external_id AS INT) AS store_id,
         p.collection_strategy,
         p.state as payer_state,

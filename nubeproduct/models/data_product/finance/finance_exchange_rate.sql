@@ -4,7 +4,7 @@
         unique_key=['isocode','processed_at'],
         incremental_strategy='merge',
         on_schema_change='fail',
-        tags=["daily-8am"]
+        tags=["daily-8_30am"]
     )
 }}
 
@@ -26,6 +26,6 @@ WHERE
         source.processed_at >= '2018-01-01'
     {% endif %}
     {% if is_incremental() %}
-        source.processed_at > (SELECT MAX(processed_at) AS max_processed_at
-                            FROM {{ source('dp_finance', 'finance_exchange_rate') }})
+        source.processed_at >= (SELECT MAX(processed_at) AS max_processed_at
+                            FROM {{ this }})
     {% endif %}
