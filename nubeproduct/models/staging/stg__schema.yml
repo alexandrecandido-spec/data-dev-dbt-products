@@ -315,3 +315,41 @@ models:
         description: "Monthly average GMV from the last 4 closed months"
       - name: sum_gmv_usd
         description: "Monthly average GMV from the last 4 closed months in USD"
+
+
+  - name: data_predictors__quality_leads
+    description: "Staging model that contains information about quality leads, such as store_id, created_at, model_id, predicted_prob and year_month_day_code."
+    config:
+      meta:
+        tech_steward: "ronald.corcho@tiendanube.com"
+        domain: "marketing"
+        business_owner: "Giselle Galli"
+    columns:
+      - name: store_id
+        description: "Unique identifier of the store."
+        tests:
+          - not_null
+          - unique
+      - name: created_at
+        description: "Timestamp when the quality lead was created."
+        tests:
+          - not_null
+      - name: model_id
+        description: "Unique identifier of the model used to predict the quality lead."
+      - name: predicted_prob
+        description: "Estimated probability that the store will convert to a paying customer."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              max_value: 1
+      - name: year_month_day_code
+        description: "Date code in YYYYMMDD format used for partitioning or filtering."
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model. Defaults to current_timestamp if not available."
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model. Defaults to 'data-dev-dbt-products'."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed."
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
