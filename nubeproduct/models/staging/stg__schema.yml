@@ -1,4 +1,4 @@
-xversion: 2
+version: 2
 models:
   - name: moltres__mwp_store_info
     description: "Staging model that contains data about each store, such as store ID, country, creation and churn dates and other attributes."
