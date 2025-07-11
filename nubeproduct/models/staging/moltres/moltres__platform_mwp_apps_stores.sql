@@ -20,5 +20,5 @@ from {{ source('stg_moltres', 'mwp_apps_stores') }} l
 WHERE TRUE
 and created_at is not null
 {% if is_incremental() %}
-and sys_audit_updated_at >= (select coalesce(max(j.sys_audit_updated_on),'1900-01-01') from {{ this }} j)
+and created_at >= (select coalesce(max(j.sys_audit_updated_on),'1900-01-01') from {{ this }} j)
 {% endif %}
