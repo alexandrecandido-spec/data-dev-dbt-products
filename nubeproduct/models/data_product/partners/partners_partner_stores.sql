@@ -18,6 +18,7 @@ partner_stores AS
         SI.domain,
         SI.country_code,
         SI.state,
+        IF(BP.store_id IS NOT NULL, TRUE, FALSE) AS block_flg,
         SI.current_segment,
         CASE 
             WHEN SI.current_segment NOT IN ('no-seller', 'struggling-seller') THEN 'Active merchants' 
@@ -75,7 +76,9 @@ partner_stores AS
     LEFT JOIN {{ ref('_int_partners__partner_stores_tag_acquired_by') }} AS TAB
         ON SI.store_id = TAB.store_id
     LEFT JOIN {{ ref('operations_grouping_plans') }} AS OGP
-        ON SI.plan = OGP.plan    
+        ON SI.plan = OGP.plan   
+    LEFT JOIN {{ ref('_int_partners__partner_stores_block_partner_stores') }} AS BP
+        ON SI.store_id = BP.store_id
 )
 SELECT 
     *,

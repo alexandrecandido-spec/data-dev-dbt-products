@@ -16,15 +16,3 @@ SELECT
 FROM {{ ref('moltres__mwp_store_info') }}
 WHERE partner_id IS NOT NULL -- Partner related
     AND partnership_type IN('store_development', 'affiliate') -- Agencies and affiliates
-    AND MSI.id NOT IN
-                (
-                    SELECT related_id FROM curated.moltres.mwp_tags
-                    WHERE tag IN
-                                (
-                                    'sre-block-store-404',
-                                    'sre-block-store-429',
-                                    'fraud-partner',
-                                    'partner_bloqued',
-                                    'partner-blocked'
-                                )
-                ) -- Exclude stores and partners blocked
