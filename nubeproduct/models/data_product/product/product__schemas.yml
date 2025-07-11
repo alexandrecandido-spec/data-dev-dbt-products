@@ -49,6 +49,7 @@ models:
           combination_of_columns: 
             - store_id
             - app_id
+            - app_install_date
     columns:
       - name: store_app_id
         description: Unique store and app ids combination. used for unique key.
