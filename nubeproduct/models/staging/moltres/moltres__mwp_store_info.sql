@@ -24,7 +24,8 @@ WITH source AS (
         register_url,
         main_user_id,
         partner_id,
-        partnership_type
+        partnership_type,
+        domain
     FROM {{ source('stg_moltres', 'mwp_store_info') }}
     WHERE state != 4 
     {% if is_incremental() %}
@@ -56,6 +57,7 @@ SELECT
     main_user_id,
     partner_id,
     partnership_type,
+    domain,
     COALESCE(e.sys_audit_created_on, current_timestamp) AS sys_audit_created_on,
     COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by,
     current_timestamp AS sys_audit_updated_on,

@@ -44,10 +44,9 @@ models:
       - name: partnership_type
         description: "Type of partnership, if a partner was involved in the store's creation."
       - name: domain
-        description: "Domain of the store." 
+        description: "Custom store domain name created by the client."
       - name: main_user_id
         description: "Main user ID of the store."
-
 
   - name: orders__mwp_orders
     description: "All the orders in their different statuses"
@@ -319,3 +318,42 @@ models:
         description: "Monthly average GMV from the last 4 closed months"
       - name: sum_gmv_usd
         description: "Monthly average GMV from the last 4 closed months in USD"
+
+
+  - name: orders__mwp_orders_source
+    description: Staging da origem de tráfego dos pedidos, com normalização dos parâmetros UTM e referrer.
+    config:
+      meta:
+        tech_steward: "gustavo.braga@nuvemshop.com.br"
+        domain: "product"
+        owner: "Francisco Ramirez"
+    columns:
+      - name: order_id
+        description: ID do pedido
+        tests:
+          - not_null
+          - unique
+      - name: source
+        description: Nome bruto da origem de tráfego
+      - name: source_details
+        description: Detalhes adicionais da origem (raw)
+      - name: utm_source
+        description: Parâmetro UTM de origem
+      - name: utm_medium
+        description: Parâmetro UTM de meio
+      - name: http_referrer
+        description: Referência HTTP de origem
+      - name: created_at
+        description: Data de criação do pedido
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: Timestamp de criação do registro na modelagem
+      - name: sys_audit_created_by
+        description: Responsável pela criação do registro
+      - name: sys_audit_updated_on
+        description: Timestamp da última atualização
+      - name: sys_audit_updated_by
+        description: Responsável pela última atualização
+      - name: year_month_code
+        description: Partition de ano e mês
