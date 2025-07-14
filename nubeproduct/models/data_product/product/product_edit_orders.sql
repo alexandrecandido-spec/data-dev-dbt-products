@@ -4,11 +4,12 @@
         incremental_strategy='merge',
         unique_key=['edit_action_id'],
         on_schema_change='fail',
+        partition_by=['edit_year_month_code'],
         tags=["daily-9am"]
     )
 }}
 
-select distinct
+select 
         --unique id
     edit_action_id,
     --data on edit action
@@ -24,6 +25,7 @@ select distinct
     --data on edit
     edit_id,
     edit_at,
+    CAST(date_format(edit_at, 'yyyyMM') AS INT) AS edit_year_month_code,
     app_id,
     --data on total values and shipping costs
     skip_shipping_requote,
@@ -46,11 +48,10 @@ select distinct
     new_consumer_cost_usd,
     --data on order
     id,
-    fecha_completed_at,
+    order_completed_at,
     payment_status,
     status,
     gmv_usd,
-    year_month_day_code,
     was_order_edited,
     order_first_edited_at,
     order_last_edited_at,
@@ -63,11 +64,11 @@ select distinct
     current_segment,
     first_payment,
     churned_at,
-    grupo,
+    plan_name,
     created_at,
     verified,
-    store_has_edit_orders_disponible,
-    store_fecha_edit_orders_disponible,
+    store_has_edit_orders_available,
+    store_edit_orders_available_at,
     store_edit_orders_user,
     store_edit_first_use,
     store_edit_last_use,

@@ -1,10 +1,10 @@
 select 
     o.id,
-    o.fecha_completed_at,
+    o.order_completed_at,
     o.payment_status,
     o.status,
     o.gmv_usd,
-    o.year_month_day_code,
+    o.order_year_month_day_code,
     o.store_id,
     max(o.sys_audit_updated_on) as sys_audit_updated_on,
     min(date(happened_at)) order_first_edited_at,
@@ -14,9 +14,9 @@ FROM {{ ref('_int_product__edit_orders_orders') }} o
 LEFT JOIN {{ source('int_orders', 'orders_edit_history') }} h on h.order_id = o.id
 group by
 o.id,
-o.fecha_completed_at,
+o.order_completed_at,
 o.payment_status,
 o.status,
 o.gmv_usd,
-o.year_month_day_code,
+o.order_year_month_day_code,
 o.store_id

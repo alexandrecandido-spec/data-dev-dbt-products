@@ -87,6 +87,8 @@ models:
           - not_null
       - name: edit_at
         description: the date when the edit was made (edit_history table)
+      - name: edit_year_month_code
+        description: partition field for edit_at (YYYYMM)
       - name: app_id
         description: the app id where the edit is made (2602 is new admin so not an external app)
       - name: skip_shipping_requote
@@ -129,7 +131,7 @@ models:
         description: order id for each order
         tests:
           - not_null
-      - name: fecha_completed_at
+      - name: order_completed_at
         description: date checkout completed 
         tests:
           - not_null
@@ -139,8 +141,6 @@ models:
         description: the status of the order
       - name: gmv_usd
         description: total amount of the order in USD (includes shipping costs and any discounts applied)
-      - name: year_month_day_code
-        description: partition field from the orders table
       - name: was_order_edited
         description: 1 if the order has been edited, 0 otherwise
       - name: order_first_edited_at
@@ -167,15 +167,15 @@ models:
         description: the date when the merchant made their first payment
       - name: churned_at
         description: the date when the merchant churned
-      - name: grupo
+      - name: plan_name
         description: the group name of the merchant's plan (using operations__grouping_plans data product) 
       - name: created_at
         description: the date when the merchant was created
       - name: verified
         description: 1 if the merchant is verified, 0 otherwise
-      - name: store_has_edit_orders_disponible
+      - name: store_has_edit_orders_available
         description: 1 if the merchant has the edit orders feature available, 0 otherwise (based on tags)
-      - name: store_fecha_edit_orders_disponible
+      - name: store_edit_orders_available_at
         description: the date when the edit orders feature was made available to the merchant (tag was added)
       - name: store_edit_orders_user
         description: 1 if the merchant has used the edit orders feature, 0 otherwise
@@ -222,15 +222,15 @@ models:
         description: the date when the merchant made their first payment
       - name: churned_at
         description: the date when the merchant churned
-      - name: grupo
+      - name: plan_name
         description: the group name of the merchant's plan (using operations__grouping_plans data product) 
       - name: created_at
         description: the date when the merchant was created
       - name: verified
         description: 1 if the merchant is verified, 0 otherwise
-      - name: has_edit_orders_disponible
+      - name: has_edit_orders_available
         description: 1 if the merchant has the edit orders feature available, 0 otherwise (based on tags)
-      - name: fecha_edit_orders_disponible
+      - name: edit_orders_available_at
         description: the date when the edit orders feature was made available to the merchant (tag was added)
       - name: edit_orders_user
         description: 1 if the merchant has used the edit orders feature, 0 otherwise
@@ -267,7 +267,7 @@ models:
         tests:
           - not_null
           - unique
-      - name: fecha_completed_at
+      - name: order_completed_at
         description: date checkout completed 
       - name: payment_status
         description: the payment status of the order
@@ -275,7 +275,7 @@ models:
         description: the status of the order
       - name: gmv_usd
         description: total amount of the order in USD (includes shipping costs and any discounts applied)
-      - name: year_month_day_code
+      - name: order_year_month_day_code
         description: partition field from the orders table
       - name: store_id
         description: merchant's store id
@@ -301,15 +301,15 @@ models:
         description: the date when the merchant made their first payment
       - name: churned_at
         description: the date when the merchant churned
-      - name: grupo
+      - name: plan_name
         description: the group name of the merchant's plan (using operations__grouping_plans data product) 
       - name: created_at
         description: the date when the merchant was created
       - name: verified
         description: 1 if the merchant is verified, 0 otherwise
-      - name: store_has_edit_orders_disponible
+      - name: store_has_edit_orders_available
         description: 1 if the merchant has the edit orders feature available, 0 otherwise (based on tags)
-      - name: store_fecha_edit_orders_disponible
+      - name: store_edit_orders_available_at
         description: the date when the edit orders feature was made available to the merchant (tag was added)
       - name: store_edit_orders_user
         description: 1 if the merchant has used the edit orders feature, 0 otherwise

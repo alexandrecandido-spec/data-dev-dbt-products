@@ -1,4 +1,4 @@
-select distinct
+select 
     --unique id
     concat(ae.id,ae.edit_type,o.id,coalesce(s.fulfillment_order_id,"")) as edit_action_id,
     --data on edit action
@@ -37,11 +37,11 @@ select distinct
     oe.app_id,
     --data on order
     o.id,
-    o.fecha_completed_at,
+    o.order_completed_at,
     o.payment_status,
     o.status,
     o.gmv_usd,
-    o.year_month_day_code,
+    o.order_year_month_day_code,
     case when o.order_edit_count > 0 then 1 else 0 end as was_order_edited,
     o.order_first_edited_at,
     o.order_last_edited_at,
@@ -54,11 +54,11 @@ select distinct
     o.current_segment,
     o.first_payment,
     o.churned_at,
-    o.grupo,
+    o.plan_name,
     o.created_at,
     o.verified,
-    o.store_has_edit_orders_disponible,
-    o.store_fecha_edit_orders_disponible,
+    o.store_has_edit_orders_available,
+    o.store_edit_orders_available_at,
     o.store_edit_orders_user,
     o.store_edit_first_use,
     o.store_edit_last_use,
