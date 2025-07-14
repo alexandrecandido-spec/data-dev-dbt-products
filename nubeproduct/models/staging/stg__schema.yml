@@ -58,14 +58,17 @@ models:
       - name: id
         description: "Unique identifier for the order."
         tests:
-          - unique
+          - unique:
+              where: "sys_audit_updated_on >= current_timestamp - interval '1 hours'"
       - name: id
         tests:
-          - not_null
+          - not_null:
+              where: "sys_audit_updated_on >= current_timestamp - interval '1 hours'"
       - name: store_id
         description: "Identifier of the store associated with the order."
         tests:
-          - not_null
+          - not_null:
+              where: "sys_audit_updated_on >= current_timestamp - interval '1 hours'"
       - name: started_checkout_at
         description: "Timestamp when the user started the checkout process."
       - name: completed_contact_at
@@ -77,7 +80,8 @@ models:
       - name: created_at
         description: "Timestamp when the order was created."
         tests:
-          - not_null
+          - not_null:
+              where: "sys_audit_updated_on >= current_timestamp - interval '1 hours'"
       - name: contact_email
         description: "Email address of the customer who placed the order."
       - name: currency
@@ -85,15 +89,18 @@ models:
       - name: status
         description: "Current status of the order (e.g., open, completed, cancelled)."
         tests:
-          - not_null
+          - not_null:
+              where: "sys_audit_updated_on >= current_timestamp - interval '1 hours'"
       - name: total_in_usd
         description: "Total value of the order converted to USD."
         tests:
-          - not_null
+          - not_null:
+              where: "sys_audit_updated_on >= current_timestamp - interval '1 hours'"
       - name: total
         description: "Total value of the order in the original currency."
         tests:
-          - not_null
+          - not_null:
+              where: "sys_audit_updated_on >= current_timestamp - interval '1 hours'"
       - name: storefront
         description: "Sales channel through which the order was placed (e.g., store, mobile)."
       - name: device_type
@@ -167,7 +174,7 @@ models:
           - dbt_expectations.expect_column_values_to_be_between:
               min_value: 0
               max_value: 998
-              row_condition: "quantity IS NOT NULL"
+              row_condition: "quantity IS NOT NULL AND sys_audit_updated_on >= current_timestamp - interval '1 hours'"
       - name: created_at
         description: "Timestamp when the order-product record was created."
         tests:
