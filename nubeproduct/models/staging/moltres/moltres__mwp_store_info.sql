@@ -11,7 +11,6 @@
 WITH source AS (
     SELECT 
         id,
-        domain,
         state,
         country,
         current_segment,
@@ -43,7 +42,6 @@ existing_data AS (
 
 SELECT 
     id as store_id,
-    domain,
     state,
     country,
     currency,
