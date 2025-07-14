@@ -46,6 +46,7 @@ models:
       - name: domain
         description: "Custom store domain name created by the client."
 
+
   - name: orders__mwp_orders
     description: "All the orders in their different statuses"
     config:
@@ -273,7 +274,6 @@ models:
         description: "If the issue has a quick fix, will have a label with that name"
 
 
-
   - name: github_data__wip_labels
     description: "Staging model that persists information about Working in Progress labels, becouse we need to know when they started and ended, to determine de duration of the lifecycle of an Issue/Problem"
     config:
@@ -316,6 +316,44 @@ models:
         description: "Monthly average GMV from the last 4 closed months"
       - name: sum_gmv_usd
         description: "Monthly average GMV from the last 4 closed months in USD"
+
+  - name: orders__mwp_orders_source
+    description: Staging da origem de tráfego dos pedidos, com normalização dos parâmetros UTM e referrer.
+    config:
+      meta:
+        tech_steward: "gustavo.braga@nuvemshop.com.br"
+        domain: "product"
+        owner: "Francisco Ramirez"
+    columns:
+      - name: order_id
+        description: ID do pedido
+        tests:
+          - not_null
+          - unique
+      - name: source
+        description: Nome bruto da origem de tráfego
+      - name: source_details
+        description: Detalhes adicionais da origem (raw)
+      - name: utm_source
+        description: Parâmetro UTM de origem
+      - name: utm_medium
+        description: Parâmetro UTM de meio
+      - name: http_referrer
+        description: Referência HTTP de origem
+      - name: created_at
+        description: Data de criação do pedido
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: Timestamp de criação do registro na modelagem
+      - name: sys_audit_created_by
+        description: Responsável pela criação do registro
+      - name: sys_audit_updated_on
+        description: Timestamp da última atualização
+      - name: sys_audit_updated_by
+        description: Responsável pela última atualização
+      - name: year_month_code
+        description: Partition de ano e mês
 
 
   - name: data_predictors__quality_leads
