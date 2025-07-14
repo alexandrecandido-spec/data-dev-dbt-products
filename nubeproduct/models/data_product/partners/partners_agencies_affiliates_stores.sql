@@ -35,7 +35,7 @@ partner_stores AS
                 AND SI.first_payment_ts IS NOT NULL 
             THEN TRUE
             WHEN SI.first_payment_ts >= DATE('2022-06-22') 
-                AND SI.first_payment IS NOT NULL 
+                AND SI.first_payment_ts IS NOT NULL 
                 AND 
                     (
                         SI.churned_at_ts IS NULL 
@@ -64,10 +64,10 @@ partner_stores AS
         PI.partner_name,
         PI.partner_country_code,
         PI.partner_created_at_ts,
-        PI.mkt_exclusion,
-        PI.affiliate_classification,
-        PI.affiliate_tier,
-        PI.affiliate_main_platform
+        AC.mkt_exclusion,
+        AC.affiliate_classification,
+        AC.affiliate_tier,
+        AC.affiliate_main_platform
     FROM {{ ref('_int_partners__partner_stores_store_info') }} AS SI
     LEFT JOIN {{ ref('_int_partners__partner_stores_partners_info') }} AS PI
         ON SI.partner_id = PI.partner_id
@@ -79,9 +79,12 @@ partner_stores AS
         ON SI.plan_id = OGP.plan   
     LEFT JOIN {{ ref('_int_partners__partner_stores_block_partner_stores') }} AS BP
         ON SI.store_id = BP.store_id
+    LEFT JOIN {{ ref('_int_partners__partner_stores_affiliates_classification') }} AS AC
+        ON PI.partner_code = AC.partner_code
+            AND PI.partner_country_code = AC.affiliate_country
 )
 SELECT 
-    *,
+    partner_stores.*,
     COALESCE(e.sys_audit_created_on, current_timestamp) AS sys_audit_created_on,
     COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by,
     current_timestamp AS sys_audit_updated_on,
