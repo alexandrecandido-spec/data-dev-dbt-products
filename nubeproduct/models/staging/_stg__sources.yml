@@ -51,3 +51,16 @@ sources:
       - name: store_impact
         description: "Lists the priority or impact of the comment associated to a store. It only applies in Mid Market stores."
   
+  - name: stg_data_predictors
+    database: null
+    schema: data_predictors
+    description: "Intermediate tables built from raw data in the data_predictors schema, typically used to normalize or enrich store-level information."
+    tables:
+      - name: marketing_new_payment_predictor
+        description: "Predicts the likelihood of a new payment based on the store's payment history and other relevant factors."
+      - name: marketing_model_version_aux
+        description: "Contains information about the version of the model used to make predictions."
+      - name: marketing_cutoffs_table
+        description: "Contains information about the cutoffs used to define QLs."
+
+  
