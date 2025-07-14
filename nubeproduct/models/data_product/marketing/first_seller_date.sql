@@ -21,7 +21,7 @@ qualified_orders as (
     SELECT
         store_id,
         DATE(min(completed_at)) AS first_seller_at
-    FROM {{ ref('_int__first_seller_7_or_more_sales_90d') }}
+    FROM {{ ref('_int_marketing__first_seller_7_or_more_sales_90d.sql') }}
     GROUP BY store_id
 ),
 first_seller AS (

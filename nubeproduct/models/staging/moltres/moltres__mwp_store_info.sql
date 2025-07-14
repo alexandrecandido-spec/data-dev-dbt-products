@@ -3,7 +3,7 @@
         materialized='incremental',
         unique_key='store_id',
         on_schema_change='fail',
-        tags=["operations","daily-9am-9pm"]
+        tags=["operations","daily-8am-8pm"]
     )
 }}
 
@@ -11,6 +11,7 @@
 WITH source AS (
     SELECT 
         id,
+        state,
         country,
         current_segment,
         churned_at,
@@ -21,7 +22,8 @@ WITH source AS (
         verified,
         register_url,
         partner_id,
-        partnership_type
+        partnership_type,
+        domain
     FROM {{ source('stg_moltres', 'mwp_store_info') }}
     WHERE state != 4 
     {% if is_incremental() %}
@@ -39,6 +41,7 @@ existing_data AS (
 
 SELECT 
     id as store_id,
+    state,
     country,
     currency,
     current_segment,
@@ -50,6 +53,7 @@ SELECT
     register_url,
     partner_id,
     partnership_type,
+    domain,
     COALESCE(e.sys_audit_created_on, current_timestamp) AS sys_audit_created_on,
     COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by,
     current_timestamp AS sys_audit_updated_on,
