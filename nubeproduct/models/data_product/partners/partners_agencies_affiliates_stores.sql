@@ -68,18 +68,18 @@ partner_stores AS
         AC.affiliate_classification,
         AC.affiliate_tier,
         AC.affiliate_main_platform
-    FROM {{ ref('_int_partners__partner_stores_store_info') }} AS SI
-    LEFT JOIN {{ ref('_int_partners__partner_stores_partners_info') }} AS PI
+    FROM {{ ref('_int_partners__agencies_affiliates_stores_store_info') }} AS SI
+    LEFT JOIN {{ ref('_int_partners__agencies_affiliates_stores_partners_info') }} AS PI
         ON SI.partner_id = PI.partner_id
-    LEFT JOIN {{ ref('_int_partners__partner_stores_quality_leads') }} AS QL
+    LEFT JOIN {{ ref('_int_partners__agencies_affiliates_stores_quality_leads') }} AS QL
         ON SI.store_id = QL.store_id
-    LEFT JOIN {{ ref('_int_partners__partner_stores_tag_acquired_by') }} AS TAB
+    LEFT JOIN {{ ref('_int_partners__agencies_affiliates_stores_tag_acquired_by') }} AS TAB
         ON SI.store_id = TAB.store_id
     LEFT JOIN {{ ref('operations_grouping_plans') }} AS OGP
         ON SI.plan_id = OGP.plan   
-    LEFT JOIN {{ ref('_int_partners__partner_stores_block_partner_stores') }} AS BP
+    LEFT JOIN {{ ref('_int_partners__agencies_affiliates_stores_block_partner_stores') }} AS BP
         ON SI.store_id = BP.store_id
-    LEFT JOIN {{ ref('_int_partners__partner_stores_affiliates_classification') }} AS AC
+    LEFT JOIN {{ ref('_int_partners__agencies_affiliates_stores_affiliates_classification') }} AS AC
         ON PI.partner_code = AC.partner_code
             AND PI.partner_country_code = AC.affiliate_country
 )
