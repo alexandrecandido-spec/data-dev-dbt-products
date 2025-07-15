@@ -1,0 +1,368 @@
+
+version: 2
+models:
+  - name: dim_calendar
+    config:
+      meta:
+        tech_steward: "djalma.dias@nuvemshop.com.br"
+        domain: "dimensions"
+        business_owner: "Agustina Colantonio"
+    description: "A comprehensive date dimension table containing daily records from 2000-01-01 to 2050-12-31. It provides calendar-based attributes to support time-based analysis in reporting and analytics, including year, month, week, and day components."
+    columns:
+      - name: date_id
+        description: Full date in yyyy-MM-dd format (primary key).
+        tests:
+          - not_null
+          - unique
+      - name: date_number
+        description: Numeric representation of the date in yyyyMMdd format (e.g., 20250620).
+        tests:
+          - not_null
+      - name: year_id
+        description: Four-digit calendar year (e.g., 2025).
+        tests:
+          - not_null
+      - name: month_id
+        description: Numeric month of the year (1 = January, ..., 12 = December).
+        tests:
+          - not_null
+      - name: month_name
+        description: Full month name (e.g., June).
+        tests:
+          - not_null
+      - name: day_name
+        description: Full name of the day of the week (e.g., Monday).
+        tests:
+          - not_null
+      - name: quarter_id
+        description: Numeric quarter of the year (1 to 4).
+        tests:
+          - not_null
+      - name: quarter_name
+        description: Quarter label as string (e.g., Q1, Q2).
+        tests:
+          - not_null
+      - name: day_of_year
+        description: Day of the year (1 to 366).
+        tests:
+          - not_null
+      - name: day_of_month
+        description: Day of the month (1 to 31).
+        tests:
+          - not_null
+      - name: day_of_week_number
+        description: Numeric weekday (1 = Monday, ..., 7 = Sunday). Adjusted from Spark's dayofweek.
+        tests:
+          - not_null
+      - name: is_weekend
+        description: Boolean flag indicating if the date is Saturday or Sunday.
+        tests:
+          - not_null
+      - name: first_day_of_month
+        description: The first calendar day of the month for the date.
+        tests:
+          - not_null
+      - name: last_day_of_month
+        description: The last calendar day of the month for the date.
+        tests:
+          - not_null
+      - name: first_day_of_week
+        description: The starting date (Monday) of the week that contains date_id.
+        tests:
+          - not_null
+      - name: last_day_of_week
+        description: The ending date (Sunday) of the week that contains date_id.
+        tests:
+          - not_null
+      - name: week_of_year
+        description: ISO week number of the year (1 to 53).
+        tests:
+          - not_null
+
+  - name: dim_segment_type
+    config:
+      meta:
+        tech_steward: "gustavo.braga@nuvemshop.com.br"
+        domain: "dimensions"
+        business_owner: "Franco Tiberti"
+    description: "A reference dimension table that defines the available segment types, typically used to classify stores."
+    columns:
+      - name: segment_id
+        description: Unique identifier for the segment type (primary key).
+        tests:
+          - not_null
+          - unique
+      - name: segment_name
+        description: Descriptive name of the segment (e.g., no-seller, struggling-seller).
+        tests:
+          - not_null
+          - unique
+      - name: segment_order
+        description: Ordinal number used to define the display or logical order of segments (e.g., 1 = no-seller, 2 = struggling-seller).
+        tests:
+          - not_null
+          - unique
+      - name: sys_audit_created_on
+        description: Timestamp when the row was initially created in the summary table.
+      - name: sys_audit_created_by
+        description: Source or user responsible for the initial row creation.
+      - name: sys_audit_updated_on
+        description: Timestamp of the latest update to the row.
+      - name: sys_audit_updated_by
+        description: Source or user responsible for the latest update.
+
+  - name: dim_business_size
+    config:
+      meta:
+        tech_steward: "gustavo.braga@nuvemshop.com.br"
+        domain: "dimensions"
+        business_owner: "Franco Tiberti"
+    description: "A reference dimension table that defines standard business size categories, typically used to classify stores based on company size (e.g., small-business, medium-business)." 
+    columns:
+      - name: business_size_id
+        description: Unique identifier for each business size category (primary key).
+        tests:
+          - not_null
+          - unique
+      - name: business_size_name
+        description: Descriptive label of the business size (e.g., small-business, medium-business, etc).
+        tests:
+          - not_null
+          - unique
+      - name: sys_audit_created_on
+        description: Timestamp when the row was initially created in the summary table.
+      - name: sys_audit_created_by
+        description: Source or user responsible for the initial row creation.
+      - name: sys_audit_updated_on
+        description: Timestamp of the latest update to the row.
+      - name: sys_audit_updated_by
+        description: Source or user responsible for the latest update.
+
+  - name: dim_vertical_type
+    config:
+      meta:
+        tech_steward: "karla.espinosa@nuvemshop.com.br"
+        domain: "dimensions"
+        business_owner: "Giselle Galli"
+    description: "A reference dimension table that defines standard vertical categories, typically used to classify stores based on company vertical (e.g., clothing, home_garden)." 
+    columns:
+      - name: vertical_id
+        description: Unique identifier for each vertical category (primary key).
+        tests:
+          - not_null
+          - unique
+      - name: vertical_name
+        description: Descriptive label of the vertical (e.g., small-business, medium-business, etc).
+        tests:
+          - not_null
+          - unique
+      - name: sys_audit_created_on
+        description: Timestamp when the row was initially created in the summary table.
+      - name: sys_audit_created_by
+        description: Source or user responsible for the initial row creation.
+      - name: sys_audit_updated_on
+        description: Timestamp of the latest update to the row.
+      - name: sys_audit_updated_by
+        description: Source or user responsible for the latest update.
+
+  - name: dim_group_plan
+    config:
+      meta:
+        tech_steward: "guillermo.defelice@tiendanube.com"
+        domain: "dimensions"
+        business_owner: "Franco Tiberti"
+    description: "A reference dimension table that defines standard grouping for plan categories, typically used to classify stores (e.g., enterprise, freemium)." 
+    columns:
+      - name: group_id
+        description: Unique identifier for each grouping plan category (primary key).
+        tests:
+          - not_null
+          - unique
+      - name: group_name
+        description: Name of the grouping plan (e.g., Basic, Business, Professional, etc).
+        tests:
+          - not_null
+      - name: group_desc
+        description: Name of the grouping plan as seen by the merchant (e.g., next, evolucion, etc).
+        tests:
+          - not_null
+      - name: group_order_id
+        description: Order of grouping plan.
+        tests:
+          - not_null
+      - name: plan_id_nk
+        description: Set of all plan IDs belonging to a given group.
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: Timestamp when the row was initially created in the summary table.
+      - name: sys_audit_created_by
+        description: Source or user responsible for the initial row creation.
+      - name: sys_audit_updated_on
+        description: Timestamp of the latest update to the row.
+      - name: sys_audit_updated_by
+        description: Source or user responsible for the latest update.
+
+  - name: dim_location_country
+    config:
+      meta:
+        tech_steward: "sol.abelleyro@tiendanube.com"
+        domain: "dimensions"
+        business_owner: "Francisco Ramirez"
+    description: "A reference dimension table that defines the set of countries relevant to the business, used for geographical analysis and segmentation."
+    columns:
+      - name: country_id
+        description: Unique identifier for each country (primary key).
+        tests:
+          - not_null
+          - unique
+      - name: country_code
+        description: Standardized ISO-like code for the country (e.g., BR, AR, MX).
+        tests:
+          - not_null
+          - unique
+      - name: country_name
+        description: Full country name in English (e.g., Brazil, Argentina, Mexico).
+        tests:
+          - not_null
+          - unique
+      - name: sys_audit_created_on
+        description: Timestamp when the row was initially created in the summary table.
+      - name: sys_audit_created_by
+        description: Source or user responsible for the initial row creation.
+      - name: sys_audit_updated_on
+        description: Timestamp of the latest update to the row.
+      - name: sys_audit_updated_by
+        description: Source or user responsible for the latest update.
+
+  - name: dim_location_region
+    config:
+      meta:
+        tech_steward: "sol.abelleyro@tiendanube.com"
+        domain: "dimensions"
+        business_owner: "Francisco Ramirez"
+    description: "A reference dimension table that defines geographical regions, typically grouping states or countries into broader territories for analytical purposes."
+    columns:
+      - name: region_id
+        description: Unique identifier for each region (primary key).
+        tests:
+          - not_null
+          - unique
+      - name: region_code
+        description: Short code used to represent the region (e.g., SUL, NEA, NOR).
+        tests:
+          - not_null
+          - unique
+      - name: region_name
+        description: Descriptive name of the region (e.g., Sul, Noroeste, Pampas).
+        tests:
+          - not_null
+          - unique
+      - name: country_id
+        description: Foreign key referencing the country the region belongs to.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_location_country')
+              field: country_id
+      - name: sys_audit_created_on
+        description: Timestamp when the row was initially created in the summary table.
+      - name: sys_audit_created_by
+        description: Source or user responsible for the initial row creation.
+      - name: sys_audit_updated_on
+        description: Timestamp of the latest update to the row.
+      - name: sys_audit_updated_by
+        description: Source or user responsible for the latest update.
+
+  - name: dim_location_state
+    config:
+      meta:
+        tech_steward: "sol.abelleyro@tiendanube.com"
+        domain: "dimensions"
+        business_owner: "Francisco Ramirez"
+    description: "A reference dimension table that defines states or provinces, used to represent administrative divisions within countries for geographic segmentation."
+    columns:
+      - name: state_id
+        description: Unique identifier for each state (primary key).
+        tests:
+          - not_null
+          - unique
+      - name: state_code
+        description: Standardized short code for the state (e.g., SP, RJ, BA).
+        tests:
+          - not_null
+          - unique
+      - name: state_name
+        description: Full name of the state or province.
+        tests:
+          - not_null
+          - unique
+      - name: region_id
+        description: Foreign key referencing the region that state belongs to.
+        tests:
+          - relationships:
+              to: ref('dim_location_region')
+              field: region_id
+      - name: country_id
+        description: Foreign key referencing the country that state belongs to.
+        tests:
+          - relationships:
+              to: ref('dim_location_country')
+              field: country_id
+      - name: sys_audit_created_on
+        description: Timestamp when the row was initially created in the summary table.
+      - name: sys_audit_created_by
+        description: Source or user responsible for the initial row creation.
+      - name: sys_audit_updated_on
+        description: Timestamp of the latest update to the row.
+      - name: sys_audit_updated_by
+        description: Source or user responsible for the latest update.
+
+  - name: dim_location_city
+    config:
+      meta:
+        tech_steward: "sol.abelleyro@tiendanube.com"
+        domain: "dimensions"
+        business_owner: "Francisco Ramirez"
+    description: "A reference dimension table that defines city-level information, typically used for fine-grained geographic analysis such as urban segmentation or localization."
+    columns:
+      - name: city_id
+        description: Unique identifier for each city (primary key).
+        tests:
+          - not_null
+          - unique
+      - name: city_id_nk
+        description: Natural key for the city, originating from the source system. Used to maintain referential consistency with upstream operational data sources.
+        tests:
+          - not_null
+      - name: city_name
+        description: Name of the city or municipality.
+        tests:
+          - not_null
+      - name: state_id
+        description: Foreign key referencing the state that city belongs to.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_location_state')
+              field: state_id
+      - name: region_id
+        description: Foreign key referencing the region that state belongs to.
+        tests:
+          - relationships:
+              to: ref('dim_location_region')
+              field: region_id
+      - name: country_id
+        description: Foreign key referencing the country that state belongs to.
+        tests:
+          - relationships:
+              to: ref('dim_location_country')
+              field: country_id
+      - name: sys_audit_created_on
+        description: Timestamp when the row was initially created in the summary table.
+      - name: sys_audit_created_by
+        description: Source or user responsible for the initial row creation.
+      - name: sys_audit_updated_on
+        description: Timestamp of the latest update to the row.
+      - name: sys_audit_updated_by
+        description: Source or user responsible for the latest update.
