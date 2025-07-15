@@ -249,6 +249,38 @@ models:
         description: Source or user responsible for the latest update.
 
 
+  - name: operations_grouping_sessions
+    config:
+      meta:
+        tech_steward: "guillermo.defelice@tiendanube.com"
+        domain: "operations"
+        business_owner: "Franco Tiberti"
+    description: Contains the number of sessions per week and per month.
+    columns:
+      - name: date_from
+        description: Date of the Monday where the week starts (weekly) or the first day of the month (monthly).
+        tests:
+          - not_null
+      - name: store_id
+        description: Unique identifier of the store_id.
+        tests:
+          - not_null
+      - name: periodicity
+        description: Data aggregated by week or month.
+      - name: sessions
+        description: Quantity of store sessions.
+      - name: previous_sessions
+        description: Quantity of store sessions in the previous period.
+      - name: sys_audit_created_on
+        description: Timestamp when the row was initially created in the summary table.
+      - name: sys_audit_created_by
+        description: Source or user responsible for the initial row creation.
+      - name: sys_audit_updated_on
+        description: Timestamp of the latest update to the row.
+      - name: sys_audit_updated_by
+        description: Source or user responsible for the latest update.
+
+
   - name: company_metrics_products_per_order
     config:
       meta:
@@ -271,6 +303,7 @@ models:
         description: Timestamp of the latest update to the row.
       - name: sys_audit_updated_by
         description: Source or user responsible for the latest update.
+
 
   - name: company_metrics_merchant_info
     description: "This table contains the main attributes of each store, including vertical, segment, location, and other classification fields."

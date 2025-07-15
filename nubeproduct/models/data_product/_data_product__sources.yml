@@ -48,3 +48,9 @@ sources:
     tables:
       - name: operations__grouping_plans_aux
       - name: dimensions__segment_type
+
+  - name: dp_uplift
+    database: null
+    schema: uplift
+    tables:
+      - name: distributions
