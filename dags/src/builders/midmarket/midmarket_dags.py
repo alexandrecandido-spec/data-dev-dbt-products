@@ -11,7 +11,7 @@ SLACK_IDS= ast.literal_eval(Variable.get('slack_ids_analytics_engineer_alert'))
 
 
 default_args = {
-    'owner': 'Rodrigo Nicolás Torres',
+    'owner': 'Guillermo De Felice',
     'depends_on_past': False,
     'start_date': datetime(2024, 10, 1),
     'email_on_failure': False,
@@ -20,10 +20,18 @@ default_args = {
 
 }
 
-# Crear el DAG frecuencia diaria
+# Crear el DAG frecuencia semanal (mixta)
 dag = create_dbt_dag(
-    dag_id='dbt_finance_daily-8_30am',
-    schedule_interval_tag='daily-8_30am',
+    dag_id='dbt_midmarket_weekly-monday-9am',
+    schedule_interval_tag='weekly-monday-9am',
     default_args=default_args,
-    tags=['finance','daily-8_30am']
+    tags=['midmarket', 'weekly-monday-9am-monthly-1st-12pm']
+)
+
+# Crear el DAG frecuencia mensual (mixta)
+dag = create_dbt_dag(
+    dag_id='dbt_midmarket_monthly-1st-12pm',
+    schedule_interval_tag='monthly-1st-12pm',
+    default_args=default_args,
+    tags=['midmarket', 'weekly-monday-9am-monthly-1st-12pm']
 )

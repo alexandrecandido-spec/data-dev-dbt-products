@@ -1,7 +1,9 @@
 from airflow.operators.bash import BashOperator
 from airflow.exceptions import AirflowException
+from airflow.providers.slack.operators.slack_webhook import SlackWebhookOperator
 from datetime import datetime
 import os
+import re
 import json
 import logging
 from typing import Optional, Tuple, List
@@ -133,6 +135,17 @@ class DBTOperator(BashOperator):
         
         return '\n'.join(error_message) if error_message else None
 
+    def _extract_test_fails(self, log):
+        pattern1 = r"FAIL.*?\s+(dbt_expectations_.*?)\s+\[.*?FAIL"
+        pattern2 = r"FAIL.*?\s+(not_null_.*?)\s+\[.*?FAIL"
+        pattern3 = r"Failure in test\s+(\S+)"
+
+        fails = re.findall(pattern1, log)
+        fails += re.findall(pattern2, log)
+        fails += re.findall(pattern3, log)
+
+        return sorted(set(fails))  
+
     def execute(self, context):
         """Execute the bash command with real-time output and error handling"""
         try:
@@ -149,6 +162,33 @@ class DBTOperator(BashOperator):
             # Execute main command
             success, output = self._execute_bash_command(self.bash_command)
             
+            if self.dbt_command == 'test':
+                if 'ERROR=' in output:
+                    match = re.search(r'ERROR=(\d+)', output)
+                    if match and int(match.group(1)) > 0:
+
+                        error_msg = f"DBT test failures: {match.group(1)} tests failed.\n\n{output[:2000]}"  # truncate output if needed
+
+                        context['task_instance'].xcom_push(
+                            key='dbt_error_details',
+                            value=error_msg
+                        )
+
+                        fails_list = self._extract_test_fails(error_msg)
+                        formatted_fails = '\n'.join(fails_list) if fails_list else "No test names extracted."
+
+                        SlackWebhookOperator(
+                            task_id='slack_test_warning',
+                            slack_webhook_conn_id='dbt_slack_alert',
+                            message=f""":warning: *Test failures detected in `dbt test`*  
+            *Task:* `{context['task_instance'].task_id}`  
+            *Dag:* `{context['dag'].dag_id}`  
+            *Execution Date:* {context['execution_date']}  
+            *Log Url:* {context['task_instance'].log_url}  
+            *Details:* ```{formatted_fails}```""",
+                            channel="#dbt-alerts",
+                        ).execute(context=context)
+
             if not success:
                 # Si hay error, extrae y loguea el mensaje de error específico
                 error_details = self._parse_dbt_error(output)

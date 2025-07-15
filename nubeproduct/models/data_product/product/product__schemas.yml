@@ -33,6 +33,65 @@ models:
         description: >
           Label that identifies if the Issue/Problem is on its first Working in Progress step. Each Issue/Problem
           may or may not be in a WIP status.
+  
+  - name: product_social_order_source
+    description: >
+      Data product que classifica a origem de tráfego de pedidos pagos, com base em parâmetros UTM,
+      referrer e regras heurísticas. Utilizado para análise de performance de canais pagos e orgânicos.
+    config:
+      meta:
+        tech_steward: "gustavo.braga@nuvemshop.com.br"
+        domain: "product"
+        owner: "barbara.marques@nuvemshop.com.br"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - order_id
+    columns:
+      - name: order_id
+        description: Identificador único do pedido.
+        tests:
+          - not_null
+
+      - name: utm_source
+        description: Parâmetro UTM de origem do tráfego.
+
+      - name: utm_medium
+        description: Parâmetro UTM de meio de tráfego.
+
+      - name: http_referrer
+        description: Referrer HTTP original da sessão de compra.
+
+      - name: source
+        description: Campo bruto de origem capturado no pedido.
+
+      - name: source_details
+        description: Detalhamento adicional sobre a origem (ex app_id, nome de campanha).
+
+      - name: source_name
+        description: Classificação consolidada da origem do tráfego (ex facebook, google, whatsapp, direct).
+
+      - name: source_type
+        description: Tipo de canal de aquisição — pago ou orgânico.
+
+      - name: completed_at
+        description: Timestamp de conclusão do pedido.
+
+      - name: year_month_day_code
+        description: Código da data no formato YYYYMMDD (usado para particionamento).
+
+      - name: sys_audit_created_on
+        description: Timestamp de criação do registro.
+
+      - name: sys_audit_created_by
+        description: Usuário ou processo que criou o registro.
+
+      - name: sys_audit_updated_on
+        description: Timestamp da última atualização do registro.
+
+      - name: sys_audit_updated_by
+        description: Usuário ou processo que atualizou o registro.
+
 
 
 

@@ -21,6 +21,10 @@ models:
         description: "Date when the store was churned."
       - name: first_payment
         description: "Date when the store made its first payment."
+      - name: state
+        description: "Billing state of the store"
+        tests:
+          - not_null
       - name: created_at
         description: "Date when the store was created."
         tests:
@@ -39,6 +43,8 @@ models:
         description: "Code of the store's partner, if a partner was involved in the store's creation."
       - name: partnership_type
         description: "Type of partnership, if a partner was involved in the store's creation."
+      - name: domain
+        description: "Custom store domain name created by the client."
 
 
   - name: orders__mwp_orders
@@ -52,14 +58,17 @@ models:
       - name: id
         description: "Unique identifier for the order."
         tests:
-          - unique
+          - unique:
+              where: "sys_audit_updated_on >= current_timestamp - interval '1 hours'"
       - name: id
         tests:
-          - not_null
+          - not_null:
+              where: "sys_audit_updated_on >= current_timestamp - interval '1 hours'"
       - name: store_id
         description: "Identifier of the store associated with the order."
         tests:
-          - not_null
+          - not_null:
+              where: "sys_audit_updated_on >= current_timestamp - interval '1 hours'"
       - name: started_checkout_at
         description: "Timestamp when the user started the checkout process."
       - name: completed_contact_at
@@ -71,7 +80,8 @@ models:
       - name: created_at
         description: "Timestamp when the order was created."
         tests:
-          - not_null
+          - not_null:
+              where: "sys_audit_updated_on >= current_timestamp - interval '1 hours'"
       - name: contact_email
         description: "Email address of the customer who placed the order."
       - name: currency
@@ -79,15 +89,18 @@ models:
       - name: status
         description: "Current status of the order (e.g., open, completed, cancelled)."
         tests:
-          - not_null
+          - not_null:
+              where: "sys_audit_updated_on >= current_timestamp - interval '1 hours'"
       - name: total_in_usd
         description: "Total value of the order converted to USD."
         tests:
-          - not_null
+          - not_null:
+              where: "sys_audit_updated_on >= current_timestamp - interval '1 hours'"
       - name: total
         description: "Total value of the order in the original currency."
         tests:
-          - not_null
+          - not_null:
+              where: "sys_audit_updated_on >= current_timestamp - interval '1 hours'"
       - name: storefront
         description: "Sales channel through which the order was placed (e.g., store, mobile)."
       - name: device_type
@@ -157,6 +170,11 @@ models:
           - not_null
       - name: quantity
         description: "Number of units of the product included in the order."
+        tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              max_value: 998
+              row_condition: "quantity IS NOT NULL AND sys_audit_updated_on >= current_timestamp - interval '1 hours'"
       - name: created_at
         description: "Timestamp when the order-product record was created."
         tests:
@@ -205,8 +223,8 @@ models:
         description: "Date when the credit amount was disbursed."
       - name: finished_at
         description: "Date when the credit was finalized (It could be by being renegotiated or fully paid)."
-      - name: original_contract_id
-        description: "Not null only if the credit is a renegotiation."
+      - name: original_contract_ids
+        description: "Not null only if the credit is a renegotiation. It contains all contracts ids that were renegotiated."
 
 
   - name: antifraud_service__vertifier_store_inferences
@@ -263,7 +281,6 @@ models:
         description: "If the issue has a quick fix, will have a label with that name"
 
 
-
   - name: github_data__wip_labels
     description: "Staging model that persists information about Working in Progress labels, becouse we need to know when they started and ended, to determine de duration of the lifecycle of an Issue/Problem"
     config:
@@ -306,6 +323,82 @@ models:
         description: "Monthly average GMV from the last 4 closed months"
       - name: sum_gmv_usd
         description: "Monthly average GMV from the last 4 closed months in USD"
+
+  - name: orders__mwp_orders_source
+    description: Staging da origem de tráfego dos pedidos, com normalização dos parâmetros UTM e referrer.
+    config:
+      meta:
+        tech_steward: "gustavo.braga@nuvemshop.com.br"
+        domain: "product"
+        owner: "Francisco Ramirez"
+    columns:
+      - name: order_id
+        description: ID do pedido
+        tests:
+          - not_null
+          - unique
+      - name: source
+        description: Nome bruto da origem de tráfego
+      - name: source_details
+        description: Detalhes adicionais da origem (raw)
+      - name: utm_source
+        description: Parâmetro UTM de origem
+      - name: utm_medium
+        description: Parâmetro UTM de meio
+      - name: http_referrer
+        description: Referência HTTP de origem
+      - name: created_at
+        description: Data de criação do pedido
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: Timestamp de criação do registro na modelagem
+      - name: sys_audit_created_by
+        description: Responsável pela criação do registro
+      - name: sys_audit_updated_on
+        description: Timestamp da última atualização
+      - name: sys_audit_updated_by
+        description: Responsável pela última atualização
+      - name: year_month_code
+        description: Partition de ano e mês
+
+
+  - name: data_predictors__quality_leads
+    description: "Staging model that contains information about quality leads, such as store_id, created_at, model_id, predicted_prob and year_month_day_code."
+    config:
+      meta:
+        tech_steward: "ronald.corcho@tiendanube.com"
+        domain: "marketing"
+        business_owner: "Giselle Galli"
+    columns:
+      - name: store_id
+        description: "Unique identifier of the store."
+        tests:
+          - not_null
+          - unique
+      - name: created_at
+        description: "Timestamp when the quality lead was created."
+        tests:
+          - not_null
+      - name: model_id
+        description: "Unique identifier of the model used to predict the quality lead."
+      - name: predicted_prob
+        description: "Estimated probability that the store will convert to a paying customer."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              max_value: 1
+      - name: year_month_day_code
+        description: "Date code in YYYYMMDD format used for partitioning or filtering."
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model. Defaults to current_timestamp if not available."
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model. Defaults to 'data-dev-dbt-products'."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed."
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
 
 
 

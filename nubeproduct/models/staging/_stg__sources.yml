@@ -19,6 +19,9 @@ sources:
         description: "Orders generated within tiendanube from the different storefronts, containing orders in different statuses (cancelled, paid, etc.)"
       - name: mwp_order_products
         description: "Products associated with an order."
+        description: "Tabela principal, contém informações de pedidos, incluindo detalhes do cliente, produtos, status e datas de criação e conclusão"
+      - name: mwp_orders_source
+        description: "Contém informações de origem de tráfego dos pedidos, incluindo parâmetros UTM, referrer e classificações da origem"
 
   - name: stg_nuvem_credito
     description: "Source containing tables related to Nuvem credito"
@@ -52,9 +55,25 @@ sources:
       - name: store_impact
         description: "Lists the priority or impact of the comment associated to a store. It only applies in Mid Market stores."
 
+
   - name: bronze_risk_ecosystem
     database: bronze_risk
     schema: ecosystem
     tables:
       - name: apps
         description: "Apps table from bronze_risk.ecosystem"
+
+  
+  - name: stg_data_predictors
+    database: null
+    schema: data_predictors
+    description: "Intermediate tables built from raw data in the data_predictors schema, typically used to normalize or enrich store-level information."
+    tables:
+      - name: marketing_new_payment_predictor
+        description: "Predicts the likelihood of a new payment based on the store's payment history and other relevant factors."
+      - name: marketing_model_version_aux
+        description: "Contains information about the version of the model used to make predictions."
+      - name: marketing_cutoffs_table
+        description: "Contains information about the cutoffs used to define QLs."
+
+  

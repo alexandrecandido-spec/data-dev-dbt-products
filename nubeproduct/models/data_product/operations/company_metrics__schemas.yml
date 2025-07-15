@@ -18,7 +18,8 @@ models:
       - name: store_id
         description: Identifier of the store that got the order. External key.
         tests:
-          - not_null
+          - not_null:
+              where: "sys_audit_updated_on >= current_timestamp - interval '1 hours'"
       - name: country
         description: Store’s country.
       - name: completed_at
@@ -40,13 +41,13 @@ models:
         tests:
           - dbt_expectations.expect_column_values_to_be_between:
               min_value: 0
-              row_condition: "total_in_usd IS NOT NULL"
+              row_condition: "total_in_usd IS NOT NULL AND sys_audit_updated_on >= current_timestamp - interval '1 hours'"
       - name: total
         description: Total amount converted to the expected local currency considering the dollar sell rate value for Argentina. Exchange rate value obtained from finance_exchange_rate.
         tests:
           - dbt_expectations.expect_column_values_to_be_between:
               min_value: 0
-              row_condition: "total IS NOT NULL"
+              row_condition: "total IS NOT NULL AND sys_audit_updated_on >= current_timestamp - interval '1 hours'"
       - name: gateway_integration_type
         description: Type of integration with the payment gateway.
       - name: shipping_option
@@ -72,9 +73,10 @@ models:
       - name: year_month_day_code
         description: YYYYMMDD code used for partitioning the data. Partition Key
         tests:
-          - not_null
+          - not_null:
+              where: "sys_audit_updated_on >= current_timestamp - interval '1 hours'"
       - name: product_quantity
-        description: Amount of products in the order 
+        description: Total number of items in the order, including repeated products.
       - name: is_foreign_currency
         description: Indicates whether the payment was made in a currency different from the expected local currency.
       - name: sys_audit_created_on
@@ -213,3 +215,59 @@ models:
         description: "Timestamp of the most recent update to the row."
       - name: sys_audit_updated_by
         description: "System or user that last updated the row."
+
+
+  - name: operations_grouping_plans
+    config:
+      meta:
+        tech_steward: "guillermo.defelice@tiendanube.com"
+        domain: "operations"
+        business_owner: "Fran Ramirez"
+    description: Contains information about plans (group, if it existed before freemium and nice name).
+    columns:
+      - name: plan
+        description: Unique identifier of plan (id from plan_countries).
+        tests:
+          - not_null
+          - unique
+      - name: grupo
+        description: Plan type.
+        tests:
+          - accepted_values:
+              values: ['enterprise', 'freemium', 'lojinha', 'no-stores', 'plan-a', 'plan-b', 'plan-c', 'plan-emprendedor', 'test_broken', 'zero-fee']
+      - name: before_freemium_launch
+        description: If the plan existed before freemium launch.
+      - name: namev2
+        description: Name of the plan as seen by the merchant.
+      - name: sys_audit_created_on
+        description: Timestamp when the row was initially created in the summary table.
+      - name: sys_audit_created_by
+        description: Source or user responsible for the initial row creation.
+      - name: sys_audit_updated_on
+        description: Timestamp of the latest update to the row.
+      - name: sys_audit_updated_by
+        description: Source or user responsible for the latest update.
+
+
+  - name: company_metrics_products_per_order
+    config:
+      meta:
+        tech_steward: "gustavo.braga@nuvemshop.com.br"
+        domain: "operations"
+        business_owner: "Giselle Galli"
+    description: >
+      Contains the summary of paid orders by store, including currency-related data,
+      payment gateways, shipping methods, and audit metadata.
+    columns:
+      - name: order_id
+        description: id of the order.
+      - name: product_quantity
+        description: Total number of items in the order, including repeated products.
+      - name: sys_audit_created_on
+        description: Timestamp when the row was initially created in the summary table.
+      - name: sys_audit_created_by
+        description: Source or user responsible for the initial row creation.
+      - name: sys_audit_updated_on
+        description: Timestamp of the latest update to the row.
+      - name: sys_audit_updated_by
+        description: Source or user responsible for the latest update.

@@ -25,7 +25,7 @@ ranked_store_info AS (
     , tb_cff.cutoff AS prod_cutoff
     , ROW_NUMBER() OVER (PARTITION BY si.store_id ORDER BY si.created_at DESC) AS rownumber
   FROM store_info_data si
-  LEFT JOIN {{ ref('_int_marketing__quality_leads') }} np ON si.store_id = np.store_id
+  LEFT JOIN {{ ref('data_predictors__quality_leads') }} np ON si.store_id = np.store_id
   LEFT JOIN {{ source('int_data_predictors', 'marketing_cutoffs_table') }} tb_cff ON si.country = tb_cff.country 
                                                                                     AND np.model_id = tb_cff.model_id 
                                                                                     AND (tb_cff.device = si.device OR tb_cff.device IS NULL)
