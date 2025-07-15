@@ -8,7 +8,7 @@
 
 {{ generate_surrogate_dimension
 (
-    source_relation=ref('dimensions__segment_type'),
+    source_relation=source("dp_data_manual", "dimensions__segment_type"),
     source_column='segment_name',
     id_column='segment_id',
     name_column='segment_name',

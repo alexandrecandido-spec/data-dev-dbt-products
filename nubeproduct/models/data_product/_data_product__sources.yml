@@ -47,3 +47,4 @@ sources:
     schema: data_manual
     tables:
       - name: operations__grouping_plans_aux
+      - name: dimensions__segment_type
