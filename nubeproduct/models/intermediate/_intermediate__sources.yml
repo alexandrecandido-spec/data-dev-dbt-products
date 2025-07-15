@@ -18,6 +18,24 @@ sources:
         description: "Provides details about the shipping carriers integrated or used by stores."
       - name: mwp_attribution
         description: "Contains information on internal and external clicks used for store attribution."
+      - name: mwp_countries
+        description: "Table with country IDs and names."
+      - name: mwp_provinces
+        description: "Table with states IDs and names."
+      - name: regions
+        description: "Table with regions IDs and names."
+      - name: mwp_cities_ar
+        description: "Table with city IDs and names from Argentina."
+      - name: mwp_cities_mx
+        description: "Table with city IDs and names from Mexico."
+      - name: cidades
+        description: "Table with city IDs and names from Brazil."
+      - name: mwp_zipcodes_ar
+        description: "Table with zipcodes from Argentina."
+      - name: mwp_zipcodes_mx
+        description: "Table with zipcodes from Mexico."
+      - name: ceps
+        description: "Table with zipcodes from Brazil."
 
   - name: int_finance
     database: null
@@ -106,3 +124,11 @@ sources:
     tables:
       - name: mwp_partners
         description: "Contains information about the partners of the ecosystem."
+
+  - name: int_shipping
+    database: null
+    schema: shipping
+    description: "Intermediate tables built from raw data in the shipping schema, typically used to normalize or enrich store-level information."
+    tables:
+      - name: locations
+        description: "Contains information about address by merchants."
