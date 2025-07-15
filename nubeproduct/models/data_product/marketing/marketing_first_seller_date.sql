@@ -5,7 +5,7 @@
         unique_key=['store_id'],
         partition_by = 'year_month_day_code',
         on_schema_change='fail',
-        tags=["marketing","daily-9am"]
+        tags=['daily-9am']
     )
 }}
 
