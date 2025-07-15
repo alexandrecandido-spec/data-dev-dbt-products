@@ -366,3 +366,76 @@ models:
         description: Timestamp of the latest update to the row.
       - name: sys_audit_updated_by
         description: Source or user responsible for the latest update.
+
+  - name: dim_merchant_info
+    description: "This table contains the main attributes of each store, including vertical, segment, location, and other classification fields."
+    config:
+      meta:
+        business_owner: "gustavo.braga@nuvemshop.com.br"
+        domain: "operations"
+        business_owner: "Franco Tiberti"
+    columns:
+      - name: store_id
+        description: "Unique identifier of the store. External key."
+        tests:
+          - not_null
+      - name: created_at
+        description: "Store creation date. Format YYYY-MM-DD."
+        tests:
+          - not_null
+      - name: country_id
+        description: "ID of the country as provided by the store info base."
+        tests:
+          - not_null
+      - name: base_country_id
+        description: "ID of the country as provided by the shipping source."
+        tests:
+          - not_null
+      - name: base_region_id
+        description: "ID of the geographic region (e.g., used in Brazil) as provided by the shipping source."
+        tests:
+          - not_null
+      - name: base_state_id
+        description: "ID of the state or province as provided by the shipping source."
+        tests:
+          - not_null
+      - name: base_city_id
+        description: "ID of the city as provided by the shipping source."
+        tests:
+          - not_null
+      - name: current_segment_id
+        description: "Current segment type ID associated with the store."
+        tests:
+          - not_null
+      - name: current_segment_date_id
+        description: "Date indicating since when this segment has been associated with the store."
+      - name: max_segment_id
+        description: "Maximum segment type ID associated with the store."
+        tests:
+          - not_null
+      - name: max_segment_date_id
+        description: "Date the store was last classified under its highest segment."
+      - name: vertical_id
+        description: "ID of the vertical category associated this store."
+        tests:
+          - not_null
+      - name: business_size_id
+        description: "ID of the business size associated this store."
+        tests:
+          - not_null
+      - name: group_id
+        description: "ID of the group plan associated this store."
+        tests:
+          - not_null
+      - name: domain
+        description: "Custom store domain name created by the client."
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created."
+      - name: sys_audit_created_by
+        description: "System or user that created the row."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the most recent update to the row."
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row."
