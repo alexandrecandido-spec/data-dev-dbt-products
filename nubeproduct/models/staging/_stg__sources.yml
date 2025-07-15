@@ -6,6 +6,14 @@ sources:
     schema: moltres
     tables:
       - name: mwp_store_info
+      - name: mwp_store_settings
+      - name: mwp_countries
+      - name: mwp_provinces
+      - name: mwp_cities_ar
+      - name: mwp_cities_mx
+      - name: mwp_plans
+      - name: regions
+      - name: cidades
 
   - name: stg_orders
     database: null
