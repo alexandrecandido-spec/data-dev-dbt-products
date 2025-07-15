@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: partner_stores     
+  - name: partner_agencies_affiliates_stores     
     config:
       meta:
         tech_steward: "felipe.lorenzo@tiendanube.com"
