@@ -1,4 +1,4 @@
--- depends_on: {{ ref('company_metrics_gmv_and_segments') }}
+-- depends_on: {{ ref('company_metrics_gmv_and_segments') }} a
 
 {{
     config(
