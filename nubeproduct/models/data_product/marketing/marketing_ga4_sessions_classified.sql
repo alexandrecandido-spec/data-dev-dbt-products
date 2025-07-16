@@ -4,7 +4,7 @@
     partition_by         = ['year_month_day_code'],
     unique_key           = ['year_month_day_code','unique_session'],
     on_schema_change     = 'fail',
-    tags                 = ['daily-6am', 'marketing']
+    tags                 = ['daily-6am']
 ) }}
 
 WITH existing_data AS (
@@ -49,59 +49,49 @@ src AS (
     {% else %}
       WHERE date >= DATE '2024-01-01'
     {% endif %}
-),
-
-classified AS (
-    SELECT
-        src.*,
-
-        /* ─── COUNTRY RE-CLASSIFICATION ─── */
-        CASE
-          WHEN date <= DATE '2024-09-07' THEN
-              CASE
-                WHEN source_ga4_classification = 'inst-br'
-                     OR (source_ga4_classification NOT LIKE '%inst%'
-                         AND landing_page LIKE '%nuvemshop%')                                       THEN 'BR'
-                WHEN source_ga4_classification = 'inst-ar'                                          THEN 'AR'
-                WHEN source_ga4_classification = 'inst-mx'                                          THEN 'MX'
-                WHEN source_ga4_classification = 'inst-co'                                          THEN 'CO'
-                WHEN source_ga4_classification = 'inst-cl'                                          THEN 'CL'
-                WHEN source_ga4_classification NOT LIKE '%inst%' AND original_user_country = 'Argentina' THEN 'AR'
-                WHEN source_ga4_classification NOT LIKE '%inst%' AND original_user_country = 'Mexico'    THEN 'MX'
-                WHEN source_ga4_classification NOT LIKE '%inst%' AND original_user_country = 'Chile'     THEN 'CL'
-                WHEN source_ga4_classification NOT LIKE '%inst%' AND original_user_country = 'Colombia'  THEN 'CO'
-                WHEN source_ga4_classification NOT LIKE '%inst%' AND original_user_country NOT IN
-                     ('Brazil','Mexico','Argentina','Chile','Colombia')                               THEN 'Other'
-                ELSE original_user_country
-              END
-          ELSE
-              CASE
-                WHEN source_ga4_classification = 'inst-br'
-                     OR landing_page LIKE '%nuvemshop%'                                             THEN 'BR'
-                WHEN original_user_country = 'Argentina'                                            THEN 'AR'
-                WHEN original_user_country = 'Mexico'                                               THEN 'MX'
-                WHEN original_user_country = 'Chile'                                                THEN 'CL'
-                WHEN original_user_country = 'Colombia'                                             THEN 'CO'
-                WHEN original_user_country NOT IN ('Brazil','Mexico','Argentina','Chile','Colombia') THEN 'Other'
-                ELSE original_user_country
-              END
-        END AS classified_country
-    FROM src
-),
-
-final AS (
-    SELECT 
-        c.*,
-        COALESCE(e.sys_audit_created_on, current_timestamp)     AS sys_audit_created_on,
-        COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by,
-        current_timestamp                                        AS sys_audit_updated_on,
-        'data-dev-dbt-products'                                  AS sys_audit_updated_by
-    FROM classified c
-    LEFT JOIN existing_data e
-      ON c.year_month_day_code = e.year_month_day_code
-     AND c.unique_session      = e.unique_session
 )
 
-SELECT *
-FROM final
+SELECT 
+    src.*,
+
+    CASE
+      WHEN date <= DATE '2024-09-07' THEN
+          CASE
+            WHEN source_ga4_classification = 'inst-br'
+                 OR (source_ga4_classification NOT LIKE '%inst%'
+                     AND landing_page LIKE '%nuvemshop%')                                       THEN 'BR'
+            WHEN source_ga4_classification = 'inst-ar'                                          THEN 'AR'
+            WHEN source_ga4_classification = 'inst-mx'                                          THEN 'MX'
+            WHEN source_ga4_classification = 'inst-co'                                          THEN 'CO'
+            WHEN source_ga4_classification = 'inst-cl'                                          THEN 'CL'
+            WHEN source_ga4_classification NOT LIKE '%inst%' AND original_user_country = 'Argentina' THEN 'AR'
+            WHEN source_ga4_classification NOT LIKE '%inst%' AND original_user_country = 'Mexico'    THEN 'MX'
+            WHEN source_ga4_classification NOT LIKE '%inst%' AND original_user_country = 'Chile'     THEN 'CL'
+            WHEN source_ga4_classification NOT LIKE '%inst%' AND original_user_country = 'Colombia'  THEN 'CO'
+            WHEN source_ga4_classification NOT LIKE '%inst%' AND original_user_country NOT IN
+                 ('Brazil','Mexico','Argentina','Chile','Colombia')                               THEN 'Other'
+            ELSE original_user_country
+          END
+      ELSE
+          CASE
+            WHEN source_ga4_classification = 'inst-br'
+                 OR landing_page LIKE '%nuvemshop%'                                             THEN 'BR'
+            WHEN original_user_country = 'Argentina'                                            THEN 'AR'
+            WHEN original_user_country = 'Mexico'                                               THEN 'MX'
+            WHEN original_user_country = 'Chile'                                                THEN 'CL'
+            WHEN original_user_country = 'Colombia'                                             THEN 'CO'
+            WHEN original_user_country NOT IN ('Brazil','Mexico','Argentina','Chile','Colombia') THEN 'Other'
+            ELSE original_user_country
+          END
+    END AS classified_country,
+
+    COALESCE(e.sys_audit_created_on, current_timestamp)         AS sys_audit_created_on,
+    COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products')   AS sys_audit_created_by,
+    current_timestamp                                            AS sys_audit_updated_on,
+    'data-dev-dbt-products'                                      AS sys_audit_updated_by
+
+FROM src
+LEFT JOIN existing_data e
+  ON src.year_month_day_code = e.year_month_day_code
+ AND src.unique_session      = e.unique_session
 

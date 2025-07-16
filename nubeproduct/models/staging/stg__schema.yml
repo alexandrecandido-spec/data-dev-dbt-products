@@ -403,7 +403,7 @@ models:
   - name: ga4__mod_pv_info
     description: "Staging model for GA4 pageviews enriched with traffic source, landing page, and UTM parameters."
     config:
-       meta:
+      meta:
         tech_steward: "sofia.torres@tiendanube.com"
         domain: "marketing"
         business_owner: "Giselle Galli"
