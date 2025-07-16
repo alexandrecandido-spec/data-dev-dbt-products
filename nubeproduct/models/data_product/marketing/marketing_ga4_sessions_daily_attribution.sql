@@ -5,7 +5,7 @@
     cluster_by           = ['year_month_day_code','session_status'],
     unique_key           = ['row_hash'],
     on_schema_change     = 'fail',
-    tags                 = ['daily-5am', 'marketing']
+    tags                 = ['daily-6am', 'marketing']
 ) }}
 
 WITH existing_data AS (

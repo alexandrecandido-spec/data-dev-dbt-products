@@ -4,7 +4,7 @@
     partition_by         = ['year_month_day_code'],
     unique_key           = ['unique_session','event_timestamp','user_pseudo_id'],
     on_schema_change     = 'fail',
-    tags                 = ['daily-5am', 'marketing']
+    tags                 = ['daily-6am', 'marketing']
 ) }}
 
 WITH existing_data AS (
