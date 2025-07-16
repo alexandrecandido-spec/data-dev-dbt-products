@@ -810,7 +810,7 @@ models:
       meta:
         tech_steward: "sofia.torres@tiendanube.com"
         domain: "marketing"
-        business_owner: "Sofia Torres" 
+        business_owner: "Giselle Galli" 
     columns:
       - name: year_month_day_code
         description: Date in YYYYMMDD integer format used for partitioning.
@@ -886,7 +886,7 @@ models:
       meta:
         tech_steward: "sofia.torres@tiendanube.com"
         domain: "marketing"
-        business_owner: "Sofia Torres"
+        business_owner: "Giselle Galli"
     columns:
       - name: date
         description: Session date.
@@ -970,7 +970,7 @@ models:
       meta:
         tech_steward: "sofia.torres@tiendanube.com"
         domain: "marketing"
-        business_owner: "Sofia Torres"
+        business_owner: "Giselle Galli"
     columns:
       - name: domain_clean
         description: Landing-page domain stripped of protocol and “www”.

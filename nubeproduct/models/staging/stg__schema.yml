@@ -333,8 +333,9 @@ models:
     description: "Staging model for GA4 events information. Includes user sessions and event metadata."
     config:
       meta:
-        owner: "sofia.torres@tiendanube.com"
+        tech_steward: "sofia.torres@tiendanube.com"
         domain: "marketing"
+        business_owner: "Giselle Galli"
     columns:
       - name: unique_session
         description: "Unique identifier for the user session."
@@ -355,8 +356,9 @@ models:
     description: "Staging model for trials and payments information from GA4."
     config:
       meta:
-        owner: "sofia.torres@tiendanube.com"
+        tech_steward: "sofia.torres@tiendanube.com"
         domain: "marketing"
+        business_owner: "Giselle Galli"
     columns:
       - name: unique_session
         description: "Unique identifier for the user session."
@@ -377,8 +379,9 @@ models:
     description: "Staging model for user sessions duration and engagement flags."
     config:
       meta:
-        owner: "sofia.torres@tiendanube.com"
+        tech_steward: "sofia.torres@tiendanube.com"
         domain: "marketing"
+        business_owner: "Giselle Galli"
     columns:
       - name: unique_session
         description: "Unique identifier for the user session."
@@ -400,9 +403,10 @@ models:
   - name: ga4__mod_pv_info
     description: "Staging model for GA4 pageviews enriched with traffic source, landing page, and UTM parameters."
     config:
-      meta:
-        owner: "sofia.torres@tiendanube.com"
+       meta:
+        tech_steward: "sofia.torres@tiendanube.com"
         domain: "marketing"
+        business_owner: "Giselle Galli"
     columns:
       - name: event_timestamp
         description: "Timestamp of the pageview event."
