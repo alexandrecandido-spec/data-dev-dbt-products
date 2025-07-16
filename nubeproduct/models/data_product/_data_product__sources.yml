@@ -6,6 +6,13 @@ sources:
     schema: dp_orders
     tables:
       - name: recurring_orders
+
+  - name: dp_orders
+    database: null
+    schema: orders
+    tables:
+      - name: mwp_order_products_deleted
+
   - name: dp_moltres
     database: null
     schema: moltres
@@ -15,11 +22,13 @@ sources:
       - name: mwp_plans_countries
       - name: mwp_store_info
       - name: mwp_store_settings
+
   - name: dp_finances
     database: null
     schema: finances
     tables:
       - name: dp_currency_conversion
+
   - name: dp_finance
     database: null
     schema: dp_finance

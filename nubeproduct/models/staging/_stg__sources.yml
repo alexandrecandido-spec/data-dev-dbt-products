@@ -25,6 +25,8 @@ sources:
         description: "Products associated with an order."
       - name: mwp_orders_source
         description: "Contém informações de origem de tráfego dos pedidos, incluindo parâmetros UTM, referrer e classificações da origem"
+      - name: mwp_order_products_deleted
+        description: "Deleted regs of products associated with an order."
 
   - name: stg_nuvem_credito
     description: "Source containing tables related to Nuvem credito"

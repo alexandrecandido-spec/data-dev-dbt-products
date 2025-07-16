@@ -121,6 +121,24 @@ SELECT
         ),
 	0
       ) AS orders_general_90d,
+  COALESCE(
+        SUM(
+          CASE
+            WHEN DATE(fo.completed_at) BETWEEN DATEADD(DAY, -90, ad.datemonth)
+            AND ad.datemonth THEN fo.total_in_usd
+          END
+        ),
+	0
+      ) AS gmv_general_90d,
+  COALESCE(
+        SUM(
+          CASE
+            WHEN DATE(fo.completed_at) BETWEEN DATEADD(DAY, -90, ad.datemonth)
+            AND ad.datemonth THEN fo.total
+          END
+        ),
+	0
+      ) AS gmv_local_general_90d,
 	-- On Platform (storefront en 'mobile', 'store', 'form', 'social')
       COALESCE(
         COUNT(
@@ -165,6 +183,29 @@ SELECT
         ),
 	0
       ) AS orders_on_platform_90d,
+  COALESCE(
+        SUM(
+          CASE
+            WHEN fo.platform_type = 'on'
+            AND DATE(fo.completed_at) BETWEEN DATEADD(DAY, -90, ad.datemonth)
+            AND ad.datemonth THEN fo.total_in_usd
+          END
+        ),
+	0
+      ) AS gmv_on_platform_90d,
+	COALESCE(
+        ROUND(
+          SUM(
+            CASE
+              WHEN fo.platform_type = 'on'
+              AND DATE(fo.completed_at) BETWEEN DATEADD(DAY, -90, ad.datemonth)
+              AND ad.datemonth THEN fo.total
+            END
+          ),
+	2
+        ),
+	0
+      ) AS gmv_local_on_platform_90d,
 	-- Off Platform (lo contrario a On Platform)
       COALESCE(
         COUNT(
@@ -212,7 +253,32 @@ SELECT
           END
         ),
 	0
-      ) AS orders_off_platform_90d
+      ) AS orders_off_platform_90d,
+  COALESCE(
+        SUM(
+          CASE
+            WHEN fo.platform_type = 'off'
+            AND fo.storefront IS NOT NULL
+            AND DATE(fo.completed_at) BETWEEN DATEADD(DAY, -90, ad.datemonth)
+            AND ad.datemonth THEN fo.total_in_usd
+          END
+        ),
+	0
+      ) AS gmv_off_platform_90d,
+	COALESCE(
+        ROUND(
+          SUM(
+            CASE
+              WHEN fo.platform_type = 'off'
+              AND fo.storefront IS NOT NULL
+              AND DATE(fo.completed_at) BETWEEN DATEADD(DAY, -90, ad.datemonth)
+              AND ad.datemonth THEN fo.total
+            END
+          ),
+	2
+        ),
+	0
+      ) AS gmv_local_off_platform_90d
 FROM
 	all_dates ad
 CROSS JOIN combined_stores cs

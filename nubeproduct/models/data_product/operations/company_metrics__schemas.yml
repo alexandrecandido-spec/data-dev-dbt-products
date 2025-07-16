@@ -179,6 +179,18 @@ models:
         tests:
           - accepted_values:
               values: ["top-seller", "large-seller", "medium-seller", "small-seller", "tiny-seller", "struggling-seller", "no-seller"]
+      - name: gmv_usd_90d
+        description: Gross Merchandise Value (GMV) in USD for the last 90 days.
+      - name: gmv_local_currency_90d
+        description: Gross Merchandise Value (GMV) in local currency for the last 90 days.
+      - name: gmv_usd_on_platform_90d
+        description: Gross Merchandise Value (GMV) in USD for on-platform orders during the last 90 days.
+      - name: gmv_local_currency_on_platform_90d
+        description: Gross Merchandise Value (GMV) in local currency for on-platform orders during the last 90 days.
+      - name: gmv_usd_off_platform_90d
+        description: Gross Merchandise Value (GMV) in USD for off-platform orders during the last 90 days.
+      - name: gmv_local_currency_off_platform_90d
+        description: Gross Merchandise Value (GMV) in local currency for off-platform orders during the last 90 days.
       - name: sys_audit_created_on
         description: Timestamp when the row was originally created.
       - name: sys_audit_created_by
