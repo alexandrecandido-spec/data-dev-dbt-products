@@ -19,7 +19,89 @@ models:
         tests:
           - unique
           - not_null
+      - name: quotation_id
+        description: "Identifier for the quotation associated with this contract."
+      - name: borrower_document
+        description: "Document identifier of the borrower."
+        tests:
+          - not_null
+      - name: borrower_name
+        description: "Name of the borrower."
+      - name: disbursed_at
+        description: "Date and time when the contract was disbursed."
+        tests:
+          - not_null
+      - name: disbursed_month
+        description: "Month when the contract was disbursed."
+      - name: created_at
+        description: "Date and time when the contract was created."
+        tests:
+          - not_null
+      - name: updated_at
+        description: "Date and time when the contract was last updated."
+      - name: finished_at
+        description: "Date and time when the contract was finished."
+      - name: first_installment_at
+        description: "Date and time of the first installment due date."
+      - name: last_installment_at
+        description: "Date and time of the last installment due date."
+      - name: status
+        description: "Current status of the contract (e.g., finished, paying)."
+      - name: portfolio_type
+        description: "Type of portfolio (renegotiation or general)."
+      - name: installments_number
+        description: "Initial number of installments for the contract."
+      - name: operation_total_taxes_amount
+        description: "Total amount of taxes for the operation."
+      - name: operation_total_costs_amount
+        description: "Total amount of costs for the operation."
+      - name: operation_gross_amount
+        description: "Gross amount of the operation. Equivalent to (operation_net_amount + operation_total_taxes_amount + operation_total_costs_amount)"
+      - name: operation_net_amount
+        description: "Net amount of the operation, equal to the amount requested by the borrower."
+      - name: interest_monthly_rate
+        description: "Monthly interest rate applied to the contract."
+      - name: lending_hub
+        description: "Hub of the credit. Currently only Mova."
+      - name: payer_id
+        description: "Identifier of the payer."
+      - name: original_contract_ids
+        description: "IDs of original contracts (used for renegotiations)."
       - name: store_id
         description: "Store identifier."
+        tests:
+          - not_null
+      - name: collection_strategy
+        description: "Strategy used for collection."
+      - name: payer_state
+        description: "State of the payer."
+      - name: engine_offer_id
+        description: "Identifier of the offer (internal engine) which generated the contract."
+      - name: evaluation_link_type
+        description: "Type of association between the credit and the offer (New -from internalized experience-, Historical -generated through a join between document number and the date of the quotation-, Unknown -not associated to an offer-)."
+      - name: custom_status
+        description: "Custom status classification (renegotiated, canceled, or original status)."
+      - name: evaluation_month
+        description: "Month when the evaluation and offer was generated."
+      - name: risk_classification
+        description: "Risk classification of the contract."
+      - name: policy
+        description: "Risk policy applied to the contract."
+      - name: policy_classification
+        description: "Classification based on policy and risk combination."
+      - name: sys_audit_created_by
+        description: "System audit field indicating who created the record."
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: "System audit field indicating when the record was created."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "System audit field indicating who last updated the record."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "System audit field indicating when the record was last updated."
         tests:
           - not_null

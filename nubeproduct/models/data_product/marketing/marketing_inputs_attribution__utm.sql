@@ -1,7 +1,7 @@
 {{ config(
   unique_key=['id'],
   on_schema_change='fail',
-  tags=["marketing", "daily-4_30am"]
+  tags=['daily-8am']
 ) }}
 
 SELECT				
@@ -15,7 +15,7 @@ SELECT
     , lower(ai.utm_campaign) AS campaign
     , lower(ai.utm_content) AS content
     , ai.team AS source_mkt				
-    , ai.subteam
+    , CASE WHEN ai.subteam = 'Ai' THEN 'AI' ELSE ai.subteam END AS subteam
     , ai.created_at
     , ai.updated_at
     , ai.closed_at
