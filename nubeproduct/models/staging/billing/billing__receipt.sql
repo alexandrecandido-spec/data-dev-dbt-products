@@ -9,5 +9,5 @@
 
 SELECT
     id, 
-    number
+    number AS receipt_number
 FROM {{ source('stg_billing', 'receipt') }}

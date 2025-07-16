@@ -11,7 +11,7 @@
 SELECT
     store_id,
     external_pay_order_id,
-    payOrderId,
+    paid_order_id,
     billing_cycle_id,
     domain,
     cycle_status,
@@ -24,7 +24,7 @@ SELECT
     invoice_emission_date,
     invoice_number,
     billing_cycle_end_date,
-    number,
+    receipt_number,
     original_payment_value,
     payment_value,
     adjustment_value,
