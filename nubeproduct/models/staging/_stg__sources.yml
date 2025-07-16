@@ -23,7 +23,6 @@ sources:
         description: "Tabela principal, contém informações de pedidos, incluindo detalhes do cliente, produtos, status e datas de criação e conclusão"
       - name: mwp_order_products
         description: "Products associated with an order."
-        description: "Tabela principal, contém informações de pedidos, incluindo detalhes do cliente, produtos, status e datas de criação e conclusão"
       - name: mwp_orders_source
         description: "Contém informações de origem de tráfego dos pedidos, incluindo parâmetros UTM, referrer e classificações da origem"
 
