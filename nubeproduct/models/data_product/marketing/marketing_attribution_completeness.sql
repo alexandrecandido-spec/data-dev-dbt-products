@@ -4,7 +4,7 @@
     unique_key = ['country', 'created_at', 'device'],
     partition_by = 'year_month_day_code',
     on_schema_change = 'fail',
-    tags = ["marketing", 'daily-9am'] 
+    tags = ['daily-9am'] 
 ) }}
 
 WITH existing_data AS (

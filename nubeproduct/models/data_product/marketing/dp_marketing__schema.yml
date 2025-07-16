@@ -996,3 +996,34 @@ models:
         description: Timestamp of the last update.
       - name: sys_audit_updated_by
         description: dbt job or service account that last updated the row.
+    
+  - name: first_seller_date
+    description: "This data product identifies the first date on which a store qualified as a “seller”, based on sales performance, and aligns it with the store’s presence in the marketing attribution dataset. The main goal is to determine when each store first achieved at least 7 sales in a rolling 90-day window, according to data from company_metrics_paid_orders, and cross-reference it with marketing exposure from marketing_attribution_model."
+    config:
+      meta:
+        tech_steward: "giselle.galli@tiendanube.com"
+        domain: "marketing"
+        business_owner: "Giselle Galli" 
+    columns:
+      - name: store_id
+        description: "Unique identifier for each store"
+        tests:
+          - not_null
+      - name: year_month_day_code
+        description: YYYYMMDD code used for partitioning the data. Partition Key
+        tests:
+          - not_null 
+      - name: first_seller_at
+        description: "Date when the first seller was made (first time achieving 7 sales in 90 days window)"
+      - name: sys_audit_created_on
+        description: "Timestamp of when this record was created in our data warehouse"
+      - name: sys_audit_updated_on
+        description: "Timestamp of when this record was last updated in our data warehouse"
+      - name: sys_audit_created_by
+        description: "System identifier of the process that created this record"
+      - name: sys_audit_updated_by
+        description: "System identifier of the process that last updated this record"
+        
+        
+        
+        

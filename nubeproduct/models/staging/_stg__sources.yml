@@ -6,15 +6,26 @@ sources:
     schema: moltres
     tables:
       - name: mwp_store_info
+      - name: mwp_store_settings
+      - name: mwp_countries
+      - name: mwp_provinces
+      - name: mwp_cities_ar
+      - name: mwp_cities_mx
+      - name: mwp_plans
+      - name: regions
+      - name: cidades
 
   - name: stg_orders
     database: null
     schema: orders
     tables:
       - name: mwp_orders
-        description: "Orders generated throughout the entire site. Includes the order in its most current state."
+        description: "Tabela principal, contém informações de pedidos, incluindo detalhes do cliente, produtos, status e datas de criação e conclusão"
       - name: mwp_order_products
         description: "Products associated with an order."
+        description: "Tabela principal, contém informações de pedidos, incluindo detalhes do cliente, produtos, status e datas de criação e conclusão"
+      - name: mwp_orders_source
+        description: "Contém informações de origem de tráfego dos pedidos, incluindo parâmetros UTM, referrer e classificações da origem"
 
   - name: stg_nuvem_credito
     description: "Source containing tables related to Nuvem credito"
@@ -62,3 +73,16 @@ sources:
         description: "Raw table containing aggregated session data, including start and end times and engagement flags."
       - name: mod_pv_info
         description: "Raw table with enriched pageview data from GA4, including source and landing page details."
+  - name: stg_data_predictors
+    database: null
+    schema: data_predictors
+    description: "Intermediate tables built from raw data in the data_predictors schema, typically used to normalize or enrich store-level information."
+    tables:
+      - name: marketing_new_payment_predictor
+        description: "Predicts the likelihood of a new payment based on the store's payment history and other relevant factors."
+      - name: marketing_model_version_aux
+        description: "Contains information about the version of the model used to make predictions."
+      - name: marketing_cutoffs_table
+        description: "Contains information about the cutoffs used to define QLs."
+
+  
