@@ -1,0 +1,3 @@
+SELECT pips.store_id, mss.in_portfolio, current_timestamp(0)
+ FROM (select distinct store_id from "refined"."data_product"."product_issues_and_problems_summary") pips 
+left join "refined"."data_midmarket"."midmarket_success_stores"  mss on pips.store_id = mss.store_id and mss.in_portfolio=true
