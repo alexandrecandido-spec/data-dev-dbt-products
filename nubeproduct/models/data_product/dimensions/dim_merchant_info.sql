@@ -4,7 +4,7 @@
         incremental_strategy='merge',
         unique_key=['store_id'],
         on_schema_change='fail',
-        tags=['daily-6am']
+        tags=['daily-4_30am']
     )
 }}
 
