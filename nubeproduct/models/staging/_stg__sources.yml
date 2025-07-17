@@ -20,12 +20,13 @@ sources:
     schema: orders
     tables:
       - name: mwp_orders
-        description: "Tabela principal, contém informações de pedidos, incluindo detalhes do cliente, produtos, status e datas de criação e conclusão"
+        description: "Main table, contains information about orders, including customer details, products, status, and creation and completion dates"
       - name: mwp_order_products
         description: "Products associated with an order."
-        description: "Tabela principal, contém informações de pedidos, incluindo detalhes do cliente, produtos, status e datas de criação e conclusão"
       - name: mwp_orders_source
-        description: "Contém informações de origem de tráfego dos pedidos, incluindo parâmetros UTM, referrer e classificações da origem"
+        description: "Contains information about the traffic source of the orders, including UTM parameters, referrer, and source classifications"
+      - name: mwp_order_products_deleted
+        description: "Deleted regs of products associated with an order."
 
   - name: stg_nuvem_credito
     description: "Source containing tables related to Nuvem credito"

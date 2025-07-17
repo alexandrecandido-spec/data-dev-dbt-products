@@ -179,6 +179,18 @@ models:
         tests:
           - accepted_values:
               values: ["top-seller", "large-seller", "medium-seller", "small-seller", "tiny-seller", "struggling-seller", "no-seller"]
+      - name: gmv_usd_90d
+        description: Gross Merchandise Value (GMV) in USD for the last 90 days.
+      - name: gmv_local_currency_90d
+        description: Gross Merchandise Value (GMV) in local currency for the last 90 days.
+      - name: gmv_usd_on_platform_90d
+        description: Gross Merchandise Value (GMV) in USD for on-platform orders during the last 90 days.
+      - name: gmv_local_currency_on_platform_90d
+        description: Gross Merchandise Value (GMV) in local currency for on-platform orders during the last 90 days.
+      - name: gmv_usd_off_platform_90d
+        description: Gross Merchandise Value (GMV) in USD for off-platform orders during the last 90 days.
+      - name: gmv_local_currency_off_platform_90d
+        description: Gross Merchandise Value (GMV) in local currency for off-platform orders during the last 90 days.
       - name: sys_audit_created_on
         description: Timestamp when the row was originally created.
       - name: sys_audit_created_by
@@ -187,35 +199,6 @@ models:
         description: Timestamp of the most recent update to the row.
       - name: sys_audit_updated_by
         description: System or user that last updated the row.
-  
-
-  - name: company_metrics_merchant_vertical
-    description: "This table informs the stores vertical like clothing, digital, cars, etc."
-    config:
-      meta:
-        business_owner: "djalma.dias@nuvemshop.com"
-        domain: "operations"
-        business_owner: "Analytics Engineering"
-    columns:
-      - name: store_id
-        description: "Unique identifier of the store. External key."
-        tests:
-          - not_null
-      - name: country
-        description: "Country where the store belongs."
-      - name: vertical
-        description: "Business segment of the store."
-        tests:
-          - not_null
-      - name: sys_audit_created_on
-        description: "Timestamp when the row was originally created."
-      - name: sys_audit_created_by
-        description: "System or user that created the row."
-      - name: sys_audit_updated_on
-        description: "Timestamp of the most recent update to the row."
-      - name: sys_audit_updated_by
-        description: "System or user that last updated the row."
-
 
   - name: operations_grouping_plans
     config:
