@@ -45,6 +45,8 @@ SELECT
   sd.first_event_device,
   sd.last_event_device,
   sd.only_login_session,
+  sd.login_in_session,
+  sd.landing_page_type,
   sd.user_type,
   sd.session_status,
   sd.utm_ad_id,
@@ -52,64 +54,23 @@ SELECT
   sd.utm_term,
   sd.mkt_source,
   sd.mkt_subteam,
-
-  MD5(
-    CONCAT_WS('|',
-      CAST(sd.year_month_day_code AS STRING),
-      CAST(sd.date                AS STRING),
-      sd.source_ga4_classification,
-      sd.original_user_country,
-      sd.classified_country,
-      sd.env,
-      sd.landing_page,
-      sd.landing_page_domain,
-      sd.landing_page_path,
-      sd.last_source,
-      sd.last_medium,
-      sd.last_campaign,
-      sd.first_event_device,
-      sd.last_event_device,
-      CAST(sd.only_login_session  AS STRING),
-      sd.user_type,
-      sd.session_status,
-      sd.utm_ad_id,
-      sd.utm_content,
-      sd.utm_term,
-      sd.mkt_source,
-      sd.mkt_subteam
-    )
-  )                                                  AS row_hash,
-
-  COALESCE(e.sys_audit_created_on, current_timestamp)      AS sys_audit_created_on,
+  sd.url_owner,
+  sd.url_content_type,
+  sd.distinct_user_count,
+  sd.distinct_session_count,
+  sd.total_trials,
+  sd.total_payments,
+  sd.total_engagements,
+  sd.avg_session_duration,
+  sd.median_session_duration,
+  sd.avg_pageviews_per_session,
+  sd.median_pageviews_per_session,
+  sd.row_hash,
+  COALESCE(e.sys_audit_created_on, current_timestamp)       AS sys_audit_created_on,
   COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by,
-  current_timestamp                                         AS sys_audit_updated_on,
-  'data-dev-dbt-products'                                   AS sys_audit_updated_by
+  current_timestamp                                          AS sys_audit_updated_on,
+  'data-dev-dbt-products'                                    AS sys_audit_updated_by
 
 FROM attribution_int sd
-LEFT JOIN existing_data e ON
-  MD5(
-    CONCAT_WS('|',
-      CAST(sd.year_month_day_code AS STRING),
-      CAST(sd.date                AS STRING),
-      sd.source_ga4_classification,
-      sd.original_user_country,
-      sd.classified_country,
-      sd.env,
-      sd.landing_page,
-      sd.landing_page_domain,
-      sd.landing_page_path,
-      sd.last_source,
-      sd.last_medium,
-      sd.last_campaign,
-      sd.first_event_device,
-      sd.last_event_device,
-      CAST(sd.only_login_session  AS STRING),
-      sd.user_type,
-      sd.session_status,
-      sd.utm_ad_id,
-      sd.utm_content,
-      sd.utm_term,
-      sd.mkt_source,
-      sd.mkt_subteam
-    )
-  ) = e.row_hash
+LEFT JOIN existing_data e
+  ON sd.row_hash = e.row_hash

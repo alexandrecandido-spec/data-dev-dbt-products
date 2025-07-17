@@ -814,10 +814,12 @@ models:
     columns:
       - name: year_month_day_code
         description: Date in YYYYMMDD integer format used for partitioning.
-        tests: [not_null]
+        tests:
+          - not_null
       - name: unique_session
         description: Unique GA4 session identifier.
-        tests: [not_null]
+        tests:
+          - not_null
       - name: date
         description: Session start date (UTC, DATE type).
       - name: source_ga4_classification
@@ -888,10 +890,12 @@ models:
     columns:
       - name: date
         description: Session date (UTC).
-        tests: [not_null]
+        tests:
+          - not_null
       - name: year_month_day_code
         description: YYYYMMDD integer used for partitioning.
-        tests: [not_null]
+        tests:
+          - not_null
       - name: source_ga4_classification
         description: GA4 traffic source label (e.g. inst-br, blog-ar).
       - name: original_user_country
@@ -952,6 +956,9 @@ models:
         description: Median pageviews per session (approximate).
       - name: row_hash
         description: Unique MD5 hash of the grouping dimensions.
+        tests:
+          - not_null
+          - unique
       - name: sys_audit_created_on
         description: Timestamp when the row was created.
       - name: sys_audit_created_by
@@ -1048,6 +1055,7 @@ models:
         description: MD5 hash of all dimension columns (incremental merge key).
         tests:
           - not_null
+          - unique
       - name: sys_audit_created_on
         description: Timestamp when the row was created by dbt.
       - name: sys_audit_created_by

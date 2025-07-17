@@ -45,23 +45,31 @@ insti_enriched AS (
 utm_enriched AS (
     SELECT
         i.*,
-        ut.source_mkt,
-        ut.subteam    AS utm_subteam
+        u.source_mkt,
+        u.subteam    AS utm_subteam
     FROM insti_enriched i
-    LEFT JOIN {{ ref('marketing_inputs_attribution__utm') }} ut
-      ON  i.last_source = ut.source
-     AND i.last_medium = ut.medium
+    LEFT JOIN LATERAL (
+        SELECT source_mkt, subteam
+        FROM {{ ref('marketing_inputs_attribution__utm') }} u
+        WHERE u.source = i.last_source
+          AND u.medium = i.last_medium
+        LIMIT 1
+    ) u ON TRUE
 ),
 
 subcam_enriched AS (
     SELECT
         u.*,
-        sc.subteam      AS subteam_cam,
-        sc.utm_campaign AS utm_campaign_cam
+        s.subteam      AS subteam_cam,
+        s.utm_campaign AS utm_campaign_cam
     FROM utm_enriched u
-    LEFT JOIN {{ ref('marketing_inputs_attribution__subteam') }} sc
-      ON  u.last_source = sc.utm_source
-     AND u.last_medium = sc.utm_medium
+    LEFT JOIN LATERAL (
+        SELECT subteam, utm_campaign
+        FROM {{ ref('marketing_inputs_attribution__subteam') }} s
+        WHERE s.utm_source = u.last_source
+          AND s.utm_medium = u.last_medium
+        LIMIT 1
+    ) s ON TRUE
 )
 
 /* ------------------------------------ 5. Reglas de negocio ------------------------------------ */
