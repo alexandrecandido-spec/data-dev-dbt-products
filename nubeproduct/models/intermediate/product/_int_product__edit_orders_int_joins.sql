@@ -48,23 +48,24 @@ select
     o.order_edit_count,
     --data on store
     o.store_id,
-    o.state,
-    o.country,
-    o.currency,
-    o.current_segment,
-    o.first_payment,
-    o.churned_at,
-    o.plan_name,
-    o.created_at,
-    o.verified,
-    o.store_has_edit_orders_available,
-    o.store_edit_orders_available_at,
-    o.store_edit_orders_user,
-    o.store_edit_first_use,
-    o.store_edit_last_use,
-    o.store_edit_count
+    e.state,
+    e.country,
+    e.currency,
+    e.current_segment,
+    e.first_payment,
+    e.churned_at,
+    e.plan_name,
+    e.created_at,
+    e.verified,
+    e.has_edit_orders_available as store_has_edit_orders_available,
+    e.edit_orders_available_at as store_edit_orders_available_at,
+    e.edit_orders_user as store_edit_orders_user,
+    e.edit_first_use as store_edit_first_use,
+    e.edit_last_use as store_edit_last_use,
+    e.edit_count as store_edit_count
     FROM {{ ref('_int_product__edit_orders_union_edit_types') }} ae
-    JOIN {{ ref('product_edit_orders_order_usage') }} o on o.id = ae.order_id
+    JOIN {{ ref('_int_product__edit_orders_orders_usage') }} o on o.id = ae.order_id
+    JOIN {{ ref('_int_product__edit_orders_stores_enablement_and_usage') }} e on e.store_id = o.store_id
     LEFT JOIN {{ source('int_orders', 'orders_edit_history') }} oe on oe.id = ae.edit_id
     LEFT JOIN {{ source('int_orders', 'orders_edit_history_shipping') }} s on s.edit_id = ae.edit_id
     LEFT JOIN {{ ref('_int_product__edit_orders_value_history') }} vh on vh.id = oe.order_value_history_id
