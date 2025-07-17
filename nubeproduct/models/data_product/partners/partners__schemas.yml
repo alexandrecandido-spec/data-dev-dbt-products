@@ -99,4 +99,6 @@ models:
         description: UTM medium of the partner associated with the store.
       - name: partner_utm_content
         description: UTM content of the partner associated with the store.
+      - name: first_seller_at
+        description: Date and time when the store first became a seller.
       

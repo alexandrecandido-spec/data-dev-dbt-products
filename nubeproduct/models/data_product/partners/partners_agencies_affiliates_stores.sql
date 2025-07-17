@@ -54,6 +54,7 @@ partner_stores AS
         END AS acquired_by,  
         SI.created_at_ts,
         SI.first_payment_ts,
+        FSD.first_seller_at,
         SI.churned_at_ts,
         SI.plan_id,
         OGP.grupo AS plan_group,
@@ -90,6 +91,8 @@ partner_stores AS
             AND PI.partner_country_code = AC.affiliate_country
     LEFT JOIN {{ ref('_int_partners__agencies_affiliates_stores_partner_utm') }} AS PU
         ON SI.partner_id = PU.partner_id
+    LEFT JOIN {{ ref('marketing_first_seller_date') }} AS FSD  
+        ON SI.store_id = FSD.store_id
 )
 SELECT 
     partner_stores.*,
