@@ -15,4 +15,4 @@ SELECT
     partnership_type
 FROM {{ ref('moltres__mwp_store_info') }}
 WHERE partner_id IS NOT NULL -- Partner related
-    AND partnership_type IN('store_development', 'affiliate'); -- Agencies and affiliates
+    AND partnership_type IN('store_development', 'affiliate') -- Agencies and affiliates

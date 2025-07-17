@@ -97,7 +97,7 @@ SELECT
     'data-dev-dbt-products' AS sys_audit_updated_by
 FROM partner_stores
 LEFT JOIN existing_data e
-    ON partner_stores.store_id = e.store_id 
+    ON partner_stores.store_id = e.store_id ;
 /*
 WHERE 
     {% if not is_incremental() %}

@@ -27,4 +27,4 @@ LEFT JOIN {{ ref('marketing_inputs_attribution__partner_exception') }} AS PE
 GROUP BY 
     AE.partner_code, 
     PE.partner_code, 
-    AE.affiliate_country; --- REVIEW
+    AE.affiliate_country --- REVIEW

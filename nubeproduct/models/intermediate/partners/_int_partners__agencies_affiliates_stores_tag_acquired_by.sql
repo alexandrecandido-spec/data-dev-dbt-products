@@ -13,4 +13,4 @@ SELECT
     MAX(CASE WHEN tag = 'channels-affiliate-attribution' THEN 1 ELSE 0 END) AS has_affiliate_tag
 FROM temp
 GROUP BY 
-    store_id;
+    store_id

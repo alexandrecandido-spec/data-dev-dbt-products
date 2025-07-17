@@ -6,4 +6,4 @@ SELECT
 	MAX(CASE WHEN tag_type = 'utm_content' THEN tag_value END) AS partner_utm_content
 FROM ecosystem.partners_tags_campaign
 GROUP BY 
-    partner_id;
+    partner_id
