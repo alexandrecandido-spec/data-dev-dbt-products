@@ -4,10 +4,14 @@
         incremental_strategy='merge',
         unique_key=['store_id'],
         on_schema_change='fail',
-        tags=['daily-7am']
+        tags=['daily-6am']
     )
 }}
 
+WITH existing_data AS ({{ get_existing_data(this, ['store_id', 'created_at', 'sys_audit_created_on', 'sys_audit_created_by']) }})
+
+,merchant_info AS
+(
 SELECT
  a.store_id
 ,a.created_at
@@ -37,3 +41,29 @@ LEFT JOIN {{ ref('dim_segment_type') }}     h ON h.segment_id       = a.max_segm
 LEFT JOIN {{ ref('dim_vertical_type') }}    i ON i.vertical_id      = a.vertical_id
 LEFT JOIN {{ ref('dim_business_size') }}    j ON j.business_size_id = a.business_size_id
 LEFT JOIN {{ ref('dim_group_plan') }}       k ON k.group_id         = a.group_id
+)
+
+SELECT
+ a.store_id
+,a.created_at
+,a.country_code
+,a.country_name
+,a.base_country_code
+,a.base_country_name
+,a.base_region_name
+,a.base_state_name
+,a.base_city_name
+,a.current_segment_name
+,a.current_segment_date_id
+,a.max_segment_name
+,a.max_segment_date_id
+,a.vertical_name
+,a.business_size_name
+,a.group_name
+,a.domain
+,COALESCE(b.sys_audit_created_on, current_timestamp) AS sys_audit_created_on
+,COALESCE(b.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by
+,current_timestamp AS sys_audit_updated_on
+,'data-dev-dbt-products' AS sys_audit_updated_by
+FROM merchant_info a
+LEFT JOIN existing_data b ON a.store_id = b.store_id

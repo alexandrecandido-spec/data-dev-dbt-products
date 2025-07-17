@@ -368,8 +368,12 @@ models:
         description: "Threshold value used to determine whether a store qualifies as a quality lead based on its predicted conversion probability."
       - name: mkt_source
         description: "Team responsible for the acquisition efforts and results attribution"
+        tests:
+          - not_null
       - name: mkt_subteam
         description: "Subteam responsible for the acquisition efforts and results attribution"
+        tests:
+          - not_null
       - name: trials_last_click
         description: "Set to 1 when the acquisition of the trial store is attributed to the last recorded click."
         tests:
@@ -801,7 +805,272 @@ models:
         description: "System identifier of the process that created this record"
       - name: sys_audit_updated_by
         description: "System identifier of the process that last updated this record"
+  
+  - name: marketing_ga4_sessions_classified
+    description: Session level view enriched with device information, GA4 source
+      labels and a “classified_country” logic that maps each session
+      to BR / AR / MX / CL / CO / Other.  
+    config:
+      meta:
+        tech_steward: "sofia.torres@tiendanube.com"
+        domain: "marketing"
+        business_owner: "Giselle Galli" 
+    columns:
+      - name: year_month_day_code
+        description: Date in YYYYMMDD integer format used for partitioning.
+        tests:
+          - not_null
+      - name: unique_session
+        description: Unique GA4 session identifier.
+        tests:
+          - not_null
+      - name: date
+        description: Session start date (UTC, DATE type).
+      - name: source_ga4_classification
+        description: GA4 built-in traffic source label (e.g. *inst-br*).
+      - name: original_user_country
+        description: Country reported by GA4 for the user's first event of the session.
+      - name: classified_country
+        description: Country re-classified by business rules (see model SQL).
+      - name: env
+        description: Product environment/page group (e.g. *Insti*).
+      - name: landing_page
+        description: Full URL of the first page-view in the session.
+      - name: landing_page_domain
+        description: Extracted domain from *landing_page*.
+      - name: landing_page_path
+        description: URL path (starts with “/”) from *landing_page*.
+      - name: landing_page_type
+        description: Heuristic label (*login* | *other*) for the first page.
+      - name: last_source
+        description: Traffic source of the last event in the session.
+      - name: last_medium
+        description: Traffic medium of the last event in the session.
+      - name: last_campaign
+        description: Campaign name of the last event in the session.
+      - name: utm_ad_id
+        description: utm_id captured on the landing_page.
+      - name: utm_content
+        description: utm_content captured on the landing_page.
+      - name: utm_term
+        description: utm_term captured on the landing_page.
+      - name: first_event_device
+        description: Device category of the sessions first event.
+      - name: last_event_device
+        description: Device category of the sessions last event.
+      - name: only_login_session
+        description: 1 if the session contains only login-related behavior; 0 otherwise.
+      - name: login_in_session
+        description: 1 if a login event occurred in the session; 0 otherwise.
+      - name: user_type
+        description: New or Returning based on first visit table.
+      - name: engage
+        description: GA4 engagement flag (1 = engaged, 0 = bounced).
+      - name: trial
+        description: 1 if a trial event occurred in the session; 0 otherwise.
+      - name: payment
+        description: 1 if a payment event occurred in the session; 0 otherwise.
+      - name: session_duration_minutes
+        description: Total session duration in minutes.
+      - name: pageviews_per_session
+        description: Number of pageviews during the session.
+      - name: sys_audit_created_on
+        description: Timestamp when the row was first created by dbt.
+      - name: sys_audit_created_by
+        description: dbt job or service account that created the row.
+      - name: sys_audit_updated_on
+        description: Timestamp when the row was last updated by dbt.
+      - name: sys_audit_updated_by
+        description: dbt job or service account that last updated the row.
+
+  - name: marketing_ga4_sessions_aggregated
+    description: Daily aggregation of *marketing_ga4_sessions_classified* with
+      engagement, trial and payment metrics.  
+    config:
+      meta:
+        tech_steward: "sofia.torres@tiendanube.com"
+        domain: "marketing"
+        business_owner: "Giselle Galli"
+    columns:
+      - name: date
+        description: Session date (UTC).
+        tests:
+          - not_null
+      - name: year_month_day_code
+        description: YYYYMMDD integer used for partitioning.
+        tests:
+          - not_null
+      - name: source_ga4_classification
+        description: GA4 traffic source label (e.g. inst-br, blog-ar).
+      - name: original_user_country
+        description: GA4-detected country of user at session start.
+      - name: classified_country
+        description: Business-mapped country label (e.g. BR, AR, Other).
+      - name: env
+        description: Page group where session began (e.g. Insti, Storefront).
+      - name: landing_page
+        description: Full URL of the landing page.
+      - name: landing_page_domain
+        description: Domain portion of the landing page.
+      - name: landing_page_path
+        description: Path portion of the landing page (starts with `/`).
+      - name: last_source
+        description: Source of last GA4 event in session.
+      - name: last_medium
+        description: Medium of last GA4 event in session.
+      - name: last_campaign
+        description: Campaign name of last GA4 event in session.
+      - name: utm_ad_id
+        description: utm_id from landing page URL (nullable).
+      - name: utm_content
+        description: utm_content from landing page URL (nullable).
+      - name: utm_term
+        description: utm_term from landing page URL (nullable).
+      - name: first_event_device
+        description: Device used in the first event.
+      - name: last_event_device
+        description: Device used in the last event.
+      - name: only_login_session
+        description: Whether session is classified as "only login" (1 or 0).
+      - name: login_in_session
+        description: Whether a login event occurred (1 or 0).
+      - name: landing_page_type
+        description: Heuristic label (login | other).
+      - name: user_type
+        description: New or Returning.
+      - name: session_status
+        description: Engaged or Bounced based on GA4 logic.
+      - name: distinct_user_count
+        description: Number of distinct users (user_pseudo_id).
+      - name: distinct_session_count
+        description: Number of distinct sessions.
+      - name: total_trials
+        description: Number of trial events in group.
+      - name: total_payments
+        description: Number of payment events in group.
+      - name: total_engagements
+        description: Number of engaged sessions in group.
+      - name: avg_session_duration
+        description: Mean session duration in minutes.
+      - name: median_session_duration
+        description: Median session duration (approximate).
+      - name: avg_pageviews_per_session
+        description: Average pageviews per session.
+      - name: median_pageviews_per_session
+        description: Median pageviews per session (approximate).
+      - name: row_hash
+        description: Unique MD5 hash of the grouping dimensions.
+        tests:
+          - not_null
+          - unique
+      - name: sys_audit_created_on
+        description: Timestamp when the row was created.
+      - name: sys_audit_created_by
+        description: dbt job or service account that created the row.
+      - name: sys_audit_updated_on
+        description: Timestamp when the row was last updated.
+      - name: sys_audit_updated_by
+        description: dbt job or service account that last updated the row.
+
+  - name: marketing_ga4_sessions_daily_attribution
+    description: Extends the aggregated table with marketing-team mappings
+      (mkt_source, mkt_subteam), URL ownership and cleansed domain/path.  
+    config:
+      meta:
+        tech_steward: "sofia.torres@tiendanube.com"
+        domain: "marketing"
+        business_owner: "Giselle Galli"
+    columns:
+      - name: date
+        description: Session date.
+      - name: year_month_day_code
+        description: YYYYMMDD integer partition.
+      - name: source_ga4_classification
+        description: GA4 source label at session level.
+      - name: original_user_country
+        description: Country reported by GA4.
+      - name: classified_country
+        description: Country after business re-classification.
+      - name: env
+        description: Page-group / environment bucket.
+      - name: landing_page
+        description: First page-view URL of the session.
+      - name: landing_page_domain
+        description: Domain part extracted from *landing_page*.
+      - name: landing_page_path
+        description: Path part extracted from *landing_page*.
+      - name: last_source
+        description: Final traffic source of the session.
+      - name: last_medium
+        description: Final traffic medium.
+      - name: last_campaign
+        description: Final campaign name.
+      - name: utm_ad_id
+        description: utm_id of the landing_page (nullable).
+      - name: utm_content
+        description: utm_content of the landing_page (nullable).
+      - name: utm_term
+        description: utm_term of the landing_page (nullable).
+      - name: first_event_device
+        description: Device category of the first event.
+      - name: last_event_device
+        description: Device category of the last event.
+      - name: only_login_session
+        description: Flag indicating “only login” sessions.
+      - name: login_in_session
+        description: Flag indicating at least one login event.
+      - name: landing_page_type
+        description: login | other for first page.
+      - name: user_type
+        description: New or Returning.
+      - name: session_status
+        description: Engaged or Bounced.
+      - name: distinct_user_count
+        description: Distinct users (user_pseudo_id) aggregated.
+      - name: distinct_session_count
+        description: Distinct GA4 sessions aggregated.
+      - name: total_trials
+        description: Sum of trial events.
+      - name: total_payments
+        description: Sum of payment events.
+      - name: total_engagements
+        description: Number of engaged sessions.
+      - name: avg_session_duration
+        description: Average session duration (minutes).
+      - name: median_session_duration
+        description: Median session duration (approximate).
+      - name: avg_pageviews_per_session
+        description: Average page-views per session.
+      - name: median_pageviews_per_session
+        description: Median page-views per session (approximate).
+      - name: domain_clean
+        description: Landing-page domain stripped of protocol and “www”.
+      - name: path_clean
+        description: Landing-page path string.
+      - name: url_owner
+        description: Team that owns the landing URL (lookup table).
+      - name: url_content_type
+        description: Content-type / sub-team derived from the URL.
+      - name: mkt_source
+        description: High-level marketing source bucket after rule-set.
+      - name: mkt_subteam
+        description: Finer marketing sub-team or campaign bucket.
+      - name: row_hash
+        description: MD5 hash of all dimension columns (incremental merge key).
+        tests:
+          - not_null
+          - unique
+      - name: sys_audit_created_on
+        description: Timestamp when the row was created by dbt.
+      - name: sys_audit_created_by
+        description: dbt job or service account that created the row.
+      - name: sys_audit_updated_on
+        description: Timestamp of the last update.
+      - name: sys_audit_updated_by
+        description: dbt job or service account that last updated the row.
     
+
+
   - name: first_seller_date
     description: "This data product identifies the first date on which a store qualified as a “seller”, based on sales performance, and aligns it with the store’s presence in the marketing attribution dataset. The main goal is to determine when each store first achieved at least 7 sales in a rolling 90-day window, according to data from company_metrics_paid_orders, and cross-reference it with marketing exposure from marketing_attribution_model."
     config:
