@@ -15,8 +15,6 @@ select
     f.edit_first_use,
     f.edit_last_use,
     f.edit_count,
-    f.sys_audit_updated_on,
-    e.sys_audit_updated_on,
     msi.sys_audit_updated_on
 FROM {{ ref('moltres__mwp_store_info') }} msi
 LEFT JOIN {{ ref('operations_grouping_plans') }} gp on gp.plan = msi.plan
