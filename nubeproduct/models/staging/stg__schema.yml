@@ -399,3 +399,89 @@ models:
         description: "Timestamp of the current model run when the record was processed."
       - name: sys_audit_updated_by
         description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
+        
+  - name: billing__receipt
+    description: "Staging model for billing receipts. Contains only the necessary fields to link to the billing cycle."
+    config:
+      meta:
+        tech_steward: "gustavo.oliveira@nuvemshop.com.br"
+        domain: "finance"
+        business_owner: "Mônica Orlando"
+    columns:
+      - name: id
+        description: "Receipt identifier"
+        tests: [not_null]
+      - name: number
+        description: "Receipt code"
+
+  - name: billing__payment_transaction
+    description: "Payment transactions, with status filtering and date conversion."
+    config:
+      meta:
+        tech_steward: "gustavo.oliveira@nuvemshop.com.br"
+        domain: "finance"
+        business_owner: "Mônica Orlando"
+    columns:
+      - name: payOrderId
+        description: "Payment order ID"
+        tests: [not_null]
+      - name: paid_at
+        description: "Date when the payment was made"
+      - name: status
+        description: "Transaction status (expected: 'SUCCESS')"
+
+  - name: moltres__mwp_invoice_info
+    description: "Tax information for stores for invoice issuance."
+    config:
+      meta:
+        tech_steward: "gustavo.oliveira@nuvemshop.com.br"
+        domain: "finance"
+        business_owner: "Mônica Orlando"
+    columns:
+      - name: store_id
+        description: "Store identifier"
+        tests: [not_null]
+      - name: id_type
+        description: "Identifier type (e.g., CPF, CNPJ)"
+      - name: id_number
+        description: "CPF/CNPJ number"
+      - name: business_name
+        description: "Company name or legal name"
+      - name: type
+        description: "Type of tax information"
+
+  - name: nuvem_envio__billing_cycle
+    description: "Raw billing cycle information per store."
+    config:
+      meta:
+        tech_steward: "gustavo.oliveira@nuvemshop.com.br"
+        domain: "finance"
+        business_owner: "Mônica Orlando"
+    columns:
+      - name: billing_cycle_id
+        description: "Billing cycle ID"
+        tests: [not_null, unique]
+      - name: external_store_id
+        description: "External store ID"
+      - name: payment_value
+        description: "Total billed amount for the cycle"
+      - name: currency
+        description: "Billing currency"
+      - name: year_month_code
+        description: "Reference year and month for the billing"
+
+  - name: nuvem_envio__cycle_by_carrier
+    description: "Costs attributed per carrier for each billing cycle."
+    config:
+      meta:
+        tech_steward: "gustavo.oliveira@nuvemshop.com.br"
+        domain: "finance"
+        business_owner: "Mônica Orlando"
+    columns:
+      - name: billing_cycle_id
+        description: "Billing cycle ID"
+        tests: [not_null]
+      - name: carrier_code
+        description: "Carrier code (e.g., correios)"
+      - name: cost_charge_value
+        description: "Cost amount attributed to the carrier"
