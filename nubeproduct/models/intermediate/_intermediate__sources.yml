@@ -1,5 +1,6 @@
 version: 2
 
+
 sources:
   - name: int_moltres
     database: null
@@ -127,6 +128,13 @@ sources:
       - name: mwp_partners
         description: "Contains information about the partners of the ecosystem."
 
+  - name: int_ga4    
+    database: null
+    schema: ga4
+    description: "GA4 refined tables available in Danubio"
+    tables:
+      - name: first_visit
+        description: "Table from GA4 containing the first visit date for each user_pseudo_id."
   - name: int_orders
     database: null
     schema: orders
