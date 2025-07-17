@@ -87,3 +87,16 @@ models:
         description: Tier of the affiliate associated with the store.
       - name: affiliate_main_platform
         description: Main platform of the affiliate associated with the store.
+      - name: partner_email
+        description: Email of the partner associated with the store.
+      - name: partner_phone_number
+        description: Phone number of the partner associated with the store.
+      - name: partner_utm_campaign
+        description: UTM campaign of the partner associated with the store.
+      - name: partner_utm_source
+        description: UTM source of the partner associated with the store.
+      - name: partner_utm_medium
+        description: UTM medium of the partner associated with the store.
+      - name: partner_utm_content
+        description: UTM content of the partner associated with the store.
+      

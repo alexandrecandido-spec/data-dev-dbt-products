@@ -64,6 +64,8 @@ partner_stores AS
         PI.partner_name,
         PI.partner_country_code,
         PI.partner_created_at_ts,
+        PI.partner_email,
+        PI.partner_phone_number,
         PU.partner_utm_campaign,
         PU.partner_utm_source,
         PU.partner_utm_medium,
@@ -97,7 +99,7 @@ SELECT
     'data-dev-dbt-products' AS sys_audit_updated_by
 FROM partner_stores
 LEFT JOIN existing_data e
-    ON partner_stores.store_id = e.store_id ;
+    ON partner_stores.store_id = e.store_id
 /*
 WHERE 
     {% if not is_incremental() %}
