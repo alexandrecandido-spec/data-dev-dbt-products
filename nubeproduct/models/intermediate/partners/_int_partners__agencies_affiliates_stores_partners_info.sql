@@ -13,4 +13,4 @@ LEFT JOIN
             name_en AS country_name
         FROM {{ source('int_moltres', 'mwp_countries') }} 
     ) AS MC
-    ON MP.country = MC.country_id
+    ON MP.country = MC.country_id;

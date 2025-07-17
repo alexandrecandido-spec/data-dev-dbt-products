@@ -127,6 +127,8 @@ sources:
     tables:
       - name: mwp_partners
         description: "Contains information about the partners of the ecosystem."
+      - name: partners_tags_campaign
+        description: "Contains information about the tags and campaigns of the partners."
 
   - name: int_ga4    
     database: null

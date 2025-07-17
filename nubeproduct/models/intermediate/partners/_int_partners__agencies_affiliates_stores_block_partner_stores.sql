@@ -8,4 +8,4 @@ WHERE tag IN
                 'fraud-partner',
                 'partner_bloqued',
                 'partner-blocked'
-            )
+            );

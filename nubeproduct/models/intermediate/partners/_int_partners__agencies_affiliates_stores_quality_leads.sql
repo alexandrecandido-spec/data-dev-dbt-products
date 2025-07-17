@@ -50,4 +50,4 @@ SELECT
     prod_cutoff,
     device    
 FROM ranked_store_info
-WHERE rownumber = 1
+WHERE rownumber = 1;
