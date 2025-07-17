@@ -446,6 +446,7 @@ models:
         description: "Last known traffic medium for the session."
       - name: last_campaign
         description: "Last recorded campaign parameter."
+  
   - name: orders__mwp_orders_source
     description: Staging da origem de tráfego dos pedidos, com normalização dos parâmetros UTM e referrer.
     config:
@@ -521,9 +522,7 @@ models:
         description: "Timestamp of the current model run when the record was processed."
       - name: sys_audit_updated_by
         description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
-<<<<<<< HEAD
-=======
-        
+
   - name: billing__receipt
     description: "Staging model for billing receipts. Contains only the necessary fields to link to the billing cycle."
     config:
@@ -609,4 +608,3 @@ models:
         description: "Carrier code (e.g., correios)"
       - name: cost_charge_value
         description: "Cost amount attributed to the carrier"
->>>>>>> origin/main
