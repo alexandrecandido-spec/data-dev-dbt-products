@@ -29,10 +29,8 @@ select
     'data-dev-dbt-products' AS sys_audit_created_by,
     current_timestamp AS sys_audit_updated_on,
     'data-dev-dbt-products' AS sys_audit_updated_by
-FROM {{ ref('_int_product__edit_orders_stores_enablement_and_usage') }}
+FROM {{ ref('_int_product__edit_orders_stores_enablement_and_usage') }} e
         {% if is_incremental() %}
     WHERE 
-        msi.sys_audit_updated_on >= (select coalesce(max(sys_audit_updated_on),'1900-01-01') from {{ this }} a )
-        or e.sys_audit_updated_on >= (select coalesce(max(sys_audit_updated_on),'1900-01-01') from {{ this }} a )
-        or f.sys_audit_updated_on >= (select coalesce(max(sys_audit_updated_on),'1900-01-01') from {{ this }} a )
+        e.sys_audit_updated_on >= (select coalesce(max(sys_audit_updated_on),'1900-01-01') from {{ this }} a )
     {% endif %}

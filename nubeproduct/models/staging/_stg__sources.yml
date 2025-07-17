@@ -14,6 +14,7 @@ sources:
       - name: mwp_plans
       - name: regions
       - name: cidades
+      - name: mwp_invoice_info
 
   - name: stg_orders
     database: null
@@ -86,4 +87,21 @@ sources:
       - name: marketing_cutoffs_table
         description: "Contains information about the cutoffs used to define QLs."
 
+  - name: stg_billing
+    database: null
+    schema: billing
+    tables:
+      - name: receipt
+        description: "Receipts generated for billing purposes, containing receipt ID and number."
+      - name: payment_transaction
+        description: "Payment transactions processed through billing. Includes status and payment timestamps."
+
+  - name: stg_nuvem_envio_billing
+    database: null
+    schema: nuvem_envio_billing
+    tables:
+      - name: billing_cycle
+        description: "Billing cycle information per store. Includes charges, adjustments, invoice metadata, and cycle status."
+      - name: cycle_by_carrier
+        description: "Carrier-specific delivery cost breakdown for each billing cycle."
   

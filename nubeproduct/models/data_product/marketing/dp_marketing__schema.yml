@@ -368,8 +368,12 @@ models:
         description: "Threshold value used to determine whether a store qualifies as a quality lead based on its predicted conversion probability."
       - name: mkt_source
         description: "Team responsible for the acquisition efforts and results attribution"
+        tests:
+          - not_null
       - name: mkt_subteam
         description: "Subteam responsible for the acquisition efforts and results attribution"
+        tests:
+          - not_null
       - name: trials_last_click
         description: "Set to 1 when the acquisition of the trial store is attributed to the last recorded click."
         tests:
@@ -1065,6 +1069,8 @@ models:
       - name: sys_audit_updated_by
         description: dbt job or service account that last updated the row.
     
+
+
   - name: first_seller_date
     description: "This data product identifies the first date on which a store qualified as a “seller”, based on sales performance, and aligns it with the store’s presence in the marketing attribution dataset. The main goal is to determine when each store first achieved at least 7 sales in a rolling 90-day window, according to data from company_metrics_paid_orders, and cross-reference it with marketing exposure from marketing_attribution_model."
     config:

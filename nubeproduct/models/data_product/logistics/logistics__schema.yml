@@ -1,0 +1,67 @@
+version: 2
+
+models:
+  - name: logistics_billing__nuvem_envio
+    description: >
+      Unified billing dataset with enriched information per store and billing cycle.
+      This data product includes store metadata, payment history, invoice details,
+      and shipping costs (by carrier), ready for consumption by business areas.
+      Only one record per store and billing_cycle_id is returned (rnk = 1).
+    config:
+      meta:
+        tech_steward: "gustavo.oliveira@nuvemshop.com.br"
+        domain: "logistics"
+        business_owner: "Mônica Orlando"
+    columns:
+      - name: store_id
+        description: "Store identifier"
+        tests: [not_null]
+      - name: billing_cycle_id
+        description: "Identifier of the billing cycle"
+        tests: [not_null]
+      - name: domain
+        description: "Store's name"
+      - name: cycle_status
+        description: "Current status of the billing cycle"
+      - name: payment_expiration_date
+        description: "Due date for the billing cycle payment"
+      - name: created_at
+        description: "Date the billing cycle was created"
+      - name: payment_history_paid_at
+        description: "Date when the billing was paid"
+      - name: id_type
+        description: "Tax identifier type (e.g. CPF or CNPJ)"
+      - name: id_number
+        description: "CPF or CNPJ"
+      - name: business_name
+        description: "Legal business name of the merchant"
+      - name: invoice_emission_date
+        description: "Date the invoice was issued"
+      - name: invoice_number
+        description: "Invoice number"
+      - name: billing_cycle_end_date
+        description: "End date of the billing cycle period"
+      - name: number
+        description: "Receipt number"
+      - name: original_payment_value
+        description: "Original value before any adjustments"
+      - name: payment_value
+        description: "Final value due after adjustments"
+      - name: adjustment_value
+        description: "Value adjusted manually or via penalties/discounts"
+      - name: invoice_value
+        description: "Value declared in the invoice"
+      - name: receipt_value
+        description: "Value listed in the receipt"
+      - name: penalty_value
+        description: "Penalty applied to the billing cycle"
+      - name: payment_method_fee_value
+        description: "Fee applied due to selected payment method"
+      - name: correios_cost_value
+        description: "Shipping cost using Correios"
+      - name: jadlog_cost_value
+        description: "Shipping cost using Jadlog"
+      - name: loggi_cost_value
+        description: "Shipping cost using Loggi"
+      - name: mandae_cost_value
+        description: "Shipping cost using Mandae"
