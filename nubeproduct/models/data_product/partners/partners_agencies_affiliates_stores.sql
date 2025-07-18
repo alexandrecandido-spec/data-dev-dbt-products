@@ -48,7 +48,8 @@ partner_stores AS
         CASE 
             WHEN SI.partnership_type = 'affiliate'
             THEN 'Affiliate'
-            WHEN TAB.has_partner_tag = 1 AND TAB.has_affiliate_tag = 0
+            WHEN TAB.has_partner_tag = 1 
+                AND TAB.has_affiliate_tag = 0
             THEN 'Partner'
         ELSE 'Nuvemshop'
         END AS acquired_by,  
