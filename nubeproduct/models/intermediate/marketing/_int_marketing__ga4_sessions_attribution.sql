@@ -14,14 +14,14 @@ url_enriched AS (
         u.team    AS url_team,
         u.subteam AS url_subteam
     FROM base b
-    LEFT JOIN LATERAL (      
-        SELECT team , subteam
-        FROM {{ ref('marketing_inputs_attribution__url') }} u
-        WHERE  u.landing_page_domain = b.domain_clean
-          AND STARTSWITH(b.path_clean, u.landing_page_path)
-        ORDER BY LENGTH(u.landing_page_path) DESC
-        LIMIT 1
-    ) u ON TRUE
+LEFT JOIN LATERAL (      
+    SELECT team , subteam
+    FROM {{ ref('marketing_inputs_attribution__url') }} u
+    WHERE  u.landing_page_domain = b.domain_clean
+      AND POSITION(u.landing_page_path IN b.path_clean) > 0
+    ORDER BY LENGTH(u.landing_page_path) DESC
+    LIMIT 1
+) u ON TRUE
 ),
 
 /* ---------------------------- 3. Mejor coincidencia insti ----------------------------- */
@@ -31,14 +31,14 @@ insti_enriched AS (
         i.team    AS insti_team,
         i.subteam AS insti_subteam
     FROM url_enriched u
-    LEFT JOIN LATERAL (
-        SELECT team , subteam
-        FROM {{ ref('marketing_inputs_attribution__insti') }} i
-        WHERE  i.landing_page_domain = u.domain_clean
-          AND STARTSWITH(u.path_clean, i.landing_page_path)
-        ORDER BY LENGTH(i.landing_page_path) DESC
-        LIMIT 1
-    ) i ON TRUE
+LEFT JOIN LATERAL (
+    SELECT team , subteam
+    FROM {{ ref('marketing_inputs_attribution__insti') }} i
+    WHERE  i.landing_page_domain = u.domain_clean
+      AND POSITION(i.landing_page_path IN u.path_clean) > 0
+    ORDER BY LENGTH(i.landing_page_path) DESC
+    LIMIT 1
+) i ON TRUE
 ),
 
 /* ------------------------------------ 4. UTM & sub-campaign ----------------------------------- */
@@ -92,7 +92,8 @@ SELECT
 
         WHEN s.last_source IN ('yahoo','google','bing')
              AND s.last_medium = 'organic'
-          THEN COALESCE(s.url_team , s.insti_team)
+               AND (s.url_team IS NOT NULL OR s.insti_team IS NOT NULL)
+    THEN COALESCE(s.url_team , s.insti_team)
 
         WHEN s.source_mkt = 'Communications' THEN 'Communications'
 
