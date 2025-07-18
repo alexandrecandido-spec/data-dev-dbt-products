@@ -104,15 +104,3 @@ SELECT
 FROM partner_stores
 LEFT JOIN existing_data e
     ON partner_stores.store_id = e.store_id
-/*
-WHERE 
-    {% if not is_incremental() %}
-      partner_stores.created_at_ts >= DATE '2000-01-01'
-    {% endif %}
-    {% if is_incremental() %}
-      partner_stores.created_at_ts > (
-        SELECT COALESCE(MAX(created_at_ts), TIMESTAMP '1900-01-01')
-        FROM {{ this }}
-      )
-    {% endif %}
-*/
