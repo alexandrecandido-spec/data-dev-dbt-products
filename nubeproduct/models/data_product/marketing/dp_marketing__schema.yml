@@ -824,6 +824,7 @@ models:
         description: Unique GA4 session identifier.
         tests:
           - not_null
+          - unique
       - name: date
         description: Session start date (UTC, DATE type).
       - name: source_ga4_classification
