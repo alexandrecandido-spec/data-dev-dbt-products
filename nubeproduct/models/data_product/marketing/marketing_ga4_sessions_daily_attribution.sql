@@ -9,21 +9,22 @@
 ) }}
 
 WITH existing_data AS (
-  {{ get_existing_data(this, ['row_hash', 'sys_audit_created_on', 'sys_audit_created_by']) }}
+  {{ get_existing_data(this, ['row_hash', 'year_month_day_code', 'sys_audit_created_on', 'sys_audit_created_by']) }}
+),
+
+max_existing AS (
+  SELECT
+    COALESCE(MAX(year_month_day_code), 19000101)         AS max_day_code,
+    COALESCE(MAX(sys_audit_created_on), TIMESTAMP '1900-01-01') AS max_created_on
+  FROM existing_data
 ),
 
 attribution_int AS (
   SELECT *
   FROM {{ ref('_int_marketing__ga4_sessions_attribution') }}
   {% if is_incremental() %}
-    WHERE year_month_day_code >= (
-            SELECT COALESCE(MAX(year_month_day_code), 19000101)
-            FROM existing_data
-          )
-      AND sys_audit_updated_on >= (
-            SELECT COALESCE(MAX(sys_audit_updated_on), TIMESTAMP '1900-01-01')
-            FROM existing_data
-          )
+    WHERE year_month_day_code >= (SELECT max_day_code FROM max_existing)
+      AND sys_audit_created_on >= (SELECT max_created_on FROM max_existing)
   {% else %}
     WHERE date >= DATE '2024-01-01'
   {% endif %}
@@ -74,3 +75,4 @@ SELECT
 FROM attribution_int sd
 LEFT JOIN existing_data e
   ON sd.row_hash = e.row_hash
+
