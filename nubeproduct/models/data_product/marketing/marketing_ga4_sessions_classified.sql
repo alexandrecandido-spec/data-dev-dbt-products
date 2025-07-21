@@ -44,7 +44,7 @@ src AS (
     {% if is_incremental() %}
       WHERE CAST(date_format(date,'yyyyMMdd') AS INT) >= (
         SELECT COALESCE(MAX(year_month_day_code), 19000101)
-        FROM existing_data
+        FROM {{ this }}
       )
     {% else %}
       WHERE date >= DATE '2024-01-01'

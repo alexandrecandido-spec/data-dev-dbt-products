@@ -18,11 +18,11 @@ attribution_int AS (
   {% if is_incremental() %}
     WHERE year_month_day_code >= (
             SELECT COALESCE(MAX(year_month_day_code), 19000101)
-            FROM existing_data
+            FROM {{ this }}
           )
       AND sys_audit_updated_on >= (
             SELECT COALESCE(MAX(sys_audit_updated_on), TIMESTAMP '1900-01-01')
-            FROM existing_data
+            FROM {{ this }}
           )
   {% else %}
     WHERE date >= DATE '2024-01-01'
@@ -74,3 +74,4 @@ SELECT
 FROM attribution_int sd
 LEFT JOIN existing_data e
   ON sd.row_hash = e.row_hash
+
