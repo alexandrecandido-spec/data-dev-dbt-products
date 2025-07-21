@@ -77,7 +77,9 @@ SELECT
     dfg.app_install_date,
     dfg.app_uninstall_date,
     current_timestamp as sys_admin_created_at,
+    'data-dev-dbt-products' as sys_admin_creatd_by,
     current_timestamp as sys_audit_updated_at
+    'data-dev-dbt-products' as sys_admin_updated_by,
 FROM deduped_final_groups dfg
         {% if is_incremental() %}
     WHERE 
