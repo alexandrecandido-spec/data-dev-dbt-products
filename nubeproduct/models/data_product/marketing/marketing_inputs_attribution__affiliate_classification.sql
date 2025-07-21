@@ -1,7 +1,7 @@
 {{ config(
   unique_key=['id'],
   on_schema_change='fail',
-  tags=['daily-8am']
+  tags=['daily-9am']
 ) }}
 
 SELECT				

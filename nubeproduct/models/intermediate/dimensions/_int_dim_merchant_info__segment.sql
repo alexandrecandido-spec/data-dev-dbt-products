@@ -5,6 +5,7 @@ SELECT
  a.store_id
 ,a.datemonth AS dt
 ,COALESCE(b.segment_id,-1) AS segment_id
+,a.sys_audit_updated_on
 FROM {{ ref('company_metrics_gmv_and_segments') }} a
 LEFT JOIN {{ ref('dim_segment_type') }} b on a.segment = b.segment_name
 )
@@ -14,6 +15,7 @@ SELECT
  store_id
 ,segment_id as current_segment_id
 ,dt AS current_segment_date_id
+,sys_audit_updated_on
 ,ROW_NUMBER() OVER (PARTITION BY store_id ORDER BY dt DESC) AS rnk
 FROM segment_base
 ),
@@ -23,6 +25,7 @@ SELECT
  store_id
 ,segment_id AS max_segment_id
 ,dt AS max_segment_date_id
+,sys_audit_updated_on
 ,ROW_NUMBER() OVER (PARTITION BY store_id ORDER BY segment_id DESC, dt DESC) AS rnk
 FROM segment_base
 )
@@ -32,6 +35,7 @@ SELECT
 ,l.current_segment_date_id
 ,m.max_segment_id
 ,m.max_segment_date_id
+,l.sys_audit_updated_on
 FROM  latest_segment l
 INNER JOIN  max_segment m ON l.store_id = m.store_id
 WHERE l.rnk = 1 AND m.rnk = 1
