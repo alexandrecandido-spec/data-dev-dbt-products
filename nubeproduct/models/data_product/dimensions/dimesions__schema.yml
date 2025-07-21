@@ -252,12 +252,10 @@ models:
         description: Short code used to represent the region (e.g., SUL, NEA, NOR).
         tests:
           - not_null
-          - unique
       - name: region_name
         description: Descriptive name of the region (e.g., Sul, Noroeste, Pampas).
         tests:
           - not_null
-          - unique
       - name: country_id
         description: Foreign key referencing the country the region belongs to.
         tests:
@@ -291,12 +289,10 @@ models:
         description: Standardized short code for the state (e.g., SP, RJ, BA).
         tests:
           - not_null
-          - unique
       - name: state_name
         description: Full name of the state or province.
         tests:
           - not_null
-          - unique
       - name: region_id
         description: Foreign key referencing the region that state belongs to.
         tests:

@@ -9,13 +9,13 @@
 
 {{ generate_surrogate_dimension
 (
-    source_relation=source('stg_moltres','regions'),
-    source_column='name',
+    source_relation=source("dp_data_manual", "dimensions__region"),
+    source_column='region_name',
     id_column='region_id',
     name_column='region_name',
     extra_columns=['region_code','country_id'],
     array_columns=[],
-    column_aliases={'region_id': 'id','region_code': 'code','region_name': 'name'},
+    column_aliases={},
     source_filter="",
     fixed_values=[(-1, 'Not Informed'), (-2, 'Not Applicable')],
     passthrough_ids=true,
