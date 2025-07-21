@@ -1,9 +1,6 @@
 {{
     config(
-        materialized='incremental',
-        incremental_strategy='merge',
-        unique_key=['store_id'],
-        on_schema_change='fail',
+        materialized='table',
         tags=['daily-6am']
     )
 }}
