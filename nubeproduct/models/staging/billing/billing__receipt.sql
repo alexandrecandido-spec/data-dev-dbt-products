@@ -3,7 +3,7 @@
         materialized='table',
         unique_key= 'id',
         on_schema_change='fail',
-        tags=["billing","daily-8am"]
+        tags=["logistics","daily-8am"]
     )
 }}
 
