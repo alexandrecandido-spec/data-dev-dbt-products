@@ -26,5 +26,7 @@ SELECT
     external_pay_order_id,
     external_receipt_id,
     currency,
-    year_month_code
+    year_month_code,
+    current_timestamp AS sys_audit_updated_on,
+    'data-dev-dbt-products' AS sys_audit_updated_by
 FROM {{ source('stg_nuvem_envio_billing', 'billing_cycle') }}
