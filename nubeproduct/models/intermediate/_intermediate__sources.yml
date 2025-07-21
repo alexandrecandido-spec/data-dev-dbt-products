@@ -56,6 +56,20 @@ sources:
         description: "List of marketing github issues/inputs created by the marketing team"
       - name: midmarket_hubspot_deals
 
+  - name: int_midmarket
+    description: "Mid Market tables"
+    schema: data_midmarket
+    tables:
+      - name: midmarket_success_stores
+        description: "List of current active stores in the Mid Market portfolio"
+
+  - name: int_product
+    description: "Product Data Products"
+    schema: data_product
+    tables:
+      - name: product_issues_and_problems_summary
+        description: "Main table listing every Issue and Problem and their associated stores"
+
   - name: int_nuvem_credito
     description: "Source containing tables related to Nuvem credito"
     database: null
