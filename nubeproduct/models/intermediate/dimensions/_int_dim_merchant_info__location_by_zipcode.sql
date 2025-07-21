@@ -6,6 +6,7 @@ SELECT
 ,address.country.code    AS country_code
 ,address.province.code   AS state_code
 ,address.zipcode         AS zipcode
+,sys_audit_updated_on
 FROM  {{ source('int_shipping','locations') }}
 WHERE address IS NOT NULL 
 AND   chosenasdefaultat IS NOT NULL 
@@ -28,6 +29,7 @@ SELECT
 ,s.country_code
 ,COALESCE(s.state_code,'Not Informed') AS state_code
 ,COALESCE(z.city_id,-1) AS city_id_nk
+,s.sys_audit_updated_on
 FROM  sp s
 LEFT JOIN zip z ON s.zipcode = z.zipcode AND s.country_code= z.country_code
 )
@@ -37,6 +39,7 @@ select
 ,COALESCE(c.state_id, d.state_id,-1) AS state_id
 ,COALESCE(c.region_id, d.region_id, -1) AS region_id
 ,COALESCE(d.city_id,   -1) AS city_id
+,a.sys_audit_updated_on
 from loc AS a
 LEFT JOIN {{ ref('dim_location_country') }} AS b ON b.country_code = a.country_code
 LEFT JOIN {{ ref('dim_location_state') }}   AS c ON c.country_id = b.country_id AND c.state_code = a.state_code

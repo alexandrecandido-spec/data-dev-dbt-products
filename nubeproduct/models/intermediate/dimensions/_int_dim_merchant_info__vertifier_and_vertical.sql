@@ -11,12 +11,13 @@ FROM   {{ ref('antifraud_service__vertifier_store_inferences') }}
 SELECT 
  a.store_id
 ,b.vertical_id
+,a.sys_audit_updated_on
 FROM
 (
-SELECT store_id, vertical_name
+SELECT store_id, vertical_name, sys_audit_updated_on
 FROM 
 (
-SELECT s.store_id, CASE WHEN s.type IS NULL THEN v.vertifier ELSE s.type END AS vertical_name
+SELECT s.store_id, CASE WHEN s.type IS NULL THEN v.vertifier ELSE s.type END AS vertical_name, s.sys_audit_updated_on
 FROM      {{ source('dp_moltres','mwp_store_settings') }} s
 LEFT JOIN latest_vertifier v ON v.store_id = s.store_id
 ) x 
