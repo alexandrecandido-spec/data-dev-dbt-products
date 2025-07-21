@@ -4,7 +4,7 @@
     unique_key = 'store_app_id',
     partition_by = 'app_install_date',
     on_schema_change = 'fail',
-    tags = ['product','daily-8am']
+    tags = ['daily-8am']
 ) }}
 
 with
