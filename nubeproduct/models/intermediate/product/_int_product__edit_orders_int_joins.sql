@@ -1,0 +1,71 @@
+select 
+    --unique id
+    concat(ae.id,ae.edit_type,o.id,coalesce(s.fulfillment_order_id,"")) as edit_action_id,
+    --data on edit action
+    ae.id as line_edit_id,
+    ae.extra,
+    ae.edit_type,
+    ae.edit_action,
+    ae.amount, 
+    ae.amount_usd,
+    ae.line_item_id,
+    ae.previous_product_qty,
+    ae.new_product_qty,
+    --data on edit
+    ae.edit_id as edit_id,
+    cast(coalesce(ae.happened_at, oe.happened_at) as date) as edit_at,
+    --data on total values and shipping costs
+    oe.skip_shipping_requote,
+    vh.previous_total,
+    vh.total_delta,
+    vh.previous_total_usd,
+    vh.total_delta_usd,
+    vh.previous_subtotal,
+    vh.subtotal_delta,
+    vh.previous_subtotal_usd,
+    vh.subtotal_delta_usd,
+    s.fulfillment_order_id,
+    s.previous_merchant_cost,
+    s.new_merchant_cost,
+    s.previous_consumer_cost,
+    s.new_consumer_cost,
+    s.previous_merchant_cost_usd,
+    s.new_merchant_cost_usd,
+    s.previous_consumer_cost_usd,
+    s.new_consumer_cost_usd,
+    oe.sys_audit_updated_on,
+    oe.app_id,
+    --data on order
+    o.id,
+    o.order_completed_at,
+    o.payment_status,
+    o.status,
+    o.gmv_usd,
+    o.order_year_month_day_code,
+    case when o.order_edit_count > 0 then 1 else 0 end as was_order_edited,
+    o.order_first_edited_at,
+    o.order_last_edited_at,
+    o.order_edit_count,
+    --data on store
+    o.store_id,
+    e.state,
+    e.country,
+    e.currency,
+    e.current_segment,
+    e.first_payment,
+    e.churned_at,
+    e.plan_name,
+    e.created_at,
+    e.verified,
+    e.has_edit_orders_available as store_has_edit_orders_available,
+    e.edit_orders_available_at as store_edit_orders_available_at,
+    e.edit_orders_user as store_edit_orders_user,
+    e.edit_first_use as store_edit_first_use,
+    e.edit_last_use as store_edit_last_use,
+    e.edit_count as store_edit_count
+    FROM {{ ref('_int_product__edit_orders_union_edit_types') }} ae
+    JOIN {{ ref('_int_product__edit_orders_orders_usage') }} o on o.id = ae.order_id
+    JOIN {{ ref('_int_product__edit_orders_stores_enablement_and_usage') }} e on e.store_id = o.store_id
+    LEFT JOIN {{ source('int_orders', 'orders_edit_history') }} oe on oe.id = ae.edit_id
+    LEFT JOIN {{ source('int_orders', 'orders_edit_history_shipping') }} s on s.edit_id = ae.edit_id
+    LEFT JOIN {{ ref('_int_product__edit_orders_value_history') }} vh on vh.id = oe.order_value_history_id
