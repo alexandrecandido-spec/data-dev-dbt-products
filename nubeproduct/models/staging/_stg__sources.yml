@@ -9,6 +9,14 @@ sources:
         description: "Contains all the list of stores with their information"
       - name: mwp_apps_stores
         description: "Contains all the list of stores who installed and or uninstalled an app"
+      - name: mwp_store_settings
+      - name: mwp_countries
+      - name: mwp_provinces
+      - name: mwp_cities_ar
+      - name: mwp_cities_mx
+      - name: mwp_plans
+      - name: regions
+      - name: cidades
 
   - name: stg_orders
     description: "Source containing tables related to order movements"
