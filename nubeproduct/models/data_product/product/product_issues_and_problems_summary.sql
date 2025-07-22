@@ -120,10 +120,10 @@ final_selection AS (
                     sd.wip_1_last_deleted IS DISTINCT FROM target_table.wip_1_last_deleted OR
                     sd.wip_2_last_updated IS DISTINCT FROM target_table.wip_2_last_updated OR
                     sd.wip_2_last_deleted IS DISTINCT FROM target_table.wip_2_last_deleted OR
-                    sd.w3_last_updated IS DISTINCT FROM target_table.w3_last_updated OR -- Corrected alias here
-                    sd.w3_last_deleted IS DISTINCT FROM target_table.w3_last_deleted OR -- Corrected alias here
-                    sd.w4_last_updated IS DISTINCT FROM target_table.w4_last_updated OR -- Corrected alias here
-                    sd.w4_last_deleted IS DISTINCT FROM target_table.w4_last_deleted OR -- Corrected alias here
+                    sd.wip_3_last_updated IS DISTINCT FROM target_table.wip_3_last_updated OR -- Corrected alias here
+                    sd.wip_3_last_deleted IS DISTINCT FROM target_table.wip_3_last_deleted OR -- Corrected alias here
+                    sd.wip_4_last_updated IS DISTINCT FROM target_table.wip_4_last_updated OR -- Corrected alias here
+                    sd.wip_4_last_deleted IS DISTINCT FROM target_table.wip_4_last_deleted OR -- Corrected alias here
                     sd.milestone_title IS DISTINCT FROM target_table.milestone_title OR
                     sd.milestone_created_at IS DISTINCT FROM target_table.milestone_created_at OR
                     sd.onboarding_ar IS DISTINCT FROM target_table.onboarding_ar OR
