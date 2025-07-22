@@ -1,3 +1,5 @@
+SELECT state_id, state_code, state_name, region_id, country_id FROM (
+SELECT state_id, state_code, state_name, region_id, country_id, ROW_NUMBER() OVER (PARTITION BY state_code, country_id ORDER BY sys_audit_updated_on DESC) AS rnk FROM (
 SELECT 
 a.id AS state_id, 
 a.code AS state_code, 
@@ -23,6 +25,9 @@ CASE
   WHEN a.country = 'MX' AND a.code IN ('CHP','GRO','OAX','VER') THEN 18 -- ,"SURO","Suroeste",155
   ELSE -1
 END AS region_id,
-b.id as country_id
+b.id as country_id,
+a.sys_audit_updated_on
 FROM   {{ source('int_moltres','mwp_provinces') }} a
 LEFT   JOIN {{ source('int_moltres','mwp_countries') }} b ON a.country = b.code
+) x
+) x WHERE rnk = 1
