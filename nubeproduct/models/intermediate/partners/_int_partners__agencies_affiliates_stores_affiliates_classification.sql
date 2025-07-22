@@ -7,10 +7,9 @@ WITH affiliates_external AS
         MAA.affiliate_main_platform,
         MAA.affiliate_country,
         MAB.fraude
-    FROM {{ ref('inputs_marketing_attribution') }} AS MAA
-    LEFT JOIN {{ ref('inputs_marketing_attribution') }} AS MAB 
+    FROM {{ ref('marketing_inputs_attribution') }} AS MAA
+    LEFT JOIN {{ ref('marketing_inputs_attribution__partner_fraud') }} AS MAB 
         ON MAA.affiliate_code = MAB.partner_code 
-            AND MAB.input_type = 'PARTNER_FRAUD'
     WHERE MAA.state = 'open'
         AND MAA.input_type = 'AFFILIATE_LIST'
 )
