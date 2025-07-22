@@ -1,6 +1,6 @@
 {{
     config(
-        tags = ["product","daily-morning"],
+        tags = ['product', 'daily-8am'],
         materialized='incremental',
         unique_key='id',
         on_schema_change='fail'

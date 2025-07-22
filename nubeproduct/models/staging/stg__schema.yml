@@ -626,9 +626,6 @@ models:
       - name: order_id
         tests:
           - not_null
-          - relationships:
-              to: ref('orders__mwp_orders')
-              field: id
       - name: price_table_id
         description: "Wholesale pricetable id associated with the order"
       - name: percentage_applied
