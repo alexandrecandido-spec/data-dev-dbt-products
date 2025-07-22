@@ -43,10 +43,10 @@ partner_stores AS
         PI.partner_created_at_ts,
         PI.partner_email,
         PI.partner_phone_number,
-        PU.partner_utm_campaign,
-        PU.partner_utm_source,
-        PU.partner_utm_medium,
-        PU.partner_utm_content,
+        PI.partner_utm_campaign,
+        PI.partner_utm_source,
+        PI.partner_utm_medium,
+        PI.partner_utm_content,
         AC.mkt_exclusion,
         AC.affiliate_classification,
         AC.affiliate_tier,
@@ -59,8 +59,6 @@ partner_stores AS
     LEFT JOIN {{ ref('_int_partners__agencies_affiliates_stores_affiliates_classification') }} AS AC
         ON PI.partner_code = AC.partner_code
             AND PI.partner_country_code = AC.affiliate_country
-    LEFT JOIN {{ ref('_int_partners__agencies_affiliates_stores_partner_utm') }} AS PU
-        ON SI.partner_id = PU.partner_id
     LEFT JOIN {{ ref('marketing_first_seller_date') }} AS FSD  
         ON SI.store_id = FSD.store_id
 )
