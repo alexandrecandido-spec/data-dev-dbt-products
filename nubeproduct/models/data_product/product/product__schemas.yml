@@ -94,6 +94,35 @@ models:
 
 
 
+  - name: product_platform_mwp_apps_stores
+    description: >
+      Contains a clean version of the mwp_apps_stores tables after deleting the reinstallations made by the support team
+    config:
+      meta:
+        tech_steward: "fernando.martinez@tiendanube.com"
+        domain: "product"
+        business_owner: "Nicolas Loreti"
+    columns:
+      - name: store_app_id
+        description: Unique store and app ids combination. used for unique key.
+      - name: store_id
+        description: store related to the app_id installed.
+        tests:
+          - not_null
+      - name: app_id
+        description: app_id installed by the store.
+          - not_null
+      - name: app_install_date
+        description: date in which the app was installed.
+          - not_null
+      - name: app_uninstall_date
+        description: app in which the app was uninstalled. in case of null, the app is still active.
+      - name: sys_admin_created_at
+        description: date in which the record was created.
+      - name: sys_admin_updated_at
+        description: date in which the record was last updated.
+
+        
   - name: product_edit_orders
     description: >
       The goal of the edit orders feature is to allow merchants to edit different parts of their orders such as products, discounts and shipping address. The feature also includes a requote system for the cost of shipping.
@@ -384,6 +413,4 @@ models:
         description: the date when the record was updated
 
 
-
-        
 

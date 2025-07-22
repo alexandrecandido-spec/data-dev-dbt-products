@@ -523,6 +523,54 @@ models:
       - name: sys_audit_updated_by
         description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
 
+
+
+  - name: moltres__platform_mwp_apps_stores
+    description: "Extracted data of apps installed and uninstalled by stores"
+    config:
+      meta:
+        tech_steward: "fernando.martinez@tiendanube.com"
+        domain: "product"
+        business_owner: "Nicolas Loreti"
+    columns:
+      - name: app_id
+        description: "determines the app_id of the installation"
+      - name: store_id
+        description: "determines the store_id of the installation"
+      - name: installed_app_id
+        description: "determines the unique identifier of the installation"
+      - name: app_install_date
+        description: "determines the date when the app was installed"
+      - name: app_uninstall_date
+        description: "determines the date when the app was uninstalled"
+      - name: sys_admin_created_at
+        description: "determines the date when the installation was created"
+      - name: sys_audit_updated_at
+        description: "determines the date when the installation was updated"
+
+
+
+  - name: github_data__platform_solved_tags
+    description: "Extract the solved_by_app tags from github data"
+    config:
+      meta:
+        tech_steward: "fernando.martinez@tiendanube.com"
+        domain: "product"
+        business_owner: "Nicolas Loreti"
+    columns:
+      - name: issue_number
+        description: "Identifies the identification of the Issue/Problem. Combined with repo_name, they make the unique key"
+      - name: repo_name
+        description: "Determines if row is related to an Issue or Problem"
+      - name: issue_label_name
+        description: "name of the label"
+      - name: label_country
+        description: "determines the country of the label"
+      - name: label_created_at
+        description: "date when the label was created"
+      - name: label_updated_at
+        description: "date when the label was updated"
+
   - name: billing__receipt
     description: "Staging model for billing receipts. Contains only the necessary fields to link to the billing cycle."
     config:
@@ -608,3 +656,4 @@ models:
         description: "Carrier code (e.g., correios)"
       - name: cost_charge_value
         description: "Cost amount attributed to the carrier"
+
