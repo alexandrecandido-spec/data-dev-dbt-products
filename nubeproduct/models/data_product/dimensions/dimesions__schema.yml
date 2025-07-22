@@ -271,6 +271,9 @@ models:
         description: Timestamp of the latest update to the row.
       - name: sys_audit_updated_by
         description: Source or user responsible for the latest update.
+    tests:
+      - unique:
+          column_name: ['region_code', 'country_id']
 
   - name: dim_location_state
     config:
@@ -296,12 +299,14 @@ models:
       - name: region_id
         description: Foreign key referencing the region that state belongs to.
         tests:
+          - not_null
           - relationships:
               to: ref('dim_location_region')
               field: region_id
       - name: country_id
         description: Foreign key referencing the country that state belongs to.
         tests:
+          - not_null
           - relationships:
               to: ref('dim_location_country')
               field: country_id
@@ -313,6 +318,9 @@ models:
         description: Timestamp of the latest update to the row.
       - name: sys_audit_updated_by
         description: Source or user responsible for the latest update.
+    tests:
+      - unique:
+          column_name: ['state_code', 'country_id']
 
   - name: dim_location_city
     config:
