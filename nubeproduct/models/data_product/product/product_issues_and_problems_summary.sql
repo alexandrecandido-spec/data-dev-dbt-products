@@ -55,9 +55,9 @@ WITH source_data AS (
     LEFT JOIN {{ ref('github_data__issue_labels') }} l ON i.repo_name = l.repo_name AND i.issue_number = l.issue_number
     LEFT JOIN {{ ref('_int_github_data_issues_problems_hubspot_onboarding') }} onb ON onb.store_id = v.store_id
     LEFT JOIN {{ ref('github_data__issue_wip_labels') }} w1 ON i.repo_name = w1.repo_name AND i.issue_number = w1.issue_number AND w1.wip_label = '1 - WIP - Identificando problema'
-    LEFT JOIN {{ ref('github_data__issue_wip_labels') }} w2 ON i.repo_name = w1.repo_name AND i.issue_number = w1.issue_number AND w1.wip_label = '2 - WIP - Entendiendo solucion'
-    LEFT JOIN {{ ref('github_data__issue_wip_labels') }} w3 ON i.repo_name = w1.repo_name AND i.issue_number = w1.issue_number AND w1.wip_label = '3 - WIP - Ejecutando solucion'
-    LEFT JOIN {{ ref('github_data__issue_wip_labels') }} w4 ON i.repo_name = w1.repo_name AND i.issue_number = w1.issue_number AND w1.wip_label = '4 - WIP - Monitoreando solucion'
+    LEFT JOIN {{ ref('github_data__issue_wip_labels') }} w2 ON i.repo_name = w2.repo_name AND i.issue_number = w2.issue_number AND w2.wip_label = '2 - WIP - Entendiendo solucion'
+    LEFT JOIN {{ ref('github_data__issue_wip_labels') }} w3 ON i.repo_name = w3.repo_name AND i.issue_number = w3.issue_number AND w3.wip_label = '3 - WIP - Ejecutando solucion'
+    LEFT JOIN {{ ref('github_data__issue_wip_labels') }} w4 ON i.repo_name = w4.repo_name AND i.issue_number = w4.issue_number AND w4.wip_label = '4 - WIP - Monitoreando solucion'
     LEFT JOIN {{ ref('_int_github_data_issues_problems_milestones') }} mi ON i.repo_name = mi.repo_name AND i.issue_number = mi.issue_number
     LEFT JOIN {{ ref('_int_github_data_issues_problems_comments') }} db ON i.repo_name = db.repo_name AND i.issue_number = db.issue_number AND v.store_id = db.store_id
     LEFT JOIN {{ ref('_int_midmarket_success_stores_issues_and_problems') }} mm_stores ON v.store_id = mm_stores.store_id
