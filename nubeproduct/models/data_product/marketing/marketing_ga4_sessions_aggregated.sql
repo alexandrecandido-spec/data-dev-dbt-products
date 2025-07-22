@@ -120,7 +120,17 @@ FROM final f
 LEFT JOIN existing_data e
   ON f.row_hash = e.row_hash
 {% if is_incremental() %}
-WHERE COALESCE(e.sys_audit_created_on, DATE '1900-01-01') > (
-  SELECT COALESCE(MAX(sys_audit_created_on), DATE '1900-01-01') FROM {{ this }}
+WHERE (
+  f.year_month_day_code > (
+    SELECT MAX(year_month_day_code) FROM {{ this }}
+  )
+  OR (
+    f.year_month_day_code = (
+      SELECT MAX(year_month_day_code) FROM {{ this }}
+    )
+    AND COALESCE(e.sys_audit_created_on, DATE '1900-01-01') > (
+      SELECT COALESCE(MAX(sys_audit_created_on), DATE '1900-01-01') FROM {{ this }}
+    )
+  )
 )
 {% endif %}
