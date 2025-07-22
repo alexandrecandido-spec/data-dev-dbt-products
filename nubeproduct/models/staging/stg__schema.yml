@@ -204,11 +204,6 @@ models:
         domain: "fintech"
         owner: "Calvin Hetem"
     description: "Staging model with credit proposals, clean data with current store_id"
-    config:
-      meta:
-        tech_steward: "sofia.sanchez@tiendanube.com"
-        domain: "fintech"
-        business_owner: "Calvin Hetem"
     columns:
       - name: id
         description: "Unique internal identifier for each proposal."
@@ -231,6 +226,24 @@ models:
       - name: original_contract_ids
         description: "Not null only if the credit is a renegotiation. It contains all contracts ids that were renegotiated."
 
+  - name: nuvem_credito__initial_installments
+    config:
+      meta:
+        tech_steward: "sofia.sanchez@tiendanube.com"
+        domain: "fintech"
+        owner: "Calvin Hetem"
+    description: "Staging model with initial installments of each contract"
+    columns:
+      - name: hub_contract_id
+        description: "Unique external identifier for each contract."
+      - name: original_due_month
+        description: "Month of the original due date of the installment."
+      - name: original_due_at
+        description: "Date of the original due date of the installment."
+      - name: original_amount
+        description: "Original amount to be paid of the installment."
+      - name: principal_amount
+        description: "Principal amount to be paid of the installment."
 
   - name: antifraud_service__vertifier_store_inferences
     description: "Staging model with vertifier of current store_id provided by antifraud inferences."

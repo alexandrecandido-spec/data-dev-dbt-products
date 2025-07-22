@@ -105,3 +105,14 @@ models:
         description: "System audit field indicating when the record was last updated."
         tests:
           - not_null
+  - name: credit_vintages
+    description: >
+      Contains all original installments of each contract with the amount of paid installments. Use to derive First and Third Payment default
+    config:
+      meta:
+        tech_steward: "sofia.sanchez@tiendanube.com"
+        domain: "fintech"
+        business_owner: "Calvin Hetem"
+    columns:
+      - name: hub_contract_id
+        description: "External identifier for each contract."
