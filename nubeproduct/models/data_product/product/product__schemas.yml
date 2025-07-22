@@ -94,6 +94,35 @@ models:
 
 
 
+  - name: product_platform_mwp_apps_stores
+    description: >
+      Contains a clean version of the mwp_apps_stores tables after deleting the reinstallations made by the support team
+    config:
+      meta:
+        tech_steward: "fernando.martinez@tiendanube.com"
+        domain: "product"
+        business_owner: "Nicolas Loreti"
+    columns:
+      - name: store_app_id
+        description: Unique store and app ids combination. used for unique key.
+      - name: store_id
+        description: store related to the app_id installed.
+        tests:
+          - not_null
+      - name: app_id
+        description: app_id installed by the store.
+          - not_null
+      - name: app_install_date
+        description: date in which the app was installed.
+          - not_null
+      - name: app_uninstall_date
+        description: app in which the app was uninstalled. in case of null, the app is still active.
+      - name: sys_admin_created_at
+        description: date in which the record was created.
+      - name: sys_admin_updated_at
+        description: date in which the record was last updated.
+
+        
   - name: product_edit_orders
     description: >
       The goal of the edit orders feature is to allow merchants to edit different parts of their orders such as products, discounts and shipping address. The feature also includes a requote system for the cost of shipping.
@@ -384,6 +413,56 @@ models:
         description: the date when the record was updated
 
 
+  - name: product_orders_b2b
+    description: >
+      This data product contains all basic information for b2b orders.
+      The goal of this data product is to minimize time to access the data and it also has been used to learn how to create a dbt model.
+    config:
+      meta:
+        tech_steward: "matias.scasso@tiendanube.com"
+        domain: "product"
+        business_owner: "Wagner Moynier"
+    columns:
+      - name: id
+        description: "Unique identifier for the b2b order"
+        tests:
+          - not_null
+          - unique
+      - name: order_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('orders__mwp_orders')
+              field: id
+      - name: store_id
+        description: "Store id associated with the order"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('moltres__mwp_store_info')
+              field: store_id
+      - name: domain
+        description: "Domain associated with the order"
+      - name: country
+        description: "Country associated with the order"
+      - name: state
+        description: "State of the store"
+      - name: plan
+        description: "Plan of the store"
+      - name: price_table_id
+        description: "Wholesale pricetable id associated with the order"
+      - name: percentage_applied
+        description: "Percentage of discount applied to the order for being a wholesale order"
+      - name: completed_at
+        description: "Timestamp when the order was completed"
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model. Defaults to current_timestamp if not available."
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model. Defaults to 'data-dev-dbt-products'."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed."
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
 
-        
+
 

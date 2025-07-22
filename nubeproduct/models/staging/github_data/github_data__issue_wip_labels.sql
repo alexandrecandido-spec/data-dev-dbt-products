@@ -4,7 +4,7 @@
         unique_key=['repo_name', 'issue_number', 'wip_label'],
 		incremental_strategy='merge',
         on_schema_change='fail',
-        tags=["product","daily-8am"]
+        tags=["product","daily-10am"]
     )
 }}
 
