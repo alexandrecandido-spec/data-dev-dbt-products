@@ -1,4 +1,4 @@
-base_orders AS (
+WITH base_orders AS (
     SELECT *
     FROM {{ ref('company_metrics_paid_orders') }}
     WHERE year_month_day_code  >=  20221003
