@@ -9,13 +9,13 @@
     )
 }}
 
-WITH marketing AS (
+WITH stores AS (
     SELECT 
-        store_id, 
-        year_month_day_code,
-        ROW_NUMBER() OVER (PARTITION BY store_id, year_month_day_code ORDER BY store_id) AS rn
-    FROM {{ ref('marketing_attribution_model') }}
-    WHERE year_month_day_code >= 20230101
+        id as store_id, 
+        created_at,
+        ROW_NUMBER() OVER (PARTITION BY id, created_at ORDER BY id) AS rn
+    FROM {{ ref('moltres__mwp_store_info') }}
+    WHERE created_at >= '2023-01-01'
 ),
 qualified_orders as (
     SELECT
@@ -26,12 +26,12 @@ qualified_orders as (
 ),
 first_seller AS (
     SELECT 
-        ma.store_id,
-        ma.year_month_day_code,
+        s.store_id,
+        CAST(date_format(s.created_at, 'yyyyMMdd') AS INT) AS year_month_day_code,
         fs.first_seller_at
-FROM marketing ma
-LEFT JOIN qualified_orders fs ON ma.store_id = fs.store_id
-WHERE ma.rn = 1
+FROM stores s
+LEFT JOIN qualified_orders fs ON s.store_id = fs.store_id
+WHERE s.rn = 1
 ),
 existing_data AS (
     {{ get_existing_data(this, ['store_id', 'sys_audit_created_on', 'sys_audit_created_by']) }}
