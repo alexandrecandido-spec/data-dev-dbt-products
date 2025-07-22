@@ -1,15 +1,7 @@
-WITH blocked_stores AS (
-    SELECT related_id
-    FROM {{ source('int_moltres', 'mwp_tags') }} AS tg
-    WHERE tg.type = 'store'
-      AND tg.tag IN ('sre-block-store-429', 'sre-block-store-404')
-),
-
-base_orders AS (
+WITH base_orders AS (
     SELECT *
     FROM {{ ref('company_metrics_paid_orders') }}
-    WHERE store_id NOT IN (SELECT related_id FROM blocked_stores)
-      AND year_month_day_code  >=  20221003
+    WHERE year_month_day_code  >=  20221003
 ),
 
 orders_with_sales_90d AS (
