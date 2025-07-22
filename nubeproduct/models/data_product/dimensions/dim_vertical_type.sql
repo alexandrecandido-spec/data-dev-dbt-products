@@ -10,12 +10,12 @@
 {{ generate_surrogate_dimension
 (
     source_relation=source('stg_moltres','mwp_store_settings'),
-    source_column='type',
+    source_column=['type'],
     id_column='vertical_id',
-    name_column='vertical_name',
+    name_column=['vertical_name'],
     extra_columns=[],
     array_columns=[],
-    column_aliases={},
+    column_aliases={'vertical_name': 'type'},
     source_filter="type NOT IN ('a')",
     fixed_values=[(-1, 'Not Informed'), (-2, 'Not Applicable')],
     passthrough_ids=false,

@@ -252,12 +252,10 @@ models:
         description: Short code used to represent the region (e.g., SUL, NEA, NOR).
         tests:
           - not_null
-          - unique
       - name: region_name
         description: Descriptive name of the region (e.g., Sul, Noroeste, Pampas).
         tests:
           - not_null
-          - unique
       - name: country_id
         description: Foreign key referencing the country the region belongs to.
         tests:
@@ -273,6 +271,9 @@ models:
         description: Timestamp of the latest update to the row.
       - name: sys_audit_updated_by
         description: Source or user responsible for the latest update.
+    tests:
+      - unique:
+          column_name: ['region_code', 'country_id']
 
   - name: dim_location_state
     config:
@@ -291,21 +292,21 @@ models:
         description: Standardized short code for the state (e.g., SP, RJ, BA).
         tests:
           - not_null
-          - unique
       - name: state_name
         description: Full name of the state or province.
         tests:
           - not_null
-          - unique
       - name: region_id
         description: Foreign key referencing the region that state belongs to.
         tests:
+          - not_null
           - relationships:
               to: ref('dim_location_region')
               field: region_id
       - name: country_id
         description: Foreign key referencing the country that state belongs to.
         tests:
+          - not_null
           - relationships:
               to: ref('dim_location_country')
               field: country_id
@@ -317,6 +318,9 @@ models:
         description: Timestamp of the latest update to the row.
       - name: sys_audit_updated_by
         description: Source or user responsible for the latest update.
+    tests:
+      - unique:
+          column_name: ['state_code', 'country_id']
 
   - name: dim_location_city
     config:

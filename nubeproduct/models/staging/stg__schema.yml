@@ -547,7 +547,7 @@ models:
         domain: "finance"
         business_owner: "Mônica Orlando"
     columns:
-      - name: payOrderId
+      - name: paid_order_id
         description: "Payment order ID"
         tests: [not_null]
       - name: paid_at
