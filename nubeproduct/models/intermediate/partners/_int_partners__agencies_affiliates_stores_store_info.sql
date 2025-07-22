@@ -81,7 +81,7 @@ SELECT
     SI.store_id,
     SI.domain,
     SI.state,
-    IF(BP.store_id IS NOT NULL, TRUE, FALSE) AS block_flg,
+    IF(BPS.store_id IS NOT NULL, TRUE, FALSE) AS block_flg,
     SI.country_code,
     SI.current_segment,
     SI.first_payment,
