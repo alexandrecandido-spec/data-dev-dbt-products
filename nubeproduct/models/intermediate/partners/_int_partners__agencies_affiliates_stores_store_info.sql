@@ -13,6 +13,7 @@ WITH tag_acquired_by AS
             WHERE type = 'store'
                 AND tag IN ('partner', 'channels-affiliate-attribution')
         )
+    GROUP BY store_id
 ),
 blocked_partner_stores AS
 (
