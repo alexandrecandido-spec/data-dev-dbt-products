@@ -11,9 +11,9 @@
 
 WITH stores AS (
     SELECT 
-        id as store_id, 
-        created_at
-    FROM {{ ref('moltres__mwp_store_info') }}
+        msi.store_id, 
+        msi.created_at
+    FROM {{ ref('moltres__mwp_store_info') }} as msi
     WHERE created_at >= '2023-01-01'
 ),
 qualified_orders as (
