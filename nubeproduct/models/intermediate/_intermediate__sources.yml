@@ -56,6 +56,11 @@ sources:
       - name: marketing_github_mkt_attribution
         description: "List of marketing github issues/inputs created by the marketing team"
       - name: midmarket_hubspot_deals
+      - name: midmarket_hubspot_calls
+      - name: midmarket_hubspot_meetings
+      - name: midmarket_hubspot_email
+      - name: midmarket_hubspot_communications
+      - name: midmarket_hubspot_tasks
 
   - name: int_midmarket
     description: "Mid Market tables"
