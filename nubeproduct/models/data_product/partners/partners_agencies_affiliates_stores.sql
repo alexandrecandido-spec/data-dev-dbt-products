@@ -4,7 +4,7 @@
         incremental_strategy = 'merge',
         unique_key = ['store_id'],
         on_schema_change = 'fail',
-        tags = ['daily-9am']
+        tags = ['daily-10am']
 ) }}
 
 WITH existing_data AS (
@@ -23,7 +23,7 @@ partner_stores AS
         SI.merchant_type,
         SI.active_merchant_flg,
         SI.device,
-        SI.new_payment_probability,
+        SI.predicted_prob,
         SI.prod_cutoff,
         SI.quality_lead_flg,
         SI.first_payment_flg,

@@ -37,7 +37,7 @@ models:
         description: Flag indicating if the store is active.
       - name: device
         description: Device of the store.
-      - name: new_payment_probability
+      - name: predicted_prob
         description: New payment probability of the store.
       - name: prod_cutoff
         description: Probability cutoff for the store to be quality lead.
@@ -49,11 +49,11 @@ models:
         description: Acquired by partner or nuvemshop, not evaluated for affiliates.
         tests:
           - not_null
-      - name: created_at_ts
+      - name: created_at
         description: Date and time when the store was created.
-      - name: first_payment_ts
+      - name: first_payment
         description: Date and time when the store made its first payment.
-      - name: churned_at_ts
+      - name: churned_at
         description: Date and time when the store churned.
       - name: plan_id
         description: ID of the plan associated with the store.
@@ -77,7 +77,7 @@ models:
         description: Name of the partner associated with the store.
       - name: partner_country_code
         description: Country code of the partner associated with the store.
-      - name: partner_created_at_ts
+      - name: partner_created_at
         description: Date and time when the partner was created.
       - name: mkt_exclusion
         description: Flag indicating if the store is excluded from marketing.
@@ -101,4 +101,11 @@ models:
         description: UTM content of the partner associated with the store.
       - name: first_seller_at
         description: Date and time when the store first became a seller.
-      
+      - name: sys_audit_created_on
+        description: Date and time when the row was initially created in the summary table.
+      - name: sys_audit_created_by
+        description: Source or user responsible for the initial row creation.
+      - name: sys_audit_updated_on
+        description: Timestamp of the latest update to the row.
+      - name: sys_audit_updated_by
+        description: Source or user responsible for the latest update.

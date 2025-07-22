@@ -17,10 +17,10 @@ default_args = {
     'on_failure_callback': partial(task_fail_slack_alert_bi,slack_ids=SLACK_IDS)
 }
 
-# Crear el DAG frecuencia diaria 9am
+# Crear el DAG frecuencia diaria 10am
 dag = create_dbt_dag(
-    dag_id='dbt_partners_daily-9am',
-    schedule_interval_tag='daily-9am',
+    dag_id='dbt_partners_daily-10am',
+    schedule_interval_tag='daily-10am',
     default_args=default_args,
-    tags=['partners', 'daily-9am']
+    tags=['partners', 'daily-10am']
 )
