@@ -30,6 +30,7 @@ sources:
         description: "Deleted regs of products associated with an order."
       - name: mwp_orders_b2b
         description: "Orders generated through the B2B solution."
+        
   - name: stg_nuvem_credito
     description: "Source containing tables related to Nuvem credito"
     database: null
