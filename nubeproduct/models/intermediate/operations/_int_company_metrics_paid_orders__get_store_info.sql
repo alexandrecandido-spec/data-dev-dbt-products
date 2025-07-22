@@ -50,8 +50,8 @@ SELECT
     payment_date.paid_at
 FROM {{ ref('orders__mwp_orders') }} paid_orders
 INNER JOIN {{ ref('moltres__mwp_store_info') }} store_info on paid_orders.store_id = store_info.store_id
-LEFT JOIN {{ source('int_moltres', 'mwp_apps') }} apps on apps.id = paid_orders.gateway
-LEFT JOIN {{ source('int_moltres', 'mwp_shipping_carriers') }} shipping_carriers on shipping_carriers.id = paid_orders.shipping_method
+LEFT JOIN {{ source('int_moltres', 'mwp_apps') }} apps on CONCAT("app_",apps.id) = paid_orders.gateway
+LEFT JOIN {{ source('int_moltres', 'mwp_shipping_carriers') }} shipping_carriers on CONCAT("api_",shipping_carriers.id) = paid_orders.shipping_method
 LEFT JOIN {{ source('int_moltres', 'mwp_apps') }} apps_2 on apps_2.id = shipping_carriers.app_id
 LEFT JOIN payment_date on paid_orders.id = payment_date.order_id
 LEFT JOIN {{ ref('finance_exchange_rate') }} exchange_rate on DATE(paid_orders.completed_at) = DATE(exchange_rate.processed_at) 

@@ -24,6 +24,8 @@ SELECT
     orders_general_month AS orders_monthly,
     gmv_general_month AS gmv_usd_monthly,
     gmv_local_general_month AS gmv_local_currency_monthly,
+    gmv_general_90d AS gmv_usd_90d,
+    gmv_local_general_90d AS gmv_local_currency_90d,
     orders_general_90d,
     CASE
         WHEN orders_general_90d * proportional > 1500 THEN 'top-seller'
@@ -37,6 +39,8 @@ SELECT
     orders_on_platform_month AS orders_on_platform_monthly,
     gmv_on_platform_month AS gmv_usd_on_platform_monthly,
     gmv_local_on_platform_month AS gmv_local_currency_on_platform_monthly,
+    gmv_on_platform_90d AS gmv_usd_on_platform_90d,
+    gmv_local_on_platform_90d AS gmv_local_currency_on_platform_90d,
     orders_on_platform_90d,
     CASE
         WHEN orders_on_platform_90d * proportional > 1500 THEN 'top-seller'
@@ -50,6 +54,8 @@ SELECT
     orders_off_platform_month AS orders_off_platform_monthly,
     gmv_off_platform_month AS gmv_usd_off_platform_monthly,
     gmv_local_off_platform_month AS gmv_local_currency_off_platform_monthly,
+    gmv_on_platform_90d AS gmv_usd_off_platform_90d,
+    gmv_local_on_platform_90d AS gmv_local_currency_off_platform_90d,
     orders_off_platform_90d,
     CASE
         WHEN orders_off_platform_90d * proportional > 1500 THEN 'top-seller'
