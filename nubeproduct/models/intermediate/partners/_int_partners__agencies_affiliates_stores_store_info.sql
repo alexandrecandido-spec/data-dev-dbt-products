@@ -85,6 +85,7 @@ SELECT
     SI.country_code,
     SI.current_segment,
     SI.first_payment,
+    SI.first_payment_flg,
     FSD.first_seller_at,
     SI.churned_at,
     SI.created_at,
