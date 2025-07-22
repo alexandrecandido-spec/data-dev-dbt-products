@@ -10,9 +10,9 @@
 {{ generate_surrogate_dimension
 (
     source_relation=source("dp_data_manual", "dimensions__region"),
-    source_column='region_name',
+    source_column=['region_name'],
     id_column='region_id',
-    name_column='region_name',
+    name_column=['region_name'],
     extra_columns=['region_code','country_id'],
     array_columns=[],
     column_aliases={},

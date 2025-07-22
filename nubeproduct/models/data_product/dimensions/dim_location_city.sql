@@ -10,9 +10,9 @@
 {{ generate_surrogate_dimension
 (
     source_relation=ref('_int_dim_location_city__union_cities'),
-    source_column='city_name',
+    source_column=['city_name'],
     id_column='city_id',
-    name_column='city_name',
+    name_column=['city_name'],
     extra_columns=['city_id_nk','state_id','region_id','country_id'],
     array_columns=[],
     column_aliases={},
