@@ -104,6 +104,7 @@ def create_dbt_dag(
         # Task de preparación
         setup = BashOperator(
             task_id='setup_environment',
+            pool='dbt_serial_pool',
             bash_command=f"""
                 rm -rf /tmp/dbt/{main_task_name}/nubeproduct;
                 mkdir -p /tmp/dbt/{main_task_name}/nubeproduct;
@@ -114,6 +115,7 @@ def create_dbt_dag(
         
         create_profiles = PythonOperator(
             task_id='create_profiles_yml',
+            pool='dbt_serial_pool',
             python_callable=create_profiles_yml
         )
 
@@ -122,8 +124,8 @@ def create_dbt_dag(
                          tags=tags,
                          dbt_command= 'run',
                          full_refresh=initial_load,
-                         models=[]  # Empty by default, will be populated at runtime
-
+                         models=[],  # Empty by default, will be populated at runtime
+                         pool='dbt_serial_pool',
                      )
 
         test = DBTOperator(
@@ -131,7 +133,8 @@ def create_dbt_dag(
                          tags=tags,
                          dbt_command= 'test',
                          full_refresh=False,
-                         models=[]  # Empty by default, will be populated at runtime
+                         models=[],  # Empty by default, will be populated at runtime
+                         pool='dbt_serial_pool',
                      )
         
         setup >> create_profiles >> task >> test

@@ -10,11 +10,11 @@
 {{ generate_surrogate_dimension
 (
     source_relation=source('stg_moltres','mwp_store_settings'),
-    source_column='business_size',
+    source_column=['business_size'],
     id_column='business_size_id',
-    name_column='business_size_name',
+    name_column=['business_size_name'],
     extra_columns=[],
-    column_aliases={},
+    column_aliases={'business_size_name': 'business_size'},
     source_filter="",
     fixed_values=[(-1, 'Not Informed'), (-2, 'Not Applicable')],
     passthrough_ids=false,

@@ -44,7 +44,7 @@ src AS (
     {% if is_incremental() %}
       WHERE CAST(date_format(date,'yyyyMMdd') AS INT) >= (
         SELECT COALESCE(MAX(year_month_day_code), 19000101)
-        FROM existing_data
+        FROM {{ this }}
       )
     {% else %}
       WHERE date >= DATE '2024-01-01'
@@ -68,9 +68,7 @@ SELECT
             WHEN source_ga4_classification NOT LIKE '%inst%' AND original_user_country = 'Mexico'    THEN 'MX'
             WHEN source_ga4_classification NOT LIKE '%inst%' AND original_user_country = 'Chile'     THEN 'CL'
             WHEN source_ga4_classification NOT LIKE '%inst%' AND original_user_country = 'Colombia'  THEN 'CO'
-            WHEN source_ga4_classification NOT LIKE '%inst%' AND original_user_country NOT IN
-                 ('Brazil','Mexico','Argentina','Chile','Colombia')                               THEN 'Other'
-            ELSE original_user_country
+            ELSE 'Other'
           END
       ELSE
           CASE
@@ -80,8 +78,7 @@ SELECT
             WHEN original_user_country = 'Mexico'                                               THEN 'MX'
             WHEN original_user_country = 'Chile'                                                THEN 'CL'
             WHEN original_user_country = 'Colombia'                                             THEN 'CO'
-            WHEN original_user_country NOT IN ('Brazil','Mexico','Argentina','Chile','Colombia') THEN 'Other'
-            ELSE original_user_country
+            else  'Other'
           END
     END AS classified_country,
 

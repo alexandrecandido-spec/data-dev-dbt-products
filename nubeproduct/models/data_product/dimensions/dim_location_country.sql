@@ -10,9 +10,9 @@
 {{ generate_surrogate_dimension
 (
     source_relation=source('stg_moltres','mwp_countries'),
-    source_column='name_en',
+    source_column=['name_en'],
     id_column='country_id',
-    name_column='country_name',
+    name_column=['country_name'],
     extra_columns=['country_code'],
     array_columns=[],
     column_aliases={'country_id': 'id','country_code': 'code','country_name': 'name_en'},
