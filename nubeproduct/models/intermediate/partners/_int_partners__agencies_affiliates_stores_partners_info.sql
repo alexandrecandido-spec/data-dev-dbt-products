@@ -6,7 +6,7 @@ WITH partner_utm AS
         MAX(CASE WHEN tag_type = 'utm_source' THEN tag_value END) AS partner_utm_source,
         MAX(CASE WHEN tag_type = 'utm_medium' THEN tag_value END) AS partner_utm_medium,
         MAX(CASE WHEN tag_type = 'utm_content' THEN tag_value END) AS partner_utm_content
-    FROM {{ source('ecosystem', 'partners_tags_campaign') }}
+    FROM {{ source('int_ecosystem', 'partners_tags_campaign') }}
     GROUP BY 
         partner_id
 )
@@ -15,7 +15,7 @@ SELECT
     MP.code AS partner_code,
     MP.name AS partner_name, 
     MC.country_code AS partner_country_code,
-    MP.created_at AS partner_created_at_ts,
+    MP.created_at AS partner_created_at,
     MP.email AS partner_email,
     MP.phone_number AS partner_phone_number,
     PU.partner_utm_campaign,

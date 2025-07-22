@@ -4,7 +4,7 @@
         incremental_strategy = 'merge',
         unique_key = ['store_id'],
         on_schema_change = 'fail',
-        tags = ['partners', 'daily-9am']
+        tags = ['daily-9am']
 ) }}
 
 WITH existing_data AS (
@@ -30,17 +30,17 @@ partner_stores AS
         SI.acquired_by,  
         SI.created_at,
         SI.first_payment,
-        FSD.first_seller_at,
+        SI.first_seller_at,
         SI.churned_at,
         SI.plan_id,
-        OGP.grupo AS plan_group,
-        OGP.namev2 AS plan_name,
+        SI.plan_group,
+        SI.plan_name,
         SI.partner_id,
         SI.partnership_type,
         PI.partner_code,
         PI.partner_name,
         PI.partner_country_code,
-        PI.partner_created_at_ts,
+        PI.partner_created_at,
         PI.partner_email,
         PI.partner_phone_number,
         PI.partner_utm_campaign,
@@ -54,13 +54,9 @@ partner_stores AS
     FROM {{ ref('_int_partners__agencies_affiliates_stores_store_info') }} AS SI
     LEFT JOIN {{ ref('_int_partners__agencies_affiliates_stores_partners_info') }} AS PI
         ON SI.partner_id = PI.partner_id
-    LEFT JOIN {{ ref('operations_grouping_plans') }} AS OGP
-        ON SI.plan_id = OGP.plan   
     LEFT JOIN {{ ref('_int_partners__agencies_affiliates_stores_affiliates_classification') }} AS AC
         ON PI.partner_code = AC.partner_code
             AND PI.partner_country_code = AC.affiliate_country
-    LEFT JOIN {{ ref('marketing_first_seller_date') }} AS FSD  
-        ON SI.store_id = FSD.store_id
 )
 SELECT 
     partner_stores.*,

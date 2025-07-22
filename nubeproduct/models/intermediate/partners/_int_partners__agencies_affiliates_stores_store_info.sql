@@ -84,9 +84,12 @@ SELECT
     SI.country_code,
     SI.current_segment,
     SI.first_payment,
+    FSD.first_seller_at,
     SI.churned_at,
     SI.created_at,
     SI.plan_id,
+    OGP.grupo AS plan_group,
+    OGP.namev2 AS plan_name,
     SI.verified,
     SI.main_user_id,
     SI.partner_id,
@@ -116,3 +119,7 @@ LEFT JOIN {{ source('int_data_predictors', 'marketing_cutoffs_table') }} AS MCT
         AND (MCT.device = SI.device OR MCT.device IS NULL)
 LEFT JOIN blocked_partner_stores AS BPS
     ON SI.store_id = BPS.store_id
+LEFT JOIN {{ ref('operations_grouping_plans') }} AS OGP
+    ON SI.plan_id = OGP.plan   
+LEFT JOIN {{ ref('marketing_first_seller_date') }} AS FSD  
+    ON SI.store_id = FSD.store_id
