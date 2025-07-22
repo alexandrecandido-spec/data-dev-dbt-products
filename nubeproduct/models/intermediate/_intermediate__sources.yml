@@ -1,5 +1,6 @@
 version: 2
 
+
 sources:
   - name: int_moltres
     database: null
@@ -14,10 +15,30 @@ sources:
         description: "List of tags assigned to stores."
       - name: mwp_plans_countries
         description: "Maps available plans to the countries where Tiendanube / Nuvemshop offers its platform."
+      - name: mwp_plans
+        description: "Contains information about the plans available to merchants."
       - name: mwp_shipping_carriers
         description: "Provides details about the shipping carriers integrated or used by stores."
       - name: mwp_attribution
         description: "Contains information on internal and external clicks used for store attribution."
+      - name: mwp_countries
+        description: "Table with country IDs and names."
+      - name: mwp_provinces
+        description: "Table with states IDs and names."
+      - name: regions
+        description: "Table with regions IDs and names."
+      - name: mwp_cities_ar
+        description: "Table with city IDs and names from Argentina."
+      - name: mwp_cities_mx
+        description: "Table with city IDs and names from Mexico."
+      - name: cidades
+        description: "Table with city IDs and names from Brazil."
+      - name: mwp_zipcodes_ar
+        description: "Table with zipcodes from Argentina."
+      - name: mwp_zipcodes_mx
+        description: "Table with zipcodes from Mexico."
+      - name: ceps
+        description: "Table with zipcodes from Brazil."
 
   - name: int_finance
     database: null
@@ -35,6 +56,25 @@ sources:
       - name: marketing_github_mkt_attribution
         description: "List of marketing github issues/inputs created by the marketing team"
       - name: midmarket_hubspot_deals
+      - name: midmarket_hubspot_calls
+      - name: midmarket_hubspot_meetings
+      - name: midmarket_hubspot_email
+      - name: midmarket_hubspot_communications
+      - name: midmarket_hubspot_tasks
+
+  - name: int_midmarket
+    description: "Mid Market tables"
+    schema: data_midmarket
+    tables:
+      - name: midmarket_success_stores
+        description: "List of current active stores in the Mid Market portfolio"
+
+  - name: int_product
+    description: "Product Data Products"
+    schema: data_product
+    tables:
+      - name: product_issues_and_problems_summary
+        description: "Main table listing every Issue and Problem and their associated stores"
 
   - name: int_nuvem_credito
     description: "Source containing tables related to Nuvem credito"
@@ -106,3 +146,37 @@ sources:
     tables:
       - name: mwp_partners
         description: "Contains information about the partners of the ecosystem."
+
+  - name: int_ga4    
+    database: null
+    schema: ga4
+    description: "GA4 refined tables available in Danubio"
+    tables:
+      - name: first_visit
+        description: "Table from GA4 containing the first visit date for each user_pseudo_id."
+  - name: int_orders
+    database: null
+    schema: orders
+    description: "Intermediate tables built from the multiple edit tables"
+    tables:
+      - name: orders_edit_history_discounts 
+        description: "Contains information about all edits on discounts"
+      - name: orders_edit_history_products
+        description: "Contains information about all edits on products"
+      - name: orders_value_history
+        description: "Contains all changes on total and subtotal for an order after each edit"
+      - name: mwp_orders_logging
+        description: "event table with changes for all orders"
+      - name: orders_edit_history_shipping
+        description: "Contains information about all requotes after an edit"
+      - name: orders_edit_history
+        description: "Contains information about all editions and their timestamps"
+
+  - name: int_shipping
+    database: null
+    schema: shipping
+    description: "Intermediate tables built from raw data in the shipping schema, typically used to normalize or enrich store-level information."
+    tables:
+      - name: locations
+        description: "Contains information about address by merchants."
+

@@ -1,10 +1,19 @@
-{{ config(
+{{ config
+    (
     materialized = 'incremental',
     unique_key = ['id'],
     incremental_strategy = 'merge',
     partition_by='year_month_day_code',
-    tags=["operations","daily-9am-9pm"]
-) }}
+    tags=["operations","daily-9am-9pm"],
+    post_hook=[
+        "DELETE FROM {{ this }}
+        WHERE id IN (
+            SELECT id
+            FROM {{ source('stg_orders', 'mwp_order_products_deleted') }}
+        )"
+        ]
+    ) 
+}}
 
 with source as (
     select

@@ -179,6 +179,18 @@ models:
         tests:
           - accepted_values:
               values: ["top-seller", "large-seller", "medium-seller", "small-seller", "tiny-seller", "struggling-seller", "no-seller"]
+      - name: gmv_usd_90d
+        description: Gross Merchandise Value (GMV) in USD for the last 90 days.
+      - name: gmv_local_currency_90d
+        description: Gross Merchandise Value (GMV) in local currency for the last 90 days.
+      - name: gmv_usd_on_platform_90d
+        description: Gross Merchandise Value (GMV) in USD for on-platform orders during the last 90 days.
+      - name: gmv_local_currency_on_platform_90d
+        description: Gross Merchandise Value (GMV) in local currency for on-platform orders during the last 90 days.
+      - name: gmv_usd_off_platform_90d
+        description: Gross Merchandise Value (GMV) in USD for off-platform orders during the last 90 days.
+      - name: gmv_local_currency_off_platform_90d
+        description: Gross Merchandise Value (GMV) in local currency for off-platform orders during the last 90 days.
       - name: sys_audit_created_on
         description: Timestamp when the row was originally created.
       - name: sys_audit_created_by
@@ -187,35 +199,6 @@ models:
         description: Timestamp of the most recent update to the row.
       - name: sys_audit_updated_by
         description: System or user that last updated the row.
-  
-
-  - name: company_metrics_merchant_vertical
-    description: "This table informs the stores vertical like clothing, digital, cars, etc."
-    config:
-      meta:
-        business_owner: "djalma.dias@nuvemshop.com"
-        domain: "operations"
-        business_owner: "Analytics Engineering"
-    columns:
-      - name: store_id
-        description: "Unique identifier of the store. External key."
-        tests:
-          - not_null
-      - name: country
-        description: "Country where the store belongs."
-      - name: vertical
-        description: "Business segment of the store."
-        tests:
-          - not_null
-      - name: sys_audit_created_on
-        description: "Timestamp when the row was originally created."
-      - name: sys_audit_created_by
-        description: "System or user that created the row."
-      - name: sys_audit_updated_on
-        description: "Timestamp of the most recent update to the row."
-      - name: sys_audit_updated_by
-        description: "System or user that last updated the row."
-
 
   - name: operations_grouping_plans
     config:
@@ -249,6 +232,38 @@ models:
         description: Source or user responsible for the latest update.
 
 
+  - name: operations_grouping_sessions
+    config:
+      meta:
+        tech_steward: "guillermo.defelice@tiendanube.com"
+        domain: "operations"
+        business_owner: "Franco Tiberti"
+    description: Contains the number of sessions per week and per month.
+    columns:
+      - name: date_from
+        description: Date of the Monday where the week starts (weekly) or the first day of the month (monthly).
+        tests:
+          - not_null
+      - name: store_id
+        description: Unique identifier of the store_id.
+        tests:
+          - not_null
+      - name: periodicity
+        description: Data aggregated by week or month.
+      - name: sessions
+        description: Quantity of store sessions.
+      - name: previous_sessions
+        description: Quantity of store sessions in the previous period.
+      - name: sys_audit_created_on
+        description: Timestamp when the row was initially created in the summary table.
+      - name: sys_audit_created_by
+        description: Source or user responsible for the initial row creation.
+      - name: sys_audit_updated_on
+        description: Timestamp of the latest update to the row.
+      - name: sys_audit_updated_by
+        description: Source or user responsible for the latest update.
+
+
   - name: company_metrics_products_per_order
     config:
       meta:
@@ -271,3 +286,84 @@ models:
         description: Timestamp of the latest update to the row.
       - name: sys_audit_updated_by
         description: Source or user responsible for the latest update.
+
+  - name: company_metrics_merchant_info
+    description: "This table contains the main descritive attributes of each store, including vertical, segment, location, and other classification fields."
+    config:
+      meta:
+        business_owner: "gustavo.braga@nuvemshop.com.br"
+        domain: "operations"
+        business_owner: "Franco Tiberti"
+    columns:
+      - name: store_id
+        description: "Unique identifier of the store. External key."
+        tests:
+          - not_null
+      - name: created_at
+        description: "Store creation date. Format YYYY-MM-DD."
+        tests:
+          - not_null
+      - name: country_code
+        description: "Code of the country as provided by the store info base."
+        tests:
+          - not_null
+      - name: country_name
+        description: "Name of the country as provided by the store info base."
+        tests:
+          - not_null
+      - name: base_country_code
+        description: "Code of the country as provided by the shipping source."
+        tests:
+          - not_null
+      - name: base_country_name
+        description: "Name of the country as provided by the shipping source."
+        tests:
+          - not_null
+      - name: base_region_name
+        description: "Name of the geographic region (e.g., used in Brazil) as provided by the shipping source."
+        tests:
+          - not_null
+      - name: base_state_name
+        description: "Name of the state or province as provided by the shipping source."
+        tests:
+          - not_null
+      - name: base_city_name
+        description: "Name of the city as provided by the shipping source."
+        tests:
+          - not_null
+      - name: current_segment_name
+        description: "Descriptive name of the current segment (e.g., no-seller, struggling-seller) associated this store."
+        tests:
+          - not_null
+      - name: current_segment_date_id
+        description: "Date indicating since when this segment has been associated with the store."
+      - name: max_segment_name
+        description: "Descriptive name of the maximum segment (e.g., no-seller, struggling-seller) associated this store."
+        tests:
+          - not_null
+      - name: max_segment_date_id
+        description: "Date the store was last classified under its highest segment."
+      - name: vertical_name
+        description: "Descriptive label of the vertical (e.g., small-business, medium-business, etc) associated this store."
+        tests:
+          - not_null
+      - name: business_size_name
+        description: "Descriptive label of the business size (e.g., small-business, medium-business, etc) associated this store."
+        tests:
+          - not_null
+      - name: group_name
+        description: "Name of the grouping plan (e.g., Basic, Business, Professional, etc) associated this store."
+        tests:
+          - not_null
+      - name: domain
+        description: "Custom store domain name created by the client."
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created."
+      - name: sys_audit_created_by
+        description: "System or user that created the row."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the most recent update to the row."
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row."

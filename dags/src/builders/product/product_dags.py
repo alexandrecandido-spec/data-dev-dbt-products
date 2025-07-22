@@ -30,6 +30,21 @@ dag = create_dbt_dag(
 
 # Crear el DAG frecuencia diaria
 dag = create_dbt_dag(
+    dag_id='dbt_product_daily_10am',
+    schedule_interval_tag='daily-10am',
+    default_args=default_args,
+    tags=['product','daily-10am']
+)
+
+# Crear el DAG frecuencia diaria 
+dag = create_dbt_dag(
+    dag_id='dbt_product_daily-9am',
+    schedule_interval_tag='daily-9am',
+    default_args=default_args,
+    tags=['product', 'daily-9am']
+)
+# Crear el DAG frecuencia diaria
+dag = create_dbt_dag(
     dag_id='dbt_product_daily_9am',
     schedule_interval_tag='daily-9am',
     default_args=default_args,
@@ -42,4 +57,3 @@ dag = create_dbt_dag(
     default_args=default_args,
     tags=['product','daily-9am-9pm']
 )
-

@@ -13,3 +13,37 @@ seeds:
         description: Plan group name.
         tests:
           - not_null
+  - name: dimensions__segment_type
+    description: Seed with segment values.
+    columns:
+      - name: segment_id
+        description: Unique identifier for the segment type.
+        tests:
+          - not_null
+      - name: segment_name
+        description: Descriptive name of the segment (e.g., no-seller, struggling-seller).
+        tests:
+          - not_null
+      - name: segment_order
+        description: Ordinal number used to define the display or logical order of segments (e.g., 1 = no-seller, 2 = struggling-seller).
+        tests:
+          - not_null
+  - name: dimensions__region
+    description: Seed with geographic region codes and names from countries.
+    columns:
+      - name: region_id
+        description: Unique identifier for the geographic region.
+        tests:
+          - not_null
+      - name: region_code
+        description: Code of the geographic region (e.g., BAJ, NE).
+        tests:
+          - not_null
+      - name: region_name
+        description: Descriptive name of the geographic region (e.g., Bajio, Nordeste).
+        tests:
+          - not_null
+      - name: country_id
+        description: Indicates the country ID to which the geographic region belongs.
+        tests:
+          - not_null
