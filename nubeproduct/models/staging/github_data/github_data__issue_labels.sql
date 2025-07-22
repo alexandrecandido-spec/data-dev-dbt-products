@@ -4,7 +4,7 @@
         unique_key=['repo_name', 'issue_number'],
         incremental_strategy='merge',
         on_schema_change='fail',
-        tags=["product","daily-8am"]
+        tags=["product","daily-10am"]
     )
 }}
 
@@ -40,7 +40,7 @@ FROM
             concat_ws('; ', collect_list(CASE WHEN name IN ('AR', 'BR', 'MX', 'CO', 'CL') THEN name END)) AS labels_country,
             concat_ws('; ', collect_list(CASE WHEN name IN ('Shipping App', 'Payments App', 'Marketing App', 'Management App', 'Channels App', 'Others App') THEN name END)) AS labels_ecosystem,
             concat_ws('; ', collect_list(CASE WHEN name LIKE '%Nube -%' THEN name END)) AS labels_core,
-            concat_ws('; ', collect_list(CASE WHEN name IN ('1 - WIP - Identificando problema', '2 - WIP - Entendiendo solución', '3 - WIP - Ejecutando solución', '4 - WIP - Monitoreando solución') THEN name END)) AS labels_wip,
+            concat_ws('; ', collect_list(CASE WHEN name IN ('1 - WIP - Identificando problema', '2 - WIP - Entendiendo solucion', '3 - WIP - Ejecutando solucion', '4 - WIP - Monitoreando solucion') THEN name END)) AS labels_wip,
             concat_ws('; ', collect_list(CASE WHEN name IN ('No Quick Fix', 'Quick Fix', 'Quickfix') THEN name END)) AS labels_quick_fix,
             max(sys_audit_updated_at) as sys_audit_updated_at
         FROM

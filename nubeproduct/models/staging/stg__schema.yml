@@ -198,6 +198,11 @@ models:
 
 
   - name: nuvem_credito__credit_proposals
+    config:
+      meta:
+        tech_steward: "sofia.sanchez@tiendanube.com"
+        domain: "fintech"
+        owner: "Calvin Hetem"
     description: "Staging model with credit proposals, clean data with current store_id"
     config:
       meta:
@@ -324,6 +329,124 @@ models:
       - name: sum_gmv_usd
         description: "Monthly average GMV from the last 4 closed months in USD"
 
+  - name: ga4__event_info
+    description: "Staging model for GA4 events information. Includes user sessions and event metadata."
+    config:
+      meta:
+        tech_steward: "sofia.torres@tiendanube.com"
+        domain: "marketing"
+        business_owner: "Giselle Galli"
+    columns:
+      - name: unique_session
+        description: "Unique identifier for the user session."
+        tests:
+          - not_null
+      - name: event_name
+        description: "Name of the event triggered during the session."
+      - name: event_date
+        description: "Date when the event occurred."
+      - name: event_device
+        description: "Device category (mobile, desktop, etc.) associated with each event."
+      - name: event_type
+        description: "Classifies the event as 'login' or 'other' based on event_name content."
+      - name: year_month_day_code
+        description: "YYYYMMDD code for daily partitioning."
+
+  - name: ga4__tp_info
+    description: "Staging model for trials and payments information from GA4."
+    config:
+      meta:
+        tech_steward: "sofia.torres@tiendanube.com"
+        domain: "marketing"
+        business_owner: "Giselle Galli"
+    columns:
+      - name: unique_session
+        description: "Unique identifier for the user session."
+        tests:
+          - not_null
+      - name: trial_timestamp
+        description: "Timestamp when the trial started, if available."
+      - name: payment_timestamp
+        description: "Timestamp when the payment was made, if available."
+      - name: trial_date
+        description: "Date when the trial started."
+      - name: payment_date
+        description: "Date when the payment was made."
+      - name: year_month_day_code
+        description: "YYYYMMDD code based on the earliest of trial_date or payment_date."
+
+  - name: ga4__session_info
+    description: "Staging model for user sessions duration and engagement flags."
+    config:
+      meta:
+        tech_steward: "sofia.torres@tiendanube.com"
+        domain: "marketing"
+        business_owner: "Giselle Galli"
+    columns:
+      - name: unique_session
+        description: "Unique identifier for the user session."
+        tests:
+          - not_null
+      - name: start_session_time
+        description: "Timestamp when the session started."
+      - name: end_session_time
+        description: "Timestamp when the session ended."
+      - name: session_duration_minutes
+        description: "Duration of the session in minutes."
+      - name: engage
+        description: "Engagement flag for the session (1 if engaged, 0 otherwise)."
+      - name: start_session_date
+        description: "Date when the session started."
+      - name: year_month_day_code
+        description: "YYYYMMDD code for daily partitioning."
+
+  - name: ga4__mod_pv_info
+    description: "Staging model for GA4 pageviews enriched with traffic source, landing page, and UTM parameters."
+    config:
+      meta:
+        tech_steward: "sofia.torres@tiendanube.com"
+        domain: "marketing"
+        business_owner: "Giselle Galli"
+    columns:
+      - name: event_timestamp
+        description: "Timestamp of the pageview event."
+        tests:
+          - not_null
+      - name: event_date
+        description: "Parsed event date from GA4."
+      - name: year_month_day_code
+        description: "YYYYMMDD code for daily partitioning."
+      - name: user_pseudo_id
+        description: "Anonymized identifier for the user."
+      - name: unique_session
+        description: "Unique identifier for the user session."
+        tests:
+          - not_null
+      - name: source_ga4_classification
+        description: "Traffic source classification."
+      - name: original_user_country
+        description: "User's original country as reported by GA4."
+      - name: env_pagegroup
+        description: "Environment or page group indicator."
+      - name: landing_page
+        description: "Full landing page URL of the session."
+      - name: landing_page_domain
+        description: "Domain part of the landing_page URL."
+      - name: landing_page_path
+        description: "Path part of the landing_page URL, excluding query string."
+      - name: utm_ad_id
+        description: "Value extracted from the URL parameter after 'id_' up to the next '&'."
+      - name: utm_content
+        description: "Value extracted from the 'utm_content' URL parameter."
+      - name: utm_term
+        description: "Value extracted from the 'utm_term' URL parameter."
+      - name: last_source
+        description: "Last known traffic source for the session."
+      - name: last_medium
+        description: "Last known traffic medium for the session."
+      - name: last_campaign
+        description: "Last recorded campaign parameter."
+  
   - name: orders__mwp_orders_source
     description: Staging da origem de tráfego dos pedidos, com normalização dos parâmetros UTM e referrer.
     config:
@@ -399,3 +522,89 @@ models:
         description: "Timestamp of the current model run when the record was processed."
       - name: sys_audit_updated_by
         description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
+
+  - name: billing__receipt
+    description: "Staging model for billing receipts. Contains only the necessary fields to link to the billing cycle."
+    config:
+      meta:
+        tech_steward: "gustavo.oliveira@nuvemshop.com.br"
+        domain: "finance"
+        business_owner: "Mônica Orlando"
+    columns:
+      - name: id
+        description: "Receipt identifier"
+        tests: [not_null]
+      - name: number
+        description: "Receipt code"
+
+  - name: billing__payment_transaction
+    description: "Payment transactions, with status filtering and date conversion."
+    config:
+      meta:
+        tech_steward: "gustavo.oliveira@nuvemshop.com.br"
+        domain: "finance"
+        business_owner: "Mônica Orlando"
+    columns:
+      - name: paid_order_id
+        description: "Payment order ID"
+        tests: [not_null]
+      - name: paid_at
+        description: "Date when the payment was made"
+      - name: status
+        description: "Transaction status (expected: 'SUCCESS')"
+
+  - name: moltres__mwp_invoice_info
+    description: "Tax information for stores for invoice issuance."
+    config:
+      meta:
+        tech_steward: "gustavo.oliveira@nuvemshop.com.br"
+        domain: "finance"
+        business_owner: "Mônica Orlando"
+    columns:
+      - name: store_id
+        description: "Store identifier"
+        tests: [not_null]
+      - name: id_type
+        description: "Identifier type (e.g., CPF, CNPJ)"
+      - name: id_number
+        description: "CPF/CNPJ number"
+      - name: business_name
+        description: "Company name or legal name"
+      - name: type
+        description: "Type of tax information"
+
+  - name: nuvem_envio__billing_cycle
+    description: "Raw billing cycle information per store."
+    config:
+      meta:
+        tech_steward: "gustavo.oliveira@nuvemshop.com.br"
+        domain: "finance"
+        business_owner: "Mônica Orlando"
+    columns:
+      - name: billing_cycle_id
+        description: "Billing cycle ID"
+        tests: [not_null, unique]
+      - name: external_store_id
+        description: "External store ID"
+      - name: payment_value
+        description: "Total billed amount for the cycle"
+      - name: currency
+        description: "Billing currency"
+      - name: year_month_code
+        description: "Reference year and month for the billing"
+
+  - name: nuvem_envio__cycle_by_carrier
+    description: "Costs attributed per carrier for each billing cycle."
+    config:
+      meta:
+        tech_steward: "gustavo.oliveira@nuvemshop.com.br"
+        domain: "finance"
+        business_owner: "Mônica Orlando"
+    columns:
+      - name: billing_cycle_id
+        description: "Billing cycle ID"
+        tests: [not_null]
+      - name: carrier_code
+        description: "Carrier code (e.g., correios)"
+      - name: cost_charge_value
+        description: "Cost amount attributed to the carrier"

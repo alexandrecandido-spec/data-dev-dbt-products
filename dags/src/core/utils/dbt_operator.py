@@ -164,7 +164,6 @@ class DBTOperator(BashOperator):
             
             if self.dbt_command == 'test':
                 if 'ERROR=' in output:
-                    import re
                     match = re.search(r'ERROR=(\d+)', output)
                     if match and int(match.group(1)) > 0:
 
@@ -175,7 +174,8 @@ class DBTOperator(BashOperator):
                             value=error_msg
                         )
 
-                        error_msg= self._extract_test_fails(error_msg)
+                        fails_list = self._extract_test_fails(error_msg)
+                        formatted_fails = '\n'.join(fails_list) if fails_list else "No test names extracted."
 
                         SlackWebhookOperator(
                             task_id='slack_test_warning',
@@ -185,7 +185,7 @@ class DBTOperator(BashOperator):
             *Dag:* `{context['dag'].dag_id}`  
             *Execution Date:* {context['execution_date']}  
             *Log Url:* {context['task_instance'].log_url}  
-            *Details:* ```{error_msg}```""",
+            *Details:* ```{formatted_fails}```""",
                             channel="#dbt-alerts",
                         ).execute(context=context)
 

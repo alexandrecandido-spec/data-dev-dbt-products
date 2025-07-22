@@ -16,6 +16,17 @@ WITH orders_to_update (
         )
     {% endif %}
 ),
+orders_to_delete (
+    SELECT 
+        DISTINCT source_event.order_id 
+    FROM {{ source('dp_orders', 'mwp_order_products_deleted') }}
+    {% if is_incremental() %}
+        where sys_audit_created_on > (
+            select max(sys_audit_updated_on)
+            from {{ this }}
+        )
+    {% endif %}
+),
 orders_updated (
     SELECT
         order_id,
@@ -24,7 +35,7 @@ orders_updated (
         ) AS product_quantity
     FROM {{ ref('orders__mwp_order_products') }} products
     {% if is_incremental() %}
-        WHERE order_id IN (SELECT order_id FROM orders_to_update)
+        WHERE order_id IN (SELECT order_id FROM orders_to_update) or order_id IN (SELECT order_id FROM orders_to_delete) 
     {% endif %}
     GROUP BY order_id
 ),

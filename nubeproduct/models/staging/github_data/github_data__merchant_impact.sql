@@ -5,7 +5,7 @@
         materialized='table',
         unique_key=['repo_name', 'issue_number', 'store_id'],
         on_schema_change='fail',
-        tags=["product","daily-8am"]
+        tags=["product","daily-10am"]
     )
 }}
 
