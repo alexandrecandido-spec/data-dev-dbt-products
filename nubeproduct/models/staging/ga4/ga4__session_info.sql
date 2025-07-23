@@ -19,14 +19,14 @@ main_source AS (
 
         CASE
             WHEN end_session_time IS NOT NULL AND start_session_time IS NOT NULL
-            THEN (end_session_time - start_session_time) / 60000
+            THEN (end_session_time - start_session_time) / 60000000
             ELSE NULL
         END AS session_duration_minutes,
 
         CASE
             WHEN engage IS NOT NULL THEN engage
             WHEN end_session_time IS NOT NULL AND start_session_time IS NOT NULL
-                 AND (end_session_time - start_session_time) / 60000 >= 1
+                 AND (end_session_time - start_session_time) / 60000000 >= 1
             THEN 1 ELSE 0
         END AS engage,
 
