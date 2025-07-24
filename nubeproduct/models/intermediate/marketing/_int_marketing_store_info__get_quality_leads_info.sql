@@ -1,4 +1,12 @@
-WITH store_info_data AS (
+WITH first_seller_at_date AS (
+  SELECT
+    f.store_id, 
+    f.year_month_day_code,
+    f.first_seller_at
+  FROM {{ ref('marketing_first_seller_date') }} f
+  WHERE f.first_seller_at IS NOT NULL
+)
+, store_info_data AS (
   SELECT
     msi.store_id
     , msi.country
@@ -6,6 +14,8 @@ WITH store_info_data AS (
     , DATE(msi.created_at) AS created_at
     , DATE(msi.first_payment) AS first_payment
     , DATE(msi.churned_at) AS churned_at
+    , DATE(f.first_seller_at) AS first_seller_at
+    , DATE(greatest(msi.created_at, msi.first_payment, msi.churned_at, f.first_seller_at)) as change_timestamp
     , CASE 
       WHEN msi.verified = 0 THEN 'undefined'
       WHEN msi.verified = 1 THEN 'desktop'
@@ -17,6 +27,7 @@ WITH store_info_data AS (
     , msi.partner_id
     , msi.partnership_type
   FROM {{ ref('moltres__mwp_store_info') }} msi
+  LEFT JOIN first_seller_at_date f ON msi.store_id = f.store_id
 ),
 ranked_store_info AS (
   SELECT 

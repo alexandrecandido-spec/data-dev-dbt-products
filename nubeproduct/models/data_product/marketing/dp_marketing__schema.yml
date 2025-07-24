@@ -337,6 +337,8 @@ models:
         description: "Date when the first payment was made"
       - name: churned_at
         description: "Date when the store was churned"
+      - name: first_seller_at
+        description: "Date when the first seller was made (first time achieving 7 sales in 90 days window)"
       - name: device
         description: "Device type used by the user during the store creation process (e.g., desktop, app, mobile)."
         tests:
@@ -806,6 +808,7 @@ models:
       - name: sys_audit_updated_by
         description: "System identifier of the process that last updated this record"
   
+
   - name: marketing_ga4_sessions_classified
     description: Session level view enriched with device information, GA4 source
       labels and a “classified_country” logic that maps each session
@@ -883,6 +886,7 @@ models:
         description: Timestamp when the row was last updated by dbt.
       - name: sys_audit_updated_by
         description: dbt job or service account that last updated the row.
+
 
   - name: marketing_ga4_sessions_aggregated
     description: Daily aggregation of *marketing_ga4_sessions_classified* with
@@ -972,6 +976,7 @@ models:
         description: Timestamp when the row was last updated.
       - name: sys_audit_updated_by
         description: dbt job or service account that last updated the row.
+
 
   - name: marketing_ga4_sessions_daily_attribution
     description: Extends the aggregated table with marketing-team mappings
@@ -1070,7 +1075,6 @@ models:
       - name: sys_audit_updated_by
         description: dbt job or service account that last updated the row.
     
-
 
   - name: first_seller_date
     description: "This data product identifies the first date on which a store qualified as a “seller”, based on sales performance, and aligns it with the store’s presence in the moltres_store_info. The main goal is to determine when each store first achieved at least 7 sales in a rolling 90-day window, according to data from company_metrics_paid_orders."
