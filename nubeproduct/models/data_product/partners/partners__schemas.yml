@@ -109,3 +109,5 @@ models:
         description: Timestamp of the latest update to the row.
       - name: sys_audit_updated_by
         description: Source or user responsible for the latest update.
+      - name: business_unit
+        description: Business unit of the store (MM - SMB).

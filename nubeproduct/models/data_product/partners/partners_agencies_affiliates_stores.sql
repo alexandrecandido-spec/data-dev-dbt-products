@@ -16,10 +16,11 @@ partner_stores AS
         SI.store_id,
         SI.main_user_id,
         SI.domain,
-        SI.country_code,
+        SI.country_code,    
         SI.state,
+        SI.business_unit,
         SI.block_flg,
-        SI.current_segment,
+        SI.current_segment, --VARIAR
         SI.merchant_type,
         SI.active_merchant_flg,
         SI.device,
@@ -67,3 +68,15 @@ SELECT
 FROM partner_stores
 LEFT JOIN existing_data e
     ON partner_stores.store_id = e.store_id
+/*
+WHERE    
+    {% if not is_incremental() %}
+      main_source.created_at >= DATE '2000-01-01'
+    {% endif %}
+    {% if is_incremental() %}
+      main_source.change_timestamp > (
+        SELECT COALESCE(MAX(sys_audit_created_on), DATE '1900-01-01')
+        FROM {{ this }}
+      )
+    {% endif %}
+*/
