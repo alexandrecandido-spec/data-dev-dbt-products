@@ -45,12 +45,16 @@ models:
         description: Flag indicating if the store is a quality lead.
       - name: first_payment_flg
         description: Flag indicating if the store has made a first payment and no chrun at the same month.
+        tests:
+          - not_null
       - name: acquired_by
         description: Acquired by partner or nuvemshop, not evaluated for affiliates.
         tests:
           - not_null
       - name: created_at
         description: Date and time when the store was created.
+        tests:
+          - not_null
       - name: first_payment
         description: Date and time when the store made its first payment.
       - name: churned_at
@@ -111,3 +115,7 @@ models:
         description: Source or user responsible for the latest update.
       - name: business_unit
         description: Business unit of the store (MM - SMB).
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['MM', 'SMB']
