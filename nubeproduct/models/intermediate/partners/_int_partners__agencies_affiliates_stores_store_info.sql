@@ -2,13 +2,15 @@ WITH tag_acquired_by AS
 (
     SELECT
         store_id,
+        MAX(sys_audit_updated_on) AS sys_audit_updated_on,
         MAX(CASE WHEN tag = 'partner' THEN 1 ELSE 0 END) AS has_partner_tag,
         MAX(CASE WHEN tag = 'channels-affiliate-attribution' THEN 1 ELSE 0 END) AS has_affiliate_tag
     FROM 
         (
-            SELECT DISTINCT
+            SELECT
                 related_id AS store_id,
-                tag
+                tag,
+                sys_audit_updated_on
             FROM {{ source('int_moltres', 'mwp_tags') }}
             WHERE type = 'store'
                 AND tag IN ('partner', 'channels-affiliate-attribution')
@@ -18,7 +20,8 @@ WITH tag_acquired_by AS
 blocked_partner_stores AS
 (
     SELECT DISTINCT
-        related_id AS store_id 
+        related_id AS store_id,
+        MAX(sys_audit_updated_on) AS sys_audit_updated_on
     FROM {{ source('int_moltres', 'mwp_tags') }}
     WHERE tag IN
                 (
@@ -28,6 +31,7 @@ blocked_partner_stores AS
                     'partner_bloqued',
                     'partner-blocked'
                 )
+    GROUP BY related_id
 ),
 store_info_data AS 
 (
@@ -72,7 +76,8 @@ store_info_data AS
                     ) 
             THEN TRUE 
         ELSE FALSE 
-        END AS first_payment_flg
+        END AS first_payment_flg,
+        sys_audit_updated_on
     FROM {{ ref('moltres__mwp_store_info') }}
     WHERE partner_id IS NOT NULL -- Partner related
         AND partnership_type IN('store_development', 'affiliate') -- Agencies and affiliates
@@ -113,7 +118,20 @@ ranked_store_info AS
         MCT.cutoff AS prod_cutoff,
         IF(QL.predicted_prob >= MCT.cutoff,TRUE,FALSE) AS quality_lead_flg,
         SI.merchant_type,
-        SI.active_merchant_flg
+        SI.active_merchant_flg,
+        DATE
+            (
+                GREATEST
+                    (
+                        SI.sys_audit_updated_on, 
+                        TAB.sys_audit_updated_on, 
+                        QL.sys_audit_updated_on, 
+                        BPS.sys_audit_updated_on,
+                        OGP.sys_audit_updated_on,
+                        FSD.sys_audit_updated_on
+                    )
+            ) 
+        AS store_info_change_timestamp
     FROM store_info_data AS SI
     LEFT JOIN tag_acquired_by AS TAB
         ON SI.store_id = TAB.store_id

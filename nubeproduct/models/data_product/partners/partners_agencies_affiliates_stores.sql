@@ -51,7 +51,17 @@ partner_stores AS
         AC.mkt_exclusion,
         AC.affiliate_classification,
         AC.affiliate_tier,
-        AC.affiliate_main_platform
+        AC.affiliate_main_platform,
+        DATE
+            (
+                GREATEST
+                    (
+                        SI.store_info_change_timestamp, 
+                        PI.partner_info_change_timestamp, 
+                        AC.affiliates_classification_change_timestamp
+                    )
+            )
+        AS dp_change_timestamp
     FROM {{ ref('_int_partners__agencies_affiliates_stores_store_info') }} AS SI
     LEFT JOIN {{ ref('_int_partners__agencies_affiliates_stores_partners_info') }} AS PI
         ON SI.partner_id = PI.partner_id
@@ -60,7 +70,7 @@ partner_stores AS
             AND PI.partner_country_code = AC.affiliate_country
 )
 SELECT 
-    partner_stores.*,
+    partner_stores.* EXCEPT(dp_change_timestamp),
     COALESCE(e.sys_audit_created_on, current_timestamp) AS sys_audit_created_on,
     COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by,
     current_timestamp AS sys_audit_updated_on,
@@ -68,15 +78,11 @@ SELECT
 FROM partner_stores
 LEFT JOIN existing_data e
     ON partner_stores.store_id = e.store_id
-/*
-WHERE    
-    {% if not is_incremental() %}
-      main_source.created_at >= DATE '2000-01-01'
-    {% endif %}
     {% if is_incremental() %}
-      main_source.change_timestamp > (
-        SELECT COALESCE(MAX(sys_audit_created_on), DATE '1900-01-01')
-        FROM {{ this }}
-      )
+WHERE    
+      partner_stores.dp_change_timestamp > 
+        (
+            SELECT COALESCE(MAX(sys_audit_updated_on), DATE '1900-01-01')
+            FROM {{ this }}
+        )
     {% endif %}
-*/
