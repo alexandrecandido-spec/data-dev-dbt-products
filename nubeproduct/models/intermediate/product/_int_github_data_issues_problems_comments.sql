@@ -4,7 +4,7 @@ WITH base_comments AS (
     ic.issue_number,
     s.impact,
     iss.store_id,
-    ic.github_created_at AS comment_date,
+    coalesce(ic.github_created_at, i.github_created_at) AS comment_date,
     ic.sys_audit_updated_at
   FROM {{ source('int_github_data', 'issue_comment') }} ic
   INNER JOIN {{ source('int_github_data', 'issue_store') }} iss 

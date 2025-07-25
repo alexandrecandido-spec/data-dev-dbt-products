@@ -45,7 +45,7 @@ WITH source_data AS (
         case when onb.country = 'AR' then 1 end as onboarding_ar,
         case when onb.country = 'BR' then 1 end as onboarding_br,
         case when onb.country in ('AR','BR') or (mm_stores.in_portfolio is not null and mm_stores.in_portfolio=true) then db.impact end as impact,
-        db.comment_date as comment_date,
+        case when v.store_id is not null and db.comment_date is null then i.created_at else db.comment_date end as comment_date,
         current_timestamp() AS _current_timestamp_for_audit, -- Usaremos esto para el nuevo timestamp
         'data-dev-dbt-products' AS sys_audit_created_by,
         'data-dev-dbt-products' AS sys_audit_updated_by
