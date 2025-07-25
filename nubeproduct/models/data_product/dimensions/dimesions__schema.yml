@@ -51,7 +51,7 @@ models:
         tests:
           - not_null
       - name: day_of_week_number
-        description: Numeric weekday (1 = Monday, ..., 7 = Sunday). Adjusted from Spark's dayofweek.
+        description: Numeric weekday (1 = Monday, ..., 7 = Sunday). Adjusted from Sparks dayofweek.
         tests:
           - not_null
       - name: is_weekend
@@ -152,7 +152,7 @@ models:
           - not_null
           - unique
       - name: vertical_name
-        description: Descriptive label of the vertical (e.g., small-business, medium-business, etc).
+        description: Descriptive label of the vertical (e.g., clothing, home_garden, etc).
         tests:
           - not_null
           - unique
@@ -383,6 +383,7 @@ models:
         description: "Unique identifier of the store. External key."
         tests:
           - not_null
+          - unique
       - name: created_at
         description: "Store creation date. Format YYYY-MM-DD."
         tests:
@@ -391,46 +392,76 @@ models:
         description: "ID of the country as provided by the store info base."
         tests:
           - not_null
+          - relationships:
+              to: ref('dim_location_country')
+              field: country_id
       - name: base_country_id
         description: "ID of the country as provided by the shipping source."
         tests:
           - not_null
+          - relationships:
+              to: ref('dim_location_country')
+              field: country_id
       - name: base_region_id
         description: "ID of the geographic region (e.g., used in Brazil) as provided by the shipping source."
         tests:
           - not_null
+          - relationships:
+              to: ref('dim_location_region')
+              field: region_id
       - name: base_state_id
         description: "ID of the state or province as provided by the shipping source."
         tests:
           - not_null
+          - relationships:
+              to: ref('dim_location_state')
+              field: state_id
       - name: base_city_id
         description: "ID of the city as provided by the shipping source."
         tests:
           - not_null
+          - relationships:
+              to: ref('dim_location_city')
+              field: city_id
       - name: current_segment_id
         description: "Current segment type ID associated with the store."
         tests:
           - not_null
+          - relationships:
+              to: ref('dim_segment_type')
+              field: segment_id
       - name: current_segment_date_id
         description: "Date indicating since when this segment has been associated with the store."
       - name: max_segment_id
         description: "Maximum segment type ID associated with the store."
         tests:
           - not_null
+          - relationships:
+              to: ref('dim_segment_type')
+              field: segment_id
       - name: max_segment_date_id
         description: "Date the store was last classified under its highest segment."
       - name: vertical_id
         description: "ID of the vertical category associated this store."
         tests:
           - not_null
+          - relationships:
+              to: ref('dim_vertical_type')
+              field: vertical_id
       - name: business_size_id
         description: "ID of the business size associated this store."
         tests:
           - not_null
+          - relationships:
+              to: ref('dim_business_size')
+              field: business_size_id
       - name: group_id
         description: "ID of the group plan associated this store."
         tests:
           - not_null
+          - relationships:
+              to: ref('dim_group_plan')
+              field: group_id
       - name: domain
         description: "Custom store domain name created by the client."
         tests:
