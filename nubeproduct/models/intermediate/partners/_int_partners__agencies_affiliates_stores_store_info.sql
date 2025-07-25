@@ -174,6 +174,7 @@ SELECT
     prod_cutoff,
     quality_lead_flg,
     merchant_type,
-    active_merchant_flg
+    active_merchant_flg,
+    store_info_change_timestamp
 FROM ranked_store_info
 WHERE row_number = 1
