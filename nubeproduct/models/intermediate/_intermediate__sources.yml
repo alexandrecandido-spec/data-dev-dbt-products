@@ -22,7 +22,7 @@ sources:
       - name: mwp_attribution
         description: "Contains information on internal and external clicks used for store attribution."
       - name: mwp_countries
-        description: "Table with country IDs and names."
+        description: "Contains information about the countries' names and codes"
       - name: mwp_provinces
         description: "Table with states IDs and names."
       - name: regions
@@ -148,6 +148,8 @@ sources:
     tables:
       - name: mwp_partners
         description: "Contains information about the partners of the ecosystem."
+      - name: partners_tags_campaign
+        description: "Contains information about the tags and campaigns of the partners."
 
   - name: int_ga4    
     database: null

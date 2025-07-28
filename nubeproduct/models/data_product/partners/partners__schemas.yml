@@ -1,0 +1,121 @@
+version: 2
+models:
+  - name: partners_agencies_affiliates_stores     
+    config:
+      meta:
+        tech_steward: "felipe.lorenzo@tiendanube.com"
+        domain: "partners"
+        business_owner: "Franco Tiberti"
+    description: >
+      Contains the list of stores associated with a partner, along with calculated fields 
+      and dimensions for future use in KPI construction..
+    columns:
+      - name: store_id
+        description: Unique identifier of the store. Unique key.
+        tests:
+          - not_null
+          - unique
+      - name: main_user_id
+        description: Unique identifier of the main user associated with the store.
+        tests:
+          - not_null
+      - name: domain
+        description: Domain of the store.
+      - name: country_code
+        description: Country code of the store.
+        tests:
+          - not_null
+      - name: state
+        description: State of the store.
+      - name: block_flg
+        description: Flag indicating if the store/partner is blocked.
+      - name: current_segment
+        description: Current segment of the store.
+      - name: merchant_type
+        description: Type of merchant (active, non-active, other).
+      - name: active_merchant_flg
+        description: Flag indicating if the store is active.
+      - name: device
+        description: Device of the store.
+      - name: predicted_prob
+        description: New payment probability of the store.
+      - name: prod_cutoff
+        description: Probability cutoff for the store to be quality lead.
+      - name: quality_lead_flg
+        description: Flag indicating if the store is a quality lead.
+      - name: first_payment_flg
+        description: Flag indicating if the store has made a first payment and no chrun at the same month.
+        tests:
+          - not_null
+      - name: acquired_by
+        description: Acquired by partner or nuvemshop, not evaluated for affiliates.
+        tests:
+          - not_null
+      - name: created_at
+        description: Date and time when the store was created.
+        tests:
+          - not_null
+      - name: first_payment
+        description: Date and time when the store made its first payment.
+      - name: churned_at
+        description: Date and time when the store churned.
+      - name: plan_id
+        description: ID of the plan associated with the store.
+      - name: plan_group
+        description: Group of the plan associated with the store.
+      - name: plan_name
+        description: Name of the plan associated with the store.
+      - name: partner_id
+        description: ID of the partner associated with the store.
+        tests:
+          - not_null
+      - name: partnership_type
+        description: Type of partnership associated with the store (store_development, affiliate).
+        tests:
+          - not_null  
+          - accepted_values:
+              values: ['store_development', 'affiliate']
+      - name: partner_code
+        description: Code of the partner associated with the store.
+      - name: partner_name
+        description: Name of the partner associated with the store.
+      - name: partner_country_code
+        description: Country code of the partner associated with the store.
+      - name: partner_created_at
+        description: Date and time when the partner was created.
+      - name: mkt_exclusion
+        description: Flag indicating if the store is excluded from marketing.
+      - name: affiliate_classification
+        description: Classification of the affiliate associated with the store.
+      - name: affiliate_tier
+        description: Tier of the affiliate associated with the store.
+      - name: affiliate_main_platform
+        description: Main platform of the affiliate associated with the store.
+      - name: partner_email
+        description: Email of the partner associated with the store.
+      - name: partner_phone_number
+        description: Phone number of the partner associated with the store.
+      - name: partner_utm_campaign
+        description: UTM campaign of the partner associated with the store.
+      - name: partner_utm_source
+        description: UTM source of the partner associated with the store.
+      - name: partner_utm_medium
+        description: UTM medium of the partner associated with the store.
+      - name: partner_utm_content
+        description: UTM content of the partner associated with the store.
+      - name: first_seller_at
+        description: Date and time when the store first became a seller.
+      - name: sys_audit_created_on
+        description: Date and time when the row was initially created in the summary table.
+      - name: sys_audit_created_by
+        description: Source or user responsible for the initial row creation.
+      - name: sys_audit_updated_on
+        description: Timestamp of the latest update to the row.
+      - name: sys_audit_updated_by
+        description: Source or user responsible for the latest update.
+      - name: business_unit
+        description: Business unit of the store (MM - SMB).
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['MM', 'SMB']
