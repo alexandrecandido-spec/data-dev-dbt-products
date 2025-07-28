@@ -10,7 +10,7 @@
 WITH initial_installments AS (
     SELECT
         i.contract_id,
-        c.hub_contract_id AS hub_contract_id,
+        i.hub_contract_id AS hub_contract_id,
         DATE(DATE_TRUNC('month', i.original_due_at)) AS initial_due_month,
         DATE(i.original_due_at) AS initial_due_at,
         i.original_amount / 100 AS initial_expected_amount,

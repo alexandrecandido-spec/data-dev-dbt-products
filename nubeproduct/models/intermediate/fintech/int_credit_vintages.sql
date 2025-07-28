@@ -45,7 +45,7 @@ monthly_contract_periods AS (
 
 paid_installments AS (
     SELECT
-        CAST(i.hub_contract_id AS INTEGER) AS hub_contract_id,
+        i.hub_contract_id AS hub_contract_id,
         DATE(i.paid_at) AS paid_at,
         i.paid_amount / 100 AS u_paid,
         i.original_amount / 100 AS original_paid,
