@@ -342,6 +342,7 @@ models:
       - name: sum_gmv_usd
         description: "Monthly average GMV from the last 4 closed months in USD"
 
+
   - name: ga4__event_info
     description: "Staging model for GA4 events information. Includes user sessions and event metadata."
     config:
@@ -365,6 +366,7 @@ models:
       - name: year_month_day_code
         description: "YYYYMMDD code for daily partitioning."
 
+
   - name: ga4__tp_info
     description: "Staging model for trials and payments information from GA4."
     config:
@@ -387,6 +389,7 @@ models:
         description: "Date when the payment was made."
       - name: year_month_day_code
         description: "YYYYMMDD code based on the earliest of trial_date or payment_date."
+
 
   - name: ga4__session_info
     description: "Staging model for user sessions duration and engagement flags."
@@ -412,6 +415,7 @@ models:
         description: "Date when the session started."
       - name: year_month_day_code
         description: "YYYYMMDD code for daily partitioning."
+
 
   - name: ga4__mod_pv_info
     description: "Staging model for GA4 pageviews enriched with traffic source, landing page, and UTM parameters."
@@ -459,6 +463,7 @@ models:
         description: "Last known traffic medium for the session."
       - name: last_campaign
         description: "Last recorded campaign parameter."
+  
   
   - name: orders__mwp_orders_source
     description: Staging da origem de tráfego dos pedidos, com normalização dos parâmetros UTM e referrer.
@@ -536,6 +541,53 @@ models:
       - name: sys_audit_updated_by
         description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
 
+
+  - name: moltres__platform_mwp_apps_stores
+    description: "Extracted data of apps installed and uninstalled by stores"
+    config:
+      meta:
+        tech_steward: "fernando.martinez@tiendanube.com"
+        domain: "product"
+        business_owner: "Nicolas Loreti"
+    columns:
+      - name: app_id
+        description: "determines the app_id of the installation"
+      - name: store_id
+        description: "determines the store_id of the installation"
+      - name: installed_app_id
+        description: "determines the unique identifier of the installation"
+      - name: app_install_date
+        description: "determines the date when the app was installed"
+      - name: app_uninstall_date
+        description: "determines the date when the app was uninstalled"
+      - name: sys_admin_created_at
+        description: "determines the date when the installation was created"
+      - name: sys_audit_updated_at
+        description: "determines the date when the installation was updated"
+
+
+  - name: github_data__platform_solved_tags
+    description: "Extract the solved_by_app tags from github data"
+    config:
+      meta:
+        tech_steward: "fernando.martinez@tiendanube.com"
+        domain: "product"
+        business_owner: "Nicolas Loreti"
+    columns:
+      - name: issue_number
+        description: "Identifies the identification of the Issue/Problem. Combined with repo_name, they make the unique key"
+      - name: repo_name
+        description: "Determines if row is related to an Issue or Problem"
+      - name: issue_label_name
+        description: "name of the label"
+      - name: label_country
+        description: "determines the country of the label"
+      - name: label_created_at
+        description: "date when the label was created"
+      - name: label_updated_at
+        description: "date when the label was updated"
+
+
   - name: billing__receipt
     description: "Staging model for billing receipts. Contains only the necessary fields to link to the billing cycle."
     config:
@@ -550,6 +602,7 @@ models:
       - name: number
         description: "Receipt code"
 
+
   - name: billing__payment_transaction
     description: "Payment transactions, with status filtering and date conversion."
     config:
@@ -558,13 +611,14 @@ models:
         domain: "finance"
         business_owner: "Mônica Orlando"
     columns:
-      - name: payOrderId
+      - name: paid_order_id
         description: "Payment order ID"
         tests: [not_null]
       - name: paid_at
         description: "Date when the payment was made"
       - name: status
         description: "Transaction status (expected: 'SUCCESS')"
+
 
   - name: moltres__mwp_invoice_info
     description: "Tax information for stores for invoice issuance."
@@ -586,6 +640,7 @@ models:
       - name: type
         description: "Type of tax information"
 
+
   - name: nuvem_envio__billing_cycle
     description: "Raw billing cycle information per store."
     config:
@@ -606,6 +661,7 @@ models:
       - name: year_month_code
         description: "Reference year and month for the billing"
 
+
   - name: nuvem_envio__cycle_by_carrier
     description: "Costs attributed per carrier for each billing cycle."
     config:
@@ -621,3 +677,33 @@ models:
         description: "Carrier code (e.g., correios)"
       - name: cost_charge_value
         description: "Cost amount attributed to the carrier"
+
+
+  - name: orders__mwp_orders_b2b
+    description: "Staging model that contains all the b2b orders generated by the blended store solution"
+    config:
+      meta:
+        tech_steward: "matias.scasso@tiendanube.com"
+        domain: "product"
+        business_owner: "Wagner Moynier"
+    columns:
+      - name: id
+        description: "Unique identifier for the b2b order"
+        tests:
+          - unique
+          - not_null
+      - name: order_id
+        tests:
+          - not_null
+      - name: price_table_id
+        description: "Wholesale pricetable id associated with the order"
+      - name: percentage_applied
+        description: "Percentage of discount applied to the order for being a wholesale order"
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model. Defaults to current_timestamp if not available."
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model. Defaults to 'data-dev-dbt-products'."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed."
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."

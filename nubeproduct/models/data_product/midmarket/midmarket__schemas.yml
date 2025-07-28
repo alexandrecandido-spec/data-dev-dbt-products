@@ -20,5 +20,49 @@ models:
           - unique
       - name: in_portfolio
         description: Flag to detect stores that are currently active in the portfolio.
+      - name: sys_audit_created_on
+        description: Timestamp when the row was initially created in the summary table.
+      - name: sys_audit_created_by
+        description: Source or user responsible for the initial row creation.
       - name: sys_audit_updated_on
         description: Timestamp of the latest update to the row.
+      - name: sys_audit_updated_by
+        description: Source or user responsible for the latest update.
+
+
+  - name: midmarket_grouping_interactions
+    config:
+      meta:
+        tech_steward: "guillermo.defelice@tiendanube.com"
+        domain: "midmarket"
+        business_owner: "Franco Tiberti"
+    description: Contains the number of interactions by calls, meetings, emails, whatsapp, tasks. Per week and per month.
+    columns:
+      - name: date_from
+        description: Start date of the aggregation period.
+        tests:
+          - not_null
+      - name: store_id
+        description: Unique identifier of the store_id.
+        tests:
+          - not_null
+      - name: periodicity
+        description: Data aggregated by week or month.
+      - name: calls
+        description: Quantity of calls in the period.
+      - name: emails
+        description: Quantity of emails in the period.
+      - name: meetings
+        description: Quantity of meetings in the period.
+      - name: tasks
+        description: Quantity of tasks in the period.
+      - name: whatsapp
+        description: Quantity of whatsapp messages in the period.
+      - name: sys_audit_updated_on
+        description: Timestamp of the latest update to the row.
+      - name: sys_audit_updated_by
+        description: Source or user responsible for the latest update.
+      - name: sys_audit_created_on
+        description: Timestamp when the row was initially created in the summary table.
+      - name: sys_audit_created_by
+        description: Source or user responsible for the initial row creation.

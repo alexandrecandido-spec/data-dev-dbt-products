@@ -27,6 +27,8 @@ att.store_id
 , msi.created_at
 , msi.first_payment
 , msi.churned_at
+, msi.first_seller_at
+, msi.change_timestamp
 , msi.device
 , msi.register_url
 , msi.partner_id

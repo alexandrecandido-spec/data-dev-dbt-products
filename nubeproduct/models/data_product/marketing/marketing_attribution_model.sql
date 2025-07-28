@@ -4,7 +4,7 @@
     unique_key = ['click_id', 'store_id'],
     partition_by = 'year_month_day_code',
     on_schema_change = 'fail',
-    tags = ['daily-9am']
+    tags = ['daily-10am']
 ) }}
 
 WITH existing_data AS (
@@ -31,6 +31,7 @@ SELECT
 , main_source.created_at
 , main_source.first_payment
 , main_source.churned_at
+, main_source.first_seller_at
 , main_source.device
 , main_source.register_url
 , main_source.partner_id
@@ -58,8 +59,8 @@ WHERE
       main_source.created_at >= DATE '2010-01-01'
     {% endif %}
     {% if is_incremental() %}
-      main_source.created_at > (
-        SELECT COALESCE(MAX(created_at), DATE '1900-01-01')
+      main_source.change_timestamp > (
+        SELECT COALESCE(MAX(sys_audit_created_on), DATE '1900-01-01')
         FROM {{ this }}
       )
     {% endif %}
