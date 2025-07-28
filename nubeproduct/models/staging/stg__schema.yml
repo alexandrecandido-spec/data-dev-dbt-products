@@ -236,14 +236,14 @@ models:
     columns:
       - name: hub_contract_id
         description: "Unique external identifier for each contract."
-      - name: original_due_month
-        description: "Month of the original due date of the installment."
-      - name: original_due_at
-        description: "Date of the original due date of the installment."
-      - name: original_amount
-        description: "Original amount to be paid of the installment."
-      - name: principal_amount
-        description: "Principal amount to be paid of the installment."
+      - name: initial_due_month
+        description: "Due date month of the installment according to the initial structure of the contract."
+      - name: initial_due_at
+        description: "Due date of the installment according to the initial structure of the contract."
+      - name: initial_expected_amount
+        description: "Expected amount to be received according to the initial structure of the contract."
+      - name: initial_principal_expected_amount
+        description: "Expected amount of principal component to be received according to the initial structure of the contract."
 
   - name: antifraud_service__vertifier_store_inferences
     description: "Staging model with vertifier of current store_id provided by antifraud inferences."

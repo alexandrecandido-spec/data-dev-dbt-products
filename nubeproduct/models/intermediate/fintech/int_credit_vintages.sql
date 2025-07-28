@@ -28,7 +28,7 @@ monthly_contract_periods AS (
         to_date(
             format_string('%s-%02d', date_format(ds.calendar_month, 'yyyy-MM'), day(c.start_period)), 
             'yyyy-MM-dd'
-        ) AS original_due_date,
+        ) AS initial_due_date,
         ROW_NUMBER() OVER (
             PARTITION BY c.hub_contract_id 
             ORDER BY ds.calendar_month ASC
@@ -48,6 +48,7 @@ paid_installments AS (
         CAST(i.hub_contract_id AS INTEGER) AS hub_contract_id,
         DATE(i.paid_at) AS paid_at,
         i.paid_amount / 100 AS u_paid,
+        i.original_amount / 100 AS original_paid,
         i.principal_amount / 100 AS principal_paid
     FROM {{ source('stg_nuvem_credito', 'installments') }} i
     WHERE i.status = 'paid'
@@ -57,21 +58,21 @@ contracts_with_debt_amounts AS (
     SELECT
         mcp.*,
         COALESCE(
-            SUM(oi.original_amount) OVER (
+            SUM(oi.initial_expected_amount) OVER (
                 PARTITION BY mcp.hub_contract_id 
-                ORDER BY mcp.original_due_date
+                ORDER BY mcp.initial_due_date
             ), 0
-        ) AS original_amount,
+        ) AS initial_expected_amount,
         COALESCE(
-            SUM(oi.principal_amount) OVER (
+            SUM(oi.initial_principal_expected_amount) OVER (
                 PARTITION BY mcp.hub_contract_id 
-                ORDER BY mcp.original_due_date
+                ORDER BY mcp.initial_due_date
             ), 0
-        ) AS principal_amount
+        ) AS initial_principal_expected_amount
     FROM monthly_contract_periods mcp
     LEFT JOIN {{ ref('nuvem_credito__initial_installments') }} oi 
         ON mcp.hub_contract_id = oi.hub_contract_id
-        AND mcp.calendar_month = oi.original_due_month
+        AND mcp.calendar_month = oi.initial_due_month
 )
 
 SELECT
@@ -80,16 +81,17 @@ SELECT
     cwda.finished_at,
     cwda.custom_status,
     cwda.calendar_month,
-    cwda.original_due_date,
+    cwda.initial_due_date,
     cwda.rank_installments,
-    cwda.original_amount as original_due_amount,
-    cwda.principal_amount as principal_due_amount,
+    cwda.initial_expected_amount as initial_expected_amount,
+    cwda.initial_principal_expected_amount as initial_principal_expected_amount,
     COALESCE(SUM(pi.u_paid), 0) AS paid_amount,
+    COALESCE(SUM(pi.original_paid), 0) AS original_paid_amount,
     COALESCE(SUM(pi.principal_paid), 0) AS principal_paid_amount
 FROM contracts_with_debt_amounts cwda
 LEFT JOIN paid_installments pi
     ON cwda.hub_contract_id = pi.hub_contract_id 
-    AND pi.paid_at <= (cwda.original_due_date + INTERVAL '10' DAY) --10 days as grace period
+    AND pi.paid_at <= (cwda.initial_due_date + INTERVAL '10' DAY) --10 days as grace period
     AND pi.paid_at < cwda.finished_date_for_renegs
 GROUP BY
     cwda.hub_contract_id,
@@ -97,8 +99,8 @@ GROUP BY
     cwda.finished_at,
     cwda.custom_status,
     cwda.calendar_month,
-    cwda.original_due_date,
+    cwda.initial_due_date,
     cwda.rank_installments,
-    cwda.original_amount,
-    cwda.principal_amount
+    cwda.initial_expected_amount,
+    cwda.initial_principal_expected_amount
 

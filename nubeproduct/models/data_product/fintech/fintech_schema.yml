@@ -116,3 +116,41 @@ models:
     columns:
       - name: hub_contract_id
         description: "External identifier for each contract."
+      - name: first_installment_month
+        description: "Month of the first installment."
+      - name: calendar_month
+        description: "Month of the installment."
+      - name: initial_due_date
+        description: "Due date of the installment according to the initial structure of the contract."
+      - name: rank_installments
+        description: "Number of the installment."
+      - name: initial_expected_amount
+        description: "Expected amount to be received according to the initial structure of the contract."
+      - name: initial_principal_expected_amount
+        description: "Expected amount of principal component to be received according to the initial structure of the contract."
+      - name: paid_amount
+        description: "Total paid amount of the installment that has been paid until initial_due_date + 10 days as grace period."
+      - name: original_paid_amount
+        description: "Original amount of the installment that has been paid until initial_due_date + 10 days as grace period."
+      - name: principal_paid_amount
+        description: "Principal amount of the principal component that has been paid until initial_due_date + 10 days as grace period."
+      - name: initial_unpaid_amount
+        description: "Initial unpaid amount of the installment until initial_due_date + 10 days as grace period."
+      - name: initial_principal_unpaid_amount
+        description: "Initial unpaid amount of the principal component until initial_due_date + 10 days as grace period."
+      - name: sys_audit_created_by
+        description: "System audit field indicating who created the record."
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: "System audit field indicating when the record was created."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "System audit field indicating who last updated the record."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "System audit field indicating when the record was last updated."
+        tests:
+          - not_null
