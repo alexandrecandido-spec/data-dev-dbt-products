@@ -16,19 +16,23 @@ main_source AS (
         unique_session,
         start_session_time,
         end_session_time,
+CASE
+    WHEN end_session_time IS NOT NULL 
+         AND start_session_time IS NOT NULL
+         AND end_session_time >= start_session_time
+    THEN ROUND((end_session_time - start_session_time) / 60000000.0, 2)
+    ELSE NULL
+END AS session_duration_minutes,
 
-        CASE
-            WHEN end_session_time IS NOT NULL AND start_session_time IS NOT NULL
-            THEN (end_session_time - start_session_time) / 60000000
-            ELSE NULL
-        END AS session_duration_minutes,
-
-        CASE
-            WHEN engage IS NOT NULL THEN engage
-            WHEN end_session_time IS NOT NULL AND start_session_time IS NOT NULL
-                 AND (end_session_time - start_session_time) / 60000000 >= 1
-            THEN 1 ELSE 0
-        END AS engage,
+CASE
+    WHEN engage IS NOT NULL THEN engage
+    WHEN end_session_time IS NOT NULL 
+         AND start_session_time IS NOT NULL
+         AND end_session_time >= start_session_time
+         AND ROUND((end_session_time - start_session_time) / 60000000.0, 2) > 0
+    THEN 1 
+    ELSE 0
+END AS engage,
 
         start_session_date,
         CAST(date_format(start_session_date, 'yyyyMMdd') AS INT) AS year_month_day_code
