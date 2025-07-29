@@ -56,6 +56,11 @@ SELECT
   sd.mkt_subteam,
   sd.url_owner,
   sd.url_content_type,
+  sd.insti_pages,
+  sd.insti_page_groups,
+  sd.type_of_page,
+  sd.organic_results,
+  -- === MÉTRICAS ===
   sd.distinct_user_count,
   sd.distinct_session_count,
   sd.total_trials,

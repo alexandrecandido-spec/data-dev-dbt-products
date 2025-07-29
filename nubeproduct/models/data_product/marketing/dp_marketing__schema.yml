@@ -1074,6 +1074,14 @@ models:
         description: Timestamp of the last update.
       - name: sys_audit_updated_by
         description: dbt job or service account that last updated the row.
+      - name: insti_pages
+        description: Flag identifying whether the session belongs to the institutional environment (Insti/Next/Partners). Derived from environment, trial events, and exclusion rules for paths and campaigns (admin, awareness, tools).
+      - name: insti_page_groups
+        description: Thematic grouping of institutional landing pages for content analysis. Includes categories such as Affiliates, Apps, Channels, Company, Home, among others.
+      - name: type_of_page
+        description: Content type classification of the landing page:"Content Pages" (Blog, Downloadables, Tools, Trilhas) or "Other Pages".
+      - name: organic_results
+        description: Simple classification of traffic based on the medium. "Organic" if last_medium equals 'organic', otherwise "Other".
     
 
   - name: first_seller_date
