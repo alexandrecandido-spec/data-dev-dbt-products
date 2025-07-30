@@ -1,6 +1,6 @@
 from airflow.operators.bash import BashOperator
 from airflow.exceptions import AirflowException
-from airflow.providers.slack.operators.slack_webhook import SlackWebhookOperator
+#from airflow.providers.slack.operators.slack_webhook import SlackWebhookOperator
 from datetime import datetime
 import os
 import re
