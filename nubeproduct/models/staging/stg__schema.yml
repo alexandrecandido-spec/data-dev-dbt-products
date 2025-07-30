@@ -7,10 +7,7 @@ models:
         owner: "rodrigo.torres@tiendanube.com"
         openmetadata:
           domain: "finance"
-        tags:
-          - tagFQN: Certification.Silver
-            labelType: Manual
-            state: Confirmed
+          certification: 'Certification.Silver'
         business_owner: "Analytics Engineering"
     columns:
       - name: store_id
