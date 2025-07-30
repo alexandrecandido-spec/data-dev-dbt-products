@@ -4,7 +4,7 @@
         materialized='table',
         on_schema_change='fail',
         tags=["logistics","daily-8am"]
-    )
+    ) 
 }}
 
 SELECT
