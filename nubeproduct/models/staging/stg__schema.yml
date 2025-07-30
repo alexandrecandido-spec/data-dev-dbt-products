@@ -4,8 +4,10 @@ models:
     description: "Staging model that contains data about each store, such as store ID, country, creation and churn dates and other attributes."
     config:
       meta:
-        tech_steward: "rodrigo.torres@tiendanube.com"
-        domain: "finance"
+        owner: "rodrigo.torres@tiendanube.com"
+        openmetadata:
+          domain: "finance"
+          certification: "silver"
         business_owner: "Analytics Engineering"
     columns:
       - name: store_id
