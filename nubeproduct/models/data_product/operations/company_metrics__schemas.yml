@@ -3,7 +3,9 @@ models:
   - name: company_metrics_paid_orders
     meta:
       owner: "gustavo.braga@nuvemshop.com.br"
-      certification: 'Certification.Gold'
+      openmetadata:
+        tier: 'Tier.Tier2'
+        certification: 'Certification.Gold'
       domain: "operations"
       business_owner: "Nico Loreti"
     description: >
@@ -206,6 +208,9 @@ models:
         tech_steward: "guillermo.defelice@tiendanube.com"
         domain: "operations"
         business_owner: "Fran Ramirez"
+        openmetadata:
+          tier: 'Tier.Tier1'
+          certification: Certification.Gold
     description: Contains information about plans (group, if it existed before freemium and nice name).
     columns:
       - name: plan
