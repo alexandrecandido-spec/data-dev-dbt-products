@@ -5,7 +5,7 @@ models:
       Contains the summary of Issues and Problems with their respective comments and associated stores. 
     config:
       meta:
-        tech_steward: "fabrizio.crivella@tiendanube.com"
+        owner: "fabrizio.crivella@tiendanube.com"
         domain: "product"
         business_owner: "Martin Palombo"
     tests:
@@ -40,7 +40,7 @@ models:
       referrer e regras heurísticas. Utilizado para análise de performance de canais pagos e orgânicos.
     config:
       meta:
-        tech_steward: "gustavo.braga@nuvemshop.com.br"
+        owner: "gustavo.braga@nuvemshop.com.br"
         domain: "product"
         owner: "barbara.marques@nuvemshop.com.br"
     tests:
@@ -99,7 +99,7 @@ models:
       Contains a clean version of the mwp_apps_stores tables after deleting the reinstallations made by the support team
     config:
       meta:
-        tech_steward: "fernando.martinez@tiendanube.com"
+        owner: "fernando.martinez@tiendanube.com"
         domain: "product"
         business_owner: "Nicolas Loreti"
     columns:
@@ -132,7 +132,7 @@ models:
       > The requotes that have been made on each fulfillment order after each edit
     config:
       meta:
-        tech_steward: "sol.abelleyro@tiendanube.com"
+        owner: "sol.abelleyro@tiendanube.com"
         domain: "product"
         business_owner: "Martin Palombo" 
     tests:
@@ -286,7 +286,7 @@ models:
       The goal of this data product is to follow the rollout of the features via tags and the adoption by merchants ('how many stores have used the feature in total?', 'what does adoption look like over time?')
     config:
       meta:
-        tech_steward: "sol.abelleyro@tiendanube.com"
+        owner: "sol.abelleyro@tiendanube.com"
         domain: "product"
         business_owner: "Martin Palombo"      
     columns:
@@ -341,7 +341,7 @@ models:
       The goal of this data product is to follow the adoption of the feature at the order level ('how many orders have been edited in total?', 'what's the % of orders from edit orders users that are edited?', 'out of all orders, what % of them have been edited?')
     config:
       meta:
-        tech_steward: "sol.abelleyro@tiendanube.com"
+        owner: "sol.abelleyro@tiendanube.com"
         domain: "product"
         business_owner: "Martin Palombo"    
     tests:
@@ -419,7 +419,7 @@ models:
       The goal of this data product is to minimize time to access the data and it also has been used to learn how to create a dbt model.
     config:
       meta:
-        tech_steward: "matias.scasso@tiendanube.com"
+        owner: "matias.scasso@tiendanube.com"
         domain: "product"
         business_owner: "Wagner Moynier"
     columns:

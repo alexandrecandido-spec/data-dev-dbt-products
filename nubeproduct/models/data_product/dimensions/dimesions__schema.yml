@@ -4,7 +4,7 @@ models:
   - name: dim_calendar
     config:
       meta:
-        tech_steward: "djalma.dias@nuvemshop.com.br"
+        owner: "djalma.dias@nuvemshop.com.br"
         domain: "dimensions"
         business_owner: "Agustina Colantonio"
     description: "A comprehensive date dimension table containing daily records from 2000-01-01 to 2050-12-31. It provides calendar-based attributes to support time-based analysis in reporting and analytics, including year, month, week, and day components."
@@ -82,7 +82,7 @@ models:
   - name: dim_segment_type
     config:
       meta:
-        tech_steward: "gustavo.braga@nuvemshop.com.br"
+        owner: "gustavo.braga@nuvemshop.com.br"
         domain: "dimensions"
         business_owner: "Franco Tiberti"
     description: "A reference dimension table that defines the available segment types, typically used to classify stores."
@@ -114,7 +114,7 @@ models:
   - name: dim_business_size
     config:
       meta:
-        tech_steward: "gustavo.braga@nuvemshop.com.br"
+        owner: "gustavo.braga@nuvemshop.com.br"
         domain: "dimensions"
         business_owner: "Franco Tiberti"
     description: "A reference dimension table that defines standard business size categories, typically used to classify stores based on company size (e.g., small-business, medium-business)." 
@@ -141,7 +141,7 @@ models:
   - name: dim_vertical_type
     config:
       meta:
-        tech_steward: "karla.espinosa@nuvemshop.com.br"
+        owner: "karla.espinosa@nuvemshop.com.br"
         domain: "dimensions"
         business_owner: "Giselle Galli"
     description: "A reference dimension table that defines standard vertical categories, typically used to classify stores based on company vertical (e.g., clothing, home_garden)." 
@@ -168,7 +168,7 @@ models:
   - name: dim_group_plan
     config:
       meta:
-        tech_steward: "guillermo.defelice@tiendanube.com"
+        owner: "guillermo.defelice@tiendanube.com"
         domain: "dimensions"
         business_owner: "Franco Tiberti"
     description: "A reference dimension table that defines standard grouping for plan categories, typically used to classify stores (e.g., enterprise, freemium)." 
@@ -206,7 +206,7 @@ models:
   - name: dim_location_country
     config:
       meta:
-        tech_steward: "sol.abelleyro@tiendanube.com"
+        owner: "sol.abelleyro@tiendanube.com"
         domain: "dimensions"
         business_owner: "Francisco Ramirez"
     description: "A reference dimension table that defines the set of countries relevant to the business, used for geographical analysis and segmentation."
@@ -238,7 +238,7 @@ models:
   - name: dim_location_region
     config:
       meta:
-        tech_steward: "sol.abelleyro@tiendanube.com"
+        owner: "sol.abelleyro@tiendanube.com"
         domain: "dimensions"
         business_owner: "Francisco Ramirez"
     description: "A reference dimension table that defines geographical regions, typically grouping states or countries into broader territories for analytical purposes."
@@ -278,7 +278,7 @@ models:
   - name: dim_location_state
     config:
       meta:
-        tech_steward: "sol.abelleyro@tiendanube.com"
+        owner: "sol.abelleyro@tiendanube.com"
         domain: "dimensions"
         business_owner: "Francisco Ramirez"
     description: "A reference dimension table that defines states or provinces, used to represent administrative divisions within countries for geographic segmentation."
@@ -325,7 +325,7 @@ models:
   - name: dim_location_city
     config:
       meta:
-        tech_steward: "sol.abelleyro@tiendanube.com"
+        owner: "sol.abelleyro@tiendanube.com"
         domain: "dimensions"
         business_owner: "Francisco Ramirez"
     description: "A reference dimension table that defines city-level information, typically used for fine-grained geographic analysis such as urban segmentation or localization."

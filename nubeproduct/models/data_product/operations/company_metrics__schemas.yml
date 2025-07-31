@@ -3,9 +3,6 @@ models:
   - name: company_metrics_paid_orders
     meta:
       owner: "gustavo.braga@nuvemshop.com.br"
-      openmetadata:
-        tier: 'Tier.Tier2'
-        certification: 'Certification.Gold'
       domain: "operations"
       business_owner: "Nico Loreti"
     description: >
@@ -205,7 +202,7 @@ models:
   - name: operations_grouping_plans
     config:
       meta:
-        tech_steward: "guillermo.defelice@tiendanube.com"
+        owner: "guillermo.defelice@tiendanube.com"
         domain: "operations"
         business_owner: "Fran Ramirez"
         openmetadata:
@@ -240,7 +237,7 @@ models:
   - name: operations_grouping_sessions
     config:
       meta:
-        tech_steward: "guillermo.defelice@tiendanube.com"
+        owner: "guillermo.defelice@tiendanube.com"
         domain: "operations"
         business_owner: "Franco Tiberti"
     description: Contains the number of sessions per week and per month.
@@ -272,7 +269,7 @@ models:
   - name: company_metrics_products_per_order
     config:
       meta:
-        tech_steward: "gustavo.braga@nuvemshop.com.br"
+        owner: "gustavo.braga@nuvemshop.com.br"
         domain: "operations"
         business_owner: "Giselle Galli"
     description: >

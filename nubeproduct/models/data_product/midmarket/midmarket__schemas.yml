@@ -3,7 +3,7 @@ models:
   - name: midmarket_success_stores
     config:
       meta:
-        tech_steward: "guillermo.defelice@tiendanube.com"
+        owner: "guillermo.defelice@tiendanube.com"
         domain: "midmarket"
         business_owner: "Franco Tiberti"
     description: Contains a unique combination of Success deal_id and its respective store_id.
@@ -33,7 +33,7 @@ models:
   - name: midmarket_grouping_interactions
     config:
       meta:
-        tech_steward: "guillermo.defelice@tiendanube.com"
+        owner: "guillermo.defelice@tiendanube.com"
         domain: "midmarket"
         business_owner: "Franco Tiberti"
     description: Contains the number of interactions by calls, meetings, emails, whatsapp, tasks. Per week and per month.

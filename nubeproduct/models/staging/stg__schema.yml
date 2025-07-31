@@ -5,9 +5,7 @@ models:
     config:
       meta:
         owner: "rodrigo.torres@tiendanube.com"
-        openmetadata:
-          domain: "finance"
-          certification: 'Certification.Silver'
+        domain: "finance"
         business_owner: "Analytics Engineering"
     columns:
       - name: store_id
@@ -55,7 +53,7 @@ models:
     description: "All the orders in their different statuses"
     config:
       meta:
-        tech_steward: "rodrigo.torres@tiendanube.com"
+        owner: "rodrigo.torres@tiendanube.com"
         domain: "finance"
         business_owner: "Nico Loreti"
     columns:
@@ -153,7 +151,7 @@ models:
     description: "Products associated with the order"
     config:
       meta:
-        tech_steward: "rodrigo.torres@tiendanube.com"
+        owner: "rodrigo.torres@tiendanube.com"
         domain: "finance"
         business_owner: "Giselle Galli"
     columns:
@@ -204,7 +202,7 @@ models:
   - name: nuvem_credito__credit_proposals
     config:
       meta:
-        tech_steward: "sofia.sanchez@tiendanube.com"
+        owner: "sofia.sanchez@tiendanube.com"
         domain: "fintech"
         owner: "Calvin Hetem"
     description: "Staging model with credit proposals, clean data with current store_id"
@@ -233,7 +231,7 @@ models:
   - name: nuvem_credito__initial_installments
     config:
       meta:
-        tech_steward: "sofia.sanchez@tiendanube.com"
+        owner: "sofia.sanchez@tiendanube.com"
         domain: "fintech"
         owner: "Calvin Hetem"
     description: "Staging model with initial installments of each contract"
@@ -253,7 +251,7 @@ models:
     description: "Staging model with vertifier of current store_id provided by antifraud inferences."
     config:
       meta:
-        tech_steward: "djalma.dias@nuvemshop.com.br"
+        owner: "djalma.dias@nuvemshop.com.br"
         domain: "operations"
         business_owner: "Analytics Engineering"
     columns:
@@ -281,7 +279,7 @@ models:
     description: "Staging model that concatenates every label associated to the issue in one row, to avoid duplicates. We use this table to categorize the Issue/Problem in different ways."
     config:
       meta:
-        tech_steward: "fabrizio.crivella@tiendanube.com"
+        owner: "fabrizio.crivella@tiendanube.com"
         domain: "product"
         business_owner: "Martin Palombo"
     columns: 
@@ -307,7 +305,7 @@ models:
     description: "Staging model that persists information about Working in Progress labels, becouse we need to know when they started and ended, to determine de duration of the lifecycle of an Issue/Problem"
     config:
       meta:
-        tech_steward: "fabrizio.crivella@tiendanube.com"
+        owner: "fabrizio.crivella@tiendanube.com"
         domain: "product"
         business_owner: "Martin Palombo"
     columns:
@@ -327,7 +325,7 @@ models:
     description: "Staging model that gets information about merchants associated to an Issue/Problem. Information such as GMV and impact"
     config:
       meta:
-        tech_steward: "fabrizio.crivella@tiendanube.com"
+        owner: "fabrizio.crivella@tiendanube.com"
         domain: "product"
         business_owner: "Martin Palombo"
     columns:
@@ -351,7 +349,7 @@ models:
     description: "Staging model for GA4 events information. Includes user sessions and event metadata."
     config:
       meta:
-        tech_steward: "sofia.torres@tiendanube.com"
+        owner: "sofia.torres@tiendanube.com"
         domain: "marketing"
         business_owner: "Giselle Galli"
     columns:
@@ -375,7 +373,7 @@ models:
     description: "Staging model for trials and payments information from GA4."
     config:
       meta:
-        tech_steward: "sofia.torres@tiendanube.com"
+        owner: "sofia.torres@tiendanube.com"
         domain: "marketing"
         business_owner: "Giselle Galli"
     columns:
@@ -399,7 +397,7 @@ models:
     description: "Staging model for user sessions duration and engagement flags."
     config:
       meta:
-        tech_steward: "sofia.torres@tiendanube.com"
+        owner: "sofia.torres@tiendanube.com"
         domain: "marketing"
         business_owner: "Giselle Galli"
     columns:
@@ -425,7 +423,7 @@ models:
     description: "Staging model for GA4 pageviews enriched with traffic source, landing page, and UTM parameters."
     config:
       meta:
-        tech_steward: "sofia.torres@tiendanube.com"
+        owner: "sofia.torres@tiendanube.com"
         domain: "marketing"
         business_owner: "Giselle Galli"
     columns:
@@ -473,7 +471,7 @@ models:
     description: Staging da origem de tráfego dos pedidos, com normalização dos parâmetros UTM e referrer.
     config:
       meta:
-        tech_steward: "gustavo.braga@nuvemshop.com.br"
+        owner: "gustavo.braga@nuvemshop.com.br"
         domain: "product"
         owner: "Francisco Ramirez"
     columns:
@@ -512,7 +510,7 @@ models:
     description: "Staging model that contains information about quality leads, such as store_id, created_at, model_id, predicted_prob and year_month_day_code."
     config:
       meta:
-        tech_steward: "ronald.corcho@tiendanube.com"
+        owner: "ronald.corcho@tiendanube.com"
         domain: "marketing"
         business_owner: "Giselle Galli"
     columns:
@@ -550,7 +548,7 @@ models:
     description: "Extracted data of apps installed and uninstalled by stores"
     config:
       meta:
-        tech_steward: "fernando.martinez@tiendanube.com"
+        owner: "fernando.martinez@tiendanube.com"
         domain: "product"
         business_owner: "Nicolas Loreti"
     columns:
@@ -574,7 +572,7 @@ models:
     description: "Extract the solved_by_app tags from github data"
     config:
       meta:
-        tech_steward: "fernando.martinez@tiendanube.com"
+        owner: "fernando.martinez@tiendanube.com"
         domain: "product"
         business_owner: "Nicolas Loreti"
     columns:
@@ -596,7 +594,7 @@ models:
     description: "Staging model for billing receipts. Contains only the necessary fields to link to the billing cycle."
     config:
       meta:
-        tech_steward: "gustavo.oliveira@nuvemshop.com.br"
+        owner: "gustavo.oliveira@nuvemshop.com.br"
         domain: "finance"
         business_owner: "Mônica Orlando"
     columns:
@@ -611,7 +609,7 @@ models:
     description: "Payment transactions, with status filtering and date conversion."
     config:
       meta:
-        tech_steward: "gustavo.oliveira@nuvemshop.com.br"
+        owner: "gustavo.oliveira@nuvemshop.com.br"
         domain: "finance"
         business_owner: "Mônica Orlando"
     columns:
@@ -628,7 +626,7 @@ models:
     description: "Tax information for stores for invoice issuance."
     config:
       meta:
-        tech_steward: "gustavo.oliveira@nuvemshop.com.br"
+        owner: "gustavo.oliveira@nuvemshop.com.br"
         domain: "finance"
         business_owner: "Mônica Orlando"
     columns:
@@ -649,7 +647,7 @@ models:
     description: "Raw billing cycle information per store."
     config:
       meta:
-        tech_steward: "gustavo.oliveira@nuvemshop.com.br"
+        owner: "gustavo.oliveira@nuvemshop.com.br"
         domain: "finance"
         business_owner: "Mônica Orlando"
     columns:
@@ -670,7 +668,7 @@ models:
     description: "Costs attributed per carrier for each billing cycle."
     config:
       meta:
-        tech_steward: "gustavo.oliveira@nuvemshop.com.br"
+        owner: "gustavo.oliveira@nuvemshop.com.br"
         domain: "finance"
         business_owner: "Mônica Orlando"
     columns:
@@ -687,7 +685,7 @@ models:
     description: "Staging model that contains all the b2b orders generated by the blended store solution"
     config:
       meta:
-        tech_steward: "matias.scasso@tiendanube.com"
+        owner: "matias.scasso@tiendanube.com"
         domain: "product"
         business_owner: "Wagner Moynier"
     columns:
