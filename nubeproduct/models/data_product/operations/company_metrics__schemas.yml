@@ -1,11 +1,11 @@
 version: 2
 models:
   - name: company_metrics_paid_orders
-    config:
-      meta:
-        tech_steward: "gustavo.braga@nuvemshop.com.br"
-        domain: "operations"
-        business_owner: "Nico Loreti"
+    meta:
+      owner: "gustavo.braga@nuvemshop.com.br"
+      certification: 'Certification.Gold'
+      domain: "operations"
+      business_owner: "Nico Loreti"
     description: >
       Contains the summary of paid orders by store, including currency-related data,
       payment gateways, shipping methods, and audit metadata.
@@ -90,11 +90,11 @@ models:
 
 
   - name: company_metrics_gmv_and_segments
-    config:
-      meta:
-        tech_steward: "gustavo.braga@nuvemshop.com.br"
-        domain: "operations"
-        business_owner: "Nico Loreti"
+    meta:
+      owner: "gustavo.braga@nuvemshop.com.br"
+      certification: 'Gold'
+      domain: "operations"
+      business_owner: "Nico Loreti"
     description: >
       Contains monthly GMV, order metrics, and seller segmentation by store, both on and off platform,
       over the last closed month and the past 90 days. Segments are calculated based on proportional 
