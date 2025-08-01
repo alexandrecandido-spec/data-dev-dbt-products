@@ -10,14 +10,12 @@
 
 SELECT
     store_id,
-    external_pay_order_id,
-    paid_order_id,
     billing_cycle_id,
     domain,
     cycle_status,
     payment_expiration_date,
     created_at,
-    payment_history_paid_at,
+    payment_status_updated_date,
     id_type,
     id_number,
     business_name,

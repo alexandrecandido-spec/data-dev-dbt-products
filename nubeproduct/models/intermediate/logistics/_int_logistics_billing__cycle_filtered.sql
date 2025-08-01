@@ -13,6 +13,7 @@ SELECT
     bc.invoice_emission_date,
     bc.invoice_number,
     bc.billing_cycle_end_date,
+    bc.payment_status_updated_date,
     bc.invoice_value,
     bc.external_pay_order_id,
     bc.external_receipt_id,
