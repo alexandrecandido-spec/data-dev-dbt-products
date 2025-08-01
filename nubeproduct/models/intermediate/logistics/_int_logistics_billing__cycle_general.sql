@@ -14,6 +14,7 @@ SELECT
     bcf.invoice_emission_date,
     bcf.invoice_number,
     bcf.billing_cycle_end_date,
+    bcf.payment_status_updated_date,
     r.receipt_number,
     bcf.original_payment_value,
     bcf.payment_value,

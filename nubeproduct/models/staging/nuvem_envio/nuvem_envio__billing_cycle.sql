@@ -18,6 +18,7 @@ SELECT
     cycle_status,
     payment_expiration_date,
     DATE(created_at) AS created_at,
+    DATE(payment_status_updated_at) AS payment_status_updated_date,
     payment_method_fee_value,
     DATE(invoice_emission_date) AS invoice_emission_date,
     invoice_number,
