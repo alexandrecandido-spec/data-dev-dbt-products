@@ -1,11 +1,10 @@
 version: 2
 models:
   - name: company_metrics_paid_orders
-    config:
-      meta:
-        tech_steward: "gustavo.braga@nuvemshop.com.br"
-        domain: "operations"
-        business_owner: "Nico Loreti"
+    meta:
+      owner: "gustavo.braga@nuvemshop.com.br"
+      domain: "operations"
+      business_owner: "Nico Loreti"
     description: >
       Contains the summary of paid orders by store, including currency-related data,
       payment gateways, shipping methods, and audit metadata.
@@ -90,11 +89,11 @@ models:
 
 
   - name: company_metrics_gmv_and_segments
-    config:
-      meta:
-        tech_steward: "gustavo.braga@nuvemshop.com.br"
-        domain: "operations"
-        business_owner: "Nico Loreti"
+    meta:
+      owner: "gustavo.braga@nuvemshop.com.br"
+      certification: 'Gold'
+      domain: "operations"
+      business_owner: "Nico Loreti"
     description: >
       Contains monthly GMV, order metrics, and seller segmentation by store, both on and off platform,
       over the last closed month and the past 90 days. Segments are calculated based on proportional 
@@ -203,9 +202,12 @@ models:
   - name: operations_grouping_plans
     config:
       meta:
-        tech_steward: "guillermo.defelice@tiendanube.com"
+        owner: "guillermo.defelice@tiendanube.com"
         domain: "operations"
         business_owner: "Fran Ramirez"
+        openmetadata:
+          tier: 'Tier.Tier1'
+          certification: Certification.Gold
     description: Contains information about plans (group, if it existed before freemium and nice name).
     columns:
       - name: plan
@@ -235,7 +237,7 @@ models:
   - name: operations_grouping_sessions
     config:
       meta:
-        tech_steward: "guillermo.defelice@tiendanube.com"
+        owner: "guillermo.defelice@tiendanube.com"
         domain: "operations"
         business_owner: "Franco Tiberti"
     description: Contains the number of sessions per week and per month.
@@ -267,7 +269,7 @@ models:
   - name: company_metrics_products_per_order
     config:
       meta:
-        tech_steward: "gustavo.braga@nuvemshop.com.br"
+        owner: "gustavo.braga@nuvemshop.com.br"
         domain: "operations"
         business_owner: "Giselle Galli"
     description: >

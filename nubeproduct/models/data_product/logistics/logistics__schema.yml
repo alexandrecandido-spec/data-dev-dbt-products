@@ -9,7 +9,7 @@ models:
       Only one record per store and billing_cycle_id is returned (rnk = 1).
     config:
       meta:
-        tech_steward: "gustavo.oliveira@nuvemshop.com.br"
+        owner: "gustavo.oliveira@nuvemshop.com.br"
         domain: "logistics"
         business_owner: "Mônica Orlando"
     columns:

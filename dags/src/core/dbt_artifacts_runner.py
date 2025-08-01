@@ -5,7 +5,7 @@ from airflow.hooks.base import BaseHook
 from datetime import datetime
 import boto3
 import os
-import yaml
+import yaml 
 
 def create_profiles_yml():
     dbt_conn = BaseHook.get_connection("dbt_profiles")

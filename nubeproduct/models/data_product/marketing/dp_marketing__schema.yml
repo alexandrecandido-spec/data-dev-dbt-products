@@ -32,7 +32,7 @@ models:
      - Perform custom analytics and reporting."
     config:
       meta:
-        tech_steward: "ronald.corcho@tiendanube.com"
+        owner: "ronald.corcho@tiendanube.com"
         domain: "marketing"
         business_owner: "Giselle Galli" 
     columns:
@@ -156,7 +156,7 @@ models:
      - Perform custom analytics and reporting."
     config:
       meta:
-        tech_steward: "ronald.corcho@tiendanube.com"
+        owner: "ronald.corcho@tiendanube.com"
         domain: "marketing" 
         business_owner: "Giselle Galli" 
     columns:
@@ -277,7 +277,7 @@ models:
     description: "data product contains granular click-level data used in the marketing attribution model. Each click is linked to the responsible marketing team or source, enabling the attribution of acquisition results—such as store creation—to specific marketing efforts. This dataset supports performance analysis, reporting, and decision-making across acquisition channels"
     config:
       meta:
-        tech_steward: "ronald.corcho@tiendanube.com"
+        owner: "ronald.corcho@tiendanube.com"
         domain: "marketing" 
         business_owner: "Giselle Galli" 
     columns:
@@ -406,7 +406,7 @@ models:
     description: "data product contains the completeness data quality checks of the marketing attribution model"
     config:
       meta:
-        tech_steward: "ronald.corcho@tiendanube.com"
+        owner: "ronald.corcho@tiendanube.com"
         domain: "marketing" 
         business_owner: "Giselle Galli" 
     columns:
@@ -460,7 +460,7 @@ models:
      - Monitor and analyze UTM parameter effectiveness in campaign attribution"
     config:
       meta:
-        tech_steward: "ronald.corcho@tiendanube.com"
+        owner: "ronald.corcho@tiendanube.com"
         domain: "marketing"
         business_owner: "Giselle Galli" 
     columns:
@@ -509,7 +509,7 @@ models:
      - Monitor and analyze subteam parameter effectiveness in campaign attribution"
     config:
       meta:
-        tech_steward: "ronald.corcho@tiendanube.com"
+        owner: "ronald.corcho@tiendanube.com"
         domain: "marketing"
         business_owner: "Giselle Galli" 
     columns:
@@ -556,7 +556,7 @@ models:
      - Monitor and analyze URL parameter effectiveness in campaign attribution"
     config:
       meta:
-        tech_steward: "ronald.corcho@tiendanube.com"
+        owner: "ronald.corcho@tiendanube.com"
         domain: "marketing"
         business_owner: "Giselle Galli" 
     columns:
@@ -603,7 +603,7 @@ models:
      - Monitor and analyze INSTI parameter effectiveness in campaign attribution"
     config:
       meta:
-        tech_steward: "ronald.corcho@tiendanube.com"
+        owner: "ronald.corcho@tiendanube.com"
         domain: "marketing"
         business_owner: "Giselle Galli" 
     columns:
@@ -648,7 +648,7 @@ models:
      - Monitor and analyze referrer parameter effectiveness in campaign attribution"
     config:
       meta: 
-        tech_steward: "ronald.corcho@tiendanube.com"
+        owner: "ronald.corcho@tiendanube.com"
         domain: "marketing"
         business_owner: "Giselle Galli" 
     columns:
@@ -691,7 +691,7 @@ models:
      - Monitor and analyze partner fraud parameter effectiveness in campaign attribution"
     config:
       meta:
-        tech_steward: "ronald.corcho@tiendanube.com"
+        owner: "ronald.corcho@tiendanube.com"
         domain: "marketing"
         business_owner: "Giselle Galli" 
     columns:
@@ -732,7 +732,7 @@ models:
      - Monitor and analyze partner exception parameter effectiveness in campaign attribution"
     config:
       meta:
-        tech_steward: "ronald.corcho@tiendanube.com"
+        owner: "ronald.corcho@tiendanube.com"
         domain: "marketing"
         business_owner: "Giselle Galli" 
     columns:
@@ -775,7 +775,7 @@ models:
      - Monitor and analyze affiliate classification parameter effectiveness in campaign attribution"
     config:
       meta:
-        tech_steward: "ronald.corcho@tiendanube.com"
+        owner: "ronald.corcho@tiendanube.com"
         domain: "marketing"
         business_owner: "Giselle Galli" 
     columns:
@@ -815,7 +815,7 @@ models:
       to BR / AR / MX / CL / CO / Other.  
     config:
       meta:
-        tech_steward: "sofia.torres@tiendanube.com"
+        owner: "sofia.torres@tiendanube.com"
         domain: "marketing"
         business_owner: "Giselle Galli" 
     columns:
@@ -893,7 +893,7 @@ models:
       engagement, trial and payment metrics.  
     config:
       meta:
-        tech_steward: "sofia.torres@tiendanube.com"
+        owner: "sofia.torres@tiendanube.com"
         domain: "marketing"
         business_owner: "Giselle Galli"
     columns:
@@ -983,7 +983,7 @@ models:
       (mkt_source, mkt_subteam), URL ownership and cleansed domain/path.  
     config:
       meta:
-        tech_steward: "sofia.torres@tiendanube.com"
+        owner: "sofia.torres@tiendanube.com"
         domain: "marketing"
         business_owner: "Giselle Galli"
     columns:
@@ -1074,13 +1074,21 @@ models:
         description: Timestamp of the last update.
       - name: sys_audit_updated_by
         description: dbt job or service account that last updated the row.
+      - name: insti_pages
+        description: Flag identifying whether the session belongs to the institutional environment (Insti/Next/Partners). Derived from environment, trial events, and exclusion rules for paths and campaigns (admin, awareness, tools).
+      - name: insti_page_groups
+        description: Thematic grouping of institutional landing pages for content analysis. Includes categories such as Affiliates, Apps, Channels, Company, Home, among others.
+      - name: type_of_page
+        description: Content type classification of the landing page:"Content Pages" (Blog, Downloadables, Tools, Trilhas) or "Other Pages".
+      - name: organic_results
+        description: Simple classification of traffic based on the medium. "Organic" if last_medium equals 'organic', otherwise "Other".
     
 
   - name: first_seller_date
     description: "This data product identifies the first date on which a store qualified as a “seller”, based on sales performance, and aligns it with the store’s presence in the moltres_store_info. The main goal is to determine when each store first achieved at least 7 sales in a rolling 90-day window, according to data from company_metrics_paid_orders."
     config:
       meta:
-        tech_steward: "giselle.galli@tiendanube.com"
+        owner: "giselle.galli@tiendanube.com"
         domain: "marketing"
         business_owner: "Giselle Galli" 
     columns:

@@ -5,7 +5,7 @@ models:
       Contains all disbursed contracts with risk classification, policy and offer id.
     config:
       meta:
-        tech_steward: "sofia.sanchez@tiendanube.com"
+        owner: "sofia.sanchez@tiendanube.com"
         domain: "fintech"
         business_owner: "Calvin Hetem"
     columns:
@@ -110,7 +110,7 @@ models:
       Contains all original installments of each contract with the amount of paid installments. Use to derive First and Third Payment default
     config:
       meta:
-        tech_steward: "sofia.sanchez@tiendanube.com"
+        owner: "sofia.sanchez@tiendanube.com"
         domain: "fintech"
         business_owner: "Calvin Hetem"
     columns:

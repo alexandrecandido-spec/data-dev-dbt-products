@@ -3,7 +3,7 @@ models:
   - name: finance_exchange_rate 
     config:
       meta:
-        tech_steward: "gustavo.braga@nuvemshop.com.br"
+        owner: "gustavo.braga@nuvemshop.com.br"
         domain: "finance"
         business_owner: "operations"
     tests:

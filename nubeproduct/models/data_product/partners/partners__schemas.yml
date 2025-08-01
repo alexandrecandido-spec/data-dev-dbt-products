@@ -3,7 +3,7 @@ models:
   - name: partners_agencies_affiliates_stores     
     config:
       meta:
-        tech_steward: "felipe.lorenzo@tiendanube.com"
+        owner: "felipe.lorenzo@tiendanube.com"
         domain: "partners"
         business_owner: "Franco Tiberti"
     description: >
