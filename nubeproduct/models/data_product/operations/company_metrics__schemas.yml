@@ -205,9 +205,6 @@ models:
         owner: "guillermo.defelice@tiendanube.com"
         domain: "operations"
         business_owner: "Fran Ramirez"
-        openmetadata:
-          tier: 'Tier.Tier1'
-          certification: Certification.Gold
     description: Contains information about plans (group, if it existed before freemium and nice name).
     columns:
       - name: plan
