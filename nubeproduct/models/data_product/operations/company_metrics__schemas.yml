@@ -381,6 +381,7 @@ models:
         description: "Unique identifier of the store. External key."
         tests:
           - not_null
+          - unique
       - name: status_by_order_str
         description: "Descriptive name of the current segment (e.g., no-seller, struggling-seller) associated with this store. Returns empty string if null."
         tests:
