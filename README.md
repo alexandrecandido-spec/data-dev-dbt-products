@@ -82,3 +82,13 @@ The project follows a layered approach to data transformation:
 - Leverage cascading configurations in `dbt_project.yml`
 - Maintain clear model dependencies
 - Follow the established layer structure for new developments
+
+## DBT Guide
+You can find the complete DBT usage guide [here](https://docs.google.com/document/d/1zfBM7E1FUmGBd8wV40x44O7IxJ3s56iXYFNoOpU5wxM/edit?tab=t.ryw8pu8yo4jp#heading=h.qnk6p7oz4r4e).
+
+## DBT on Slack
+For questions, contributions, or to submit pull requests (PRs), feel free to reach out in the following Slack channels:
+
+#[dbt-public](https://nuvemshop.slack.com/archives/C08CBEFDNQZ) for general support
+
+#[dbt-prs](https://nuvemshop.slack.com/archives/C08M16QUAET) to post and review DBT-related PRs
