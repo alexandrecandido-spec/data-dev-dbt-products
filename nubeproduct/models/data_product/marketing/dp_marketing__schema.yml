@@ -1110,7 +1110,35 @@ models:
         description: "System identifier of the process that created this record"
       - name: sys_audit_updated_by
         description: "System identifier of the process that last updated this record"
-        
-        
-        
-        
+
+  - name: marketing_hubspot_company_variables
+    meta:
+      owner: "santiago.gandolfo@tiendanube.com"
+      domain: "operations"
+      business_owner: "Ane Paschoalino"
+    description: >
+      Contains simplified store attributes for HubSpot integration, including only
+      vertical classification and current segment status. Returns empty strings
+      instead of null values to ensure the values are set in Hubspot as empty.
+    columns:
+      - name: store_id
+        description: "Unique identifier of the store. External key."
+        tests:
+          - not_null
+          - unique
+      - name: status_by_order_str
+        description: "Descriptive name of the current segment (e.g., no-seller, struggling-seller) associated with this store. Returns empty string if null."
+        tests:
+          - not_null
+      - name: vertical_str
+        description: "Descriptive label of the vertical (e.g., small-business, medium-business, etc) associated with this store. Returns empty string if null."
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created."
+      - name: sys_audit_created_by
+        description: "System or user that created the row."
+      - name: sys_audit_updated_on
+        description: "Maximum timestamp from all dependency tables (dim_merchant_info and related dimension tables)."
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row."
