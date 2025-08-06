@@ -369,13 +369,13 @@ models:
 
   - name: hubspot_company_variables
     meta:
-      owner: "gustavo.braga@nuvemshop.com.br"
+      owner: "santiago.gandolfo@tiendanube.com"
       domain: "operations"
-      business_owner: "Franco Tiberti"
+      business_owner: "Ane Paschoalino"
     description: >
       Contains simplified store attributes for HubSpot integration, including only
       vertical classification and current segment status. Returns empty strings
-      instead of null values to ensure compatibility with external systems.
+      instead of null values to ensure the values are set in Hubspot as empty.
     columns:
       - name: store_id
         description: "Unique identifier of the store. External key."
