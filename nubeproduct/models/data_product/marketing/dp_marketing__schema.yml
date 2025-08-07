@@ -1134,6 +1134,14 @@ models:
         description: "Descriptive label of the vertical (e.g., small-business, medium-business, etc) associated with this store. Returns empty string if null."
         tests:
           - not_null
+      - name: stats_url
+        description: "URL to the stats profile page for the store in the format 'https://stats.tiendanube.com/store/profile?store_id={store_id}'."
+        tests:
+          - not_null
+      - name: associated_partner_id
+        description: "Partner ID associated with the store, retrieved from moltres__mwp_store_info. Returns empty string if null."
+        tests:
+          - not_null
       - name: sys_audit_created_on
         description: "Timestamp when the row was originally created."
       - name: sys_audit_created_by
