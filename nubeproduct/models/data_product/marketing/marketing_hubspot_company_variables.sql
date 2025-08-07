@@ -10,6 +10,7 @@ WITH source_data AS (
         coalesce(segment.segment_name, '') as status_by_order_str,
         coalesce(vertical.vertical_name, '') as vertical_str,
         'https://stats.tiendanube.com/store/profile?store_id=' || merchant.store_id as stats_url,
+        coalesce(msi.partner_id, '') as associated_partner_id,
         merchant.store_id
     FROM {{ ref("dim_merchant_info") }} merchant
     LEFT JOIN
@@ -18,6 +19,9 @@ WITH source_data AS (
     LEFT JOIN
         {{ ref("dim_vertical_type") }} vertical
         ON vertical.vertical_id = merchant.vertical_id
+    LEFT JOIN
+        {{ ref("moltres__mwp_store_info") }} msi
+        ON msi.store_id = merchant.store_id
 )
 
 SELECT
@@ -25,6 +29,7 @@ SELECT
     info.status_by_order_str,
     info.vertical_str,
     info.stats_url,
+    info.associated_partner_id,
     coalesce(existing_data.sys_audit_created_on, current_timestamp) as sys_audit_created_on,
     coalesce(
         existing_data.sys_audit_created_by, 'data-dev-dbt-products'
@@ -41,3 +46,4 @@ WHERE
     OR info.status_by_order_str <> existing_data.status_by_order_str
     OR info.vertical_str <> existing_data.vertical_str
     OR info.stats_url <> existing_data.stats_url
+    OR info.associated_partner_id <> existing_data.associated_partner_id
