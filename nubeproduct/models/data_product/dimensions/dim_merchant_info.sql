@@ -4,7 +4,7 @@
     incremental_strategy='merge',
     unique_key=['store_id'],
     on_schema_change='fail',
-    tags=['daily-4_30am']
+    tags=['daily-8_30am']
 ) }}
 
 WITH 
@@ -20,14 +20,14 @@ WITH
     SELECT store_id
     FROM {{ ref('moltres__mwp_store_info') }}
     {% if is_incremental() %}
-    WHERE DATE(sys_audit_updated_on) > (SELECT MAX(DATE(sys_audit_updated_on)) FROM {{ this }})
+    WHERE sys_audit_updated_on > (SELECT MAX(sys_audit_updated_on) FROM {{ this }})
     {% endif %}
 
     UNION ALL
     SELECT store_id
     FROM {{ ref('_int_dim_merchant_info__location_by_zipcode') }}
     {% if is_incremental() %}
-    WHERE DATE(sys_audit_updated_on) > (SELECT MAX(DATE(sys_audit_updated_on)) FROM {{ this }})
+    WHERE sys_audit_updated_on > (SELECT MAX(sys_audit_updated_on) FROM {{ this }})
     {% endif %}
 
     UNION ALL
@@ -35,7 +35,7 @@ WITH
     SELECT store_id
     FROM {{ ref('_int_dim_merchant_info__segment') }}
     {% if is_incremental() %}
-    WHERE DATE(sys_audit_updated_on) > (SELECT MAX(DATE(sys_audit_updated_on)) FROM {{ this }})
+    WHERE sys_audit_updated_on > (SELECT MAX(sys_audit_updated_on) FROM {{ this }})
     {% endif %}
 
     UNION ALL
@@ -43,7 +43,7 @@ WITH
     SELECT store_id
     FROM {{ ref('_int_dim_merchant_info__vertifier_and_vertical') }}
     {% if is_incremental() %}
-    WHERE DATE(sys_audit_updated_on) > (SELECT MAX(DATE(sys_audit_updated_on)) FROM {{ this }})
+    WHERE sys_audit_updated_on > (SELECT MAX(sys_audit_updated_on) FROM {{ this }})
     {% endif %}
 
     UNION ALL
@@ -51,7 +51,7 @@ WITH
     SELECT store_id
     FROM {{ ref('_int_dim_merchant_info__business_size') }}
     {% if is_incremental() %}
-    WHERE DATE(sys_audit_updated_on) > (SELECT MAX(DATE(sys_audit_updated_on)) FROM {{ this }})
+    WHERE sys_audit_updated_on > (SELECT MAX(sys_audit_updated_on) FROM {{ this }})
     {% endif %}
     
     ) x
