@@ -30,14 +30,20 @@ SELECT
     info.vertical_str,
     info.stats_url,
     info.associated_partner_id,
+    {% if is_incremental() %}
     coalesce(existing_data.sys_audit_created_on, current_timestamp) as sys_audit_created_on,
     coalesce(
         existing_data.sys_audit_created_by, 'data-dev-dbt-products'
     ) as sys_audit_created_by,
+    {% else %}
+    current_timestamp as sys_audit_created_on,
+    'data-dev-dbt-products' as sys_audit_created_by,
+    {% endif %}
     current_timestamp as sys_audit_updated_on,
     'data-dev-dbt-products' as sys_audit_updated_by
 FROM
     source_data as info
+{% if is_incremental() %}
 LEFT JOIN
     {{ this }} as existing_data
     ON info.store_id = existing_data.store_id
@@ -47,3 +53,4 @@ WHERE
     OR info.vertical_str <> coalesce(existing_data.vertical_str, NULL)
     OR info.stats_url <> coalesce(existing_data.stats_url, NULL)
     OR info.associated_partner_id <> coalesce(existing_data.associated_partner_id, NULL)
+{% endif %}
