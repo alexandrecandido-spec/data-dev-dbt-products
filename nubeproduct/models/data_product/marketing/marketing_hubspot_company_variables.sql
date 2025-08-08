@@ -49,8 +49,8 @@ LEFT JOIN
     ON info.store_id = existing_data.store_id
 WHERE
     existing_data.store_id IS NULL
-    OR info.status_by_order_str <> coalesce(existing_data.status_by_order_str, NULL)
-    OR info.vertical_str <> coalesce(existing_data.vertical_str, NULL)
-    OR info.stats_url <> coalesce(existing_data.stats_url, NULL)
-    OR info.associated_partner_id <> coalesce(existing_data.associated_partner_id, NULL)
+    OR info.status_by_order_str <> existing_data.status_by_order_str
+    OR info.vertical_str <> existing_data.vertical_str
+    OR info.stats_url <> existing_data.stats_url
+    OR info.associated_partner_id <> existing_data.associated_partner_id
 {% endif %}
