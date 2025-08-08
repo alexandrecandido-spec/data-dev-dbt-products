@@ -12,7 +12,10 @@ WITH source_data AS (
         'https://stats.tiendanube.com/store/profile?store_id=' || merchant.store_id as stats_url,
         coalesce(msi.partner_id, '') as associated_partner_id,
         merchant.store_id
-    FROM {{ ref("dim_merchant_info") }} merchant
+    FROM {{ ref("hubspot_active_stores") }} active_stores
+    LEFT JOIN
+        {{ ref("dim_merchant_info") }} merchant
+        ON active_stores.store_id = merchant.store_id
     LEFT JOIN
         {{ ref("dim_segment_type") }} segment
         ON segment.segment_id = merchant.current_segment_id
