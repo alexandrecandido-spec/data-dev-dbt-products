@@ -1111,6 +1111,41 @@ models:
       - name: sys_audit_updated_by
         description: "System identifier of the process that last updated this record"
 
+  - name: marketing_attribution_store_consistency
+    description: "This data product validates the attribution model by comparing the number of stores in the attribution model with the number of stores in the store info table."
+    config:
+      meta:
+        owner: "ronald.corcho@tiendanube.com"
+        domain: "marketing"
+        business_owner: "Giselle Galli"
+    columns:
+      - name: created_at
+        description: "Date when the stores were created in the attribution model"
+      - name: year_month_day_code
+        description: "Date in YYYYMMDD integer format used for partitioning."
+      - name: stores_total_store_info
+        description: "Number of stores in the store info table"
+        tests:
+          - not_null
+      - name: stores_total_attribution
+        description: "Number of stores in the attribution model"
+        tests:
+          - not_null
+      - name: stores_difference
+        description: "Absolute difference between the number of stores in the store info table and the number of stores in the attribution model table"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_set:
+              value_set: [0, 1]
+              row_condition: "created_at > DATE '2024-01-01'"
+      - name: sys_audit_created_on
+        description: "Timestamp of when this record was created in our data warehouse"
+      - name: sys_audit_updated_on
+        description: "Timestamp of when this record was last updated in our data warehouse"
+      - name: sys_audit_created_by
+        description: "System identifier of the process that created this record"
+      - name: sys_audit_updated_by
+        description: "System identifier of the process that last updated this record"
   - name: marketing_hubspot_company_variables
     meta:
       owner: "santiago.gandolfo@tiendanube.com"
