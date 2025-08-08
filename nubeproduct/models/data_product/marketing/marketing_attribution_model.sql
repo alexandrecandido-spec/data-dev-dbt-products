@@ -60,7 +60,7 @@ WHERE
     {% endif %}
     {% if is_incremental() %}
       main_source.change_timestamp > (
-        SELECT COALESCE(MAX(sys_audit_created_on), DATE '1900-01-01')
+        SELECT COALESCE(MAX(sys_audit_created_on) - INTERVAL 1 DAY, DATE '1900-01-01')
         FROM {{ this }}
       )
     {% endif %}
