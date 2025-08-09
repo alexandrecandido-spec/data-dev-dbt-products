@@ -358,6 +358,8 @@ models:
         description: "Custom store domain name created by the client."
         tests:
           - not_null
+      - name: first_payment
+        description:  "Date when the store made its first payment."
       - name: sys_audit_created_on
         description: "Timestamp when the row was originally created."
       - name: sys_audit_created_by
