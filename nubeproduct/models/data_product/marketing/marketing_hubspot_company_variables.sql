@@ -11,7 +11,7 @@ WITH source_data AS (
         coalesce(vertical.vertical_name, '') as vertical_str,
         'https://stats.tiendanube.com/store/profile?store_id=' || merchant.store_id as stats_url,
         coalesce(msi.partner_id, '') as associated_partner_id,
-        merchant.store_id
+        active_stores.store_id
     FROM {{ ref("hubspot_active_stores") }} active_stores
     LEFT JOIN
         {{ ref("dim_merchant_info") }} merchant
