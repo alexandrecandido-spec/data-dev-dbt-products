@@ -65,3 +65,9 @@ sources:
     schema: uplift
     tables:
       - name: distributions
+
+  - name: dp_hubspot
+    database: raw
+    schema: hubspot
+    tables:
+      - name: deals_archived

@@ -27,7 +27,7 @@ monthly_dates AS (
 )
 
 select 
-    wd.date_from,
+    CAST(wd.date_from AS DATE) as date_from,
     ss.store_id,
     'weekly' AS periodicity,
     coalesce(calls, 0) as calls,
@@ -70,7 +70,7 @@ where
 union all
 
 select 
-    md.date_from,
+    CAST(md.date_from AS DATE) as date_from,
     ss.store_id,
     'monthly' AS periodicity,
     coalesce(calls, 0) as calls,

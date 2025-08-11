@@ -1,3 +1,5 @@
+-- Owner: Guille De Felice
+
 {{ 
     config(
         materialized='table', 
@@ -15,9 +17,12 @@ with ranked_deals AS (
             else true 
         end as in_portfolio,
         ROW_NUMBER() OVER (PARTITION BY store_id ORDER BY createdate DESC) AS rn
-    FROM {{ source("dp_third_party", "midmarket_hubspot_deals") }}
+    FROM {{ source("dp_third_party", "midmarket_hubspot_deals") }} d
+        LEFT JOIN {{ source("dp_hubspot", "deals_archived") }} da
+            ON d.deal_id = da.id
     WHERE 
         pipeline IN ('Success | BR', 'Success | AR', 'Success | MX')
+        AND da.archived IS DISTINCT FROM true
 )
 SELECT 
     deal_id,

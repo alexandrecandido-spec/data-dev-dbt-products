@@ -12,7 +12,7 @@
 
 WITH weekly AS (
     SELECT 
-        date_trunc('week', d.snapshot_date) AS date_from,
+        CAST(date_trunc('week', d.snapshot_date) AS DATE) as date_from,
         d.store_id,
         'weekly' AS periodicity,
         SUM(d.qtd_sessions) AS sessions
@@ -22,19 +22,12 @@ WITH weekly AS (
     WHERE
         d.snapshot_date < date_trunc('week', current_date)
         AND (s.churned_at IS NULL OR date_trunc('week', d.snapshot_date) < date_trunc('week', s.churned_at))
-        {% if is_incremental() %}
-            AND date_trunc('week', d.snapshot_date) > (
-                SELECT max(date_from)
-                FROM {{ this }}
-                WHERE periodicity = 'weekly'
-            )
-        {% endif %}
     GROUP BY 1, 2, 3
 ),
 
 monthly AS (
     SELECT 
-        date_trunc('month', d.snapshot_date) AS date_from,
+        CAST(date_trunc('month', d.snapshot_date) AS DATE) as date_from,
         d.store_id,
         'monthly' AS periodicity,
         SUM(d.qtd_sessions) AS sessions
@@ -44,17 +37,10 @@ monthly AS (
     WHERE
         d.snapshot_date < date_trunc('month', current_date)
         AND (s.churned_at IS NULL OR date_trunc('month', d.snapshot_date) < date_trunc('month', s.churned_at))
-        {% if is_incremental() %}
-            AND date_trunc('month', d.snapshot_date) > (
-                SELECT max(date_from)
-                FROM {{ this }}
-                WHERE periodicity = 'monthly'
-            )
-        {% endif %}
     GROUP BY 1, 2, 3
 ),
 
-final_query AS (
+all_sessions AS (
     SELECT 
         *,
         LAG(sessions) OVER (
@@ -66,6 +52,27 @@ final_query AS (
         UNION ALL
         SELECT * FROM monthly
     ) all_data
+),
+
+final_query AS (
+    SELECT 
+        *
+    FROM 
+        all_sessions ls
+    {% if is_incremental() %}
+    WHERE
+        (ls.periodicity = 'weekly' AND ls.date_from > (
+            SELECT max(date_from) 
+            FROM {{ this }} 
+            WHERE periodicity = 'weekly'
+            ))
+        OR 
+        (ls.periodicity = 'monthly' AND ls.date_from > (
+            SELECT max(date_from) 
+            FROM {{ this }} 
+            WHERE periodicity = 'monthly'
+            ))
+    {% endif %}
 )
 
 SELECT 
@@ -78,4 +85,4 @@ FROM
     final_query
 WHERE 
     sessions > 0
-    OR COALESCE(previous_sessions, 0) > 0;
+    OR COALESCE(previous_sessions, 0) > 0
