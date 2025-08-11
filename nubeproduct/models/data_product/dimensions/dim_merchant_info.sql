@@ -59,7 +59,7 @@ WITH
 
 ,tb_inc AS
 (
-SELECT a.store_id, DATE(a.created_at) AS created_at, a.domain, a.country as country_code, a.plan as plan_id_nk
+SELECT a.store_id, DATE(a.created_at) AS created_at, a.domain, a.country as country_code, a.plan as plan_id_nk, a.first_payment
 FROM   {{ ref('moltres__mwp_store_info') }} AS a
 INNER  JOIN store_id_tbp AS b ON a.store_id = b.store_id
 )
@@ -81,7 +81,8 @@ d.max_segment_date_id,
 COALESCE(e.vertical_id, -1) AS vertical_id,
 COALESCE(f.business_size_id, -1) AS business_size_id,
 CASE WHEN g.group_id IN (20, 21) THEN -1 ELSE COALESCE(g.group_id, -1) END AS group_id,
-a.domain
+a.domain,
+a.first_payment
 FROM tb_inc AS a
 LEFT JOIN {{ ref('dim_location_country') }} b ON b.country_code = a.country_code
 LEFT JOIN {{ ref('_int_dim_merchant_info__location_by_zipcode') }} c ON a.store_id = c.store_id
@@ -107,6 +108,7 @@ a.vertical_id,
 a.business_size_id,
 a.group_id,
 a.domain,
+a.first_payment,
 COALESCE(b.sys_audit_created_on, current_timestamp) AS sys_audit_created_on,
 COALESCE(b.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by,
 current_timestamp AS sys_audit_updated_on,

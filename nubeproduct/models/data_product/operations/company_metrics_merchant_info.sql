@@ -27,6 +27,7 @@ SELECT
 ,j.business_size_name
 ,k.group_name
 ,a.domain AS domain
+,a.first_payment
 FROM      {{ ref('dim_merchant_info') }}    a
 LEFT JOIN {{ ref('dim_location_country') }} b ON b.country_id       = a.country_id
 LEFT JOIN {{ ref('dim_location_country') }} c ON c.country_id       = a.base_country_id
@@ -58,6 +59,7 @@ SELECT
 ,a.business_size_name
 ,a.group_name
 ,a.domain
+,a.first_payment
 ,COALESCE(b.sys_audit_created_on, current_timestamp) AS sys_audit_created_on
 ,COALESCE(b.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by
 ,current_timestamp AS sys_audit_updated_on
