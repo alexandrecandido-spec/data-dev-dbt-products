@@ -33,6 +33,7 @@ partner_stores AS
         SI.first_payment,
         SI.first_seller_at,
         SI.churned_at,
+        SI.payment_lifecycle_status,
         SI.plan_id,
         SI.plan_group,
         SI.plan_name,

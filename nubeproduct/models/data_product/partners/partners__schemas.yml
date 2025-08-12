@@ -119,3 +119,9 @@ models:
           - not_null
           - accepted_values:
               values: ['MM', 'SMB']
+      - name: payment_lifecycle_status
+        description: Payment lifecycle status of the store.
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Paying', 'Churned', 'Freemium', 'Trial']

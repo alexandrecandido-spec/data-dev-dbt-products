@@ -119,6 +119,16 @@ ranked_store_info AS
         IF(QL.predicted_prob >= MCT.cutoff,TRUE,FALSE) AS quality_lead_flg,
         SI.merchant_type,
         SI.active_merchant_flg,
+        CASE 
+            WHEN SI.first_payment IS NOT NULL 
+                AND SI.churned_at IS NULL    
+            THEN 'Paying'    
+            WHEN SI.churned_at IS NOT NULL 
+            THEN 'Churned'     
+            WHEN plan_group = 'freemium'   
+            THEN 'Freemium'
+        ELSE 'Trial'
+        END AS payment_lifecycle_status,
         DATE
             (
                 GREATEST
@@ -175,6 +185,7 @@ SELECT
     quality_lead_flg,
     merchant_type,
     active_merchant_flg,
+    payment_lifecycle_status,
     store_info_change_timestamp
 FROM ranked_store_info
 WHERE row_number = 1
