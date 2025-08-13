@@ -10,7 +10,7 @@ SELECT
     COUNT(*) AS all_time_stores,
     SUM(CASE WHEN first_payment_flg = TRUE THEN 1 ELSE 0 END) AS all_time_new_payments,
     MIN(created_at) AS first_trial_at,
-    MIN(first_payment) AS first_payment_at,
+    MIN(CASE WHEN first_payment_flg = TRUE THEN first_payment ELSE NULL END) AS first_payment_at,
     SUM(CASE WHEN payment_lifecycle_status = 'Freemium' THEN 1 ELSE 0 END) AS active_freemium_stores,
     SUM(CASE WHEN payment_lifecycle_status = 'Trial' THEN 1 ELSE 0 END) AS active_trials,
     SUM(CASE WHEN payment_lifecycle_status = 'Paying' THEN 1 ELSE 0 END) AS active_paying_stores,
