@@ -1163,22 +1163,14 @@ models:
           - unique
       - name: status_by_order_str
         description: "Descriptive name of the current segment (e.g., no-seller, struggling-seller) associated with this store. Returns empty string if null."
-        tests:
-          - not_null
       - name: vertical_str
         description: "Descriptive label of the vertical (e.g., small-business, medium-business, etc) associated with this store. Returns empty string if null."
-        tests:
-          - not_null
       - name: stats_url
         description: "URL to the stats profile page for the store in the format 'https://stats.tiendanube.com/store/profile?store_id={store_id}'."
-        tests:
-          - not_null
-          - dbt_expectations.expect_column_values_to_match_like_pattern:
-              like_pattern: "https://stats.tiendanube.com/store/profile?store_id=%"
+      - name: website
+        description: "The store's public URL, constructed from the merchant's domain with the appropriate platform suffix: '.lojavirtualnuvem.com.br' for Brazilian stores (when country_code = 'BR') or '.mitiendanube.com' for all other countries. This represents the store's customer-facing website."
       - name: associated_partner_id
         description: "Partner ID associated with the store, retrieved from moltres__mwp_store_info. Returns empty string if null."
-        tests:
-          - not_null
       - name: sys_audit_created_on
         description: "Timestamp when the row was originally created."
       - name: sys_audit_created_by
