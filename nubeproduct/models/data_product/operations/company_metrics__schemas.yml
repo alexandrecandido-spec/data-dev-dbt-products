@@ -368,3 +368,95 @@ models:
         description: "Timestamp of the most recent update to the row."
       - name: sys_audit_updated_by
         description: "System or user that last updated the row."
+
+  - name: company_metrics_gmv_by_storefronts
+    description: Contains monthly GMV, order metrics, and seller segmentation by store, both on and off platform, over the last closed month and the past 90 days. Segments are calculated based on proportional 
+    config:
+      meta:
+        tech_steward: "gustavo.braga@nuvemshop.com.br"
+        domain: "operations"
+        business_owner: "Nico Loreti"
+    columns:
+      - name: datemonth
+        description: "Último dia do mês de referência. Este campo e o store_id formam a chave única do modelo."
+        tests:
+          - not_null
+      - name: store_id
+        description: "Identificador único da loja. Parte da chave única do modelo."
+        tests:
+          - not_null
+      - name: country
+        description: "País ao qual a loja pertence."
+        tests:
+          - not_null
+      - name: country_currency
+        description: "Moeda local esperada com base no país da loja."
+      - name: store_creation_date
+        description: "Data e hora em que a loja foi criada."
+      - name: is_paying_merchant
+        description: "Booleano que indica se a loja é um cliente pagante naquele mês."
+      - name: orders_total_month
+        description: "Número total de pedidos realizados no mês."
+      - name: gmv_usd_total_month
+        description: "GMV (Volume Bruto de Mercadorias) total em USD no mês."
+      - name: gmv_local_total_month
+        description: "GMV (Volume Bruto de Mercadorias) total na moeda local no mês."
+      - name: gmv_usd_mobile_monthly
+        description: "GMV em USD no mês para pedidos originados do storefront 'mobile'."
+      - name: gmv_local_mobile_monthly
+        description: "GMV na moeda local no mês para pedidos originados do storefront 'mobile'."
+      - name: orders_mobile_monthly
+        description: "Número de pedidos no mês originados do storefront 'mobile'."
+      - name: gmv_usd_store_monthly
+        description: "GMV em USD no mês para pedidos originados do storefront 'store'."
+      - name: gmv_local_store_monthly
+        description: "GMV na moeda local no mês para pedidos originados do storefront 'store'."
+      - name: orders_store_monthly
+        description: "Número de pedidos no mês originados do storefront 'store'."
+      - name: gmv_usd_form_monthly
+        description: "GMV em USD no mês para pedidos originados do storefront 'form'."
+      - name: gmv_local_form_monthly
+        description: "GMV na moeda local no mês para pedidos originados do storefront 'form'."
+      - name: orders_form_monthly
+        description: "Número de pedidos no mês originados do storefront 'form'."
+      - name: gmv_usd_social_monthly
+        description: "GMV em USD no mês para pedidos originados do storefront 'social'."
+      - name: gmv_local_social_monthly
+        description: "GMV na moeda local no mês para pedidos originados do storefront 'social'."
+      - name: orders_social_monthly
+        description: "Número de pedidos no mês originados do storefront 'social'."
+      - name: gmv_usd_pos_monthly
+        description: "GMV em USD no mês para pedidos originados do storefront 'pos'."
+      - name: gmv_local_pos_monthly
+        description: "GMV na moeda local no mês para pedidos originados do storefront 'pos'."
+      - name: orders_pos_monthly
+        description: "Número de pedidos no mês originados do storefront 'pos'."
+      - name: gmv_usd_api_app12217_monthly
+        description: "GMV em USD no mês para pedidos originados do storefront 'api' e app_id 12217."
+      - name: gmv_local_api_app12217_monthly
+        description: "GMV na moeda local no mês para pedidos originados do storefront 'api' e app_id 12217."
+      - name: orders_api_app12217_monthly
+        description: "Número de pedidos no mês originados do storefront 'api' e app_id 12217."
+      - name: gmv_usd_api_other_apps_monthly
+        description: "GMV em USD no mês para pedidos originados do storefront 'api' e app_id diferente de 12217."
+      - name: gmv_local_api_other_apps_monthly
+        description: "GMV na moeda local no mês para pedidos originados do storefront 'api' e app_id diferente de 12217."
+      - name: orders_api_other_apps_monthly
+        description: "Número de pedidos no mês originados do storefront 'api' e app_id diferente de 12217."
+      - name: gmv_usd_others_monthly
+        description: "GMV em USD no mês para pedidos originados de storefronts não categorizados acima."
+      - name: gmv_local_others_monthly
+        description: "GMV na moeda local no mês para pedidos originados de storefronts não categorizados acima."
+      - name: orders_others_monthly
+        description: "Número de pedidos no mês para storefronts não categorizados acima."
+      - name: year_month_code
+        description: "Mês de referência no formato YYYYMM, usado como chave de partição da tabela."
+      - name: sys_audit_created_on
+        description: "Timestamp de quando o registro foi inserido pela primeira vez."
+      - name: sys_audit_created_by
+        description: "Usuário ou processo que inseriu o registro pela primeira vez."
+      - name: sys_audit_updated_on
+        description: "Timestamp da última atualização do registro."
+      - name: sys_audit_updated_by
+        description: "Usuário ou processo que realizou a última atualização."
+    
