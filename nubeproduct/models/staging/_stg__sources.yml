@@ -1,6 +1,13 @@
 version: 2
 
 sources:
+  - name: stg_active_merchants
+    database: null
+    schema: finance
+    tables:
+      - name: active_merchants
+        description: "Contains the list of every active merchant daily."
+
   - name: stg_moltres
     database: null
     schema: moltres
@@ -18,6 +25,9 @@ sources:
       - name: regions
       - name: cidades
       - name: mwp_invoice_info
+      - name: mwp_payment_stores
+      - name: mwp_payments
+      - name: mwp_contracts
 
   - name: stg_orders
     description: "Source containing tables related to order movements"

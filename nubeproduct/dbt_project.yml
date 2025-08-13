@@ -42,6 +42,9 @@ models:
       +schema: staging
       +file_format: delta
       +tags: ["core"]
+      +meta:
+        openmetadata:
+          tier: 'Tier.Silver'
       +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/staging/"
 
     intermediate:
@@ -72,6 +75,9 @@ models:
     data_product:
       +materialized: table
       +file_format: delta
+      +meta:
+        openmetadata:
+          tier: 'Tier.Gold'
       operations:
         +schema: operations
         +tags: ["operations"]

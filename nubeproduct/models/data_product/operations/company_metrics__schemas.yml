@@ -205,9 +205,6 @@ models:
         owner: "guillermo.defelice@tiendanube.com"
         domain: "operations"
         business_owner: "Fran Ramirez"
-        openmetadata:
-          tier: 'Tier.Tier1'
-          certification: Certification.Gold
     description: Contains information about plans (group, if it existed before freemium and nice name).
     columns:
       - name: plan
@@ -361,6 +358,8 @@ models:
         description: "Custom store domain name created by the client."
         tests:
           - not_null
+      - name: first_payment
+        description:  "Date when the store made its first payment."
       - name: sys_audit_created_on
         description: "Timestamp when the row was originally created."
       - name: sys_audit_created_by

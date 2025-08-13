@@ -52,7 +52,7 @@ fixed_values AS (
         {% for col in name_columns %}, '{{ name }}' AS {{ col }}{% endfor %}
         {% for col in extra_columns %}
           , {% if col in array_columns %}
-              CAST(NULL AS ARRAY<INT>) AS {{ col }}
+              CAST(ARRAY() AS ARRAY<BIGINT>) AS {{ col }}
             {% elif col.endswith('_id') or col.endswith('_id_nk') %}
               {{ id }} AS {{ col }}
             {% else %}

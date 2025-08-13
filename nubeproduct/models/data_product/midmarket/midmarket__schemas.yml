@@ -66,3 +66,70 @@ models:
         description: Timestamp when the row was initially created in the summary table.
       - name: sys_audit_created_by
         description: Source or user responsible for the initial row creation.
+
+
+  - name: plan_change_midmarket
+    description: "Final model of plan changes (Escala and Enterprise) per store_id, year, and month, with indicators of interest and implicit churn."
+    columns:
+      - name: store_id
+        description: "Unique identifier of the store"
+        tests:
+          - not_null
+      - name: year
+        description: "Year of the observation"
+        tests:
+          - not_null
+      - name: month
+        description: "Month of the observation"
+        tests:
+          - not_null
+      - name: country
+        description: "Country of the store"
+      - name: domain
+        description: "Domain of the store"
+      - name: date
+        description: "Date representing the start of the month (format yyyy-MM-01)"
+        tests:
+          - not_null
+      - name: plan
+        description: "Plan the store is currently on for the given month"
+      - name: plan_level
+        description: "Numeric level corresponding to the plan"
+      - name: previous_plan
+        description: "Plan the store was on in the previous month"
+      - name: previous_plan_level
+        description: "Numeric level corresponding to the previous plan"
+      - name: previous_date
+        description: "Date corresponding to the previous month"
+      - name: current_plan
+        description: "Current plan of the store at the time of the query"
+      - name: created_at
+        description: "Store creation date"
+      - name: first_payment
+        description: "Date of the first payment made by the store"
+      - name: first_payment_escala
+        description: "Date of the store's first payment on Escala plan"
+      - name: first_payment_enterprise
+        description: "Date of the store's first payment on Enterprise plan"
+      - name: churned_at
+        description: "Date when the store churned"
+      - name: plan_change_escala
+        description: "Descriptive label of the store's event related to the Escala plan"
+      - name: plan_change_escala_numeric_indicator
+        description: "Numeric indicator of the Escala event (whether it adds or removes an Escala merchant in the month)"
+      - name: plan_change_enterprise
+        description: "Descriptive label of the store's event related to the Enterprise plan"
+      - name: plan_change_enterprise_numeric_indicator
+        description: "Numeric indicator of the Enterprise event (whether it adds or removes an Enterprise merchant in the month)"
+      - name: is_escala_interest
+        description: "Flag indicating if the store has any involvement with Escala plan in the month (1 = yes, 0 = no)"
+      - name: is_enterprise_interest
+        description: "Flag indicating if the store has any involvement with Enterprise plan in the month (1 = yes, 0 = no)"
+      - name: sys_audit_updated_on
+        description: Timestamp of the latest update to the row.
+      - name: sys_audit_updated_by
+        description: Source or user responsible for the latest update.
+      - name: sys_audit_created_on
+        description: Timestamp when the row was initially created in the summary table.
+      - name: sys_audit_created_by
+        description: Source or user responsible for the initial row creation.

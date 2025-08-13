@@ -15,7 +15,7 @@ WITH first_seller_at_date AS (
     , DATE(msi.first_payment) AS first_payment
     , DATE(msi.churned_at) AS churned_at
     , DATE(f.first_seller_at) AS first_seller_at
-    , DATE(greatest(msi.sys_audit_updated_on, f.first_seller_at)) as change_timestamp
+    , greatest(msi.sys_audit_updated_on, CAST(f.first_seller_at AS TIMESTAMP)) as change_timestamp
     , CASE 
       WHEN msi.verified = 0 THEN 'undefined'
       WHEN msi.verified = 1 THEN 'desktop'

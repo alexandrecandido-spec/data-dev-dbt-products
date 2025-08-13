@@ -1,5 +1,90 @@
 version: 2
 models:
+  - name: stg_active_merchants
+    description: "Staging model that contains the list of every active merchant monthly."
+    config:
+      meta:
+        tech_steward: "renan.ferrari@nuvemshop.com.br"
+        domain: "finance"
+        business_owner: "Operations"
+    columns:
+      - name: store_id
+        description: "Store identifier."
+        tests:
+          - not_null
+      - name: store_country
+        description: "Country of the store."
+        tests:
+          - not_null
+      - name: store_id_plan_country
+        description: "Plan ID in store country."
+      - name: date
+        description: "Date of the first day of the evaluated month."
+        tests:
+          - not_null
+      - name: year
+        description: "Year extracted from the original date of the merchant snapshot."
+      - name: month
+        description: "Month extracted from the original date of the merchant snapshot."
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "System or user that created the row."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row."
+        tests:
+          - not_null
+
+  - name: moltres__contracts
+    description: "Staging model containing contracts created through plan subscription events."
+    config:
+      meta:
+        tech_steward: "renan.ferrari@nuvemshop.com.br"
+        domain: "finance"
+        business_owner: "Operations"
+    columns:
+      - name: id
+        description: "Unique contract identifier."
+        tests:
+          - not_null
+          - unique
+      - name: store_id
+        description: "Store identifier linked to the contract."
+        tests:
+          - not_null
+      - name: plan_id
+        description: "Plan identifier associated with the contract."
+      - name: created_at
+        description: "Timestamp when the contract entry was created."
+      - name: start_date
+        description: "Date when the contract started."
+      - name: end_date
+        description: "Date when the contract ended."
+      - name: type
+        description: "Type of contract event (e.g., freemium, change-plan)."
+      - name: total
+        description: "Total value of the contract."
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "System or user that created the row."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this table."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row."
+        tests:
+          - not_null
+
   - name: moltres__mwp_store_info
     description: "Staging model that contains data about each store, such as store ID, country, creation and churn dates and other attributes."
     config:

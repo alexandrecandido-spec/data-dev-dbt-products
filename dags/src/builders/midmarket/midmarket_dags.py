@@ -20,6 +20,16 @@ default_args = {
 
 }
 
+default_args_renan = {
+    'owner': 'Renan Ferrari',
+    'depends_on_past': False,
+    'start_date': datetime(2025, 8, 4),
+    'email_on_failure': False,
+    'email_on_retry': False,
+    'on_failure_callback': partial(task_fail_slack_alert_bi,slack_ids=SLACK_IDS)
+
+}
+
 # Crear el DAG frecuencia semanal (mixta)
 dag = create_dbt_dag(
     dag_id='dbt_midmarket_weekly-monday-9am',
@@ -34,4 +44,20 @@ dag = create_dbt_dag(
     schedule_interval_tag='monthly-1st-12pm',
     default_args=default_args,
     tags=['midmarket', 'weekly-monday-9am-monthly-1st-12pm']
+)
+
+# Crear el DAG frecuencia semanal
+dag = create_dbt_dag(
+    dag_id='dbt_midmarket_weekly-monday-9am',
+    schedule_interval_tag='weekly-monday-9am',
+    default_args=default_args,
+    tags=['midmarket', 'weekly-monday-9am']
+)
+
+# Crear el DAG frecuencia mensual
+dag = create_dbt_dag(
+    dag_id='dbt_midmarket_monthly-1st-12pm',
+    schedule_interval_tag='monthly-1st-12pm',
+    default_args=default_args,
+    tags=['midmarket', 'monthly-1st-12pm']
 )

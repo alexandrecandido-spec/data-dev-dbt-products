@@ -6,8 +6,9 @@ models:
     config:
       meta:
         owner: "fabrizio.crivella@tiendanube.com"
-        domain: "product"
         business_owner: "Martin Palombo"
+        openmetadata:
+          domain: "product"
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: 

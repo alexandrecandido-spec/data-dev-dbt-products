@@ -1110,7 +1110,80 @@ models:
         description: "System identifier of the process that created this record"
       - name: sys_audit_updated_by
         description: "System identifier of the process that last updated this record"
-        
-        
-        
-        
+
+  - name: marketing_attribution_store_consistency
+    description: "This data product validates the attribution model by comparing the number of stores in the attribution model with the number of stores in the store info table."
+    config:
+      meta:
+        owner: "ronald.corcho@tiendanube.com"
+        domain: "marketing"
+        business_owner: "Giselle Galli"
+    columns:
+      - name: created_at
+        description: "Date when the stores were created in the attribution model"
+      - name: year_month_day_code
+        description: "Date in YYYYMMDD integer format used for partitioning."
+      - name: stores_total_store_info
+        description: "Number of stores in the store info table"
+        tests:
+          - not_null
+      - name: stores_total_attribution
+        description: "Number of stores in the attribution model"
+        tests:
+          - not_null
+      - name: stores_difference
+        description: "Absolute difference between the number of stores in the store info table and the number of stores in the attribution model table"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_set:
+              value_set: [0, 1]
+              row_condition: "created_at > DATE '2024-01-01'"
+      - name: sys_audit_created_on
+        description: "Timestamp of when this record was created in our data warehouse"
+      - name: sys_audit_updated_on
+        description: "Timestamp of when this record was last updated in our data warehouse"
+      - name: sys_audit_created_by
+        description: "System identifier of the process that created this record"
+      - name: sys_audit_updated_by
+        description: "System identifier of the process that last updated this record"
+  - name: marketing_hubspot_company_variables
+    meta:
+      owner: "santiago.gandolfo@tiendanube.com"
+      domain: "operations"
+      business_owner: "Ane Paschoalino"
+    description: >
+      Contains simplified store attributes for HubSpot integration, including only
+      vertical classification and current segment status. Returns empty strings
+      instead of null values to ensure the values are set in Hubspot as empty.
+    columns:
+      - name: store_id
+        description: "Unique identifier of the store. External key."
+        tests:
+          - not_null
+          - unique
+      - name: status_by_order_str
+        description: "Descriptive name of the current segment (e.g., no-seller, struggling-seller) associated with this store. Returns empty string if null."
+        tests:
+          - not_null
+      - name: vertical_str
+        description: "Descriptive label of the vertical (e.g., small-business, medium-business, etc) associated with this store. Returns empty string if null."
+        tests:
+          - not_null
+      - name: stats_url
+        description: "URL to the stats profile page for the store in the format 'https://stats.tiendanube.com/store/profile?store_id={store_id}'."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_match_like_pattern:
+              like_pattern: "https://stats.tiendanube.com/store/profile?store_id=%"
+      - name: associated_partner_id
+        description: "Partner ID associated with the store, retrieved from moltres__mwp_store_info. Returns empty string if null."
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created."
+      - name: sys_audit_created_by
+        description: "System or user that created the row."
+      - name: sys_audit_updated_on
+        description: "Maximum timestamp from all dependency tables (dim_merchant_info and related dimension tables)."
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row."
