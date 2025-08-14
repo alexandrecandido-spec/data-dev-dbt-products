@@ -18,8 +18,8 @@ with
             coalesce(
                 case
                     when country.country_code = 'BR'
-                    then merchant.domain || '.lojavirtualnuvem.com.br'
-                    else merchant.domain || '.mitiendanube.com'
+                    then nullif(merchant.domain, '') || '.lojavirtualnuvem.com.br'
+                    else nullif(merchant.domain, '') || '.mitiendanube.com'
                 end,
                 ''
             ) as website,
@@ -64,12 +64,18 @@ select
     'data-dev-dbt-products' as sys_audit_updated_by
 from source_data as info
 {% if is_incremental() %}
-    left join {{ this }} as existing_data on info.store_id = existing_data.store_id
+    left join
+        {{ this }} as existing_data on info.store_id = existing_data.store_id
+        {% set monitored_cols = [
+            "status_by_order_str",
+            "vertical_str",
+            "stats_url",
+            "associated_partner_id",
+            "website",
+        ] %}
     where
         existing_data.store_id is null
-        or info.status_by_order_str is distinct from existing_data.status_by_order_str
-        or info.vertical_str       is distinct from existing_data.vertical_str
-        or info.stats_url          is distinct from existing_data.stats_url
-        or info.associated_partner_id is distinct from existing_data.associated_partner_id
-        or info.website            is distinct from existing_data.website
+        {%- for col in monitored_cols %}
+            or (info.{{ col }} is distinct from existing_data.{{ col }})
+        {%- endfor %}
 {% endif %}
