@@ -2,7 +2,7 @@
     config(
         materialized="incremental",
         unique_key="store_id",
-        on_schema_change="fail",
+        on_schema_change="sync_all_columns",
         incremental_strategy="merge",
         tags=["daily-6am"],
     )
@@ -14,12 +14,15 @@ with
             coalesce(segment.segment_name, '') as status_by_order_str,
             coalesce(vertical.vertical_name, '') as vertical_str,
             'https://stats.tiendanube.com/store/profile?store_id='
-            || merchant.store_id as stats_url,
-            case
-                when country.country_code = 'BR'
-                then merchant.domain || '.lojavirtualnuvem.com.br'
-                else merchant.domain || '.mitiendanube.com'
-            end as website,
+            || active_stores.store_id as stats_url,
+            coalesce(
+                case
+                    when country.country_code = 'BR'
+                    then merchant.domain || '.lojavirtualnuvem.com.br'
+                    else merchant.domain || '.mitiendanube.com'
+                end,
+                ''
+            ) as website,
             coalesce(msi.partner_id, '') as associated_partner_id,
             active_stores.store_id
         from {{ ref("hubspot_active_stores") }} active_stores
