@@ -2,7 +2,7 @@
     config(
         materialized="incremental",
         unique_key="store_id",
-        on_schema_change="sync_all_columns",
+        on_schema_change="fail",
         incremental_strategy="merge",
         tags=["daily-6am"],
     )
@@ -67,9 +67,9 @@ from source_data as info
     left join {{ this }} as existing_data on info.store_id = existing_data.store_id
     where
         existing_data.store_id is null
-        or info.status_by_order_str <> existing_data.status_by_order_str
-        or info.vertical_str <> existing_data.vertical_str
-        or info.stats_url <> existing_data.stats_url
-        or info.associated_partner_id <> existing_data.associated_partner_id
-        or info.website <> existing_data.website
+        or info.status_by_order_str is distinct from existing_data.status_by_order_str
+        or info.vertical_str       is distinct from existing_data.vertical_str
+        or info.stats_url          is distinct from existing_data.stats_url
+        or info.associated_partner_id is distinct from existing_data.associated_partner_id
+        or info.website            is distinct from existing_data.website
 {% endif %}
