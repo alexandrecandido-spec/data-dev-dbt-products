@@ -24,6 +24,7 @@ WITH stores_gmv AS
             INNER JOIN {{ ref('partners_agencies_affiliates_stores') }} AS PS
                 ON PO.store_id = PS.store_id
             WHERE PO.completed_at IS NOT NULL
+                AND PO.platform_type = 'on'
                 AND PS.partnership_type = 'store_development'
             GROUP BY 
                 PO.store_id, 
