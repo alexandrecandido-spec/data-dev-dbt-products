@@ -2,6 +2,7 @@
     config(
         materialized="incremental",
         unique_key="store_id",
+        on_schema_change="fail",
         incremental_strategy="merge",
         tags=["daily-6am"],
     )
@@ -63,18 +64,9 @@ from source_data as info
     left join {{ this }} as existing_data on info.store_id = existing_data.store_id
     where
         existing_data.store_id is null
-        {% for col in [
-            "status_by_order_str",
-            "vertical_str",
-            "stats_url",
-            "associated_partner_id",
-            "website",
-        ] %}
-            or (
-                {% if column_exists(this, col) %}
-                    info.{{ col }} <> existing_data.{{ col }}
-                {% else %}true
-                {% endif %}
-            )
-        {% endfor %}
+        or info.status_by_order_str <> existing_data.status_by_order_str
+        or info.vertical_str <> existing_data.vertical_str
+        or info.stats_url <> existing_data.stats_url
+        or info.associated_partner_id <> existing_data.associated_partner_id
+        or info.website <> existing_data.website
 {% endif %}
