@@ -1,8 +1,14 @@
 {{ config(
+  materialized = 'incremental',
+  incremental_strategy = 'merge',
   unique_key=['id'],
   on_schema_change='fail',
   tags=['daily-9am']
 ) }}
+
+WITH existing_data AS (
+  {{ get_existing_data(this, ['id', 'sys_audit_created_on', 'sys_audit_created_by']) }}
+)
 
 SELECT
     gi.id,
@@ -43,3 +49,15 @@ SELECT
     gi.sys_audit_created_by, 
     gi.sys_audit_updated_by
 FROM {{ ref('_int_marketing_inputs_attribution__explode') }} gi
+LEFT JOIN existing_data e
+                          ON gi.id = e.id
+WHERE
+    {% if not is_incremental() %}
+      gi.created_at >= DATE '2025-01-01'
+    {% endif %}
+    {% if is_incremental() %}
+      gi.sys_audit_updated_on > (
+        SELECT COALESCE(MAX(sys_audit_created_on) - INTERVAL 1 DAY, DATE '1900-01-01')
+        FROM {{ this }}
+      )
+    {% endif %}

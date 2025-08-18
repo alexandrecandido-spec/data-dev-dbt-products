@@ -3,7 +3,15 @@
         materialized='incremental',
         unique_key='store_id',
         on_schema_change='fail',
-        tags=["operations","daily-8am-8pm"]
+        tags=["operations","daily-8am-8pm"],
+        post_hook=[
+            "DELETE FROM {{ this }}
+                    WHERE store_id IN (
+                        SELECT id
+                        FROM {{ source('stg_moltres', 'mwp_store_info') }}
+                        WHERE state = 4 
+            )"
+            ]
     )
 }}
 

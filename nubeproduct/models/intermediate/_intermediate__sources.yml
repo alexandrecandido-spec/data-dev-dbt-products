@@ -126,7 +126,7 @@ sources:
     database: null
     schema: attribution
     tables:
-      - name: store_attribution
+      - name: store_attributions_external
         description: "Contains information on external clicks used for markerting attribution."
   
   - name: int_data_predictors
