@@ -1,5 +1,7 @@
 {{ config(
-    materialized = 'table',
+    materialized = 'incremental',
+    incremental_strategy = 'merge',
+    unique_key = ['issue_number', 'issue_label_name'],
     on_schema_change = 'fail',
     tags = ['daily']
 ) }}
@@ -34,3 +36,11 @@ SELECT
     current_timestamp AS sys_audit_updated_on,
     'data-dev-dbt-products' AS sys_audit_updated_by 
 FROM issue_labels il
+{% if is_incremental() %}
+WHERE NOT EXISTS (
+    SELECT 1 
+    FROM {{ this }} existing 
+    WHERE existing.issue_number = il.issue_number 
+    AND existing.issue_label_name = il.issue_label_name
+)
+{% endif %}
