@@ -31,5 +31,5 @@ left join {{ source('stg_github_data', 'issue_events') }} ie
 where true
 and il.name like '%Solved by app%'
 {% if is_incremental() %}
-and sys_audit_updated_at >= (select coalesce(max(j.sys_audit_updated_on),'1900-01-01') from {{ this }} j)
+and il.sys_audit_updated_on >= (select coalesce(max(il.sys_audit_updated_on),'1900-01-01') from {{ this }} il)
 {% endif %}
