@@ -1,10 +1,10 @@
 {{ config(
     materialized = 'incremental',
     incremental_strategy='merge',
-    unique_key = 'issue_number',
+    unique_key = ['issue_number', 'platform_country_state','country'],
     partition_by = 'created_at',
     on_schema_change = 'fail',
-    tags = ['platform','daily-8am']
+    tags = ['daily-8am']
 ) }}
 
 with problems as (
@@ -52,12 +52,18 @@ group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
 )
 select 
     p.* 
-    ,current_timestamp AS sys_audit_created_on
+    ,{% if is_incremental() %}
+        COALESCE(existing.sys_audit_created_on, current_timestamp) AS sys_audit_created_on
+    {% else %}
+        current_timestamp AS sys_audit_created_on
+    {% endif %}
     ,'data-dev-dbt-products' AS sys_audit_created_by
     ,current_timestamp AS sys_audit_updated_on
     ,'data-dev-dbt-products' AS sys_audit_updated_by
 from problems p
 {% if is_incremental() %}
-WHERE 
-    p.created_at >= (select coalesce(max(p.created_at),'1900-01-01') from {{ this }} p )
+left join {{ this }} existing
+    on p.issue_number = existing.issue_number 
+    and p.platform_country_state = existing.platform_country_state 
+    and p.country = existing.country
 {% endif %}

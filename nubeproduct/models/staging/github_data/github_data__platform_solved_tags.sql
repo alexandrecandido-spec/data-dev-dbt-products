@@ -3,7 +3,7 @@
     incremental_strategy = 'merge',
     unique_key = ['issue_number', 'issue_label_name'],
     on_schema_change = 'fail',
-    tags = ['daily']
+    tags = ['daily.7am']
 ) }}
 
 with issue_labels as (
