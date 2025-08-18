@@ -39,7 +39,7 @@ with
             {{ ref("dim_location_country") }} country
             on country.country_id = merchant.country_id
         left join
-            {{ ref("moltres__mwp_store_info") }} msi on msi.store_id = merchant.store_id
+            {{ ref("moltres__mwp_store_info") }} msi on msi.store_id = active_stores.store_id
     )
 
 select
