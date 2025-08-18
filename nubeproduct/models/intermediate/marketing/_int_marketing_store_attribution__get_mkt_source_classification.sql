@@ -27,6 +27,17 @@ base_classification AS (
         , referrer.referrer 
         , referrer.team AS referrer_team
         , referrer.subteam AS referrer_subteam
+		, greatest(att.change_timestamp, utms.sys_audit_updated_on, sub.sys_audit_updated_on, referrer.sys_audit_updated_on, urls.sys_audit_updated_on, gii.sys_audit_updated_on) as change_timestamp_incremental
+		, TRIM(TRAILING ',' FROM
+							CONCAT_WS(',',
+								CASE WHEN utms.id IS NOT NULL THEN 'utm' END,
+								CASE WHEN sub.id IS NOT NULL THEN 'subteam' END,
+								CASE WHEN referrer.id IS NOT NULL THEN 'referrer' END,
+								CASE WHEN urls.id IS NOT NULL THEN 'url' END,
+								CASE WHEN gii.id IS NOT NULL THEN 'insti' END,
+								att.input_sources_partners
+							)
+							) AS input_sources
         -- Cálculo de mkt_source en esta capa
 		, CASE					
 			WHEN att.referrer_domain = 'direct' AND att.landing_page_domain IN ('partners.tiendanube.com','partners.nuvemshop.com.br')				
@@ -81,7 +92,7 @@ base_classification AS (
 final_classification AS (
     SELECT 
         bc.*
-        , COALESCE(CASE                 
+        , COALESCE(CASE               
         WHEN bc.utms_source_mkt = 'Performance' AND bc.source = 'google' 
             AND (position('max-perf' IN bc.campaign) > 0) THEN 'Google pMax'            
         WHEN bc.utms_source_mkt = 'Performance' AND bc.source IN ('google','bing') 
@@ -89,7 +100,8 @@ final_classification AS (
         WHEN bc.utms_source_mkt = 'Product Marketing' 
             AND (position(bc.sub_utm_campaign IN bc.campaign) > 0) THEN bc.sub_subteam              
         WHEN bc.source = 'google' AND bc.medium = 'organic' AND bc.referrer_domain = 'gemini.google.com' THEN 'AI'              
-        WHEN bc.source = 'chatgpt.com' AND bc.medium = '' THEN 'AI'             
+        WHEN bc.source = 'chatgpt.com' AND (bc.medium  = '' OR bc.medium  IS NULL) THEN 'AI'
+		WHEN bc.mkt_source = 'Affiliates' THEN bc.affiliate_type              
         WHEN bc.utms_subteam IS NULL AND bc.mkt_source = bc.sub_team 
             AND (position(bc.sub_utm_campaign IN bc.campaign) > 0) THEN bc.sub_subteam      
         WHEN bc.utms_subteam IS NULL AND bc.mkt_source = bc.urls_team 
@@ -101,10 +113,7 @@ final_classification AS (
         WHEN bc.utms_subteam IS NULL AND bc.mkt_source = bc.referrer_team 
             AND (position(bc.referrer IN bc.referrer_domain) > 0) THEN bc.referrer_subteam  
         WHEN bc.utms_subteam IS NULL AND bc.mkt_source = bc.partner_team AND bc.flag_partner_exception = 1 AND bc.partner_id IS NOT NULL THEN bc.partner_subteam
-        WHEN bc.aflp_landing_page IS NOT NULL 
-            AND (position('/partners/' IN bc.landing_page_path) > 0) AND bc.mkt_source = 'Affiliates' THEN bc.affiliate_type
-        WHEN bc.utms_subteam IS NULL AND bc.partner_id IS NOT NULL AND bc.partnership_type = 'affiliate' AND bc.mkt_source = 'Affiliates' THEN bc.affiliate_type
-        WHEN bc.utms_source_mkt IS NULL THEN bc.mkt_source              
+		WHEN bc.utms_source_mkt IS NULL THEN bc.mkt_source              
         WHEN bc.utms_subteam IS NOT NULL THEN bc.utms_subteam               
         ELSE bc.mkt_source END, bc.mkt_source) AS mkt_subteam
     FROM base_classification bc

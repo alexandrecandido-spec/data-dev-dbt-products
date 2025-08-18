@@ -16,8 +16,7 @@ SELECT
 , main_source.created_at
 , main_source.year_month_day_code
 , main_source.device
-, main_source.stores_source_local_db
-, main_source.stores_source_amplitude
+, main_source.stores_source_spark_catalog
 , main_source.stores_source_empty
 , main_source.stores_total
 , COALESCE(e.sys_audit_created_on, current_timestamp) AS sys_audit_created_on

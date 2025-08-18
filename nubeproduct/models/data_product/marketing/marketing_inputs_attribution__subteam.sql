@@ -1,8 +1,24 @@
 {{ config(
+  materialized = 'incremental',
+  incremental_strategy = 'merge',
   unique_key=['id'],
   on_schema_change='fail',
-  tags=['daily-9am']
+  tags=['daily-9am'],
+  post_hook=[
+            """
+            DELETE FROM {{ this }}
+            WHERE id IN (
+              SELECT id
+              FROM {{ ref('marketing_inputs_attribution') }}
+              WHERE state = 'closed'
+              )
+            """
+            ]
 ) }}
+
+WITH existing_data AS (
+  {{ get_existing_data(this, ['id', 'sys_audit_created_on', 'sys_audit_created_by']) }}
+)
 
 SELECT				
     ai.id
@@ -19,11 +35,22 @@ SELECT
     , ai.created_at
     , ai.updated_at
     , ai.closed_at
-    , ai.sys_audit_created_on
-    , ai.sys_audit_created_by
-    , ai.sys_audit_updated_on
-    , ai.sys_audit_updated_by				
+    , COALESCE(e.sys_audit_created_on, current_timestamp) AS sys_audit_created_on
+    , COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by
+    , current_timestamp AS sys_audit_updated_on
+    , 'data-dev-dbt-products' AS sys_audit_updated_by			
 FROM {{ ref('marketing_inputs_attribution') }} ai					
 --Includes only records associated with subteams
-WHERE ai.input_type = 'SUBTEAM_MKT'			
+LEFT JOIN existing_data e ON ai.id = e.id                      
+WHERE
+    {% if not is_incremental() %}
+      ai.created_at >= DATE '2025-01-01'
+    {% endif %}
+    {% if is_incremental() %}
+      ai.sys_audit_updated_on > (
+        SELECT COALESCE(MAX(sys_audit_created_on) - INTERVAL 1 DAY, DATE '1900-01-01')
+        FROM {{ this }}
+      )
+    {% endif %}
+AND ai.input_type = 'SUBTEAM_MKT'			
 AND ai.state = 'open'
