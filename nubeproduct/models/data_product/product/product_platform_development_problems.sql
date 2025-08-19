@@ -44,8 +44,8 @@ from {{ ref('_int__pd_github_problems') }} pf
 left join {{ ref('_int__pd_stores_gmv') }} g
     on pf.store_id = g.store_id
     and (case when is_solved_by_app_country then
-            registered_month between date_add('month', -3, date_trunc('month', min_close_date)) and date_trunc('month', min_close_date)
-        else registered_month >= date_add('month', -3, date_trunc('month', current_date)) 
+            registered_month between date_add(MONTH, -3, date_trunc('month', min_close_date)) and date_trunc('month', min_close_date)
+        else registered_month >= date_add(MONTH, -3, date_trunc('month', current_date)) 
         end)
 where true
 group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
