@@ -127,7 +127,9 @@ ranked_store_info AS
             THEN 'Churned'     
             WHEN plan_group = 'freemium'   
             THEN 'Freemium'
-        ELSE 'Trial'
+            WHEN DATE_DIFF(SI.created_at, CURRENT_DATE, DAY) <= 90
+            THEN 'Trial'
+        ELSE 'Other'
         END AS payment_lifecycle_status,
         DATE
             (

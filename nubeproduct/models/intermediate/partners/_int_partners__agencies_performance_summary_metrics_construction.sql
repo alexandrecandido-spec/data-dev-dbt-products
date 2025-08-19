@@ -4,13 +4,21 @@ WITH stores_gmv AS
         partner_id,
         SUM(gmv_usd_daily) AS all_time_gmv,
         SUM(CASE WHEN DATE_TRUNC('MONTH', order_date) = DATE_TRUNC('MONTH', CURRENT_DATE()) THEN gmv_usd_daily ELSE 0 END) AS gmv_usd_current_month,
+        SUM(CASE WHEN DATE_TRUNC('MONTH', order_date) = DATE_TRUNC('MONTH', CURRENT_DATE()) THEN gmv_local_currency_daily ELSE 0 END) AS gmv_local_currency_current_month,
         SUM(CASE WHEN DATE_TRUNC('MONTH', order_date) = DATE_TRUNC('MONTH', ADD_MONTHS(CURRENT_DATE(), -1)) THEN gmv_usd_daily ELSE 0 END) AS gmv_usd_previous_month,
+        SUM(CASE WHEN DATE_TRUNC('MONTH', order_date) = DATE_TRUNC('MONTH', ADD_MONTHS(CURRENT_DATE(), -1)) THEN gmv_local_currency_daily ELSE 0 END) AS gmv_local_currency_previous_month,
         SUM(CASE WHEN DATE_TRUNC('QUARTER', order_date) = DATE_TRUNC('QUARTER', ADD_MONTHS(CURRENT_DATE(), -3)) THEN gmv_usd_daily ELSE 0 END) AS gmv_usd_last_quarter,
+        SUM(CASE WHEN DATE_TRUNC('QUARTER', order_date) = DATE_TRUNC('QUARTER', ADD_MONTHS(CURRENT_DATE(), -3)) THEN gmv_local_currency_daily ELSE 0 END) AS gmv_local_currency_last_quarter,
         SUM(CASE WHEN DATE_TRUNC('YEAR', order_date) = DATE_TRUNC('YEAR', ADD_MONTHS(CURRENT_DATE(), -12)) THEN gmv_usd_daily ELSE 0 END) AS gmv_usd_last_year,
+        SUM(CASE WHEN DATE_TRUNC('YEAR', order_date) = DATE_TRUNC('YEAR', ADD_MONTHS(CURRENT_DATE(), -12)) THEN gmv_local_currency_daily ELSE 0 END) AS gmv_local_currency_last_year,
         SUM(CASE WHEN order_date >= DATE_SUB(CURRENT_DATE(), 30) THEN gmv_usd_daily ELSE 0 END) AS gmv_usd_last_30d,
+        SUM(CASE WHEN order_date >= DATE_SUB(CURRENT_DATE(), 30) THEN gmv_local_currency_daily ELSE 0 END) AS gmv_local_currency_last_30d,
         SUM(CASE WHEN order_date >= DATE_SUB(CURRENT_DATE(), 90) THEN gmv_usd_daily ELSE 0 END) AS gmv_usd_last_90d,
+        SUM(CASE WHEN order_date >= DATE_SUB(CURRENT_DATE(), 90) THEN gmv_local_currency_daily ELSE 0 END) AS gmv_local_currency_last_90d,
         SUM(CASE WHEN order_date >= DATE_SUB(CURRENT_DATE(), 180) THEN gmv_usd_daily ELSE 0 END) AS gmv_usd_last_180d,
+        SUM(CASE WHEN order_date >= DATE_SUB(CURRENT_DATE(), 180) THEN gmv_local_currency_daily ELSE 0 END) AS gmv_local_currency_last_180d,
         SUM(CASE WHEN order_date >= DATE_SUB(CURRENT_DATE(), 365) THEN gmv_usd_daily ELSE 0 END) AS gmv_usd_last_365d,
+        SUM(CASE WHEN order_date >= DATE_SUB(CURRENT_DATE(), 365) THEN gmv_local_currency_daily ELSE 0 END) AS gmv_local_currency_last_365d,
     FROM    
         (
             SELECT 
