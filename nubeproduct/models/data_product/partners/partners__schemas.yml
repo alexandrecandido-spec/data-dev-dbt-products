@@ -44,7 +44,7 @@ models:
       - name: quality_lead_flg
         description: Flag indicating if the store is a quality lead.
       - name: first_payment_flg
-        description: Flag indicating if the store has made a first payment and no chrun at the same month.
+        description: Flag indicating if the store has made a first payment.
         tests:
           - not_null
       - name: acquired_by
@@ -124,4 +124,4 @@ models:
         tests:
           - not_null
           - accepted_values:
-              values: ['Paying', 'Churned', 'Freemium', 'Trial']
+              values: ['Paying', 'Churned', 'Freemium', 'Trial', 'Other']

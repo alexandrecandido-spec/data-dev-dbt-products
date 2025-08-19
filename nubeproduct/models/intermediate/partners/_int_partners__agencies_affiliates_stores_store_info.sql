@@ -62,21 +62,7 @@ store_info_data AS
         ELSE 'Non-active merchants' 
         END AS merchant_type,
         IF(current_segment NOT IN ('no-seller', 'struggling-seller'),TRUE,FALSE) AS active_merchant_flg,
-        CASE 
-            WHEN first_payment < DATE('2022-06-22')
-                AND first_payment IS NOT NULL 
-            THEN TRUE
-            WHEN first_payment >= DATE('2022-06-22') 
-                AND first_payment IS NOT NULL 
-                AND 
-                    (
-                        churned_at IS NULL 
-                            OR 
-                        DATE_TRUNC('MONTH', first_payment) < DATE_TRUNC('MONTH', churned_at)
-                    ) 
-            THEN TRUE 
-        ELSE FALSE 
-        END AS first_payment_flg,
+        IF(first_payment IS NOT NULL, TRUE, FALSE) AS first_payment_flg,
         sys_audit_updated_on
     FROM {{ ref('moltres__mwp_store_info') }}
     WHERE partner_id IS NOT NULL -- Partner related
