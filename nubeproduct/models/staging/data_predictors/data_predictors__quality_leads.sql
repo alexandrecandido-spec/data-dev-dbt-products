@@ -26,7 +26,7 @@ WHERE mv.became_production IS NOT NULL
     -- this filter will only be applied on an incremental run
     -- (uses >= to include records whose timestamp occurred since the last run of this model)
     -- (If event_time is NULL or the table is truncated, the condition will always be true and load all records)
-    AND created_at >= (select coalesce(max(created_at),'1900-01-01') from {{ source('stg_data_predictors','marketing_new_payment_predictor') }} )
+    AND created_at >= (select coalesce(max(created_at) - INTERVAL '1 DAY','1900-01-01') from {{ this }} )
 
     {% endif %}
 ),
