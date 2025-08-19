@@ -466,4 +466,58 @@ models:
         description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
 
 
+  - name: product_platform_development_problems
+    description: >
+      This data product contains the informacion of the github problems tailored for platform development.
+      The goal of this dataproduct is to correct the way platform development tracks the open and closed problems individualy by country and improve the kpi trackings.
+    config:
+      meta:
+        owner: "fernando.martinez@tiendanube.com"
+        domain: "product"
+        business_owner: "Nicolas Loreti"
+    columns:
+      - name: issue_number
+        description: "Unique identifier for the issue"
+        tests:
+          - not_null
+      - name: title
+        description: "title of the problem"
+      - name: repo_name
+        description: "repository in which the problem is located"
+      - name: state
+        description: "state of the problem, open or closed"
+      - name: labels_tipo
+        description: "Team assigned to the problem based on its tags."
+      - name: platform_country_state
+        description: "Status of the problem based on the specific country tags and problem status. it corrects the status for each country affecting it."
+      - name: created_at
+        description: "date the problem was created"
+      - name: ticket_closed_at
+        description: "date the problem was closed"
+      - name: label_closed_date
+        description: "date in which the solved_by_app tag was created"
+      - name: min_close_date
+        description: "minimum date between ticket_closed_at and label_closed_date. it is used to correct the closing date for each country"
+      - name: labels_domain
+        description: "app domains affected by the problem"
+      - name: country
+        description: "country affected by the problem. this country might be determined by the country tags, the stores affected by the problem or the solved_by_app tags"
+      - name: is_solved_by_app_country
+        description: "determines if the problem was solved by the country"
+      - name: has_non_tech_enable_tag
+        description: "determines if the problem has the non_tech_enable tag"
+      - name: has_product_dependent_tag
+        description: "determines if the problem has the product_dependent tag"
+      - name: max_comments
+        description: "total ammount of comments in the problem"
+      - name: impacted_stores
+        description: "total ammount of stores impacted by the problem"
+      - name: dealbreakers
+        description: "total ammount of dealbreakers by the problem"
+      - name: high_impacted_stores
+        description: "total ammount of high impact stores affected by the problem"
+      - name: impacted_gmv
+        description: "impacted GMV in local currency by the problem"
+      - name: impacted_gmv_usd
+        description: "impacted GMV in USD by the problem"  
 

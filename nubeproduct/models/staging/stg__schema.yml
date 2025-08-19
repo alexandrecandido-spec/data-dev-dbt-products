@@ -794,3 +794,22 @@ models:
         description: "Timestamp of the current model run when the record was processed."
       - name: sys_audit_updated_by
         description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
+
+  - name: github_data__platform_solved_tags
+    description: "Extract the solved_by_app tags and creation dates from github data"
+    config:
+      meta:
+        owner: "fernando.martinez@tiendanube.com"
+        domain: "product"
+        business_owner: "Nicolas Loreti"
+    columns:
+      - name: issue_number
+        description: "unique identifier of the issue"
+      - name: issue_label_name
+        description: "name of the label"
+      - name: label_country
+        description: "country of the label"
+      - name: label_created_at
+        description: "date when the label was created"
+      - name: label_updated_at
+        description: "date when the label was updated"
