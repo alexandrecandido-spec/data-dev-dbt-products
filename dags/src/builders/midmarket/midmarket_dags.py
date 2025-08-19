@@ -32,7 +32,7 @@ default_args_renan = {
 
 # Crear el DAG frecuencia semanal (mixta)
 dag = create_dbt_dag(
-    dag_id='dbt_midmarket_weekly-monday-9am',
+    dag_id='dbt_midmarket_weekly-monday-9am-mixed',
     schedule_interval_tag='weekly-monday-9am',
     default_args=default_args,
     tags=['midmarket', 'weekly-monday-9am-monthly-1st-12pm']
@@ -40,7 +40,7 @@ dag = create_dbt_dag(
 
 # Crear el DAG frecuencia mensual (mixta)
 dag = create_dbt_dag(
-    dag_id='dbt_midmarket_monthly-1st-12pm',
+    dag_id='dbt_midmarket_monthly-1st-12pm-mixed',
     schedule_interval_tag='monthly-1st-12pm',
     default_args=default_args,
     tags=['midmarket', 'weekly-monday-9am-monthly-1st-12pm']
