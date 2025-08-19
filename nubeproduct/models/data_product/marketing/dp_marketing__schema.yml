@@ -392,6 +392,10 @@ models:
           - dbt_expectations.expect_column_values_to_be_between:
               min_value: 0
               max_value: 1
+      - name: input_sources
+        description: "List of inputs that were used to attribute the store creation to control incrementality in the attribution model"
+        tests:
+          - not_null
       - name: sys_audit_created_on
         description: "Timestamp of when the data was created"
       - name: sys_audit_created_by
@@ -423,15 +427,8 @@ models:
           - not_null
           - accepted_values:
               values: ['desktop', 'app', 'mobile', 'tablet', 'undefined']
-      - name: stores_source_local_db
-        description: "Count of stores attributed to the 'local_db' source, indicating origin from internal backend systems."
-        tests:
-          - not_null
-          - dbt_expectations.expect_column_values_to_be_between:
-              min_value: 0
-              strictly: false
-      - name: stores_source_amplitude
-        description: "Count of stores attributed to the 'amplitude' source, typically originating from user interactions tracked via Amplitude analytics."
+      - name: stores_source_spark_catalog
+        description: "Count of stores attributed to the 'spark_catalog' source, indicating origin from internal backend systems."
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_be_between:
@@ -1111,6 +1108,7 @@ models:
       - name: sys_audit_updated_by
         description: "System identifier of the process that last updated this record"
 
+
   - name: marketing_attribution_store_consistency
     description: "This data product validates the attribution model by comparing the number of stores in the attribution model with the number of stores in the store info table."
     config:
@@ -1146,6 +1144,8 @@ models:
         description: "System identifier of the process that created this record"
       - name: sys_audit_updated_by
         description: "System identifier of the process that last updated this record"
+  
+
   - name: marketing_hubspot_company_variables
     meta:
       owner: "santiago.gandolfo@tiendanube.com"

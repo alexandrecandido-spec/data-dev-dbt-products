@@ -28,7 +28,12 @@ att.store_id
 , msi.first_payment
 , msi.churned_at
 , msi.first_seller_at
-, msi.change_timestamp
+, greatest(msi.change_timestamp, pf.sys_audit_updated_on, afc.sys_audit_updated_on, partners.sys_audit_updated_on) as change_timestamp
+, TRIM(TRAILING ',' FROM
+		CASE WHEN pf.id IS NOT NULL THEN 'partner_fraud,' ELSE '' END ||
+		CASE WHEN afc.id IS NOT NULL THEN 'affiliate_classification,' ELSE '' END ||
+		CASE WHEN partners.id IS NOT NULL THEN 'partner_exception,' ELSE '' END
+		) AS input_sources_partners
 , msi.device
 , msi.register_url
 , msi.partner_id
@@ -49,11 +54,10 @@ att.store_id
 , CASE WHEN att.order = att.quantity THEN 1 ELSE 0 END AS trials_last_click
 , CASE WHEN att.order = 1 THEN 1 ELSE 0 END  AS trials_first_click
 , 1 / att.quantity AS trials_mean_click
-FROM {{source('int_attribution', 'store_attribution')}} att
+FROM {{source('int_attribution', 'store_attributions_external')}} att
 INNER JOIN {{ ref('_int_marketing_store_info__get_quality_leads_info') }} msi ON att.store_id = msi.store_id						
 LEFT JOIN {{source('int_ecosystem', 'mwp_partners')}} p ON msi.partner_id = p.id
 LEFT JOIN blocked_stores bls ON att.store_id = bls.related_id
 LEFT JOIN {{ ref('marketing_inputs_attribution__partner_fraud') }} pf ON p.code = pf.partner_code	
 LEFT JOIN {{ ref('marketing_inputs_attribution__affiliate_classification') }} afc ON p.code = afc.affiliate_code						
 LEFT JOIN {{ ref('marketing_inputs_attribution__partner_exception') }} partners ON p.code = partners.partner_code
-		
