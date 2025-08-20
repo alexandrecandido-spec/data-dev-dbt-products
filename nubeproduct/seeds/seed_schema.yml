@@ -47,3 +47,23 @@ seeds:
         description: Indicates the country ID to which the geographic region belongs.
         tests:
           - not_null
+  
+  - name: logistics__shipping_classification
+    description: Standardization of shipping options for shipping apps
+    columns:
+      - name: carrier_name
+        description: Group of shipping_methods
+        tests:
+          - not_null
+      - name: shipping_option_code
+        description: Shipping option code
+        tests:
+          - not_null
+      - name: shipping_option_result
+        description: Result of the classification
+        tests:
+          - not_null
+      - name: partner
+        description: Shipping partner
+      - name: service
+        description: Shipping service
