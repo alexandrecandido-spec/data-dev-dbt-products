@@ -33,6 +33,30 @@ blocked_partner_stores AS
                 )
     GROUP BY related_id
 ),
+first_plan AS    
+(
+    SELECT 
+        C.store_id,
+        C.plan_id AS first_plan_id,
+        C.type AS first_plan_type,
+        OGP.grupo AS first_plan_group,
+        OGP.namev2 AS first_plan_name,
+        C.sys_audit_updated_on AS sys_audit_updated_on
+    FROM 
+        (
+            SELECT
+                ROW_NUMBER() OVER(PARTITION BY A.store_id ORDER BY A.id ASC) AS RN,
+                A.store_id,
+                A.plan_id,
+                A.type,
+                A.sys_audit_updated_on
+            FROM {{ ref('moltres__contracts') }} AS A
+            WHERE A.plan_id IS NOT NULL
+        ) AS C
+    LEFT JOIN {{ ref('operations_grouping_plans') }} AS OGP
+        ON C.plan_id = OGP.plan
+    WHERE RN = 1
+),
 store_info_data AS 
 (
     SELECT 
@@ -87,6 +111,14 @@ ranked_store_info AS
         SI.plan_id,
         OGP.grupo AS plan_group,
         OGP.namev2 AS plan_name,
+        FP.first_plan_id,
+        FP.first_plan_group,
+        FP.first_plan_name,
+        CASE 
+            WHEN FP.first_plan_group = 'freemium'
+            THEN 'Freemium'
+        ELSE 'Trial'
+        END AS started_as,
         SI.verified,
         SI.main_user_id,
         SI.partner_id,
@@ -109,7 +141,7 @@ ranked_store_info AS
             WHEN SI.first_payment IS NOT NULL 
                 AND SI.churned_at IS NULL    
             THEN 'Paying'    
-            WHEN SI.churned_at IS NOT NULL 
+            WHEN SI.churned_at IS NOT NULL ----REVISAR LOGICA
             THEN 'Churned'     
             WHEN plan_group = 'freemium'   
             THEN 'Freemium'
@@ -126,7 +158,8 @@ ranked_store_info AS
                         QL.sys_audit_updated_on, 
                         BPS.sys_audit_updated_on,
                         OGP.sys_audit_updated_on,
-                        FSD.sys_audit_updated_on
+                        FSD.sys_audit_updated_on,
+                        FP.sys_audit_updated_on
                     )
             ) 
         AS store_info_change_timestamp
@@ -145,6 +178,8 @@ ranked_store_info AS
         ON SI.plan_id = OGP.plan   
     LEFT JOIN {{ ref('marketing_first_seller_date') }} AS FSD  
         ON SI.store_id = FSD.store_id
+    LEFT JOIN first_plan AS FP
+        ON SI.store_id = FP.store_id
 )
 SELECT 
     store_id,
@@ -173,7 +208,11 @@ SELECT
     quality_lead_flg,
     merchant_type,
     active_merchant_flg,
+    store_info_change_timestamp,
     payment_lifecycle_status,
-    store_info_change_timestamp
+    started_as,
+    first_plan_id,
+    first_plan_group,
+    first_plan_name
 FROM ranked_store_info
 WHERE row_number = 1

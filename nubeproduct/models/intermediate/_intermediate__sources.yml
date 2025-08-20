@@ -39,6 +39,8 @@ sources:
         description: "Table with zipcodes from Mexico."
       - name: ceps
         description: "Table with zipcodes from Brazil."
+      - name: mwp_contracts
+        description: "Table with historical contracts with merchants"
 
   - name: int_finance
     database: null
