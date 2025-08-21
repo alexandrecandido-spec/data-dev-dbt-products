@@ -124,7 +124,7 @@ models:
         tests:
           - not_null
           - accepted_values:
-              values: ['Paying', 'Churned', 'Freemium', 'Trial', 'Other']
+              values: ['Paying', 'Churned', 'Freemium', 'Trial']
       - name: started_as
         description: How the store started (freemium, trial).
         tests:
