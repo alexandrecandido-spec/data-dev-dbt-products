@@ -77,7 +77,7 @@ agencies_performance_summary AS
         new_sellers_last_365d,
         gmv_usd_last_365d,
         gmv_local_currency_last_365d
-    FROM {{ ref('int_partners__agencies_performance_summary_metrics_construction') }}
+    FROM {{ ref('_int_partners__agencies_performance_summary_metrics_construction') }}
 )
 SELECT 
     *,
