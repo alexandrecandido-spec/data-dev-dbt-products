@@ -23,7 +23,7 @@ issues as (
         ,case when lower(labels) like '%non tech enable%' then true else false end as has_non_tech_enable_tag
         ,case when lower(labels) like '%product dependent%' then true else false end as has_product_dependent_tag
         ,case when lower(labels) like '%app improvement%' then true else false end as has_app_improvement_tag
-        ,case when lower(labels) like '%New App or Integration%' then true else false end as has_new_app_or_integration_tag
+        ,case when lower(labels) like '%new app or integration%' then true else false end as has_new_app_or_integration_tag
     from {{ ref('product_issues_and_problems_summary') }} i
     where true
 ),

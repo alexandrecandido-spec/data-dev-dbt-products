@@ -3,7 +3,7 @@
     incremental_strategy = 'merge',
     unique_key = ['issue_number', 'issue_label_name'],
     on_schema_change = 'fail',
-    tags = ['daily.7am']
+    tags = ['product','daily-7am']
 ) }}
 
 with issue_labels as (
@@ -35,7 +35,6 @@ SELECT
     'data-dev-dbt-products' AS sys_audit_created_by,
     current_timestamp AS sys_audit_updated_on,
     'data-dev-dbt-products' AS sys_audit_updated_by 
-FROM issue_labels il
 {% if is_incremental() %}
 WHERE NOT EXISTS (
     SELECT 1 
@@ -44,3 +43,4 @@ WHERE NOT EXISTS (
     AND existing.issue_label_name = il.issue_label_name
 )
 {% endif %}
+FROM issue_labels il

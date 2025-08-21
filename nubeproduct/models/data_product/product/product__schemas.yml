@@ -482,16 +482,24 @@ models:
           - not_null
       - name: title
         description: "title of the problem"
+        tests:
+          - not_null
       - name: repo_name
         description: "repository in which the problem is located"
+        tests:
+          - not_null
       - name: state
         description: "state of the problem, open or closed"
+        tests:
+          - not_null
       - name: labels_tipo
         description: "Team assigned to the problem based on its tags."
       - name: platform_country_state
         description: "Status of the problem based on the specific country tags and problem status. it corrects the status for each country affecting it."
       - name: created_at
         description: "date the problem was created"
+        tests:
+          - not_null
       - name: ticket_closed_at
         description: "date the problem was closed"
       - name: label_closed_date

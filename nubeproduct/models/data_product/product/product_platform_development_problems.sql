@@ -4,7 +4,7 @@
     unique_key = ['issue_number', 'platform_country_state', 'country'],
     partition_by = 'created_at',
     on_schema_change = 'fail',
-    tags = ['daily-8am']
+    tags = ['product','daily-8am']
 ) }}
 
 with base as (
@@ -66,7 +66,8 @@ problems as (
     group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
 )
 select 
-    p.* 
+    concat(cast(issue_number as varchar), country) as unique_issue_country
+    ,p.* 
     ,{% if is_incremental() %}
         coalesce(existing.sys_audit_created_on, current_timestamp) as sys_audit_created_on
     {% else %}
