@@ -65,3 +65,29 @@ models:
         description: "Shipping cost using Loggi"
       - name: mandae_cost_value
         description: "Shipping cost using Mandae"
+  - name: logistics_shipping__orders_shipping_options
+    description: >
+      Standardized view of the shipping options selected by customers when placing orders,
+      specifically for shipments made via shipping apps.
+    config:
+      meta:
+        owner: "gustavo.oliveira@nuvemshop.com.br"
+        domain: "logistics"
+        business_owner: "Simone Harnik"
+    columns:
+      - name: order_id
+        description: "Order identifier"
+        tests: [not_null, unique]
+      - name: store_id
+        description: "Store identifier"
+        tests: [not_null]
+      - name: shipping_option_result
+        description: "Classification of shipping_option in the format Grouper - Partner - Service"
+      - name: carrier_name
+        description: "Grouper name"
+      - name: shipping_partner
+        description: "Partner name, if any, "
+      - name: year_month_code
+        description: "Date of order creation in the format YearMonth"
+      - name: shipping_service
+        description: "Logistic service select by the client"

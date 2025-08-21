@@ -45,6 +45,7 @@ SELECT
 , main_source.partner_code
 , main_source.partnership_type
 , main_source.new_payment_probability
+, 1 as active_merchant_probability  --Only for migration datasources
 , main_source.prod_cutoff
 , main_source.blocked_fraud_tag
 , main_source.flag_affiliate
