@@ -141,13 +141,11 @@ ranked_store_info AS
             WHEN SI.first_payment IS NOT NULL 
                 AND SI.churned_at IS NULL    
             THEN 'Paying'    
-            WHEN SI.churned_at IS NOT NULL ----REVISAR LOGICA
+            WHEN SI.churned_at IS NOT NULL
             THEN 'Churned'     
             WHEN plan_group = 'freemium'   
             THEN 'Freemium'
-            WHEN DATE_DIFF(SI.created_at, CURRENT_DATE, DAY) <= 90
-            THEN 'Trial'
-        ELSE 'Other'
+        ELSE 'Trial'
         END AS payment_lifecycle_status,
         DATE
             (
