@@ -3,7 +3,7 @@ WITH date_spine AS -- Create a table with the date spine for the snapshot date
     SELECT DISTINCT 
         first_day_of_week AS snapshot_date
     FROM {{ ref('dim_calendar') }}
-    WHERE date_id >= '2024-01-01'
+    WHERE date_id >= '2023-01-01'
 ),
 stores_gmv AS  -- Create a table with the gmv metrics for each partner considering the snapshot date
 (
@@ -63,7 +63,7 @@ contracts AS    -- Create a table with the historicalcontracts for each store
     FROM {{ ref('moltres__contracts') }} AS C
     LEFT JOIN {{ ref('operations_grouping_plans') }} AS OGP
         ON C.plan_id = OGP.plan
-    WHERE C.start_date >= '2022-01-01'
+    WHERE C.start_date >= '2021-01-01'
 ),
 partners_metrics AS -- Create a table with the metrics for each partner considering the snapshot date
 (
