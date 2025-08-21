@@ -3,7 +3,7 @@ WITH date_spine AS -- Create a table with the date spine for the snapshot date
     SELECT DISTINCT 
         first_day_of_week AS snapshot_date
     FROM {{ ref('dim_calendar') }}
-    WHERE date_id >= '2023-01-01'
+    WHERE date_id >= '2024-01-01'
 ),
 stores_gmv AS  -- Create a table with the gmv metrics for each partner considering the snapshot date
 (
@@ -62,8 +62,8 @@ contracts AS    -- Create a table with the historicalcontracts for each store
         OGP.grupo AS plan_group
     FROM {{ ref('moltres__contracts') }} AS C
     LEFT JOIN {{ ref('operations_grouping_plans') }} AS OGP
-        ON A.plan_id = B.plan
-    WHERE A.start_date >= '2020-01-01'
+        ON C.plan_id = OGP.plan
+    WHERE C.start_date >= '2022-01-01'
 ),
 partners_metrics AS -- Create a table with the metrics for each partner considering the snapshot date
 (
@@ -185,48 +185,48 @@ SELECT
     trials_current_month,
     new_payments_current_month,
     new_sellers_current_month,
-    SG.gmv_usd_current_month,
-    SG.gmv_local_currency_current_month,
+    gmv_usd_current_month,
+    gmv_local_currency_current_month,
     -- Previous month metrics
     trials_previous_month,
     new_payments_previous_month,
     new_sellers_previous_month,
-    SG.gmv_usd_previous_month,
-    SG.gmv_local_currency_previous_month,
+    gmv_usd_previous_month,
+    gmv_local_currency_previous_month,
     -- Last quarter metrics
     trials_last_quarter,
     new_payments_last_quarter,
     new_sellers_last_quarter,
-    SG.gmv_usd_last_quarter,
-    SG.gmv_local_currency_last_quarter,
+    gmv_usd_last_quarter,
+    gmv_local_currency_last_quarter,
     -- Last year metrics
     trials_last_year,
     new_payments_last_year,
     new_sellers_last_year,
-    SG.gmv_usd_last_year,
-    SG.gmv_local_currency_last_year,
+    gmv_usd_last_year,
+    gmv_local_currency_last_year,
     -- Rolling periods
     trials_last_30d,
     new_payments_last_30d,
     new_sellers_last_30d,
-    SG.gmv_usd_last_30d,
-    SG.gmv_local_currency_last_30d,
+    gmv_usd_last_30d,
+    gmv_local_currency_last_30d,
     -- Last 90 days metrics
     trials_last_90d,
     new_payments_last_90d,
     new_sellers_last_90d,
-    SG.gmv_usd_last_90d,
-    SG.gmv_local_currency_last_90d,
+    gmv_usd_last_90d,
+    gmv_local_currency_last_90d,
     -- Last 180 days metrics
     trials_last_180d,
     new_payments_last_180d,
     new_sellers_last_180d,
-    SG.gmv_usd_last_180d,
-    SG.gmv_local_currency_last_180d,
+    gmv_usd_last_180d,
+    gmv_local_currency_last_180d,
     -- Last 365 days metrics
     trials_last_365d,
     new_payments_last_365d,
     new_sellers_last_365d,
-    SG.gmv_usd_last_365d,
-    SG.gmv_local_currency_last_365d
+    gmv_usd_last_365d,
+    gmv_local_currency_last_365d
 FROM partners_metrics AS PM
