@@ -16,8 +16,6 @@ agencies_performance_summary AS
         snapshot_date,
         partner_id,
         partner_code,
-        partner_name, 
-        utm_campaign, 
         partner_created_at,
         partner_country_code,
         all_time_stores,
