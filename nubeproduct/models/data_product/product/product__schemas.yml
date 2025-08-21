@@ -476,6 +476,11 @@ models:
         domain: "product"
         business_owner: "Nicolas Loreti"
     columns:
+      - name: unique_issue_country
+        description: "unique key for the dataproduct."
+        tests:
+          - not_null
+          - unique
       - name: issue_number
         description: "Unique identifier for the issue"
         tests:
