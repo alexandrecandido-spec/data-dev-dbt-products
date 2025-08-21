@@ -2,17 +2,18 @@
     config(
         materialized = 'incremental',
         incremental_strategy = 'append',
-        unique_key = ['partner_id'],
+        unique_key = ['partner_id','snapshot_date'],
         on_schema_change = 'fail',
         tags = ['weekly-monday-11am']
 ) }}
 
 WITH existing_data AS (
-    {{ get_existing_data(this, ['partner_id', 'sys_audit_created_on', 'sys_audit_created_by']) }}
+    {{ get_existing_data(this, ['partner_id', 'snapshot_date', 'sys_audit_created_on', 'sys_audit_created_by']) }}
 ),
-agencies_performance_summary AS (
+agencies_performance_summary AS 
+(
     SELECT
-        current_date() AS summary_date,
+        snapshot_date,
         partner_id,
         partner_code,
         partner_name, 
@@ -89,6 +90,14 @@ SELECT
 FROM agencies_performance_summary
 LEFT JOIN existing_data e
     ON agencies_performance_summary.partner_id = e.partner_id
+    {% if is_incremental() %}
+WHERE    
+      agencies_performance_summary.snapshot_date > 
+        (
+            SELECT COALESCE(MAX(snapshot_date), DATE '1900-01-01')
+            FROM {{ this }}
+        )
+    {% endif %}
 
 
 
