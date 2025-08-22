@@ -167,6 +167,7 @@ partners_metrics AS -- Create a table with the metrics for each partner consider
         DS.snapshot_date
 )
 SELECT 
+    snapshot_date,
     partner_id,
     partner_code,
     partner_created_at,
