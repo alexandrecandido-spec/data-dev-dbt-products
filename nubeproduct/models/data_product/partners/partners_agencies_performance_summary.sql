@@ -80,7 +80,7 @@ agencies_performance_summary AS
     FROM {{ ref('_int_partners__agencies_performance_summary_metrics_construction') }}
 )
 SELECT 
-    *,
+    agencies_performance_summary.*,
     COALESCE(e.sys_audit_created_on, current_timestamp) AS sys_audit_created_on,
     COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by,
     current_timestamp AS sys_audit_updated_on,
@@ -88,6 +88,7 @@ SELECT
 FROM agencies_performance_summary
 LEFT JOIN existing_data e
     ON agencies_performance_summary.partner_id = e.partner_id
+    AND agencies_performance_summary.snapshot_date = e.snapshot_date
     {% if is_incremental() %}
 WHERE    
       agencies_performance_summary.snapshot_date > 

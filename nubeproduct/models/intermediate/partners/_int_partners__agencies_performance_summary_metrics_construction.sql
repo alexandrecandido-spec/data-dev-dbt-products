@@ -3,7 +3,7 @@ WITH date_spine AS -- Create a table with the date spine for the snapshot date
     SELECT DISTINCT 
         first_day_of_week AS snapshot_date
     FROM {{ ref('dim_calendar') }}
-    WHERE date_id >= '2023-01-01'
+    WHERE date_id BETWEEN '2023-01-01' AND CURRENT_DATE()
 ),
 stores_gmv AS  -- Create a table with the gmv metrics for each partner considering the snapshot date
 (
