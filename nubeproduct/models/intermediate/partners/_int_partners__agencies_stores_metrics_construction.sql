@@ -1,7 +1,7 @@
 SELECT 
     PO.store_id,
     DATE(PO.completed_at) AS order_date,
-    SUM(PO.total_in_local_currency) AS gmv_local_currency_daily,
+    SUM(PO.total) AS gmv_local_currency_daily,
     SUM(PO.total_in_usd) AS gmv_usd_daily,
     COUNT(PO.id) AS orders_daily,
     PS.partner_id
