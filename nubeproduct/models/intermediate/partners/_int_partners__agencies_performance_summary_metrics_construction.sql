@@ -3,7 +3,7 @@ WITH date_spine AS -- Create a table with the date spine for the snapshot date
     SELECT DISTINCT 
         first_day_of_week AS snapshot_date
     FROM {{ ref('dim_calendar') }}
-    WHERE date_id BETWEEN '2023-01-01' AND CURRENT_DATE()
+    WHERE date_id BETWEEN '2023-01-01' AND '2026-01-01'
 ),
 stores_gmv AS  -- Create a table with the gmv metrics for each partner considering the snapshot date
 (
@@ -63,6 +63,7 @@ agencies_stores AS -- Create a table with the stores depending on partners
     FROM {{ ref('partners_agencies_affiliates_stores')}}
     CROSS JOIN date_spine AS DS
     WHERE partnership_type = 'store_development'
+        AND created_at <= DS.snapshot_date
 ),
 contracts AS    -- Create a table with the historicalcontracts for each store
 (
