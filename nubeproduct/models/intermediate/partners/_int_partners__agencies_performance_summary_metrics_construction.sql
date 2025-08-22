@@ -86,90 +86,90 @@ partners_metrics AS -- Create a table with the metrics for each partner consider
         AS.partner_created_at,
         AS.partner_country_code,
         AS.snapshot_date,
-        SUM(CASE WHEN created_at <= DS.snapshot_date THEN 1 ELSE 0 END) AS all_time_stores,
-        SUM(CASE WHEN first_payment_flg = TRUE AND first_payment <= DS.snapshot_date THEN 1 ELSE 0 END) AS all_time_new_payments,
-        SUM(CASE WHEN first_seller_at IS NOT NULL AND first_seller_at <= DS.snapshot_date THEN 1 ELSE 0 END) AS all_time_new_sellers,
-        MIN(CASE WHEN created_at <= DS.snapshot_date THEN created_at ELSE NULL END) AS first_trial_at,
-        MIN(CASE WHEN first_payment_flg = TRUE AND first_payment <= DS.snapshot_date THEN first_payment ELSE NULL END) AS first_payment_at,
-        MIN(CASE WHEN first_seller_at IS NOT NULL AND first_seller_at <= DS.snapshot_date THEN first_seller_at ELSE NULL END) AS first_seller_at,
+        SUM(CASE WHEN created_at <= AS.snapshot_date THEN 1 ELSE 0 END) AS all_time_stores,
+        SUM(CASE WHEN first_payment_flg = TRUE AND first_payment <= AS.snapshot_date THEN 1 ELSE 0 END) AS all_time_new_payments,
+        SUM(CASE WHEN first_seller_at IS NOT NULL AND first_seller_at <= AS.snapshot_date THEN 1 ELSE 0 END) AS all_time_new_sellers,
+        MIN(CASE WHEN created_at <= AS.snapshot_date THEN created_at ELSE NULL END) AS first_trial_at,
+        MIN(CASE WHEN first_payment_flg = TRUE AND first_payment <= AS.snapshot_date THEN first_payment ELSE NULL END) AS first_payment_at,
+        MIN(CASE WHEN first_seller_at IS NOT NULL AND first_seller_at <= AS.snapshot_date THEN first_seller_at ELSE NULL END) AS first_seller_at,
         SUM(CASE WHEN 
-            (first_payment IS NULL OR first_payment > DS.snapshot_date)
-            AND (churned_at IS NULL OR churned_at > DS.snapshot_date)
+            (first_payment IS NULL OR first_payment > AS.snapshot_date)
+            AND (churned_at IS NULL OR churned_at > AS.snapshot_date)
             AND C.plan_group = 'freemium' 
             THEN 1 ELSE 0 END) AS freemium_stores,
         SUM(CASE WHEN 
-            (first_payment IS NULL OR first_payment > DS.snapshot_date)
-            AND (churned_at IS NULL OR churned_at > DS.snapshot_date)
+            (first_payment IS NULL OR first_payment > AS.snapshot_date)
+            AND (churned_at IS NULL OR churned_at > AS.snapshot_date)
             AND C.plan_group != 'freemium' 
         THEN 1 ELSE 0 END) AS active_trials,
         SUM(CASE WHEN 
             first_payment IS NOT NULL 
-            AND first_payment <= DS.snapshot_date 
-            AND (churned_at IS NULL OR churned_at > DS.snapshot_date) 
+            AND first_payment <= AS.snapshot_date 
+            AND (churned_at IS NULL OR churned_at > AS.snapshot_date) 
         THEN 1 ELSE 0 END) AS active_paying_stores,
         SUM(CASE WHEN             
-            (first_payment IS NULL OR first_payment > DS.snapshot_date)
-                AND (churned_at IS NULL OR churned_at > DS.snapshot_date)
+            (first_payment IS NULL OR first_payment > AS.snapshot_date)
+                AND (churned_at IS NULL OR churned_at > AS.snapshot_date)
                 AND C.plan_group = 'freemium'  
                 AND gmv_usd_last_90d > 0 
         THEN 1 ELSE 0 END) AS freemium_stores_with_gmv_last_90_days,
-        SUM(CASE WHEN churned_at IS NOT NULL AND churned_at <= DS.snapshot_date THEN 1 ELSE 0 END) AS churned_stores,
+        SUM(CASE WHEN churned_at IS NOT NULL AND churned_at <= AS.snapshot_date THEN 1 ELSE 0 END) AS churned_stores,
         -- Current month metrics
         SUM(CASE WHEN 
-                DATE_TRUNC('MONTH', created_at) = DATE_TRUNC('MONTH', DS.snapshot_date)
-                AND created_at <= DS.snapshot_date
+                DATE_TRUNC('MONTH', created_at) = DATE_TRUNC('MONTH', AS.snapshot_date)
+                AND created_at <=  AS.snapshot_date
             THEN 1 ELSE 0 END) AS trials_current_month,
         SUM(CASE WHEN 
                 first_payment_flg = TRUE 
-                AND DATE_TRUNC('MONTH', first_payment) = DATE_TRUNC('MONTH', DS.snapshot_date)
-                AND first_payment <= DS.snapshot_date THEN 1 ELSE 0 END) AS new_payments_current_month,
+                AND DATE_TRUNC('MONTH', first_payment) = DATE_TRUNC('MONTH', AS.snapshot_date)
+                AND first_payment <= AS.snapshot_date THEN 1 ELSE 0 END) AS new_payments_current_month,
         SUM(CASE WHEN 
-                DATE_TRUNC('MONTH', first_seller_at) = DATE_TRUNC('MONTH', DS.snapshot_date)
-                AND first_seller_at <= DS.snapshot_date
+                DATE_TRUNC('MONTH', first_seller_at) = DATE_TRUNC('MONTH', AS.snapshot_date)
+                AND first_seller_at <= AS.snapshot_date
             THEN 1 ELSE 0 END) AS new_sellers_current_month,
         -- AQUÍ SE SUMA EL GMV DE stores_gmv - con COALESCE para evitar NULLs
         SUM(COALESCE(gmv_usd_current_month, 0)) AS gmv_usd_current_month,
         SUM(COALESCE(gmv_local_currency_current_month, 0)) AS gmv_local_currency_current_month,
         -- Previous month metrics
-        SUM(CASE WHEN DATE_TRUNC('MONTH', created_at) = DATE_TRUNC('MONTH', ADD_MONTHS(DS.snapshot_date, -1)) THEN 1 ELSE 0 END) AS trials_previous_month,
-        SUM(CASE WHEN first_payment_flg = TRUE AND DATE_TRUNC('MONTH', first_payment) = DATE_TRUNC('MONTH', ADD_MONTHS(DS.snapshot_date, -1)) THEN 1 ELSE 0 END) AS new_payments_previous_month,
-        SUM(CASE WHEN DATE_TRUNC('MONTH', first_seller_at) = DATE_TRUNC('MONTH', ADD_MONTHS(DS.snapshot_date, -1)) THEN 1 ELSE 0 END) AS new_sellers_previous_month,
+        SUM(CASE WHEN DATE_TRUNC('MONTH', created_at) = DATE_TRUNC('MONTH', ADD_MONTHS(AS.snapshot_date, -1)) THEN 1 ELSE 0 END) AS trials_previous_month,
+        SUM(CASE WHEN first_payment_flg = TRUE AND DATE_TRUNC('MONTH', first_payment) = DATE_TRUNC('MONTH', ADD_MONTHS(AS.snapshot_date, -1)) THEN 1 ELSE 0 END) AS new_payments_previous_month,
+        SUM(CASE WHEN DATE_TRUNC('MONTH', first_seller_at) = DATE_TRUNC('MONTH', ADD_MONTHS(AS.snapshot_date, -1)) THEN 1 ELSE 0 END) AS new_sellers_previous_month,
         SUM(COALESCE(gmv_usd_previous_month, 0)) AS gmv_usd_previous_month,
         SUM(COALESCE(gmv_local_currency_previous_month, 0)) AS gmv_local_currency_previous_month,
         -- Last quarter metrics
-        SUM(CASE WHEN DATE_TRUNC('QUARTER', created_at) = DATE_TRUNC('QUARTER', ADD_MONTHS(DS.snapshot_date, -3)) THEN 1 ELSE 0 END) AS trials_last_quarter,
-        SUM(CASE WHEN first_payment_flg = TRUE AND DATE_TRUNC('QUARTER', first_payment) = DATE_TRUNC('QUARTER', ADD_MONTHS(DS.snapshot_date, -3)) THEN 1 ELSE 0 END) AS new_payments_last_quarter,
-        SUM(CASE WHEN DATE_TRUNC('QUARTER', first_seller_at) = DATE_TRUNC('QUARTER', ADD_MONTHS(DS.snapshot_date, -3)) THEN 1 ELSE 0 END) AS new_sellers_last_quarter,
+        SUM(CASE WHEN DATE_TRUNC('QUARTER', created_at) = DATE_TRUNC('QUARTER', ADD_MONTHS(AS.snapshot_date, -3)) THEN 1 ELSE 0 END) AS trials_last_quarter,
+        SUM(CASE WHEN first_payment_flg = TRUE AND DATE_TRUNC('QUARTER', first_payment) = DATE_TRUNC('QUARTER', ADD_MONTHS(AS.snapshot_date, -3)) THEN 1 ELSE 0 END) AS new_payments_last_quarter,
+        SUM(CASE WHEN DATE_TRUNC('QUARTER', first_seller_at) = DATE_TRUNC('QUARTER', ADD_MONTHS(AS.snapshot_date, -3)) THEN 1 ELSE 0 END) AS new_sellers_last_quarter,
         SUM(COALESCE(gmv_usd_last_quarter, 0)) AS gmv_usd_last_quarter,
         SUM(COALESCE(gmv_local_currency_last_quarter, 0)) AS gmv_local_currency_last_quarter,
         -- Last year metrics
-        SUM(CASE WHEN DATE_TRUNC('YEAR', created_at) = DATE_TRUNC('YEAR', ADD_MONTHS(DS.snapshot_date, -12)) THEN 1 ELSE 0 END) AS trials_last_year,
-        SUM(CASE WHEN first_payment_flg = TRUE AND DATE_TRUNC('YEAR', first_payment) = DATE_TRUNC('YEAR', ADD_MONTHS(DS.snapshot_date, -12)) THEN 1 ELSE 0 END) AS new_payments_last_year,
-        SUM(CASE WHEN DATE_TRUNC('YEAR', first_seller_at) = DATE_TRUNC('YEAR', ADD_MONTHS(DS.snapshot_date, -12)) THEN 1 ELSE 0 END) AS new_sellers_last_year,
+        SUM(CASE WHEN DATE_TRUNC('YEAR', created_at) = DATE_TRUNC('YEAR', ADD_MONTHS(AS.snapshot_date, -12)) THEN 1 ELSE 0 END) AS trials_last_year,
+        SUM(CASE WHEN first_payment_flg = TRUE AND DATE_TRUNC('YEAR', first_payment) = DATE_TRUNC('YEAR', ADD_MONTHS(AS.snapshot_date, -12)) THEN 1 ELSE 0 END) AS new_payments_last_year,
+        SUM(CASE WHEN DATE_TRUNC('YEAR', first_seller_at) = DATE_TRUNC('YEAR', ADD_MONTHS(AS.snapshot_date, -12)) THEN 1 ELSE 0 END) AS new_sellers_last_year,
         SUM(COALESCE(gmv_usd_last_year, 0)) AS gmv_usd_last_year,
         SUM(COALESCE(gmv_local_currency_last_year, 0)) AS gmv_local_currency_last_year,
         -- Rolling periods
-        SUM(CASE WHEN created_at >= DATE_SUB(DS.snapshot_date, 30) THEN 1 ELSE 0 END) AS trials_last_30d, 
-        SUM(CASE WHEN first_payment_flg = TRUE AND first_payment >= DATE_SUB(DS.snapshot_date, 30) THEN 1 ELSE 0 END) AS new_payments_last_30d,
-        SUM(CASE WHEN first_seller_at >= DATE_SUB(DS.snapshot_date, 30) THEN 1 ELSE 0 END) AS new_sellers_last_30d,
+        SUM(CASE WHEN created_at >= DATE_SUB(AS.snapshot_date, 30) THEN 1 ELSE 0 END) AS trials_last_30d, 
+        SUM(CASE WHEN first_payment_flg = TRUE AND first_payment >= DATE_SUB(AS.snapshot_date, 30) THEN 1 ELSE 0 END) AS new_payments_last_30d,
+        SUM(CASE WHEN first_seller_at >= DATE_SUB(AS.snapshot_date, 30) THEN 1 ELSE 0 END) AS new_sellers_last_30d,
         SUM(COALESCE(gmv_usd_last_30d, 0)) AS gmv_usd_last_30d,
         SUM(COALESCE(gmv_local_currency_last_30d, 0)) AS gmv_local_currency_last_30d,
         -- Last 90 days metrics
-        SUM(CASE WHEN created_at >= DATE_SUB(DS.snapshot_date, 90) THEN 1 ELSE 0 END) AS trials_last_90d,
-        SUM(CASE WHEN first_payment_flg = TRUE AND first_payment >= DATE_SUB(DS.snapshot_date, 90) THEN 1 ELSE 0 END) AS new_payments_last_90d,
-        SUM(CASE WHEN first_seller_at >= DATE_SUB(DS.snapshot_date, 90) THEN 1 ELSE 0 END) AS new_sellers_last_90d,
+        SUM(CASE WHEN created_at >= DATE_SUB(AS.snapshot_date, 90) THEN 1 ELSE 0 END) AS trials_last_90d,
+        SUM(CASE WHEN first_payment_flg = TRUE AND first_payment >= DATE_SUB(AS.snapshot_date, 90) THEN 1 ELSE 0 END) AS new_payments_last_90d,
+        SUM(CASE WHEN first_seller_at >= DATE_SUB(AS.snapshot_date, 90) THEN 1 ELSE 0 END) AS new_sellers_last_90d,
         SUM(COALESCE(gmv_usd_last_90d, 0)) AS gmv_usd_last_90d,
         SUM(COALESCE(gmv_local_currency_last_90d, 0)) AS gmv_local_currency_last_90d,
         -- Last 180 days metrics
-        SUM(CASE WHEN created_at >= DATE_SUB(DS.snapshot_date, 180) THEN 1 ELSE 0 END) AS trials_last_180d,
-        SUM(CASE WHEN first_payment_flg = TRUE AND first_payment >= DATE_SUB(DS.snapshot_date, 180) THEN 1 ELSE 0 END) AS new_payments_last_180d,
-        SUM(CASE WHEN first_seller_at >= DATE_SUB(DS.snapshot_date, 180) THEN 1 ELSE 0 END) AS new_sellers_last_180d,
+        SUM(CASE WHEN created_at >= DATE_SUB(AS.snapshot_date, 180) THEN 1 ELSE 0 END) AS trials_last_180d,
+        SUM(CASE WHEN first_payment_flg = TRUE AND first_payment >= DATE_SUB(AS.snapshot_date, 180) THEN 1 ELSE 0 END) AS new_payments_last_180d,
+        SUM(CASE WHEN first_seller_at >= DATE_SUB(AS.snapshot_date, 180) THEN 1 ELSE 0 END) AS new_sellers_last_180d,
         SUM(COALESCE(gmv_usd_last_180d, 0)) AS gmv_usd_last_180d,
         SUM(COALESCE(gmv_local_currency_last_180d, 0)) AS gmv_local_currency_last_180d,
         -- Last 365 days metrics
-        SUM(CASE WHEN created_at >= DATE_SUB(DS.snapshot_date, 365) THEN 1 ELSE 0 END) AS trials_last_365d,
-        SUM(CASE WHEN first_payment_flg = TRUE AND first_payment >= DATE_SUB(DS.snapshot_date, 365) THEN 1 ELSE 0 END) AS new_payments_last_365d,
-        SUM(CASE WHEN first_seller_at >= DATE_SUB(DS.snapshot_date, 365) THEN 1 ELSE 0 END) AS new_sellers_last_365d,
+        SUM(CASE WHEN created_at >= DATE_SUB(AS.snapshot_date, 365) THEN 1 ELSE 0 END) AS trials_last_365d,
+        SUM(CASE WHEN first_payment_flg = TRUE AND first_payment >= DATE_SUB(AS.snapshot_date, 365) THEN 1 ELSE 0 END) AS new_payments_last_365d,
+        SUM(CASE WHEN first_seller_at >= DATE_SUB(AS.snapshot_date, 365) THEN 1 ELSE 0 END) AS new_sellers_last_365d,
         SUM(COALESCE(gmv_usd_last_365d, 0)) AS gmv_usd_last_365d,
         SUM(COALESCE(gmv_local_currency_last_365d, 0)) AS gmv_local_currency_last_365d
     FROM agencies_stores AS AS
@@ -179,13 +179,13 @@ partners_metrics AS -- Create a table with the metrics for each partner consider
     LEFT JOIN stores_gmv AS SG
         ON AS.store_id = SG.store_id
             AND AS.snapshot_date = SG.snapshot_date
-    --WHERE created_at <= DS.snapshot_date
+    --WHERE created_at <= AS.snapshot_date
     GROUP BY     
         AS.partner_id,
         AS.partner_code,
         AS.partner_created_at,
         AS.partner_country_code,
-        DS.snapshot_date
+        AS.snapshot_date
 )
 SELECT 
     snapshot_date,
