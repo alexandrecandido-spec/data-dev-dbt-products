@@ -58,8 +58,10 @@ agencies_stores AS -- Create a table with the stores depending on partners
         partner_name, 
         partner_utm_campaign, 
         partner_created_at,
-        partner_country_code
+        partner_country_code,
+        DS.snapshot_date
     FROM {{ ref('partners_agencies_affiliates_stores')}}
+    CROSS JOIN date_spine AS DS
     WHERE partnership_type = 'store_development'
 ),
 contracts AS    -- Create a table with the historicalcontracts for each store
@@ -171,13 +173,12 @@ partners_metrics AS -- Create a table with the metrics for each partner consider
         SUM(COALESCE(gmv_usd_last_365d, 0)) AS gmv_usd_last_365d,
         SUM(COALESCE(gmv_local_currency_last_365d, 0)) AS gmv_local_currency_last_365d
     FROM agencies_stores AS AS
-    CROSS JOIN date_spine AS DS
     LEFT JOIN contracts AS C    
         ON AS.store_id = C.store_id
             AND DS.snapshot_date BETWEEN C.start_date AND C.end_date
     LEFT JOIN stores_gmv AS SG
         ON AS.store_id = SG.store_id
-            AND DS.snapshot_date = SG.snapshot_date
+            AND AS.snapshot_date = SG.snapshot_date
     --WHERE created_at <= DS.snapshot_date
     GROUP BY     
         AS.partner_id,
