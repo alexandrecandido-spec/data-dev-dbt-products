@@ -135,6 +135,10 @@ models:
         description: Group of the first plan associated with the store.
       - name: first_plan_name
         description: Name of the first plan associated with the store.
+      - name: churned_flg
+        description: Flag indicating if the store has churned.
+      - name: first_seller_flg
+        description: Flag indicating if the store has made a first sale.
 
   - name: partners_agencies_performance_summary
     config:

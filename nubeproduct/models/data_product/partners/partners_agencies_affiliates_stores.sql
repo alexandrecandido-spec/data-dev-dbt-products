@@ -28,6 +28,8 @@ partner_stores AS
         SI.prod_cutoff,
         SI.quality_lead_flg,
         SI.first_payment_flg,
+        SI.churned_flg,
+        SI.first_seller_flg,
         SI.acquired_by,  
         SI.created_at,
         SI.first_payment,

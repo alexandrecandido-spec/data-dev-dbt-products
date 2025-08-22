@@ -87,6 +87,7 @@ store_info_data AS
         END AS merchant_type,
         IF(current_segment NOT IN ('no-seller', 'struggling-seller'),TRUE,FALSE) AS active_merchant_flg,
         IF(first_payment IS NOT NULL, TRUE, FALSE) AS first_payment_flg,
+        IF(churned_at IS NOT NULL, TRUE, FALSE) AS churned_flg,
         sys_audit_updated_on
     FROM {{ ref('moltres__mwp_store_info') }}
     WHERE partner_id IS NOT NULL -- Partner related
@@ -105,6 +106,8 @@ ranked_store_info AS
         SI.current_segment,
         SI.first_payment,
         SI.first_payment_flg,
+        SI.churned_flg,
+        IF(first_seller_at IS NOT NULL, TRUE, FALSE) AS first_seller_flg,
         FSD.first_seller_at,
         SI.churned_at,
         SI.created_at,
@@ -211,6 +214,8 @@ SELECT
     started_as,
     first_plan_id,
     first_plan_group,
-    first_plan_name
+    first_plan_name,
+    churned_flg,
+    first_seller_flg
 FROM ranked_store_info
 WHERE row_number = 1
