@@ -175,7 +175,7 @@ partners_metrics AS -- Create a table with the metrics for each partner consider
     FROM agencies_stores AS AS
     LEFT JOIN contracts AS C    
         ON AS.store_id = C.store_id
-            AND DS.snapshot_date BETWEEN C.start_date AND C.end_date
+            AND AS.snapshot_date BETWEEN C.start_date AND C.end_date
     LEFT JOIN stores_gmv AS SG
         ON AS.store_id = SG.store_id
             AND AS.snapshot_date = SG.snapshot_date
