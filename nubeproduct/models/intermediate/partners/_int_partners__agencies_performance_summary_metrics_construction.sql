@@ -85,7 +85,7 @@ partners_metrics AS -- Create a table with the metrics for each partner consider
         AS.partner_code,
         AS.partner_created_at,
         AS.partner_country_code,
-        DS.snapshot_date,
+        AS.snapshot_date,
         SUM(CASE WHEN created_at <= DS.snapshot_date THEN 1 ELSE 0 END) AS all_time_stores,
         SUM(CASE WHEN first_payment_flg = TRUE AND first_payment <= DS.snapshot_date THEN 1 ELSE 0 END) AS all_time_new_payments,
         SUM(CASE WHEN first_seller_at IS NOT NULL AND first_seller_at <= DS.snapshot_date THEN 1 ELSE 0 END) AS all_time_new_sellers,
