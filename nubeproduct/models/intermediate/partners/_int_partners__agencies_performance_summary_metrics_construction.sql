@@ -12,8 +12,18 @@ stores_gmv AS  -- Create a table with the gmv metrics for each partner consideri
         store_id,
         DS.snapshot_date,
         SUM(CASE WHEN order_date <= DS.snapshot_date THEN gmv_usd_daily ELSE 0 END) AS all_time_gmv,
-        SUM(CASE WHEN DATE_TRUNC('MONTH', order_date) = DATE_TRUNC('MONTH', DS.snapshot_date) THEN gmv_usd_daily ELSE 0 END) AS gmv_usd_current_month,
-        SUM(CASE WHEN DATE_TRUNC('MONTH', order_date) = DATE_TRUNC('MONTH', DS.snapshot_date) THEN gmv_local_currency_daily ELSE 0 END) AS gmv_local_currency_current_month,
+        SUM(CASE WHEN 
+                DATE_TRUNC('MONTH', order_date) = DATE_TRUNC('MONTH', DS.snapshot_date)
+                AND order_date <= DS.snapshot_date
+            THEN gmv_usd_daily 
+            ELSE 0 
+        END) AS gmv_usd_current_month,
+        SUM(CASE WHEN 
+                DATE_TRUNC('MONTH', order_date) = DATE_TRUNC('MONTH', DS.snapshot_date)
+                AND order_date <= DS.snapshot_date
+            THEN gmv_local_currency_daily 
+            ELSE 0 
+        END) AS gmv_local_currency_current_month,
         SUM(CASE WHEN DATE_TRUNC('MONTH', order_date) = DATE_TRUNC('MONTH', ADD_MONTHS(DS.snapshot_date, -1)) THEN gmv_usd_daily ELSE 0 END) AS gmv_usd_previous_month,
         SUM(CASE WHEN DATE_TRUNC('MONTH', order_date) = DATE_TRUNC('MONTH', ADD_MONTHS(DS.snapshot_date, -1)) THEN gmv_local_currency_daily ELSE 0 END) AS gmv_local_currency_previous_month,
         SUM(CASE WHEN DATE_TRUNC('QUARTER', order_date) = DATE_TRUNC('QUARTER', ADD_MONTHS(DS.snapshot_date, -3)) THEN gmv_usd_daily ELSE 0 END) AS gmv_usd_last_quarter,
@@ -103,9 +113,18 @@ partners_metrics AS -- Create a table with the metrics for each partner consider
         THEN 1 ELSE 0 END) AS freemium_stores_with_gmv_last_90_days,
         SUM(CASE WHEN churned_at IS NOT NULL AND churned_at <= DS.snapshot_date THEN 1 ELSE 0 END) AS churned_stores,
         -- Current month metrics
-        SUM(CASE WHEN DATE_TRUNC('MONTH', created_at) = DATE_TRUNC('MONTH', DS.snapshot_date) THEN 1 ELSE 0 END) AS trials_current_month,
-        SUM(CASE WHEN first_payment_flg = TRUE AND DATE_TRUNC('MONTH', first_payment) = DATE_TRUNC('MONTH', DS.snapshot_date) THEN 1 ELSE 0 END) AS new_payments_current_month,
-        SUM(CASE WHEN DATE_TRUNC('MONTH', first_seller_at) = DATE_TRUNC('MONTH', DS.snapshot_date) THEN 1 ELSE 0 END) AS new_sellers_current_month,
+        SUM(CASE WHEN 
+                DATE_TRUNC('MONTH', created_at) = DATE_TRUNC('MONTH', DS.snapshot_date)
+                AND created_at <= DS.snapshot_date
+            THEN 1 ELSE 0 END) AS trials_current_month,
+        SUM(CASE WHEN 
+                first_payment_flg = TRUE 
+                AND DATE_TRUNC('MONTH', first_payment) = DATE_TRUNC('MONTH', DS.snapshot_date)
+                AND first_payment <= DS.snapshot_date THEN 1 ELSE 0 END) AS new_payments_current_month,
+        SUM(CASE WHEN 
+                DATE_TRUNC('MONTH', first_seller_at) = DATE_TRUNC('MONTH', DS.snapshot_date)
+                AND first_seller_at <= DS.snapshot_date
+            THEN 1 ELSE 0 END) AS new_sellers_current_month,
         SUM(gmv_usd_current_month) AS gmv_usd_current_month,
         SUM(gmv_local_currency_current_month) AS gmv_local_currency_current_month,
         -- Previous month metrics
