@@ -178,7 +178,7 @@ partners_metrics AS -- Create a table with the metrics for each partner consider
     LEFT JOIN stores_gmv AS SG
         ON AS.store_id = SG.store_id
             AND DS.snapshot_date = SG.snapshot_date
-    WHERE created_at <= DS.snapshot_date
+    --WHERE created_at <= DS.snapshot_date
     GROUP BY     
         AS.partner_id,
         AS.partner_code,
