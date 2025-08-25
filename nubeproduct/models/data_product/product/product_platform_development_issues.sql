@@ -11,11 +11,31 @@ with
 issues_dates as (
 select 
     d.registered_month
-    ,i.*
-    ,case when registered_month between date_trunc('month', i.created_at) and coalesce(closed_at,date('2100-01-01')) 
-        then true 
-        else false 
-    end as is_ticket_active
+    ,i.repo_name
+    ,i.issue_number
+    ,i.state
+    ,i.created_at
+    ,i.days_open
+    ,i.closed_at
+    ,i.title
+    ,i.labels_tipo
+    ,i.labels_domain
+    --,labels_country
+    ,i.issue_country
+    ,i.store_country
+    ,i.url
+    ,i.labels
+    ,i.has_non_tech_enable_tag
+    ,i.has_product_dependent_tag
+    ,i.has_app_improvement_tag
+    ,i.has_new_app_or_integration_tag
+    ,i.store_id
+    --,i.is_relevant
+    --,i.comment_date
+    ,i.is_dealbreaker
+    ,i.is_high_impact
+    ,i.comments
+    ,i.is_ticket_active
 from {{ ref('_int_pd_github_issues') }} i
 cross join {{ ref('_int_pd_github_dates') }} d
 where true
@@ -32,7 +52,7 @@ issues_final as (
         ,title
         ,labels_tipo
         ,labels_domain
-        ,labels_country
+        --,labels_country
         ,issue_country
         ,i.store_country
         ,url
@@ -52,7 +72,24 @@ issues_final as (
     left join {{ ref('_int__pd_stores_gmv') }} g
         on  i.store_id = g.store_id
         and i.registered_month = g.registered_month
-    group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18
+    group by
+        i.registered_month
+        ,i.issue_number
+        ,state
+        ,created_at
+        ,days_open
+        ,closed_at
+        ,title
+        ,labels_tipo
+        ,labels_domain
+        ,issue_country
+        ,i.store_country
+        ,url
+        ,labels
+        ,has_non_tech_enable_tag
+        ,has_product_dependent_tag
+        ,has_app_improvement_tag
+        ,has_new_app_or_integration_tag
 )
 select 
     concat(cast(p.ticket_number as string), p.issue_country) as unique_issue_country

@@ -20,7 +20,7 @@ select distinct
             THEN 'Sales Channels App'END
         )) 
     AS labels_domain
-    ,labels_country
+    --,labels_country
     ,trim(countries) as issue_country
     ,country as store_country
     ,case when i.repo_name = 'problems' then concat('https://github.com/TiendaNube/Problems/issues/',cast(i.issue_number as string))
