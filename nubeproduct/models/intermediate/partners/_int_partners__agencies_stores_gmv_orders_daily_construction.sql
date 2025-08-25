@@ -4,7 +4,7 @@ SELECT
     COALESCE(SUM(PO.total), 0) AS gmv_local_currency_daily,
     COALESCE(SUM(PO.total_in_usd), 0) AS gmv_usd_daily,
     COALESCE(COUNT(PO.id), 0) AS orders_daily,
-    GREATEST(MAX(PO.sys_audit_updated_on), MAX(PS.sys_audit_updated_on)) AS construction_change_timestamp
+    MAX(PO.sys_audit_updated_on) AS construction_change_timestamp
 FROM {{ ref('company_metrics_paid_orders') }} AS PO
 INNER JOIN {{ ref('partners_agencies_affiliates_stores') }} AS PS
     ON PO.store_id = PS.store_id
