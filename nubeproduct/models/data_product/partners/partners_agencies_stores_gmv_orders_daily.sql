@@ -14,9 +14,9 @@ WITH existing_data AS (
 SELECT 
     SOD.store_id,
     SOD.order_date,
-    SOD.gmv_local_currency_daily AS gmv_local_currency_daily,
-    SOD.gmv_usd_daily AS gmv_usd_daily,
-    SOD.orders_daily AS orders_daily,
+    SOD.orders_daily,
+    SOD.gmv_local_currency_daily,
+    SOD.gmv_usd_daily,
     COALESCE(e.sys_audit_created_on, current_timestamp) AS sys_audit_created_on,
     COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by,
     current_timestamp AS sys_audit_updated_on,
