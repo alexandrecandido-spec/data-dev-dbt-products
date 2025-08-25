@@ -40,7 +40,7 @@ stores_gmv AS  -- Create a table with the gmv metrics for each partner consideri
         SUM(CASE WHEN order_date >= DATE_SUB(DS.snapshot_date, 365) THEN gmv_local_currency_daily ELSE 0 END) AS gmv_local_currency_last_365d
     FROM {{ ref('_int_partners__agencies_stores_metrics_construction') }}
     CROSS JOIN date_spine AS DS
-    --WHERE order_date <= DS.snapshot_date
+    WHERE order_date <= DS.snapshot_date
     GROUP BY 1,2,3
 ),
 agencies_stores AS -- Create a table with the stores depending on partners
@@ -180,7 +180,6 @@ partners_metrics AS -- Create a table with the metrics for each partner consider
     LEFT JOIN stores_gmv AS SG
         ON AS.store_id = SG.store_id
             AND AS.snapshot_date = SG.snapshot_date
-    --WHERE created_at <= AS.snapshot_date
     GROUP BY     
         AS.partner_id,
         AS.partner_code,
