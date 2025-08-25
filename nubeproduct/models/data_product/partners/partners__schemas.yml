@@ -293,7 +293,7 @@ models:
       - name: sys_audit_updated_by
         description: "Source or user responsible for the latest update."
 
-  - name: partners_agencies_stores_orders_daily
+  - name: partners_agencies_stores_gmv_orders_daily
     config:
       meta:
         owner: "felipe.lorenzo@tiendanube.com"
