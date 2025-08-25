@@ -21,7 +21,7 @@ SELECT
     COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by,
     current_timestamp AS sys_audit_updated_on,
     'data-dev-dbt-products' AS sys_audit_updated_by
-FROM {{ ref('_int_partners__agencies_stores_orders_daily_construction') }} AS SOD   
+FROM {{ ref('_int_partners__agencies_stores_gmv_orders_daily_construction') }} AS SOD   
 LEFT JOIN existing_data AS e
     ON SOD.store_id = e.store_id
     AND SOD.order_date = e.order_date
