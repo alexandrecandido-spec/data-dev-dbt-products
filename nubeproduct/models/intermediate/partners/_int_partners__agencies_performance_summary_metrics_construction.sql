@@ -8,7 +8,6 @@ WITH date_spine AS -- Create a table with the date spine for the snapshot date
 stores_gmv AS  -- Create a table with the gmv metrics for each partner considering the snapshot date
 (
     SELECT 
-        partner_id, 
         store_id,
         DS.snapshot_date,
         SUM(CASE WHEN order_date <= DS.snapshot_date THEN gmv_usd_daily ELSE 0 END) AS all_time_gmv,
@@ -41,7 +40,9 @@ stores_gmv AS  -- Create a table with the gmv metrics for each partner consideri
     FROM {{ ref('partners_agencies_stores_gmv_orders_daily') }}
     CROSS JOIN date_spine AS DS
     WHERE order_date <= DS.snapshot_date
-    GROUP BY 1,2,3
+    GROUP BY 
+        store_id,
+        DS.snapshot_date
 ),
 agencies_stores AS -- Create a table with the stores depending on partners
 (
