@@ -13,14 +13,16 @@ stores_gmv AS  -- Create a table with the gmv metrics for each partner consideri
         DS.snapshot_date,
         SUM(CASE WHEN order_date <= DS.snapshot_date THEN gmv_usd_daily ELSE 0 END) AS all_time_gmv,
         SUM(CASE WHEN 
-                DATE_TRUNC('MONTH', order_date) = DATE_TRUNC('MONTH', DS.snapshot_date)
-                AND order_date <= DS.snapshot_date
+                --DATE_TRUNC('MONTH', order_date) = DATE_TRUNC('MONTH', DS.snapshot_date)
+                --AND order_date <= DS.snapshot_date
+                order_date >= DATE_SUB(DS.snapshot_date, 20)
             THEN gmv_usd_daily 
             ELSE 0 
         END) AS gmv_usd_current_month,
         SUM(CASE WHEN 
-                DATE_TRUNC('MONTH', order_date) = DATE_TRUNC('MONTH', DS.snapshot_date)
-                AND order_date <= DS.snapshot_date
+                --DATE_TRUNC('MONTH', order_date) = DATE_TRUNC('MONTH', DS.snapshot_date)
+                --AND order_date <= DS.snapshot_date
+                order_date >= DATE_SUB(DS.snapshot_date, 20)
             THEN gmv_local_currency_daily 
             ELSE 0 
         END) AS gmv_local_currency_current_month,
