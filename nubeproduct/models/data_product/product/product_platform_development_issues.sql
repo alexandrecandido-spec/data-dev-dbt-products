@@ -21,7 +21,7 @@ cross join {{ ref('_int_pd_github_dates') }} d
 where true
 and registered_month between date_trunc('month', i.created_at) and coalesce(closed_at,date('2100-01-01')) 
 ),
-issues as (
+issues_final as (
     select 
         i.registered_month
         ,i.issue_number as ticket_number
@@ -65,7 +65,7 @@ select
     ,'data-dev-dbt-products' as sys_audit_created_by
     ,current_timestamp as sys_audit_updated_on
     ,'data-dev-dbt-products' as sys_audit_updated_by
-from issues p
+from issues_final p
 {% if is_incremental() %}
 left join {{ this }} existing
     on p.ticket_number = existing.ticket_number 

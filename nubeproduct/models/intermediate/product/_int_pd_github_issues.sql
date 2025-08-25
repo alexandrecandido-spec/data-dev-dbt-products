@@ -33,7 +33,7 @@ select distinct
     ,case when lower(labels) like '%New App or Integration%' then true else false end as has_new_app_or_integration_tag
     ,i.store_id
     --,case when p.is_relevant is null then false else p.is_relevant end as is_relevant
-    ,i.comment_date
+    --,i.comment_date
     ,case when i.impact = 'dealbreaker' then true else false end as is_dealbreaker
     ,case when i.impact = 'high' then true else false end as is_high_impact
     ,i.comments
