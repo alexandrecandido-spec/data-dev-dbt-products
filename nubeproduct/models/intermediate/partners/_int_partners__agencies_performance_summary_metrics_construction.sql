@@ -13,17 +13,15 @@ stores_gmv AS  -- Create a table with the gmv metrics for each partner consideri
         DS.snapshot_date,
         SUM(CASE WHEN order_date <= DS.snapshot_date THEN gmv_usd_daily ELSE 0 END) AS all_time_gmv,
         SUM(CASE WHEN 
-                --DATE_TRUNC('MONTH', order_date) = DATE_TRUNC('MONTH', DS.snapshot_date)
-                --AND order_date <= DS.snapshot_date
-                order_date >= DATE_SUB(DS.snapshot_date, 20)
+                DATE_TRUNC('MONTH', order_date) = DATE_TRUNC('MONTH', DS.snapshot_date)
+                AND order_date <= DS.snapshot_date
             THEN gmv_usd_daily 
             ELSE 0 
         END) AS gmv_usd_current_month,
         SUM(CASE WHEN order_date >= DATE_SUB(DS.snapshot_date, 20) THEN gmv_usd_daily ELSE 0 END) AS gmv_usd_last_20d,
         SUM(CASE WHEN 
-                --DATE_TRUNC('MONTH', order_date) = DATE_TRUNC('MONTH', DS.snapshot_date)
-                --AND order_date <= DS.snapshot_date
-                order_date >= DATE_SUB(DS.snapshot_date, 20)
+                DATE_TRUNC('MONTH', order_date) = DATE_TRUNC('MONTH', DS.snapshot_date)
+                AND order_date <= DS.snapshot_date
             THEN gmv_local_currency_daily 
             ELSE 0 
         END) AS gmv_local_currency_current_month,
@@ -134,6 +132,7 @@ partners_metrics AS -- Create a table with the metrics for each partner consider
         -- AQUÍ SE SUMA EL GMV DE stores_gmv - con COALESCE para evitar NULLs
         SUM(COALESCE(gmv_usd_current_month, 0)) AS gmv_usd_current_month,
         SUM(COALESCE(gmv_local_currency_current_month, 0)) AS gmv_local_currency_current_month,
+        SUM(COALESCE(gmv_usd_last_20d, 0)) AS gmv_usd_last_20d,
         -- Previous month metrics
         SUM(CASE WHEN DATE_TRUNC('MONTH', created_at) = DATE_TRUNC('MONTH', ADD_MONTHS(AS.snapshot_date, -1)) THEN 1 ELSE 0 END) AS trials_previous_month,
         SUM(CASE WHEN first_payment_flg = TRUE AND DATE_TRUNC('MONTH', first_payment) = DATE_TRUNC('MONTH', ADD_MONTHS(AS.snapshot_date, -1)) THEN 1 ELSE 0 END) AS new_payments_previous_month,
@@ -213,6 +212,7 @@ SELECT
     new_sellers_current_month,
     gmv_usd_current_month,
     gmv_local_currency_current_month,
+    gmv_usd_last_20d,
     -- Previous month metrics
     trials_previous_month,
     new_payments_previous_month,

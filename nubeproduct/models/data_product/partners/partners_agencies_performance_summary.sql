@@ -35,6 +35,7 @@ agencies_performance_summary AS
         new_sellers_current_month,
         gmv_usd_current_month,
         gmv_local_currency_current_month,
+        gmv_usd_last_20d,
         -- Previous month metrics
         trials_previous_month,
         new_payments_previous_month,
