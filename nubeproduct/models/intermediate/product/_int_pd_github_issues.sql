@@ -20,6 +20,7 @@ select distinct
             THEN 'Sales Channels App'END
         )) 
     AS labels_domain
+    ,labels_country
     ,trim(countries) as issue_country
     ,country as store_country
     ,case when i.repo_name = 'problems' then concat('https://github.com/TiendaNube/Problems/issues/',cast(i.issue_number as string))
@@ -32,10 +33,10 @@ select distinct
     ,case when lower(labels) like '%New App or Integration%' then true else false end as has_new_app_or_integration_tag
     ,i.store_id
     --,case when p.is_relevant is null then false else p.is_relevant end as is_relevant
-    ,p.comment_date
-    ,case when impact = 'dealbreaker' then true else false end as is_dealbreaker
-    ,case when impact = 'high' then true else false end as is_high_impact
-    ,comments
+    ,i.comment_date
+    ,case when i.impact = 'dealbreaker' then true else false end as is_dealbreaker
+    ,case when i.impact = 'high' then true else false end as is_high_impact
+    ,i.comments
 from {{ ref('product_issues_and_problems_summary') }} i
 CROSS JOIN UNNEST(SPLIT(labels_country, ';')) AS t (countries)
 /*

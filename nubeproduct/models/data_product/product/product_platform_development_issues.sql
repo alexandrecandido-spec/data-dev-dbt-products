@@ -32,6 +32,7 @@ issues as (
         ,title
         ,labels_tipo
         ,labels_domain
+        ,labels_country
         ,issue_country
         ,i.store_country
         ,url
@@ -51,7 +52,7 @@ issues as (
     left join {{ ref('_int__pd_stores_gmv') }} g
         on  i.store_id = g.store_id
         and i.registered_month = g.registered_month
-    group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17
+    group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18
 )
 select 
     concat(cast(p.ticket_number as string), p.issue_country) as unique_issue_country
