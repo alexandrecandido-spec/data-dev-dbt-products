@@ -4,6 +4,7 @@ SELECT
     SUM(PO.total) AS gmv_local_currency_daily,
     SUM(PO.total_in_usd) AS gmv_usd_daily,
     COUNT(PO.id) AS orders_daily,
+    GREATEST(MAX(PO.sys_audit_updated_on), MAX(PS.sys_audit_updated_on)) AS construction_change_timestamp,
     PS.partner_id
 FROM {{ ref('company_metrics_paid_orders') }} AS PO
 INNER JOIN {{ ref('partners_agencies_affiliates_stores') }} AS PS
