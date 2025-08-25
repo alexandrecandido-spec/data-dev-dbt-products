@@ -12,11 +12,11 @@ WITH existing_data AS (
 )
 
 SELECT 
-    store_id,
-    order_date,
-    gmv_local_currency_daily,
-    gmv_usd_daily,
-    orders_daiLy,
+    SOD.store_id,
+    SOD.order_date,
+    COALESCE(SOD.gmv_local_currency_daily, 0) AS gmv_local_currency_daily,
+    COALESCE(SOD.gmv_usd_daily, 0) AS gmv_usd_daily,
+    COALESCE(SOD.orders_daily, 0) AS orders_daily,
     COALESCE(e.sys_audit_created_on, current_timestamp) AS sys_audit_created_on,
     COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by,
     current_timestamp AS sys_audit_updated_on,
