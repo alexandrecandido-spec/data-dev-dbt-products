@@ -16,8 +16,8 @@ select
         then true 
         else false 
     end as is_ticket_active
-from {{ ref('_int__pd_github_issues') }} i
-cross join {{ ref('_int__pd_github_dates') }} d
+from {{ ref('_int_pd_github_issues') }} i
+cross join {{ ref('_int_pd_github_dates') }} d
 where true
 and registered_month between date_trunc('month', i.created_at) and coalesce(closed_at,date('2100-01-01')) 
 ),
@@ -47,7 +47,7 @@ issues as (
         ,max(comments) as stock_comments
         ,sum(gmv_local_currency_monthly) as impacted_gmv_local
         ,sum(gmv_usd_monthly) as impacted_gmv_usd
-        ,count(distinct case when is_relevant then i.store_id end) as plus_ones
+        --,count(distinct case when is_relevant then i.store_id end) as plus_ones
     from issues_dates i
     left join {{ ref('_int__pd_stores_gmv') }} g
         on  i.store_id = g.store_id

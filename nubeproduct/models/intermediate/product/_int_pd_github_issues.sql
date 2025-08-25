@@ -32,18 +32,20 @@ select distinct
     ,case when lower(labels) like '%app improvement%' then true else false end as has_app_improvement_tag
     ,case when lower(labels) like '%New App or Integration%' then true else false end as has_new_app_or_integration_tag
     ,i.store_id
-    ,case when p.is_relevant is null then false else p.is_relevant end as is_relevant
+    --,case when p.is_relevant is null then false else p.is_relevant end as is_relevant
     ,p.comment_date
     ,case when impact = 'dealbreaker' then true else false end as is_dealbreaker
     ,case when impact = 'high' then true else false end as is_high_impact
     ,comments
 from {{ ref('product_issues_and_problems_summary') }} i
 CROSS JOIN UNNEST(SPLIT(labels_country, ';')) AS t (countries)
+/*
 left join plus_ones p
     on i.issue_number = p.issue_number
     and i.repo_name = p.repo_name
     and i.store_id = p.store_id
     and i.issue_number = p.issue_number
+*/
 where true
 and i.repo_name = 'issues'
 and labels_tipo = 'App'
