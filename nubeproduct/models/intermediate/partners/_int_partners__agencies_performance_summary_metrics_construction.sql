@@ -19,6 +19,7 @@ stores_gmv AS  -- Create a table with the gmv metrics for each partner consideri
             THEN gmv_usd_daily 
             ELSE 0 
         END) AS gmv_usd_current_month,
+        SUM(CASE WHEN order_date >= DATE_SUB(DS.snapshot_date, 20) THEN gmv_usd_daily ELSE 0 END) AS gmv_usd_last_20d,
         SUM(CASE WHEN 
                 --DATE_TRUNC('MONTH', order_date) = DATE_TRUNC('MONTH', DS.snapshot_date)
                 --AND order_date <= DS.snapshot_date
