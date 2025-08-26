@@ -92,7 +92,7 @@ WITH partners_metrics AS -- Create a table with the metrics for each partner con
         SUM(CASE WHEN first_seller_at >= DATE_SUB(snapshot_date, 365) THEN 1 ELSE 0 END) AS new_sellers_last_365d,
         SUM(COALESCE(gmv_usd_last_365d, 0)) AS gmv_usd_last_365d,
         SUM(COALESCE(gmv_local_currency_last_365d, 0)) AS gmv_local_currency_last_365d
-    FROM {{ ref('int_partners__agencies_performance_summary_metrics_stores_data_and_gmv') }}
+    FROM {{ ref('_int_partners__agencies_performance_summary_stores_data_and_gmv') }}
     GROUP BY     
         AS.partner_id,
         AS.partner_code,
