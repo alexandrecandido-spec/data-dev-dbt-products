@@ -33,7 +33,7 @@ WITH partners_metrics AS -- Create a table with the metrics for each partner con
                 AND plan_group = 'freemium'  
                 AND gmv_usd_last_90d > 0 
         THEN 1 ELSE 0 END) AS freemium_stores_with_gmv_last_90_days,
-        SUM(CASE WHEN churned_at IS NOT NULL AND churned_at <= AS.snapshot_date THEN 1 ELSE 0 END) AS churned_stores,
+        SUM(CASE WHEN churned_at IS NOT NULL AND churned_at <= snapshot_date THEN 1 ELSE 0 END) AS churned_stores,
         -- Current month metrics
         SUM(CASE WHEN 
                 DATE_TRUNC('MONTH', created_at) = DATE_TRUNC('MONTH', snapshot_date)
@@ -94,11 +94,11 @@ WITH partners_metrics AS -- Create a table with the metrics for each partner con
         SUM(COALESCE(gmv_local_currency_last_365d, 0)) AS gmv_local_currency_last_365d
     FROM {{ ref('_int_partners__agencies_performance_summary_stores_data_and_gmv') }}
     GROUP BY     
-        AS.partner_id,
-        AS.partner_code,
-        AS.partner_created_at,
-        AS.partner_country_code,
-        AS.snapshot_date
+        partner_id,
+        partner_code,
+        partner_created_at,
+        partner_country_code,
+        snapshot_date
 )
 SELECT 
     snapshot_date,
