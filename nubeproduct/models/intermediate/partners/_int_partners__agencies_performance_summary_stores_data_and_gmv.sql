@@ -93,7 +93,7 @@ SELECT
     SG.all_time_gmv,
     SG.gmv_usd_current_month,
     SG.gmv_local_currency_current_month,
-    SG. gmv_usd_previous_month,
+    SG.gmv_usd_previous_month,
     SG.gmv_local_currency_previous_month,
     SG.gmv_usd_last_quarter,
     SG.gmv_local_currency_last_quarter,

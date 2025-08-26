@@ -15,12 +15,12 @@ WITH partners_metrics AS -- Create a table with the metrics for each partner con
         SUM(CASE WHEN 
             (first_payment IS NULL OR first_payment > snapshot_date)
             AND (churned_at IS NULL OR churned_at > snapshot_date)
-            AND C.plan_group = 'freemium' 
+            AND plan_group = 'freemium' 
             THEN 1 ELSE 0 END) AS freemium_stores,
         SUM(CASE WHEN 
             (first_payment IS NULL OR first_payment > snapshot_date)
             AND (churned_at IS NULL OR churned_at > snapshot_date)
-            AND C.plan_group != 'freemium' 
+            AND plan_group != 'freemium' 
         THEN 1 ELSE 0 END) AS active_trials,
         SUM(CASE WHEN 
             first_payment IS NOT NULL 
@@ -30,7 +30,7 @@ WITH partners_metrics AS -- Create a table with the metrics for each partner con
         SUM(CASE WHEN             
             (first_payment IS NULL OR first_payment > snapshot_date)
                 AND (churned_at IS NULL OR churned_at > snapshot_date)
-                AND C.plan_group = 'freemium'  
+                AND plan_group = 'freemium'  
                 AND gmv_usd_last_90d > 0 
         THEN 1 ELSE 0 END) AS freemium_stores_with_gmv_last_90_days,
         SUM(CASE WHEN churned_at IS NOT NULL AND churned_at <= AS.snapshot_date THEN 1 ELSE 0 END) AS churned_stores,
