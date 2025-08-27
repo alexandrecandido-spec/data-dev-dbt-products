@@ -4,7 +4,7 @@
     unique_key = ['issue_number', 'labels_country'],
     partition_by = 'created_at',
     on_schema_change = 'fail',
-    tags = ['product','daily-8am']
+    tags = ['daily-8am']
 ) }}
 
 with
