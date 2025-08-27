@@ -4,7 +4,7 @@
     config(
         materialized='table', 
         on_schema_change='fail',
-        tags = ['midmarket', 'weekly-monday-9am-monthly-1st-12pm']
+        tags = ['weekly-monday-9am-monthly-1st-12pm']
     ) 
 }}
 
