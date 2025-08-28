@@ -16,6 +16,8 @@ sources:
         description: "Contains all the list of stores with their information"
       - name: mwp_apps_stores
         description: "Contains all the list of stores who installed and or uninstalled an app"
+      - name: mwp_tags
+        description: "Tags associadas a lojas e outras entidades. Inclui flags como sre-block-store-404 e sre-block-store-429"
       - name: mwp_store_settings
       - name: mwp_countries
       - name: mwp_provinces

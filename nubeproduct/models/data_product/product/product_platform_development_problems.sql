@@ -66,7 +66,7 @@ problems as (
     group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
 )
 select 
-    concat(cast(issue_number as string), country) as unique_issue_country
+    concat(cast(p.issue_number as string), p.country) as unique_issue_country
     ,p.* 
     ,{% if is_incremental() %}
         coalesce(existing.sys_audit_created_on, current_timestamp) as sys_audit_created_on
