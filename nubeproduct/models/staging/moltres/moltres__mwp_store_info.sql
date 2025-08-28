@@ -15,8 +15,22 @@
     )
 }}
 
+-- gets stores that have 404 or 429 tags
+WITH store_tags AS (
+    SELECT 
+        related_id AS store_id,
+        MAX(sys_audit_updated_on) AS tag_last_updated_at
+    FROM 
+        {{ source('stg_moltres', 'mwp_tags') }}
+    WHERE 
+        type = 'store'
+        AND tag IN ('sre-block-store-404', 'sre-block-store-429')
+    GROUP BY 
+        related_id
+)
 
-WITH source AS (
+-- gets store information from mwp_store_info
+, source AS (
     SELECT 
         id,
         state,
@@ -32,15 +46,21 @@ WITH source AS (
         main_user_id,
         partner_id,
         partnership_type,
-        domain
-    FROM {{ source('stg_moltres', 'mwp_store_info') }}
-    WHERE state != 4 
+        domain,
+        CASE WHEN store_tags.store_id IS NOT NULL THEN TRUE ELSE FALSE END AS is_store_blocked
+    FROM {{ source('stg_moltres', 'mwp_store_info') }} AS msi
+    LEFT JOIN 
+        store_tags
+        ON msi.id = store_tags.store_id
+    WHERE 
+        state != 4 
     {% if is_incremental() %}
 
     -- this filter will only be applied on an incremental run
     -- (uses >= to include records whose timestamp occurred since the last run of this model)
     -- (If event_time is NULL or the table is truncated, the condition will always be true and load all records)
     AND sys_audit_updated_on >= (select coalesce(max(sys_audit_updated_on),'1900-01-01') from {{ this }} )
+    OR tag_last_updated_at >= (select coalesce(max(sys_audit_updated_on),'1900-01-01') from {{ this }} )
 
     {% endif %}
 ),
@@ -64,6 +84,7 @@ SELECT
     partner_id, 
     partnership_type, 
     domain,
+    is_store_blocked,
     COALESCE(e.sys_audit_created_on, current_timestamp) AS sys_audit_created_on,
     COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by,
     current_timestamp AS sys_audit_updated_on,
