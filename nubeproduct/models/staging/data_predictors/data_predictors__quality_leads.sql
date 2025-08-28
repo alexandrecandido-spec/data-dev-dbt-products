@@ -1,6 +1,7 @@
 {{
     config(
         materialized='incremental',
+        incremental_strategy = 'merge',
         unique_key='store_id',
         partition_by = 'year_month_day_code',
         on_schema_change='fail',
