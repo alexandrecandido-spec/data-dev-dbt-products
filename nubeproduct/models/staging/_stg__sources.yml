@@ -8,6 +8,7 @@ sources:
       - name: active_merchants
         description: "Contains the list of every active merchant daily."
 
+
   - name: stg_moltres
     database: null
     schema: moltres
@@ -29,6 +30,7 @@ sources:
       - name: mwp_payments
       - name: mwp_contracts
 
+
   - name: stg_orders
     description: "Source containing tables related to order movements"
     database: null
@@ -44,7 +46,8 @@ sources:
         description: "Deleted regs of products associated with an order."
       - name: mwp_orders_b2b
         description: "Orders generated through the B2B solution."
-        
+
+
   - name: stg_nuvem_credito
     description: "Source containing tables related to Nuvem credito"
     database: null
@@ -57,12 +60,14 @@ sources:
       - name: installments
         description: "Contains all installments associated to a contract"
 
+
   - name: stg_antifraud_service
     database: null
     schema: antifraud_service
     tables:
       - name: vertifier_store_inferences
         description: ""
+
 
   - name: stg_github_data
     database: null
@@ -87,7 +92,7 @@ sources:
       - name: apps
         description: "Apps table from bronze_risk.ecosystem"
 
-  
+
   - name: stg_ga4
     database: null
     schema: ga4
@@ -101,6 +106,8 @@ sources:
         description: "Raw table containing aggregated session data, including start and end times and engagement flags."
       - name: mod_pv_info
         description: "Raw table with enriched pageview data from GA4, including source and landing page details."
+  
+  
   - name: stg_data_predictors
     database: null
     schema: data_predictors
@@ -112,6 +119,8 @@ sources:
         description: "Contains information about the version of the model used to make predictions."
       - name: marketing_cutoffs_table
         description: "Contains information about the cutoffs used to define QLs."
+      - name: marketing_churn_model_predictions
+        description: "Stores the outputs of the Potential Churn model. Predicts the likelihood of a store churning based on its payment history and other relevant factors."
 
 
   - name: stg_billing
@@ -122,6 +131,7 @@ sources:
         description: "Receipts generated for billing purposes, containing receipt ID and number."
       - name: payment_transaction
         description: "Payment transactions processed through billing. Includes status and payment timestamps."
+
 
   - name: stg_nuvem_envio_billing
     database: null
