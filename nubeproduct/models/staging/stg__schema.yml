@@ -134,6 +134,14 @@ models:
         description: "Custom store domain name created by the client."
       - name: main_user_id
         description: "Main user ID of the store."
+      - name: is_store_blocked
+        description: >
+          Boolean flag indicating whether the store has received either of the tags
+          'sre-block-store-404' or 'sre-block-store-429'.
+        tests:
+          - not_null
+        accepted_values:
+          values: [TRUE, FALSE]
 
 
   - name: orders__mwp_orders

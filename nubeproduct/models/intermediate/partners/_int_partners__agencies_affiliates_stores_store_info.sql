@@ -33,6 +33,30 @@ blocked_partner_stores AS
                 )
     GROUP BY related_id
 ),
+first_plan AS    
+(
+    SELECT 
+        C.store_id,
+        C.plan_id AS first_plan_id,
+        C.type AS first_plan_type,
+        OGP.grupo AS first_plan_group,
+        OGP.namev2 AS first_plan_name,
+        C.sys_audit_updated_on AS sys_audit_updated_on
+    FROM 
+        (
+            SELECT
+                ROW_NUMBER() OVER(PARTITION BY A.store_id ORDER BY A.id ASC) AS RN,
+                A.store_id,
+                A.plan_id,
+                A.type,
+                A.sys_audit_updated_on
+            FROM {{ ref('moltres__contracts') }} AS A
+            WHERE A.plan_id IS NOT NULL
+        ) AS C
+    LEFT JOIN {{ ref('operations_grouping_plans') }} AS OGP
+        ON C.plan_id = OGP.plan
+    WHERE RN = 1
+),
 store_info_data AS 
 (
     SELECT 
@@ -62,21 +86,8 @@ store_info_data AS
         ELSE 'Non-active merchants' 
         END AS merchant_type,
         IF(current_segment NOT IN ('no-seller', 'struggling-seller'),TRUE,FALSE) AS active_merchant_flg,
-        CASE 
-            WHEN first_payment < DATE('2022-06-22')
-                AND first_payment IS NOT NULL 
-            THEN TRUE
-            WHEN first_payment >= DATE('2022-06-22') 
-                AND first_payment IS NOT NULL 
-                AND 
-                    (
-                        churned_at IS NULL 
-                            OR 
-                        DATE_TRUNC('MONTH', first_payment) < DATE_TRUNC('MONTH', churned_at)
-                    ) 
-            THEN TRUE 
-        ELSE FALSE 
-        END AS first_payment_flg,
+        IF(first_payment IS NOT NULL, TRUE, FALSE) AS first_payment_flg,
+        IF(churned_at IS NOT NULL, TRUE, FALSE) AS churned_flg,
         sys_audit_updated_on
     FROM {{ ref('moltres__mwp_store_info') }}
     WHERE partner_id IS NOT NULL -- Partner related
@@ -95,12 +106,22 @@ ranked_store_info AS
         SI.current_segment,
         SI.first_payment,
         SI.first_payment_flg,
+        SI.churned_flg,
+        IF(first_seller_at IS NOT NULL, TRUE, FALSE) AS first_seller_flg,
         FSD.first_seller_at,
         SI.churned_at,
         SI.created_at,
         SI.plan_id,
         OGP.grupo AS plan_group,
         OGP.namev2 AS plan_name,
+        FP.first_plan_id,
+        FP.first_plan_group,
+        FP.first_plan_name,
+        CASE 
+            WHEN FP.first_plan_group = 'freemium'
+            THEN 'Freemium'
+        ELSE 'Trial'
+        END AS started_as,
         SI.verified,
         SI.main_user_id,
         SI.partner_id,
@@ -119,6 +140,16 @@ ranked_store_info AS
         IF(QL.predicted_prob >= MCT.cutoff,TRUE,FALSE) AS quality_lead_flg,
         SI.merchant_type,
         SI.active_merchant_flg,
+        CASE 
+            WHEN SI.first_payment IS NOT NULL 
+                AND SI.churned_at IS NULL    
+            THEN 'Paying'    
+            WHEN SI.churned_at IS NOT NULL
+            THEN 'Churned'     
+            WHEN plan_group = 'freemium'   
+            THEN 'Freemium'
+        ELSE 'Trial'
+        END AS payment_lifecycle_status,
         DATE
             (
                 GREATEST
@@ -128,7 +159,8 @@ ranked_store_info AS
                         QL.sys_audit_updated_on, 
                         BPS.sys_audit_updated_on,
                         OGP.sys_audit_updated_on,
-                        FSD.sys_audit_updated_on
+                        FSD.sys_audit_updated_on,
+                        FP.sys_audit_updated_on
                     )
             ) 
         AS store_info_change_timestamp
@@ -147,6 +179,8 @@ ranked_store_info AS
         ON SI.plan_id = OGP.plan   
     LEFT JOIN {{ ref('marketing_first_seller_date') }} AS FSD  
         ON SI.store_id = FSD.store_id
+    LEFT JOIN first_plan AS FP
+        ON SI.store_id = FP.store_id
 )
 SELECT 
     store_id,
@@ -175,6 +209,13 @@ SELECT
     quality_lead_flg,
     merchant_type,
     active_merchant_flg,
-    store_info_change_timestamp
+    store_info_change_timestamp,
+    payment_lifecycle_status,
+    started_as,
+    first_plan_id,
+    first_plan_group,
+    first_plan_name,
+    churned_flg,
+    first_seller_flg
 FROM ranked_store_info
 WHERE row_number = 1
