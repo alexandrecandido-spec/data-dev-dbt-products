@@ -39,6 +39,7 @@ models:
         tests:
           - not_null
 
+
   - name: moltres__contracts
     description: "Staging model containing contracts created through plan subscription events."
     config:
@@ -84,6 +85,7 @@ models:
         description: "System or user that last updated the row."
         tests:
           - not_null
+
 
   - name: moltres__mwp_store_info
     description: "Staging model that contains data about each store, such as store ID, country, creation and churn dates and other attributes."
@@ -321,6 +323,7 @@ models:
       - name: original_contract_ids
         description: "Not null only if the credit is a renegotiation. It contains all contracts ids that were renegotiated."
 
+
   - name: nuvem_credito__initial_installments
     config:
       meta:
@@ -339,6 +342,7 @@ models:
         description: "Expected amount to be received according to the initial structure of the contract."
       - name: initial_principal_expected_amount
         description: "Expected amount of principal component to be received according to the initial structure of the contract."
+
 
   - name: antifraud_service__vertifier_store_inferences
     description: "Staging model with vertifier of current store_id provided by antifraud inferences."
@@ -781,6 +785,7 @@ models:
       - name: sys_audit_updated_by
         description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
 
+
   - name: github_data__platform_solved_tags
     description: "Extract the solved_by_app tags and creation dates from github data"
     config:
@@ -799,3 +804,89 @@ models:
         description: "date when the label was created"
       - name: label_updated_at
         description: "date when the label was updated"
+
+  
+  - name: data_predictors__churn_predictions
+    description: "Staging model that contains information about churn predictions (Stores the outputs of the Potential Churn model):
+    - The model runs on the 1st day of each month for all active stores with a paid subscription.
+    - If a store keeps its subscription for more than one month, its `store_id` will appear multiple times in the table (one row per prediction month and model run date).
+    - Normally, the model runs once a month; however, reprocessing may occur after the 5th day.
+    - In such cases, the most recent run for each month should always be considered as the valid one.
+    - See internal documentation (https://docs.google.com/document/d/1VOUsUj_KOQp7krS9WcusGtmO1X8Yq-VJEvIaxCB8ozo/edit?tab=t.7yr9b3opplss)"
+    config:
+      meta:
+        owner: "ianca.leite@nuvemshop.com.br"
+        domain: "marketing"
+        business_owner: "Giselle Galli"
+    columns:
+      - name: store_id
+        description: "Unique identifier of the store."
+        tests:
+          - not_null
+      - name: churn_prediction_period
+        description: "Date (last day of the month) representing the observation/reference period of the store."
+        tests:
+          - not_null
+      - name: execution_date
+        description: "Date of the execution of the churn prediction model."
+        tests:
+          - not_null
+      - name: country
+        description: "Country of the store."
+        tests:
+          - not_null
+      - name: life_stage_at_prediction
+        description: "Store lifecycle stage at the time of prediction:
+                    - A1 = Up to 30 days old
+                    - A2 = Between 1 and 6 months old
+                    - B  = More than 6 months old"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['B', 'A1', 'A2']
+      - name: seller_type
+        description: "Store classification according to segment:
+            - no-seller: segmento_max ∈ {null, struggling, no-seller}
+            - seller: segmento_max ≥ tiny"
+        tests:
+          - not_null
+      - name: segment_at_prediction
+        description: "Segment the store belonged to at the time of prediction."
+        tests:
+          - dbt_expectations.expect_column_values_to_be_in_set:
+              value_set: ['no-seller', 'large-seller', 'top-seller', 'tiny-seller', 'struggling-seller', 'small-seller', 'medium-seller', null]
+      - name: max_segment
+        description: "Highest segment ever reached by the store historically."
+        tests:
+          - dbt_expectations.expect_column_values_to_be_in_set:
+              value_set: ['no-seller', 'large-seller', 'top-seller', 'tiny-seller', 'struggling-seller', 'small-seller', 'medium-seller', null]
+      - name: churn_predicted_prob
+        description: "Estimated probability (0–100%) that the store will become a seller. The higher the value, the greater the chance."
+        tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0.00000000001
+              max_value: 1
+              strictly: false
+      - name: churn_cutoff
+        description: "Threshold used to classify probabilities as high or low."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              max_value: 1
+              strictly: true 
+      - name: churn_prediction
+        description: "Binary prediction outcome:
+            - 1 = store predicted as potential seller (probability ≥ cutoff)
+            - 0 = store not predicted as potential seller (probability < cutoff)"
+        tests:
+          - accepted_values:
+              values: [0, 1]
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model. Defaults to current_timestamp if not available."
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model. Defaults to 'data-dev-dbt-products'."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed."
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
