@@ -197,3 +197,6 @@ sources:
     schema: data_legacy
     tables:
       - name: stitchdata__wbr_success
+        description: "WBR (Success) snapshot from legacy Postgres."
+      - name: stitchdata__mbr_success
+        description: "MBR (Success) snapshot from legacy Postgres."
