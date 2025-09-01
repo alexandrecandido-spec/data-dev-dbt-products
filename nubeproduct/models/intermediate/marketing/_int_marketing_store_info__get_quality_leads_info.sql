@@ -1,8 +1,9 @@
 WITH first_seller_at_date AS (
   SELECT
-    f.store_id, 
+    f.store_id,
     f.year_month_day_code,
-    f.first_seller_at
+    f.first_seller_at,
+    f.sys_audit_updated_on
   FROM {{ ref('marketing_first_seller_date') }} f
   WHERE f.first_seller_at IS NOT NULL
 )
