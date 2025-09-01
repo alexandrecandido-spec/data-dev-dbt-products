@@ -489,6 +489,11 @@ models:
         description: "title of the problem"
         tests:
           - not_null
+      - name: pain_point
+        description: "Represents where the problem lies. It is extracted from the text inside the first pair of square brackets at the beginning of the title"
+        tests:
+          - not_null:
+              where: "title RLIKE '^\\s*\\['"
       - name: repo_name
         description: "repository in which the problem is located"
         tests:

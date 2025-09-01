@@ -17,6 +17,7 @@
         i.author,
         i.html_url,
         i.title,
+        NULLIF(regexp_extract(i.title, '^\\s*\\[([^\\]]+)\\]', 1), '') AS pain_point,
         v.store_id,
         s.churned_at,
         s.current_segment,
