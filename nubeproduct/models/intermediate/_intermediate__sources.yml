@@ -45,8 +45,10 @@ sources:
         description: "Table with zipcodes from Mexico."
       - name: ceps
         description: "Table with zipcodes from Brazil."
-      - name: mwp_contracts
-        description: "Table with contracts information"
+      - name: instagram_store_info
+        description: "Latest Instagram metrics per store, including followers, following, posts, and likes. Used to enrich merchant-level models with social media performance."
+      - name: wp_users
+        description: "User information including email, ID, and the store they are associated with."
 
   - name: int_finance
     database: null
@@ -192,17 +194,3 @@ sources:
       - name: locations
         description: "Contains information about address by merchants."
 
-  - name: int_storefronts_curated
-    database: null
-    schema: storefronts_curated
-    tables:
-      - name: mwp_stores_logging
-
-  - name: int_data_legacy
-    database: raw
-    schema: data_legacy
-    tables:
-      - name: stitchdata__wbr_success
-        description: "WBR (Success) snapshot from legacy Postgres."
-      - name: stitchdata__mbr_success
-        description: "MBR (Success) snapshot from legacy Postgres."
