@@ -1,7 +1,7 @@
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'merge',
-    unique_key = ['issue_number', 'labels_country'],
+    unique_key = ['registered_month', 'ticket_number', 'country'],
     partition_by = 'created_at',
     on_schema_change = 'fail',
     tags = ['daily-8am']
@@ -53,8 +53,11 @@ issues_final as (
         ,labels_tipo
         ,labels_domain
         ,labels_country
-        ,issue_country
-        ,i.store_country
+        ,case when store_country = issue_country then store_country
+        else issue_country 
+        end as country
+        --,issue_country
+        --,i.store_country
         ,url
         ,labels
         ,has_non_tech_enable_tag
@@ -69,18 +72,18 @@ issues_final as (
         ,count(distinct case when i.store_country = issue_country then i.store_id end) as total_stores
         ,count(distinct case when i.store_country = issue_country and is_dealbreaker then i.store_id end) as dealbreakers
         ,count(distinct case when i.store_country = issue_country and is_high_impact then i.store_id end) as high_impact_stores
-        ,max(comments) as stock_comments
-        ,sum(avg_gmv_lc_last_3months) as impacted_gmv_local
-        ,sum(gmv_usd_monthly) as impacted_gmv_usd
+        ,max(case when i.store_country = issue_country then comments END) as stock_comments
+        ,sum(case when i.store_country = issue_country then avg_gmv_lc_last_3months END) as impacted_gmv_local
+        ,sum(case when i.store_country = issue_country then gmv_usd_monthly END) as impacted_gmv_usd
         --,count(distinct case when is_relevant then i.store_id end) as plus_ones
     from issues_dates i
     left join {{ ref('_int__pd_stores_gmv') }} g
         on  i.store_id = g.store_id
         and i.registered_month = g.registered_month
-    group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18
+    group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17
 )
 select 
-    concat(cast(p.ticket_number as string), p.labels_country) as unique_issue_country
+    concat(cast(p.registered_month as string), cast(p.ticket_number as string), p.country) as unique_issue_country
     ,p.* 
     ,{% if is_incremental() %}
         coalesce(existing.sys_audit_created_on, current_timestamp) as sys_audit_created_on
@@ -94,5 +97,6 @@ from issues_final p
 {% if is_incremental() %}
 left join {{ this }} existing
     on p.ticket_number = existing.ticket_number 
-    and p.labels_country = existing.labels_country
+    and p.country = existing.country
+    and p.registered_month = existing.registered_month
 {% endif %}
