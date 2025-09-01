@@ -534,3 +534,105 @@ models:
       - name: impacted_gmv_usd
         description: "impacted GMV in USD by the problem"  
 
+
+  - name: product_platform_issues_and_problem_tag_errors
+    description: 
+      This dataproduct contains the errors in the tags of the issues and problems.
+      It helps the platform team to identify and fix the errors in the tags of the issues and problems for further better tracking of the issues and problems.
+    config:
+      meta:
+        owner: "fernando.martinez@tiendanube.com"
+        domain: "product"
+        business_owner: "Nicolas Loreti"
+    columns:
+      - name: unique_issue_repo
+        description: "unique key for the dataproduct."
+        tests:
+          - not_null
+          - unique
+      - name: ticket_number
+        description: "Unique identifier for the issue"
+        tests:
+          - not_null
+      - name: repo_name
+        description: "repository in which the issue is located"
+        tests:
+          - not_null
+      - name: state
+        description: "state of the issue, open or closed"
+        tests:
+          - not_null
+      - name: created_at
+        description: "date the issue was created"
+        tests:
+          - not_null
+      - name: closed_at
+        description: "date the issue was closed"
+        tests:
+          - not_null
+      - name: title
+        description: "title of the issue"
+        tests:
+          - not_null
+      - name: url
+        description: "url of the issue"
+        tests:
+          - not_null
+      - name: labels
+        description: "labels of the issue"
+        tests:
+          - not_null
+      - name: labels_tipo
+        description: "type of issue based on its tags"
+        tests:
+          - not_null
+      - name: labels_domain
+        description: "app domains affected by the issue"
+      - name: labels_country
+        description: "country affected by the issue. this country might be determined by the country tags, the stores affected by the issue or the solved_by_app tags"
+      - name: has_platform_development_tag
+        description: "determines if the issue has the platform development tag"
+      - name: is_solved_by_app_br
+        description: "determines if the issue was solved by the app in Brazil"
+      - name: is_solved_by_app_ar
+        description: "determines if the issue was solved by the app in Argentina"
+      - name: is_solved_by_app_mx
+        description: "determines if the issue was solved by the app in Mexico"
+      - name: is_solved_by_app_cl
+        description: "determines if the issue was solved by the app in Chile"
+      - name: is_solved_by_app_co
+        description: "determines if the issue was solved by the app in Colombia"
+      - name: domains_label_missing
+        description: "determines if the issue has the domains label missing"
+      - name: country_tag_missing
+        description: "determines if the issue has any country tag missing"
+      - name: store_country_missin_tag
+        description: "determines if the issue has any store country tag missing"
+      - name: store_countries
+        description: "countries of the stores affected by the issue"
+      - name: missing_countries_tags
+        description: "countries missing from the issue"
+      - name: platform_development_tag_missing
+        description: "determines if the issue has the platform development tag missing"
+      - name: solved_by_app_tag_missing
+        description: "determines if the issue has the solved by app tag missing for each country. if the problem has the BR tag but does not have the solved_by_app_br tag, then this column will be true for the BR country"
+      - name: solved_by_app_missing_countries
+        description: "countries missing from the issue"
+      - name: sys_audit_created_on
+        description: "date the issue was created"
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "date the issue was updated"
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "user who created the issue"
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "user who updated the issue"
+        tests:
+          - not_null
+
+
