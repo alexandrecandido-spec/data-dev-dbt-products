@@ -3,8 +3,8 @@
         ,i.issue_number
         ,state
         ,created_at
-        ,case when state = 'open' then date_diff('day', created_at, current_date) 
-            when state = 'closed' then date_diff('day', created_at, closed_at)
+        ,case when state = 'open' then datediff(current_date, cast(created_at as date)) 
+            when state = 'closed' then datediff(cast(closed_at as date), cast(created_at as date))
         end as days_open
         ,closed_at
         ,title
@@ -20,8 +20,8 @@
                 THEN 'Sales Channels App'END
             )) 
         AS labels_domain
-        ,case when i.repo_name = 'problems' then concat('https://github.com/TiendaNube/Problems/issues/',cast(i.issue_number as varchar))
-            when i.repo_name = 'issues' then concat('https://github.com/TiendaNube/issues/issues/',cast(i.issue_number as varchar))
+        ,case when i.repo_name = 'problems' then concat('https://github.com/TiendaNube/Problems/issues/',cast(i.issue_number as string))
+            when i.repo_name = 'issues' then concat('https://github.com/TiendaNube/issues/issues/',cast(i.issue_number as string))
         end as url
         ,labels_country
         ,country as store_country

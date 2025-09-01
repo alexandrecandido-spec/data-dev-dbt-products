@@ -9,7 +9,7 @@
 
 with base as (
     select *
-    from {{ ref('_int__pd_github_issues_and_problems_errors') }} pf
+    from {{ ref('_int_pd_github_issues_and_problems_errors') }} pf
 ),
 issues_countries as (
     select
@@ -86,13 +86,13 @@ select distinct
             case when state = 'closed' and has_platform_development_tag and repo_name = 'problems' and labels_country like '%CL%' and not is_solved_by_app_br then 'CL' end 
             )
         as solved_by_app_missing_countries
-from issues i
+from base i
 left join issues_countries ic
     on i.issue_number = ic.issue_number
 )
 SELECT
     concat(cast(a.ticket_number as string), a.repo_name) as unique_issue_repo
-    a.*
+    ,a.*
     ,{% if is_incremental() %}
         coalesce(existing.sys_audit_created_on, current_timestamp) as sys_audit_created_on
     {% else %}
