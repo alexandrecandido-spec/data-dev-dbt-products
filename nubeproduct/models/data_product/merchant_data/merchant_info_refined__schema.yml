@@ -1,0 +1,61 @@
+version: 2
+models:
+
+  - name: merchant_info_refined
+    config:
+      meta:
+        owner: "alberto.martinez@tiendanube.com"
+        domain: "dimensions"
+        business_owner: "Giselle Galli"
+    description: "Merchant refined snapshot (Company Metrics + Attribution + Contacts + Profile + Social). Incremental MERGE with sys_audit."
+    columns:
+      - name: store_id
+        description: "Primary key of the store."
+        tests: [not_null, unique]
+
+      - name: is_seller
+        description: "Seller / No-seller / Not Informed (según reglas con current_segment_name + first_seller_at)."
+        tests:
+          - accepted_values:
+              values: ['Seller','No-seller','Not Informed']
+              quote: true
+              config: { severity: warn }
+
+      - name: was_new_seller
+        description: "Historical flag (ever had first_seller_at)."
+        tests:
+          - accepted_values:
+              values: [true, false]
+              quote: false
+              config: { severity: warn }
+
+      - name: doc_type
+        description: "Legal document type."
+        tests:
+          - accepted_values:
+              values: ['CNPJ','CPF','CUIT','RUT','RFC','DNI','UNKNOWN']
+              quote: true
+              config: { severity: warn }
+
+      - name: instagram_followers
+        description: "Instagram followers (latest snapshot)."
+        tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              strictly: false
+              row_condition: "instagram_followers IS NOT NULL"
+              config: { severity: warn }
+
+      - name: sys_audit_created_on
+        description: "First time this store_id was written to the refined table."
+        tests: [not_null]
+
+      - name: sys_audit_updated_on
+        description: "Last time this row was updated by the pipeline."
+        tests: [not_null]
+
+    tests:
+      # Verifica que el set de store_id del final sea idéntico al de la base (evita faltantes/sobrantes)
+      - dbt_utils.equality:
+          compare_model: "{{ source('int_data_operations','company_metrics_merchant_info') }}"
+          compare_columns: ['store_id']

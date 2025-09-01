@@ -11,6 +11,12 @@ sources:
         description: "Contains information about apps installed by merchants."
       - name: mwp_store_settings
         description: "Stores configuration settings such as language, currency, and other information."
+      - name: mwp_store_settings_i18n
+        description: "Translations and localized store names for each store's settings."
+      - name: mwp_store_info
+        description: "Basic store information including domain, country, and creation date."
+      - name: mwp_cnames
+        description: "Table with custom domains (CNAMEs) for stores, including validated values used to resolve site URLs."
       - name: mwp_tags
         description: "List of tags assigned to stores."
       - name: mwp_plans_countries
