@@ -1,7 +1,7 @@
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'merge',
-    unique_key = ['issue_number', 'repo_name'],
+    unique_key = ['ticket_number', 'repo_name'],
     partition_by = 'created_at',
     on_schema_change = 'fail',
     tags = ['daily-8am']
