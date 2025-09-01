@@ -46,6 +46,7 @@ problems_final as (
     ,state
     ,i.created_at
     ,closed_at
+    ,labels
     ,labels_tipo
     ,labels_domain
     ,i.store_country
@@ -78,7 +79,8 @@ problems_final as (
         or is_solved_by_app_co 
         or is_solved_by_app_cl 
         or is_solved_by_app_mx)
-)
+),
+problems_aux as (
 select distinct 
     p.issue_number
     ,title
@@ -90,11 +92,6 @@ select distinct
     ,state
     ,p.created_at 
     ,closed_at as ticket_closed_at
-    ,t.creation_date as label_closed_date
-    ,least(
-        coalesce(closed_at, date('2100-01-01')),
-        coalesce(t.creation_date, date('2100-01-01'))
-        ) as min_close_date
     ,case when state = 'closed' or is_solved_by_app_country then
         case when store_country = solving_country then store_country
         else solving_country
@@ -110,10 +107,44 @@ select distinct
     ,has_product_dependent_tag
     ,labels_tipo
     ,labels_domain
+    ,labels
 from problems_final p
+where true 
+)
+SELECT
+    p.issue_number
+    ,title
+    ,repo_name
+    ,state
+    ,created_at
+    ,ticket_closed_at
+    ,case when t.creation_date is null then created_at else t.creation_date end as label_closed_date
+    ,least(
+        coalesce(ticket_closed_at, date('2100-01-01')),
+        coalesce(case when t.creation_date is null 
+                    then created_at 
+                    else t.creation_date end, date('2100-01-01'))
+        ) as min_close_date
+    ,store_country
+    ,country_fix
+    ,case 
+        when country_fix = 'AR' and is_solved_by_app_ar then true
+        when country_fix = 'BR' and is_solved_by_app_br then true
+        when country_fix = 'MX' and is_solved_by_app_mx then true
+        when country_fix = 'CO' and is_solved_by_app_co then true
+        when country_fix = 'CL' and is_solved_by_app_cl then true
+        else false
+    end as is_solved_by_app_country
+    ,has_non_tech_enable_tag
+    ,has_product_dependent_tag
+    ,labels_tipo
+    ,labels_domain
+    ,labels
+    ,store_id
+    ,impact
+    ,comments
+from problems_aux p
 left join {{ ref('github_data__platform_solved_tags') }} t
     on p.issue_number = t.issue_number
-    and (case when store_country = solving_country then store_country
-        else solving_country
-        end) = t.label_country
-where true 
+    and country_fix = t.label_country
+where country_fix is not null
