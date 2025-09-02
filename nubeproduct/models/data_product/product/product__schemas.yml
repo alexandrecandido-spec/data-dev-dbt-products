@@ -534,7 +534,70 @@ models:
       - name: impacted_gmv_usd
         description: "impacted GMV in USD by the problem"  
 
-
+  - name: product_platform_development_issues
+    description: 
+      This data product contains the informacion of the github issues tailored for platform development.
+      The goal of this dataproduct is to correct the way platform development tracks the open and closed problems individualy by country and improve the kpi trackings.
+    config:
+      meta:
+        owner: "fernando.martinez@tiendanube.com"
+        domain: "product"
+        business_owner: "Nicolas Loreti"
+    columns:
+      - name: unique_issue_country
+        description: "unique key for the dataproduct."
+        tests:
+          - not_null
+          - unique
+      - name: registered_month
+        description: "month in which the issue is active"
+        tests:
+          - not_null
+      - name: issue_number
+        description: "Unique identifier for the issue"
+        tests:
+          - not_null
+      - name: state
+        description: "state of the issue. might be open or closed"
+        tests:
+          - not_null
+      - name: created_at
+        description: "date in which the issue was created"
+        tests:
+          - not_null
+      - name: days_open
+        description: "ammount of days the issue is or was opened"
+        tests:
+          - not_null
+      - name: closed_at
+        description: "date in which the issue was closed. might be null if the issue is still open"
+      - name: title
+        description: "Name of the issue"
+        tests:
+          - not_null
+      - name: labels_tipo
+        description: "Label for the team which the issue was tagged to"
+      - name: labels_domain
+        description: "App Domain the issue is tagged to"
+      - name: labels_country
+        description: "Country the Issue is tagged"
+      - name: issue_country
+        description: "Country the issue is tagged"
+      - name: store_country
+        description: "country of the stores impacted by the issue"
+      - name: url
+        description: "URL link to the github repository where the issue is located"
+      - name: labels
+        description: "All of the labels the issue has"
+      - name: has_non_tech_enable_tag
+        description: "identifier if the issue has the tag non_tech_enable"
+      - name: has_product_dependent_tag
+        description: "identifier if the issue has the tag product_dependent"
+      - name: has_app_improvement_tag
+        description: "identifier if the issue has the tag app_improvement"
+      - name: has_new_app_or_integration_tag
+        description: "identifier if the issue has the tag new_app_or_integration"
+        
   - name: product_platform_issues_and_problem_tag_errors
     description: 
       This dataproduct contains the errors in the tags of the issues and problems.
@@ -566,7 +629,6 @@ models:
         description: "date the issue was created"
         tests:
           - not_null
-      - name: closed_at
       - name: closed_at
         description: "date the issue was closed (nullable for open issues)"
       - name: title
@@ -633,5 +695,4 @@ models:
         description: "user who updated the issue"
         tests:
           - not_null
-
 
