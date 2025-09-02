@@ -538,7 +538,7 @@ models:
     description: 
       This data product contains the informacion of the github issues tailored for platform development.
       The goal of this dataproduct is to correct the way platform development tracks the open and closed problems individualy by country and improve the kpi trackings.
-     config:
+    config:
       meta:
         owner: "fernando.martinez@tiendanube.com"
         domain: "product"
