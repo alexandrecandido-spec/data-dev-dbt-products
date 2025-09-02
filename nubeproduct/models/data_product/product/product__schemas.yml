@@ -567,9 +567,8 @@ models:
         tests:
           - not_null
       - name: closed_at
-        description: "date the issue was closed"
-        tests:
-          - not_null
+      - name: closed_at
+        description: "date the issue was closed (nullable for open issues)"
       - name: title
         description: "title of the issue"
         tests:
