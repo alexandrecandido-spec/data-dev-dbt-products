@@ -1191,3 +1191,36 @@ models:
         description: "Maximum timestamp from all dependency tables (dim_merchant_info and related dimension tables)."
       - name: sys_audit_updated_by
         description: "System or user that last updated the row."
+
+
+  - name: marketing_hubspot_partners_contacts_variables
+    meta:
+      owner: "carlos.montes@tiendanube.com"
+      domain: "operations"
+      business_owner: "Ane Paschoalino"
+    description: >
+      Contains simplified partner attributes for HubSpot integration. Returns empty strings
+      instead of null values to ensure the values are set in Hubspot as empty.
+    columns:
+      - name: partner_id
+        description: "Unique identifier of the partner. External key."
+        tests:
+          - not_null
+          - unique
+      - name: email
+        description: "Email of the partner associated with the store."
+        tests:
+          - not_null
+          - unique
+      - name: partner_code
+        description: "Code of the partner associated with the store."
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created."
+      - name: sys_audit_created_by
+        description: "System or user that created the row."
+      - name: sys_audit_updated_on
+        description: "Maximum timestamp from all dependency tables (dim_merchant_info and related dimension tables)."
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row."
