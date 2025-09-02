@@ -543,7 +543,7 @@ models:
         owner: "fernando.martinez@tiendanube.com"
         domain: "product"
         business_owner: "Nicolas Loreti"
-     columns:
+    columns:
       - name: unique_issue_country
         description: "unique key for the dataproduct."
         tests:
@@ -598,7 +598,7 @@ models:
       - name: has_new_app_or_integration_tag
         description: "identifier if the issue has the tag new_app_or_integration"
         
- - name: product_platform_issues_and_problem_tag_errors
+  - name: product_platform_issues_and_problem_tag_errors
     description: 
       This dataproduct contains the errors in the tags of the issues and problems.
       It helps the platform team to identify and fix the errors in the tags of the issues and problems for further better tracking of the issues and problems.
