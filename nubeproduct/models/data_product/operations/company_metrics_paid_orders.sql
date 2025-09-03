@@ -7,7 +7,7 @@
         partition_by='year_month_day_code',
         tags=["daily-9am-9pm"],
         post_hook=["DELETE FROM {{ this }} WHERE id in (SELECT id FROM {{ ref('orders__mwp_orders') }} WHERE status = 'cancelled' and cancelled_at is not null) ",
-        "DELETE FROM {{ this }} WHERE store_id in (SELECT store_id FROM {{ source('dp_moltres', 'mwp_store_info') }} WHERE state = 4)"]
+        "DELETE FROM {{ this }} WHERE store_id in (SELECT id FROM {{ source('dp_moltres', 'mwp_store_info') }} WHERE state = 4)"]
     )
 }}
 
