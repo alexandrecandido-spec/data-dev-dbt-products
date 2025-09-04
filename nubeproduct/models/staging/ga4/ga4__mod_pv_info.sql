@@ -1,20 +1,23 @@
 {{ config(
-    materialized         = 'incremental',
-    incremental_strategy = 'merge',
-    partition_by         = ['year_month_day_code'],
-    unique_key           = ['unique_session','event_timestamp','user_pseudo_id'],
-    on_schema_change     = 'fail',
-    tags                 = ['daily-6am', 'marketing']
+    materialized='incremental',
+    incremental_strategy='merge',
+    partition_by=['year_month_day_code'],
+    unique_key=['unique_session','event_timestamp','user_pseudo_id'],
+    on_schema_change='fail',
+    tags=['daily-6am','marketing']
 ) }}
 
 WITH existing_data AS (
-  {{ get_existing_data(this, ['unique_session', 'event_timestamp', 'user_pseudo_id', 'sys_audit_created_on', 'sys_audit_created_by']) }}
+  {{ get_existing_data(this, [
+    'unique_session','event_timestamp','user_pseudo_id',
+    'sys_audit_created_on','sys_audit_created_by'
+  ]) }}
 ),
 
-main_source AS (
+src AS (
     SELECT
-        mpv_event_timestamp         AS event_timestamp,
-        event_date_parsed           AS event_date,
+        mpv_event_timestamp         AS event_timestamp,                 
+        event_date_parsed           AS event_date,                       
         CAST(date_format(event_date_parsed,'yyyyMMdd') AS INT) AS year_month_day_code,
 
         user_pseudo_id,
@@ -31,34 +34,53 @@ main_source AS (
         mpv_last_medium             AS last_medium,
         mpv_last_campaign           AS last_campaign,
 
-        REGEXP_EXTRACT(mpv_landing_page, 'utm_term=([^&]+)', 1)         AS utm_term,
-        REGEXP_EXTRACT(mpv_landing_page, 'utm_content=([^&]+)', 1)      AS utm_content,
-        REGEXP_EXTRACT(mpv_landing_page, 'id_([^&]+)', 1)               AS utm_ad_id
+        REGEXP_EXTRACT(mpv_landing_page, 'utm_term=([^&]+)', 1)    AS utm_term,
+        REGEXP_EXTRACT(mpv_landing_page, 'utm_content=([^&]+)', 1) AS utm_content,
+        REGEXP_EXTRACT(mpv_landing_page, 'id_([^&]+)', 1)          AS utm_ad_id,
+
+        sys_audit_updated_on
     FROM {{ source('stg_ga4','mod_pv_info') }}
     WHERE unique_session IS NOT NULL
+      AND user_pseudo_id IS NOT NULL
+      AND mpv_event_timestamp IS NOT NULL
       AND source <> 'ecosystem'
       AND event_date_parsed >= DATE '2024-01-01'
 ),
 
-final AS (
-    SELECT 
-        main_source.*,
-        COALESCE(e.sys_audit_created_on, current_timestamp)     AS sys_audit_created_on,
-        COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by,
-        current_timestamp                                        AS sys_audit_updated_on,
-        'data-dev-dbt-products'                                  AS sys_audit_updated_by
-    FROM main_source
-    LEFT JOIN existing_data e
-      ON main_source.unique_session   = e.unique_session
-     AND main_source.event_timestamp  = e.event_timestamp
-     AND main_source.user_pseudo_id   = e.user_pseudo_id
+filtered AS (
+  SELECT * FROM src
+  {% if is_incremental() %}
+  WHERE sys_audit_updated_on >= (
+    SELECT COALESCE(MAX(sys_audit_updated_on), TIMESTAMP '1900-01-01 00:00:00')
+    FROM {{ this }}
+  ) - INTERVAL 5 MINUTES
+  {% endif %}
 )
 
-SELECT *
-FROM final
-{% if is_incremental() %}
-WHERE event_date > (
-  SELECT COALESCE(MAX(event_date), DATE '1900-01-01')
-  FROM {{ this }}
-)
-{% endif %}
+SELECT 
+    f.event_timestamp,
+    f.event_date,
+    f.year_month_day_code,
+    f.user_pseudo_id,
+    f.unique_session,
+    f.source_ga4_classification,
+    f.original_user_country,
+    f.env_pagegroup,
+    f.landing_page,
+    f.landing_page_domain,
+    f.landing_page_path,
+    f.last_source,
+    f.last_medium,
+    f.last_campaign,
+    f.utm_term,
+    f.utm_content,
+    f.utm_ad_id,
+    COALESCE(e.sys_audit_created_on, current_timestamp)       AS sys_audit_created_on,
+    COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by,
+    current_timestamp                                          AS sys_audit_updated_on,
+    'data-dev-dbt-products'                                    AS sys_audit_updated_by
+FROM filtered f
+LEFT JOIN existing_data e
+  ON  f.unique_session  <=> e.unique_session
+  AND f.event_timestamp <=> e.event_timestamp
+  AND f.user_pseudo_id  <=> e.user_pseudo_id

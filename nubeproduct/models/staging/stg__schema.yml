@@ -458,6 +458,9 @@ models:
         description: "Name of the event triggered during the session."
       - name: event_date
         description: "Date when the event occurred."
+      - name: event_timestamp    
+        description: "Epoch of the GA4 event (BIGINT)."
+        tests: [not_null]
       - name: event_device
         description: "Device category (mobile, desktop, etc.) associated with each event."
       - name: event_type
@@ -486,9 +489,11 @@ models:
         description: "Date when the trial started."
       - name: payment_date
         description: "Date when the payment was made."
+      - name: event_date
+        description: "Unified event date: COALESCE(trial_date, payment_date)."
+        tests: [not_null]
       - name: year_month_day_code
-        description: "YYYYMMDD code based on the earliest of trial_date or payment_date."
-
+        description: "YYYYMMDD  event_date."
 
   - name: ga4__session_info
     description: "Staging model for user sessions duration and engagement flags."
