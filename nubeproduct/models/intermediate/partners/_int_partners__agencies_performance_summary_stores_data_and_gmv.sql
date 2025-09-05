@@ -66,6 +66,7 @@ agencies_stores AS -- Create a table with the stores depending on partners
 contracts AS    -- Create a table with the historicalcontracts for each store
 (
     SELECT
+        C.contract_id,
         C.store_id,
         C.plan_id,
         C.type,
@@ -76,41 +77,49 @@ contracts AS    -- Create a table with the historicalcontracts for each store
     LEFT JOIN {{ ref('operations_grouping_plans') }} AS OGP
         ON C.plan_id = OGP.plan
     WHERE C.start_date >= '2021-01-01'
+), 
+contracts_ranks AS
+(
+    SELECT
+        ROW_NUMBER() OVER(PARTITION BY AS.store_id, AS.snapshot_date ORDER BY C.contract_id DESC) AS RN,
+        AS.store_id,
+        AS.created_at,
+        AS.first_payment_flg,
+        AS.first_seller_at,
+        AS.first_payment,
+        AS.churned_at,
+        AS.partner_id,
+        AS.partner_code,
+        AS.partner_created_at,
+        AS.partner_country_code,
+        AS.snapshot_date,
+        C.plan_group,
+        SG.all_time_gmv,
+        SG.gmv_usd_current_month,
+        SG.gmv_local_currency_current_month,
+        SG.gmv_usd_previous_month,
+        SG.gmv_local_currency_previous_month,
+        SG.gmv_usd_last_quarter,
+        SG.gmv_local_currency_last_quarter,
+        SG.gmv_usd_last_year,
+        SG.gmv_local_currency_last_year,
+        SG.gmv_usd_last_30d,
+        SG.gmv_local_currency_last_30d,
+        SG.gmv_usd_last_90d,
+        SG.gmv_local_currency_last_90d,
+        SG.gmv_usd_last_180d,    
+        SG.gmv_local_currency_last_180d,
+        SG.gmv_usd_last_365d,
+        SG.gmv_local_currency_last_365d
+    FROM agencies_stores AS AS
+    LEFT JOIN contracts AS C    
+        ON AS.store_id = C.store_id
+            AND AS.snapshot_date BETWEEN C.start_date AND C.end_date
+    LEFT JOIN stores_gmv AS SG
+        ON AS.store_id = SG.store_id
+            AND AS.snapshot_date = SG.snapshot_date
 )
-SELECT
-    AS.store_id,
-    AS.created_at,
-    AS.first_payment_flg,
-    AS.first_seller_at,
-    AS.first_payment,
-    AS.churned_at,
-    AS.partner_id,
-    AS.partner_code,
-    AS.partner_created_at,
-    AS.partner_country_code,
-    AS.snapshot_date,
-    C.plan_group,
-    SG.all_time_gmv,
-    SG.gmv_usd_current_month,
-    SG.gmv_local_currency_current_month,
-    SG.gmv_usd_previous_month,
-    SG.gmv_local_currency_previous_month,
-    SG.gmv_usd_last_quarter,
-    SG.gmv_local_currency_last_quarter,
-    SG.gmv_usd_last_year,
-    SG.gmv_local_currency_last_year,
-    SG.gmv_usd_last_30d,
-    SG.gmv_local_currency_last_30d,
-    SG.gmv_usd_last_90d,
-    SG.gmv_local_currency_last_90d,
-    SG.gmv_usd_last_180d,    
-    SG.gmv_local_currency_last_180d,
-    SG.gmv_usd_last_365d,
-    SG.gmv_local_currency_last_365d
-FROM agencies_stores AS AS
-LEFT JOIN contracts AS C    
-    ON AS.store_id = C.store_id
-        AND AS.snapshot_date BETWEEN C.start_date AND C.end_date
-LEFT JOIN stores_gmv AS SG
-    ON AS.store_id = SG.store_id
-        AND AS.snapshot_date = SG.snapshot_date
+SELECT 
+    CR.* EXCEPT(RN)
+FROM contracts_ranks AS CR
+WHERE CR.RN = 1
