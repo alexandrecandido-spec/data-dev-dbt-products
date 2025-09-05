@@ -1,3 +1,5 @@
+-- depends_on: {{ ref('marketing_ga4_sessions_classified') }}
+
 {{  
   config(
     materialized         = 'incremental',
@@ -6,121 +8,182 @@
     cluster_by           = ['year_month_day_code','session_status'],
     unique_key           = ['row_hash'],
     on_schema_change     = 'fail',
-    tags                 = ['daily-6am']
+    tags                 = ['daily-6am'],
+    pre_hook = [
+      "{% if is_incremental() %}
+       DELETE FROM {{ this }}
+       WHERE year_month_day_code IN (
+         -- Particiones impactadas según updates en el DP 'classified' (solape 5') + últimos 7 días
+         SELECT DISTINCT CAST(date_format(c.date,'yyyyMMdd') AS INT)
+         FROM {{ ref('marketing_ga4_sessions_classified') }} c
+         WHERE c.sys_audit_updated_on >= (
+                 SELECT COALESCE(MAX(sys_audit_updated_on), TIMESTAMP '1900-01-01 00:00:00')
+                 FROM {{ this }}
+               ) - INTERVAL 5 MINUTES
+            OR c.date >= date_sub(current_date, 7)
+       )
+       {% endif %}"
+    ]
   )  
 }}
 
-WITH existing_data AS (
-  {{ get_existing_data(this, ['row_hash', 'sys_audit_created_on', 'sys_audit_created_by']) }}
+-- 1) Último update del propio agregado (baseline watermark)
+WITH baseline AS (
+  {% if is_incremental() %}
+  SELECT COALESCE(MAX(sys_audit_updated_on), TIMESTAMP '1900-01-01 00:00:00') AS last_agg_update
+  FROM {{ this }}
+  {% else %}
+  SELECT TIMESTAMP '1900-01-01 00:00:00' AS last_agg_update
+  {% endif %}
 ),
 
+-- 2) Fechas impactadas en el DP 'classified' + ventana 7 días
+impacted_dates AS (
+  {% if is_incremental() %}
+  SELECT DISTINCT c.date AS d
+  FROM {{ ref('marketing_ga4_sessions_classified') }} c, baseline b
+  WHERE c.sys_audit_updated_on >= b.last_agg_update - INTERVAL 5 MINUTES
+     OR c.date >= date_sub(current_date, 7)
+  {% else %}
+  SELECT DATE '1900-01-01' AS d WHERE FALSE
+  {% endif %}
+),
+
+-- 3) Particiones target a tocar (YYYYMMDD)
+target_partitions AS (
+  {% if is_incremental() %}
+  SELECT DISTINCT CAST(date_format(d,'yyyyMMdd') AS INT) AS ymd FROM impacted_dates
+  UNION
+  SELECT DISTINCT CAST(date_format(date_sub(current_date, n),'yyyyMMdd') AS INT) AS ymd
+  FROM (SELECT posexplode(sequence(0, 6)) AS (n, _)) tmp
+  {% else %}
+  SELECT 0 AS ymd WHERE FALSE
+  {% endif %}
+),
+
+-- 4) existing_data recortado a las particiones a reescribir 
+existing_data AS (
+  {% if is_incremental() %}
+  SELECT row_hash, sys_audit_created_on, sys_audit_created_by
+  FROM {{ this }}
+  WHERE year_month_day_code IN (SELECT ymd FROM target_partitions)
+  {% else %}
+  SELECT CAST(NULL AS STRING) AS row_hash,
+         CAST(NULL AS TIMESTAMP) AS sys_audit_created_on,
+         CAST(NULL AS STRING) AS sys_audit_created_by
+  WHERE 1=0
+  {% endif %}
+),
+
+-- 5) Fuente limitada a fechas impactadas 
 prepared AS (
-    SELECT
-        cls.*,
-        CASE WHEN engage = 1 THEN 'Engaged' ELSE 'Bounced' END AS session_status
-    FROM {{ ref('marketing_ga4_sessions_classified') }} cls
+  SELECT
+      cls.*,
+      CASE WHEN engage = 1 THEN 'Engaged' ELSE 'Bounced' END AS session_status
+  FROM {{ ref('marketing_ga4_sessions_classified') }} cls
+  {% if is_incremental() %}
+  WHERE cls.date IN (SELECT d FROM impacted_dates)
+  {% else %}
+  WHERE cls.date >= DATE '2024-01-01'
+  {% endif %}
 ),
 
+-- 6) Agregado 
 aggregated AS (
-    SELECT
-        date,
-        year_month_day_code,
-        source_ga4_classification,
-        original_user_country,
-        classified_country,
-        env,
-        landing_page,
-        landing_page_domain,
-        landing_page_path,
-        last_source,
-        last_medium,
-        last_campaign,
-        utm_ad_id,
-        utm_content,
-        utm_term,
-        first_event_device,
-        last_event_device,
-        only_login_session,
-        login_in_session,
-        landing_page_type,
-        user_type,
-        session_status,
+  SELECT
+      date,
+      CAST(date_format(date,'yyyyMMdd') AS INT)                 AS year_month_day_code,
+      source_ga4_classification,
+      original_user_country,
+      classified_country,
+      env,
+      landing_page,
+      landing_page_domain,
+      landing_page_path,
+      last_source,
+      last_medium,
+      last_campaign,
+      utm_ad_id,
+      utm_content,
+      utm_term,
+      first_event_device,
+      last_event_device,
+      only_login_session,
+      login_in_session,
+      landing_page_type,
+      user_type,
+      session_status,
 
-        COUNT(DISTINCT user_pseudo_id)                            AS distinct_user_count,
-        COUNT(DISTINCT unique_session)                            AS distinct_session_count,
-        SUM(trial)                                                AS total_trials,
-        SUM(payment)                                              AS total_payments,
-        SUM(CASE WHEN session_status = 'Engaged' THEN 1 END)      AS total_engagements,
-        AVG(session_duration_minutes)                             AS avg_session_duration,
-        APPROX_PERCENTILE(session_duration_minutes, 0.5)          AS median_session_duration,
-        AVG(pageviews_per_session)                                AS avg_pageviews_per_session,
-        APPROX_PERCENTILE(pageviews_per_session, 0.5)             AS median_pageviews_per_session
-    FROM prepared
-    GROUP BY
-        date,
-        year_month_day_code,
-        source_ga4_classification,
-        original_user_country,
-        classified_country,
-        env, 
-        landing_page,
-        landing_page_domain, 
-        landing_page_path,
-        last_source, 
-        last_medium, 
-        last_campaign,
-        utm_ad_id, 
-        utm_content, 
-        utm_term,
-        first_event_device, 
-        last_event_device,
-        only_login_session, 
-        login_in_session,
-        landing_page_type, 
-        user_type, 
-        session_status
+      COUNT(DISTINCT user_pseudo_id)                            AS distinct_user_count,
+      COUNT(DISTINCT unique_session)                            AS distinct_session_count,
+      SUM(trial)                                                AS total_trials,      
+      SUM(payment)                                              AS total_payments,    
+      SUM(CASE WHEN session_status = 'Engaged' THEN 1 END)      AS total_engagements,
+      AVG(session_duration_minutes)                             AS avg_session_duration,
+      APPROX_PERCENTILE(session_duration_minutes, 0.5)          AS median_session_duration,
+      AVG(pageviews_per_session)                                AS avg_pageviews_per_session,
+      APPROX_PERCENTILE(pageviews_per_session, 0.5)             AS median_pageviews_per_session
+  FROM prepared
+  GROUP BY
+      date,
+      source_ga4_classification,
+      original_user_country,
+      classified_country,
+      env,
+      landing_page,
+      landing_page_domain,
+      landing_page_path,
+      last_source,
+      last_medium,
+      last_campaign,
+      utm_ad_id,
+      utm_content,
+      utm_term,
+      first_event_device,
+      last_event_device,
+      only_login_session,
+      login_in_session,
+      landing_page_type,
+      user_type,
+      session_status
 ),
 
+-- 7) row_hash: clave de merge
 final AS (
-    SELECT *,
-           MD5(CONCAT_WS('|',
-                COALESCE(CAST(date                     AS STRING), 'NULL'),
-                COALESCE(CAST(year_month_day_code      AS STRING), 'NULL'),
-                COALESCE(source_ga4_classification, 'NULL'),
-                COALESCE(original_user_country, 'NULL'),
-                COALESCE(classified_country, 'NULL'),
-                COALESCE(env, 'NULL'),
-                COALESCE(landing_page, 'NULL'),
-                COALESCE(landing_page_domain, 'NULL'),
-                COALESCE(landing_page_path, 'NULL'),
-                COALESCE(last_source, 'NULL'),
-                COALESCE(last_medium, 'NULL'),
-                COALESCE(last_campaign, 'NULL'),
-                COALESCE(CAST(only_login_session       AS STRING), 'NULL'),
-                COALESCE(CAST(login_in_session         AS STRING), 'NULL'),
-                COALESCE(landing_page_type, 'NULL'),
-                COALESCE(user_type, 'NULL'),
-                COALESCE(session_status, 'NULL'),
-                COALESCE(utm_ad_id, 'NULL'),
-                COALESCE(utm_content, 'NULL'),
-                COALESCE(utm_term, 'NULL'),
-                COALESCE(first_event_device, 'NULL'),
-                COALESCE(last_event_device, 'NULL')
-           )) AS row_hash
-    FROM aggregated
+  SELECT *,
+         MD5(CONCAT_WS('|',
+           COALESCE(CAST(date                     AS STRING), 'NULL'),
+           COALESCE(source_ga4_classification, 'NULL'),
+           COALESCE(original_user_country, 'NULL'),
+           COALESCE(classified_country, 'NULL'),
+           COALESCE(env, 'NULL'),
+           COALESCE(landing_page, 'NULL'),
+           COALESCE(landing_page_domain, 'NULL'),
+           COALESCE(landing_page_path, 'NULL'),
+           COALESCE(last_source, 'NULL'),
+           COALESCE(last_medium, 'NULL'),
+           COALESCE(last_campaign, 'NULL'),
+           COALESCE(utm_ad_id, 'NULL'),
+           COALESCE(utm_content, 'NULL'),
+           COALESCE(utm_term, 'NULL'),
+           COALESCE(first_event_device, 'NULL'),
+           COALESCE(last_event_device, 'NULL'),
+           COALESCE(CAST(only_login_session AS STRING), 'NULL'),
+           COALESCE(CAST(login_in_session   AS STRING), 'NULL'),
+           COALESCE(landing_page_type, 'NULL'),
+           COALESCE(user_type, 'NULL'),
+           COALESCE(session_status, 'NULL')
+         )) AS row_hash
+  FROM aggregated
 )
 
 SELECT 
   f.*,
-  COALESCE(e.sys_audit_created_on, current_timestamp)         AS sys_audit_created_on,
-  COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products')   AS sys_audit_created_by,
-  current_timestamp                                            AS sys_audit_updated_on,
-  'data-dev-dbt-products'                                      AS sys_audit_updated_by
+  COALESCE(e.sys_audit_created_on, current_timestamp)       AS sys_audit_created_on,
+  COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by,
+  current_timestamp                                          AS sys_audit_updated_on,
+  'data-dev-dbt-products'                                    AS sys_audit_updated_by
 FROM final f
 LEFT JOIN existing_data e
   ON f.row_hash = e.row_hash
-{% if is_incremental() %}
-WHERE f.year_month_day_code >= (
-    SELECT COALESCE(MAX(year_month_day_code), 19000101) FROM {{ this }}
-)
-{% endif %}
+

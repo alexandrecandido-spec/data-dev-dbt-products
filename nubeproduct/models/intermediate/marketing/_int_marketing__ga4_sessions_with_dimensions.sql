@@ -20,31 +20,21 @@ login_sessions AS (
 ),
 
 trials AS (
-    SELECT unique_session, 1 AS trial
-    FROM (
-        SELECT unique_session,
-               ROW_NUMBER() OVER (
-                 PARTITION BY unique_session
-                 ORDER BY trial_timestamp ASC
-               ) AS rn
-        FROM {{ ref('ga4__tp_info') }}
-        WHERE trial_timestamp IS NOT NULL
-    ) t
-    WHERE rn = 1
+    SELECT
+        t.unique_session,
+        COUNT(*) AS trial
+    FROM {{ ref('ga4__tp_info') }} t
+    WHERE t.trial_timestamp IS NOT NULL
+    GROUP BY t.unique_session
 ),
 
 payments AS (
-    SELECT unique_session, 1 AS payment
-    FROM (
-        SELECT unique_session,
-               ROW_NUMBER() OVER (
-                 PARTITION BY unique_session
-                 ORDER BY payment_timestamp ASC
-               ) AS rn
-        FROM {{ ref('ga4__tp_info') }}
-        WHERE payment_timestamp IS NOT NULL
-    ) t
-    WHERE rn = 1
+    SELECT
+        t.unique_session,
+        COUNT(*) AS payment
+    FROM {{ ref('ga4__tp_info') }} t
+    WHERE t.payment_timestamp IS NOT NULL
+    GROUP BY t.unique_session
 ),
 
 session_data AS (
@@ -119,7 +109,7 @@ SELECT
     ed.first_event_device,
     ed.last_event_device,
     COALESCE(ls.login_in_session, 0)           AS login_in_session,
-    COALESCE(t.trial, 0)                       AS trial,
+    COALESCE(t.trial,   0)                     AS trial,
     COALESCE(p.payment, 0)                     AS payment,
     CASE
       WHEN (COALESCE(ls.login_in_session, 0) = 1
