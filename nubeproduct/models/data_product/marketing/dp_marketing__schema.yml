@@ -1224,3 +1224,5 @@ models:
         description: "Maximum timestamp from all dependency tables (dim_merchant_info and related dimension tables)."
       - name: sys_audit_updated_by
         description: "System or user that last updated the row."
+      - name: year_month_day_code
+        description: "Date in YYYYMMDD integer format used for partitioning."
