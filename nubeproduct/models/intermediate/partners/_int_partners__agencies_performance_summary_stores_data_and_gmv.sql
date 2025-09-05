@@ -66,7 +66,7 @@ agencies_stores AS -- Create a table with the stores depending on partners
 contracts AS    -- Create a table with the historicalcontracts for each store
 (
     SELECT
-        C.contract_id,
+        C.id AS contract_id,
         C.store_id,
         C.plan_id,
         C.type,
