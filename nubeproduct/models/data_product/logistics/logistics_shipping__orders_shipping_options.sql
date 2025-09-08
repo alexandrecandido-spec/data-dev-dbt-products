@@ -60,9 +60,7 @@ db_orders AS (
             ON fo.id = e.order_id
 
     {% if is_incremental() %}
-      WHERE fo.year_month_code >= (
-          SELECT max(year_month_code) FROM {{ this }}
-      )
+      WHERE fo.year_month_code >= CAST(date_format(add_months(current_date(), -2), 'yyyyMM') AS INT)
     {% endif %}
 )
 
