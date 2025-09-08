@@ -76,8 +76,7 @@ SELECT
   a.mkt_landing_page_domain_last_click,
   a.mkt_landing_page_path_first_click,
   a.mkt_landing_page_path_last_click,
-  a.mkt_register_url_first_click,
-  a.mkt_register_url_last_click,
+  a.mkt_register_url,
   a.blocked_fraud_tag,              
   
   -- ql & partners

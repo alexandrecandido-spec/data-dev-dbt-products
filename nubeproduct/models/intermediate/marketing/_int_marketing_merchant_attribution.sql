@@ -51,8 +51,7 @@ agg as (
     max(case when trials_first_click = 1 then landing_page_path   end) as mkt_landing_page_path_first_click,
     max(case when trials_last_click  = 1 then landing_page_path   end) as mkt_landing_page_path_last_click,
 
-    max(case when trials_first_click = 1 then register_url        end) as mkt_register_url_first_click,
-    max(case when trials_last_click  = 1 then register_url        end) as mkt_register_url_last_click,
+    max(case when trials_first_click = 1 then register_url        end) as mkt_register_url,
 
     -- negocio en el evento last-click
     max(case when trials_last_click = 1 then churned_at end) as churned_at,
@@ -105,8 +104,7 @@ select
   a.mkt_landing_page_domain_last_click,
   a.mkt_landing_page_path_first_click,
   a.mkt_landing_page_path_last_click,
-  a.mkt_register_url_first_click,
-  a.mkt_register_url_last_click,
+  a.mkt_register_url,
 
   -- fraude único
   a.blocked_fraud_tag,
