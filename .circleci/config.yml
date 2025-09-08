@@ -1,7 +1,7 @@
 # Based on sample: https://github.com/circle-makotom/circle-advanced-setup-workflow/blob/f406e786e28dc1d73c5d1f841a64124b1fa2fa65/.circleci/config.yml
 
 # Config for the setup workflow and common resources (jobs, commands) for main workflows
-# `common-` prefix is added for common resources (to avoid conflicts with module resources)
+# `common-` prefix is added for common resources (to avoid conflicts with module resources) 
 
 version: 2.1
 
@@ -137,8 +137,7 @@ commands:
       - unless:
           condition: << parameters.skip-tests >>
           steps:
-            - checkout:
-                depth: 0
+            - checkout
             - run:
                 name: Fetch main branch
                 command: git fetch origin main
@@ -212,8 +211,7 @@ commands:
         description: The location of the root folder for data product dbt project
         type: string
     steps:
-      - checkout:
-          depth: 0
+      - checkout
       - run:
           name: Fetch main branch
           command: git fetch origin main
