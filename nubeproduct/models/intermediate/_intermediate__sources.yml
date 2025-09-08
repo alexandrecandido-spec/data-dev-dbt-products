@@ -194,3 +194,16 @@ sources:
       - name: locations
         description: "Contains information about address by merchants."
 
+  - name: int_data_operations
+    description: "Merchant info from Operations Team"
+    schema: data_operations
+    tables:
+      - name: company_metrics_merchant_info
+        description: "Data product with merchant info from Operations Team"
+
+  - name: int_marketing
+    description: "Attributtions from Marketing Attibution Model"
+    schema: data_marketing
+    tables: 
+      - name: marketing_attribution_model
+        description: "Attribution Model Info by click and other details"
