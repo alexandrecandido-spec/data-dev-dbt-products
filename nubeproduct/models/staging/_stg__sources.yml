@@ -144,3 +144,13 @@ sources:
       - name: cycle_by_carrier
         description: "Carrier-specific delivery cost breakdown for each billing cycle."
   
+
+  - name: stg_offline
+    database: null
+    description: "Source containing tables related to Offline (point of sale)"
+    schema: offline
+    tables:
+      - name: plan_subscriptions
+        description: "Offline subscription records for stores"
+      - name: plans
+        description: "Offline plans available for stores"
