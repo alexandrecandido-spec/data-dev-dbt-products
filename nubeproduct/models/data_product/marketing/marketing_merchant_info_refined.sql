@@ -64,12 +64,10 @@ SELECT
   a.was_new_seller,
   a.first_seller_at,
   a.churned_at,
-
-  a.mkt_source_first_team,
-  a.mkt_source_first_subteam,
-  a.mkt_source_last_team,
-  a.mkt_source_last_subteam,
-
+  a.mkt_source_first_click,
+  a.mkt_subteam_first_click,
+  a.mkt_source_last_click,
+  a.mkt_subteam_last_click,
   a.mkt_campaign_first_click,
   a.mkt_campaign_last_click,
   a.mkt_landing_page_domain_first_click,
@@ -77,8 +75,11 @@ SELECT
   a.mkt_landing_page_path_first_click,
   a.mkt_landing_page_path_last_click,
   a.mkt_register_url,
-  a.blocked_fraud_tag,              
-  
+  a.blocked_fraud_tag,
+  a.partner_id,
+  a.partner_code,              
+  a.partnership_type,
+
   -- ql & partners
   en.mkt_source_partner_click,
   en.mkt_subteam_partner_click,

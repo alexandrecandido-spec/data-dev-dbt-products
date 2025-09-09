@@ -36,10 +36,10 @@ agg as (
     store_id,
 
     -- teams / subteams renombrados con prefijo mkt_source_
-    max(case when trials_first_click = 1 then team    end) as mkt_source_first_team,
-    max(case when trials_first_click = 1 then subteam end) as mkt_source_first_subteam,
-    max(case when trials_last_click  = 1 then team    end) as mkt_source_last_team,
-    max(case when trials_last_click  = 1 then subteam end) as mkt_source_last_subteam,
+    max(case when trials_first_click = 1 then team    end) as mkt_source_first_click,
+    max(case when trials_first_click = 1 then subteam end) as mkt_subteam_first_click,
+    max(case when trials_last_click  = 1 then team    end) as mkt_source_last_click,
+    max(case when trials_last_click  = 1 then subteam end) as mkt_subteam_last_click,
 
     -- campañas y páginas con prefijo mkt_
     max(case when trials_first_click = 1 then campaign            end) as mkt_campaign_first_click,
@@ -94,10 +94,10 @@ select
   a.churned_at,
 
   -- renamed teams/subteams
-  a.mkt_source_first_team,
-  a.mkt_source_first_subteam,
-  a.mkt_source_last_team,
-  a.mkt_source_last_subteam,
+  a.mkt_source_first_click,
+  a.mkt_subteam_first_click,
+  a.mkt_source_last_click,
+  a.mkt_subteam_last_click,
   a.mkt_campaign_first_click,
   a.mkt_campaign_last_click,
   a.mkt_landing_page_domain_first_click,
