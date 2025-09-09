@@ -1213,56 +1213,39 @@ models:
       - name: store_id
         description: "Primary key of the store."
         tests: [not_null, unique]
-
       - name: created_at
         description: "Merchant creation timestamp."
         tests: [not_null] 
-
       - name: country
         description: "Country code of the store (from Operations)."
         tests: [not_null] 
-
       - name: country_name
         description: "Country name of the store (from Operations)."
-        tests: [not_null] 
-        
+        tests: [not_null]  
       - name: base_country_code
         description: "Base country code from Operations."
-
       - name: base_country_name
         description: "Base country name from Operations."
-
       - name: base_region_name
         description: "Region (Operations)."
-
       - name: base_state_name
         description: "State/Province (Operations)."
-
       - name: base_city_name
         description: "City (Operations)."
-
       - name: current_segment_name
         description: "Current segment from Operations."
-
       - name: max_segment_name
         description: "Maximum historical segment from Operations."
-
       - name: vertical_name
         description: "Merchant vertical from Operations."
-
       - name: business_size_name
         description: "Business size from Operations."
-
       - name: group_name
         description: "Plan group (Operations)."
-
       - name: domain
         description: "Store domain from Operations."
-
       - name: first_payment
         description: "First payment date."
-
-      # === Seller status ===
       - name: is_seller
         description: "Seller / No-seller / Not Informed (según current_segment_name)."
         tests:
@@ -1270,8 +1253,6 @@ models:
               values: ['Seller','No-seller','Not Informed']
               quote: true
               config: { severity: warn }
-
-      # === Attribution (merchant-level) ===
       - name: was_new_seller
         description: "Historical flag (ever had first_seller_at)."
         tests:
@@ -1279,46 +1260,32 @@ models:
               values: [true, false]
               quote: false
               config: { severity: warn }
-
       - name: first_seller_at
         description: "First time the merchant sold (any event)."
-
       - name: churned_at
         description: "Churn timestamp from last-click attribution (if flagged)."
-
-      - name: mkt_source_first_team
+      - name: mkt_source_first_click
         description: "Marketing source (team) at trials_first_click=1."
-
-      - name: mkt_source_first_subteam
+      - name: mkt_subteam_first_click
         description: "Marketing source (subteam) at trials_first_click=1."
-
-      - name: mkt_source_last_team
+      - name: mkt_source_last_click
         description: "Marketing source (team) at trials_last_click=1."
-
-      - name: mkt_source_last_subteam
+      - name: mkt_subteam_last_click
         description: "Marketing source (subteam) at trials_last_click=1."
-
       - name: mkt_campaign_first_click
         description: "Campaign at trials_first_click=1."
-
       - name: mkt_campaign_last_click
         description: "Campaign at trials_last_click=1."
-
       - name: mkt_landing_page_domain_first_click
         description: "Landing page domain at trials_first_click=1."
-
       - name: mkt_landing_page_domain_last_click
         description: "Landing page domain at trials_last_click=1."
-
       - name: mkt_landing_page_path_first_click
         description: "Landing page path at trials_first_click=1."
-
       - name: mkt_landing_page_path_last_click
         description: "Landing page path at trials_last_click=1."
-
       - name: mkt_register_url
         description: "Register URL"
-
       - name: blocked_fraud_tag
         description: "Fraud aggregated at store level (1 if any click had fraud)."
         tests:
@@ -1326,8 +1293,12 @@ models:
               values: [0, 1]
               quote: false
               config: { severity: warn }
-
-      # === Enrichment: partners & predictors ===
+      - name: partner_code
+        description: "Unique code assigned to the partner within Tiendanube's ecosystem. Used to identify and track specific referrals or integrations."
+      - name: partner_id
+        description: "Internal identifier of the partner from the source systems. Enables joins with other partnership tables and ensures uniqueness."
+      - name: partnership_type
+        description: "Type of commercial relationship with the partner (e.g., agency, platform, technology integration). Helps segment and analyze performance by partnership category."
       - name: mkt_source_partner_click
         description: "Team inferred from partners/agencies/affiliates: Partners / Affiliates / Otros Teams."
         tests:
@@ -1335,30 +1306,23 @@ models:
               values: ['Partners','Affiliates','Otros Teams']
               quote: true
               config: { severity: warn }
-
       - name: mkt_subteam_partner_click
         description: "Subteam from partners: 'Partners', affiliate classification (local) o 'Long Tail' / 'Otros Teams'."
         tests:
-          # Si el team es Partners -> subteam debe ser Partners
           - dbt_utils.expression_is_true:
               expression: "= 'Partners'"
               where: "mkt_source_partner_click = 'Partners'"
               config: { severity: warn }
-          # Si el team es Otros Teams -> subteam debe ser Otros Teams
           - dbt_utils.expression_is_true:
               expression: "= 'Otros Teams'"
               where: "mkt_source_partner_click = 'Otros Teams'"
               config: { severity: warn }
-          # Si el team es Affiliates -> subteam no puede ser NULL
           - dbt_utils.expression_is_true:
               expression: "IS NOT NULL"
               where: "mkt_source_partner_click = 'Affiliates'"
               config: { severity: warn }
-
       - name: ql_profile
         description: "Predictive profile from marketing_new_payment_predictor_profiles."
-
-      # === Contacts ===
       - name: main_user_id
         description: "Main user id (WP)."
 

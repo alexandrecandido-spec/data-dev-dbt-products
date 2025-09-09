@@ -1,8 +1,8 @@
-{{ config(materialized='view') }}
+{{ config(materialized='ephemeral') }}
 
 with base as (
   select store_id
-  from {{ source('int_data_operations','company_metrics_merchant_info') }}
+  from {{ ref('company_metrics_merchant_info') }}
 ),
 
 -- store_name desde i18n (última versión)

@@ -150,7 +150,9 @@ sources:
         description: "Contains information about the version of the model used to make predictions."
       - name: marketing_cutoffs_table
         description: "Contains information about the cutoffs used to define QLs."
-
+      - name: marketing_new_payment_predictor_profiles
+        description:  "Table containing enriched merchant profiles used for payment prediction models. Includes attributes related to payment behavior, historical transactions, and merchant segmentation."
+        
   - name: int_ecosystem
     database: null
     schema: ecosystem
@@ -194,16 +196,3 @@ sources:
       - name: locations
         description: "Contains information about address by merchants."
 
-  - name: int_data_operations
-    description: "Merchant info from Operations Team"
-    schema: data_operations
-    tables:
-      - name: company_metrics_merchant_info
-        description: "Data product with merchant info from Operations Team"
-
-  - name: int_marketing
-    description: "Attributtions from Marketing Attibution Model"
-    schema: data_marketing
-    tables: 
-      - name: marketing_attribution_model
-        description: "Attribution Model Info by click and other details"

@@ -28,7 +28,7 @@ base_with_is_seller AS (
     b.group_name,
     b.domain,
     b.first_payment
-  FROM {{ source('int_data_operations','company_metrics_merchant_info') }} b
+  FROM {{ ref('company_metrics_merchant_info') }} b
 )
 
 SELECT
@@ -86,11 +86,11 @@ SELECT
   en.ql_profile,
 
   -- contacts
-  c.main_user_id,
-  c.email,
-  c.phone,
-  c.whatsapp,
-  c.owner_phone,
+  s.main_user_id,
+  s.email,
+  s.phone,
+  s.whatsapp,
+  s.owner_phone,
 
   -- profile
   p.store_name,
@@ -116,9 +116,8 @@ SELECT
 
 FROM base_with_is_seller bws
 LEFT JOIN {{ ref('_int_marketing_merchant_attribution') }} a USING (store_id)
-LEFT JOIN {{ ref('_int_marketing_merchant_contacts') }}    c USING (store_id)
 LEFT JOIN {{ ref('_int_marketing_merchant_profile') }}     p USING (store_id)
-LEFT JOIN {{ ref('_int_marketing_merchant_social') }}      s USING (store_id)
+LEFT JOIN {{ ref('_int_marketing_merchant_social_contacts') }}      s USING (store_id)
 LEFT JOIN {{ ref('_int_marketing_merchant_ql_partners') }} en USING (store_id)
 LEFT JOIN existing_data e USING (store_id);
 

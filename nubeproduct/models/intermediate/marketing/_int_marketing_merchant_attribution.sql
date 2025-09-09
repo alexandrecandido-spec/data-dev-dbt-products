@@ -1,8 +1,8 @@
-{{ config(materialized='view') }}
+{{ config(materialized='ephemeral') }}
 
 with base as (
   select store_id
-  from {{ source('int_data_operations','company_metrics_merchant_info') }}
+  from {{ ref('company_metrics_merchant_info') }}
 ),
 
 att as (
@@ -26,7 +26,7 @@ att as (
     -- flags
     trials_first_click,
     trials_last_click
-  from {{ source('int_marketing','marketing_attribution_model') }}
+  from {{ ref('marketing_attribution_model') }}
   where store_id in (select store_id from base)
 ),
 

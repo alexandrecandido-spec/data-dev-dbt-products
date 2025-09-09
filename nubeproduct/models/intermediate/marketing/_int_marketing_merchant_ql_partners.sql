@@ -1,10 +1,10 @@
-{{ config(materialized='view') }}
+{{ config(materialized='ephemeral') }}
 
 with base as (
   select
     store_id,
     country_code
-  from {{ source('int_data_operations','company_metrics_merchant_info') }}
+  from {{ ref('company_metrics_merchant_info') }}
 ),
 
 pd as (
@@ -15,7 +15,7 @@ pd as (
     partnership_type,
     affiliate_classification,
     partner_country_code
-  from {{ source('int_partners','partners_agencies_affiliates_stores') }}
+  from {{ ref('partners_agencies_affiliates_stores') }}
 ),
 
 -- Agrego flags por store (evita duplicados)
@@ -57,7 +57,7 @@ ql_profiles as (
   select
     store_id,
     profile as ql_profile
-  from {{ source('int_predictors','marketing_new_payment_predictor_profiles') }}
+  from {{ source('int_data_predictors','marketing_new_payment_predictor_profiles') }}
 )
 
 select
