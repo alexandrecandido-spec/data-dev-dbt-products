@@ -85,6 +85,8 @@ sources:
         description: "Contains the list of every Issue/Problem, regardless of its state"
       - name: store_impact
         description: "Lists the priority or impact of the comment associated to a store. It only applies in Mid Market stores."
+      - name: issue_comment
+        description: "Contains the list of every comment associated to an Issue/Problem"
 
 
   - name: bronze_risk_ecosystem
