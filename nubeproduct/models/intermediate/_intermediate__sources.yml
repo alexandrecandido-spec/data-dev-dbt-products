@@ -41,6 +41,16 @@ sources:
         description: "Table with zipcodes from Brazil."
       - name: mwp_contracts
         description: "Table with contracts information"
+      - name: mwp_store_settings_i18n
+        description: "i18n overrides for store settings (labels/strings por idioma)."
+      - name: wp_users
+        description: "WordPress users por store (emails/ids)."
+      - name: mwp_store_info
+        description: "Información general de la tienda (emails alternativos, etc.)."
+      - name: instagram_store_info
+        description: "Snapshots de estadísticas de Instagram por store_id."
+      - name: mwp_invoice_info
+        description: "Información de facturación/razón social asociada a la tienda."
 
   - name: int_finance
     database: null
@@ -142,6 +152,9 @@ sources:
         description: "Contains information about the version of the model used to make predictions."
       - name: marketing_cutoffs_table
         description: "Contains information about the cutoffs used to define QLs."
+      - name: marketing_new_payment_predictor_profiles
+        description: "Table with ql info by store"
+
 
   - name: int_ecosystem
     database: null
@@ -200,3 +213,4 @@ sources:
         description: "WBR (Success) snapshot from legacy Postgres."
       - name: stitchdata__mbr_success
         description: "MBR (Success) snapshot from legacy Postgres."
+
