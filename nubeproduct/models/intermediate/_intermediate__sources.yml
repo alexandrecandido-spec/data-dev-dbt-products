@@ -11,12 +11,6 @@ sources:
         description: "Contains information about apps installed by merchants."
       - name: mwp_store_settings
         description: "Stores configuration settings such as language, currency, and other information."
-      - name: mwp_store_settings_i18n
-        description: "Translations and localized store names for each store's settings."
-      - name: mwp_store_info
-        description: "Basic store information including domain, country, and creation date."
-      - name: mwp_cnames
-        description: "Table with custom domains (CNAMEs) for stores, including validated values used to resolve site URLs."
       - name: mwp_tags
         description: "List of tags assigned to stores."
       - name: mwp_plans_countries
@@ -45,10 +39,18 @@ sources:
         description: "Table with zipcodes from Mexico."
       - name: ceps
         description: "Table with zipcodes from Brazil."
-      - name: instagram_store_info
-        description: "Latest Instagram metrics per store, including followers, following, posts, and likes. Used to enrich merchant-level models with social media performance."
+      - name: mwp_contracts
+        description: "Table with contracts information"
+      - name: mwp_store_settings_i18n
+        description: "i18n overrides for store settings (labels/strings por idioma)."
       - name: wp_users
-        description: "User information including email, ID, and the store they are associated with."
+        description: "WordPress users por store (emails/ids)."
+      - name: mwp_store_info
+        description: "Información general de la tienda (emails alternativos, etc.)."
+      - name: instagram_store_info
+        description: "Snapshots de estadísticas de Instagram por store_id."
+      - name: mwp_invoice_info
+        description: "Información de facturación/razón social asociada a la tienda."
 
   - name: int_finance
     database: null
@@ -151,8 +153,9 @@ sources:
       - name: marketing_cutoffs_table
         description: "Contains information about the cutoffs used to define QLs."
       - name: marketing_new_payment_predictor_profiles
-        description:  "Table containing enriched merchant profiles used for payment prediction models. Includes attributes related to payment behavior, historical transactions, and merchant segmentation."
-        
+        description: "Table with ql info by store"
+
+
   - name: int_ecosystem
     database: null
     schema: ecosystem
@@ -195,4 +198,19 @@ sources:
     tables:
       - name: locations
         description: "Contains information about address by merchants."
+
+  - name: int_storefronts_curated
+    database: null
+    schema: storefronts_curated
+    tables:
+      - name: mwp_stores_logging
+
+  - name: int_data_legacy
+    database: raw
+    schema: data_legacy
+    tables:
+      - name: stitchdata__wbr_success
+        description: "WBR (Success) snapshot from legacy Postgres."
+      - name: stitchdata__mbr_success
+        description: "MBR (Success) snapshot from legacy Postgres."
 
