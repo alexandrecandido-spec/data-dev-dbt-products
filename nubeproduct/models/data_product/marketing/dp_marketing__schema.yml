@@ -1192,6 +1192,7 @@ models:
       - name: sys_audit_updated_by
         description: "System or user that last updated the row."
 
+
   - name: marketing_hubspot_partners_contacts_variables
     meta:
       owner: "carlos.montes@tiendanube.com"
@@ -1219,6 +1220,7 @@ models:
         description: "System or user that last updated the row."
       - name: year_month_day_code
         description: "Date in YYYYMMDD integer format used for partitioning."
+
   
   - name: marketing_merchant_info_refined
     config:
