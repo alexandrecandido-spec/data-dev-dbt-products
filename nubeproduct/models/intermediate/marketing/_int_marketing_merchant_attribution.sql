@@ -1,5 +1,3 @@
-{{ config(materialized='ephemeral') }}
-
 with base as (
   select store_id
   from {{ ref('company_metrics_merchant_info') }}
