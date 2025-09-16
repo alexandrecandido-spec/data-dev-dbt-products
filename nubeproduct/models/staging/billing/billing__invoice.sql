@@ -22,11 +22,10 @@ WITH source_data AS (
         CAST(date_format(issuedat, 'yyyyMMdd') AS INT) AS year_month_day_code
     FROM
         {{ source('stg_billing', 'invoice') }} as inv
-
-    {% if is_incremental() %}
     WHERE deleted_at IS NULL
         AND issuedat IS NOT NULL
         AND inv.number is not null
+    {% if is_incremental() %}
         AND updatedat >= (SELECT COALESCE(MAX(updated_at), '1900-01-01') - INTERVAL '1 hour' FROM {{ this }})
     {% endif %}
 ),

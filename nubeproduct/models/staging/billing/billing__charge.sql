@@ -24,10 +24,10 @@ WITH source_data AS (
         CAST(date_format(fromDate, 'yyyyMMdd') AS INT) AS year_month_day_code
     FROM
         {{ source('stg_billing', 'charge') }}
+    WHERE deleted_at IS NULL 
 
     {% if is_incremental() %}
     -- Adicionamos um intervalo de 1 hora para segurança contra atrasos na atualização dos dados
-    WHERE deleted_at IS NULL 
         AND updatedat >= (SELECT COALESCE(MAX(updated_at), '1900-01-01') - INTERVAL '1 hour' FROM {{ this }})
     {% endif %}
 
