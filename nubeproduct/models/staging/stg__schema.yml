@@ -890,3 +890,30 @@ models:
         description: "Timestamp of the current model run when the record was processed."
       - name: sys_audit_updated_by
         description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
+
+  - name: stg_onboarding_preference_types
+    description: "Staging model that contains store id, the sales channels chosen during the pre onboarding questionnaire and the creation date of stores created in the past 12 months."
+    config:
+      meta:
+        owner: "ynara.oliveira@nuvemshop.com.br"
+        domain: "growth"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: store_id
+        description: "Merchant id."
+        tests:
+          - not_null
+      - name: onboarding_type
+        description: "Sales channels chosen by the merchant that can be online, pos and/or chat."
+      - name: created_at
+        tests:
+          - not_null
+        description: "Store creation date."
+      - name: sys_audit_created_on
+        description: "Timestamp of when this record was created in our data warehouse"
+      - name: sys_audit_created_by
+        description: "System identifier of the process that created this record"
+      - name: sys_audit_updated_on
+        description: "Timestamp of when this record was last updated in our data warehouse"
+      - name: sys_audit_updated_by
+        description: "System identifier of the process that last updated this record"
