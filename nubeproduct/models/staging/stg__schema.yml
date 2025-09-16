@@ -892,7 +892,7 @@ models:
         description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
         
 
-  - name: stg_onboarding_preference_types
+  - name: onboarding__preference_types
     description: "Staging model that contains store id, the sales channels chosen during the pre onboarding questionnaire and the creation date of stores created in the past 12 months."
     config:
       meta:
