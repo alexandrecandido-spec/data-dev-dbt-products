@@ -489,11 +489,6 @@ models:
         description: "title of the problem"
         tests:
           - not_null
-      - name: pain_point
-        description: "Represents where the problem lies. It is extracted from the text inside the first pair of square brackets at the beginning of the title"
-        tests:
-          - not_null:
-              where: "title RLIKE '^\\s*\\['"
       - name: repo_name
         description: "repository in which the problem is located"
         tests:
@@ -558,7 +553,7 @@ models:
         description: "month in which the issue is active"
         tests:
           - not_null
-      - name: issue_number
+      - name: ticket_number
         description: "Unique identifier for the issue"
         tests:
           - not_null
@@ -701,3 +696,64 @@ models:
         tests:
           - not_null
 
+
+models:
+  - name: product__offline_subscriptions
+    description: >
+      Contains the list of valid offline plan subscriptions per store, enriched with plan type, duration,
+      cost per transaction (CPT), and billing cycle information. This table supports product analytics
+      on plan usage and lifecycle in the offline context.
+    config:
+      meta:
+        owner: "barbara.marques@nuvemshop.com.br"
+        business_owner: "Tomas Musich"
+        openmetadata:
+          domain: "product"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: 
+            - subscription_id
+    columns:
+      - name: subscription_id
+        description: Unique identifier of the plan subscription.
+        tests:
+          - not_null
+          - unique
+      - name: store_id
+        description: Store associated with the subscription.
+        tests:
+          - not_null
+      - name: plan_name
+        description: Name or category of the subscribed plan (lowercased).
+        tests:
+          - not_null
+      - name: plan_type
+        description: >
+          Type of the plan. Classified as 'trial' when the plan category contains the word 'trial',
+          otherwise classified as 'regular'.
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['trial', 'regular']
+      - name: start_date
+        description: Date when the subscription started.
+        tests:
+          - not_null
+      - name: effective_end_date
+        description: >
+          Adjusted end date for the subscription. If there's a subsequent subscription,
+          this is set to one second before its start. Otherwise, it falls back to the actual end date
+          or a far-future timestamp when no end is defined.
+      - name: cpt
+        description: Cost per transaction applied to the subscription, including manual overrides.
+        tests:
+          - not_null
+      - name: bill_cycle
+        description: >
+          Number of billing cycles estimated from the subscription duration.
+          Calculated as the number of 30-day periods between start and effective_end_date,
+          with a minimum value of 1.
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 1

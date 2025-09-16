@@ -476,3 +476,4 @@ models:
         description: "Timestamp of the most recent update to the row."
       - name: sys_audit_updated_by
         description: "System or user that last updated the row."
+

@@ -5,10 +5,9 @@
         on_schema_change="sync_all_columns",
         incremental_strategy="merge",
         tags=["daily-6am"],
-        partition_by=["sys_audit_updated_on"],
+        partition_by=["year_month_day_code"],
     )
 }}
-
 
 with
     source_data as (
@@ -33,6 +32,7 @@ select
         'data-dev-dbt-products' as sys_audit_created_by,
     {% endif %}
     current_timestamp as sys_audit_updated_on,
+    CAST(date_format(sys_audit_updated_on , 'yyyyMMdd') AS INT) AS year_month_day_code,
     'data-dev-dbt-products' as sys_audit_updated_by
 from source_data as info
 {% if is_incremental() %}
