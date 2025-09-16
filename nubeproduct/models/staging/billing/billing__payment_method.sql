@@ -1,41 +1,19 @@
 {{
   config(
-    materialized='incremental',
-    unique_key='payment_method_id',
-    on_schema_change='fail',
-    tags=['finance', 'daily-7am']
+    materialized = 'table',
+    tags = ['finance', 'daily-7am']
   )
 }}
 
-WITH source_data AS (
-    SELECT
-        id AS payment_method_id,
-        -- Adicione outras colunas se necessário
-        sys_audit_created_on AS source_sys_audit_created_on,
-        sys_audit_created_by AS source_sys_audit_created_by,
-        updatedat AS updated_at,
-        CAST(date_format(sys_audit_created_on, 'yyyyMMdd') AS INT) AS year_month_day_code
-    FROM
-        {{ source('stg_billing', 'payment_method') }}
-
-    {% if is_incremental() %}
-    WHERE updatedat >= (SELECT COALESCE(MAX(updated_at), '1900-01-01') - INTERVAL '1 hour' FROM {{ this }})
-    {% endif %}
-),
-
-existing_data AS (
-    {{ get_existing_data(this, ['payment_method_id', 'sys_audit_created_on', 'sys_audit_created_by']) }}
-)
-
 SELECT
-    s.payment_method_id,
-    s.year_month_day_code,
-    s.updated_at,
-    COALESCE(e.sys_audit_created_on, s.source_sys_audit_created_on, current_timestamp) AS sys_audit_created_on,
-    COALESCE(e.sys_audit_created_by, s.source_sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by,
+    pm.id AS payment_method_id,
+    pm.type,
+    pm.countryid,
+    pm.recurrentpaymentcompatible,
+    pm.updatedat AS updated_at,
+    CAST(date_format(sys_audit_created_on, 'yyyyMMdd') AS INT) AS year_month_day_code,
+    COALESCE(sys_audit_created_on, current_timestamp) AS sys_audit_created_on,
+    COALESCE(sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by,
     current_timestamp AS sys_audit_updated_on,
     'data-dev-dbt-products' AS sys_audit_updated_by
-FROM
-    source_data s
-LEFT JOIN
-    existing_data e ON s.payment_method_id = e.payment_method_id
+FROM {{ source('stg_billing', 'payment_method') }} as pm

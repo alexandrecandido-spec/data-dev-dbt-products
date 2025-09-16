@@ -22,7 +22,7 @@ WITH source_data AS (
         CAST(date_format(issuedat, 'yyyyMMdd') AS INT) AS year_month_day_code
     FROM
         {{ source('stg_billing', 'invoice') }} as inv
-    WHERE deleted_at IS NULL
+    WHERE deletedat IS NULL
         AND issuedat IS NOT NULL
         AND inv.number is not null
     {% if is_incremental() %}
