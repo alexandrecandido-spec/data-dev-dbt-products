@@ -895,3 +895,88 @@ models:
         description: "Timestamp of the current model run when the record was processed."
       - name: sys_audit_updated_by
         description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
+        
+
+  - name: onboarding__preference_types
+    description: "Staging model that contains store id, the sales channels chosen during the pre onboarding questionnaire and the creation date of stores created in the past 12 months."
+    config:
+      meta:
+        owner: "ynara.oliveira@nuvemshop.com.br"
+        domain: "growth"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: store_id
+        description: "Merchant id."
+        tests:
+          - not_null
+      - name: onboarding_type
+        description: "Sales channels chosen by the merchant that can be online, pos and/or chat."
+      - name: created_at
+        tests:
+          - not_null
+        description: "Store creation date."
+      - name: sys_audit_created_on
+        description: "Timestamp of when this record was created in our data warehouse"
+      - name: sys_audit_created_by
+        description: "System identifier of the process that created this record"
+      - name: sys_audit_updated_on
+        description: "Timestamp of when this record was last updated in our data warehouse"
+      - name: sys_audit_updated_by
+        description: "System identifier of the process that last updated this record"
+        
+
+  - name: product__offline_plan_subscriptions
+    description: >
+      Staging model that prepares raw offline subscription data for each store by filtering only active subscriptions,
+      standardizing the CPT value (applying manual overrides where defined), and adding audit fields for incremental loading.
+      It serves as a clean, versioned base for downstream modeling of subscription lifecycles and pricing behavior.
+    config:
+      meta:
+        owner: "barbara.marques@nuvemshop.com.br"
+        domain: "product"
+        business_owner: "Tomas Musich"
+    columns:
+      - name: subscription_id
+        description: "Unique identifier of the subscription."
+        tests:
+          - unique
+          - not_null
+      - name: store_id
+        description: "Unique identifier of the store linked to the subscription."
+        tests:
+          - not_null
+      - name: plan_id
+        description: "Identifier of the plan associated with the subscription."
+        tests:
+          - not_null
+      - name: start_date
+        description: "Timestamp when the subscription started."
+        tests:
+          - not_null
+      - name: end_date
+        description: "Timestamp when the subscription ended, if applicable."
+      - name: cpt
+        description: >
+          Cost per transaction (CPT) applied to the store in the context of this subscription. 
+          If present, the value in cpt_override is used — it represents a manual adjustment to the default CPT made specifically for the merchant. 
+          Otherwise, the default cpt value from the plan is applied. Stored with precision DECIMAL(10,4).
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+      - name: sys_audit_created_on
+        description: "Timestamp indicating when the subscription was first loaded into the staging model."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "System or user that first created the subscription record in the staging model."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp of the latest update to the subscription record."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "System or user responsible for the most recent update to the subscription record."
+        tests:
+          - not_null

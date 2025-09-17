@@ -143,4 +143,22 @@ sources:
         description: "Billing cycle information per store. Includes charges, adjustments, invoice metadata, and cycle status."
       - name: cycle_by_carrier
         description: "Carrier-specific delivery cost breakdown for each billing cycle."
+
+  - name: stg_onboarding
+    database: null
+    schema: onboarding
+    tables:
+      - name: onboarding_store_preference_types 
+        description: "Merchant sales channels. Responses are received when the merchant completes the pre-onboarding questionnaire. Merchants can choose multiple options and each selection is stored as a distinct entry in the table"
+
   
+
+  - name: stg_offline
+    database: null
+    description: "Source containing tables related to Offline (point of sale)"
+    schema: offline
+    tables:
+      - name: plan_subscriptions
+        description: "Offline subscription records for stores"
+      - name: plans
+        description: "Offline plans available for stores"
