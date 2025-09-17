@@ -13,7 +13,7 @@ SLACK_IDS= ast.literal_eval(Variable.get('slack_ids_analytics_engineer_alert'))
 default_args = {
     'owner': 'Ynara Oliveira de Sousa',
     'depends_on_past': False,
-    'start_date': datetime(2025, 10, 1),
+    'start_date': datetime(2025, 9, 16),
     'email_on_failure': False,
     'email_on_retry': False,
     'on_failure_callback': partial(task_fail_slack_alert_bi,slack_ids=SLACK_IDS)
