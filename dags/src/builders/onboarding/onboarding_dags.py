@@ -27,3 +27,10 @@ dag = create_dbt_dag(
     default_args=default_args,
     tags=['onboarding','daily-8am']
 )
+
+dag = create_dbt_dag(
+    dag_id='dbt_onboarding_daily-8_30am',
+    schedule_interval_tag='daily-8_30am',
+    default_args=default_args,
+    tags=['onboarding','daily-8_30am']
+)
