@@ -27,3 +27,18 @@ dag = create_dbt_dag(
     default_args=default_args,
     tags=['finance','daily-8_30am']
 )
+
+# Criar o DAG para a frequência mensal (revenue by store)
+dag_monthly = create_dbt_dag(
+    dag_id='dbt_finance_monthly-4th-7am',
+    schedule_interval_tag='monthly-4th-7am',
+    default_args=default_args,
+    tags=['finance','monthly-4th-8am']
+)
+
+# Crear el DAG frecuencia diaria (billing)
+dag = create_dbt_dag(
+    dag_id='dbt_finance_daily-7am',
+    schedule_interval_tag='daily-7am',
+    default_args=default_args,
+    tags=['finance','daily-7am']

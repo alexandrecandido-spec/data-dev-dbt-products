@@ -31,6 +31,13 @@ sources:
       - name: mwp_payment_stores
       - name: mwp_payments
       - name: mwp_contracts
+      - name: mwp_invoices
+      - name: mwp_payment_tax
+      - name: mwp_invoices_credit_notes
+      - name: mwp_payment_transaction_fees
+      - name: mwp_payment_apps
+      - name: mwp_payment_domains
+      - name: wp_users
 
 
   - name: stg_orders
@@ -126,13 +133,37 @@ sources:
 
 
   - name: stg_billing
+    description: "Source containing tables related to billing operations, including charges, invoices, payments, and store information"
     database: null
     schema: billing
     tables:
-      - name: receipt
-        description: "Receipts generated for billing purposes, containing receipt ID and number."
+      - name: charge
+        description: "Contains billing charges for plans and services, including amounts, dates, and references to stores and concepts"
+      - name: concept
+        description: "Defines billing concept types and codes (e.g., plan-cost, transaction-fee) used to categorize charges"
+      - name: country
+        description: "Contains country information and codes for billing purposes, linked to store locations"
+      - name: invoice
+        description: "Contains invoices issued to stores, including document types, numbers, amounts, and issue dates"
+      - name: invoice_tax
+        description: "Contains tax information applied to invoices, including tax codes and amounts"
+      - name: pay_order
+        description: "Contains payment orders with status information for processing billing transactions"
+      - name: pay_order_charge
+        description: "Links payment orders to their associated charges, establishing the relationship between payments and billing items"
+      - name: payment_method
+        description: "Contains information about payment methods available and used in billing transactions"
       - name: payment_transaction
-        description: "Payment transactions processed through billing. Includes status and payment timestamps."
+        description: "Contains payment transactions processed through billing system, including status, timestamps, and payment method details"
+      - name: receipt
+        description: "Contains receipts generated for billing purposes, including receipt identifiers and numbers for tracking"
+      - name: store
+        description: "Maps billing system store identifiers to core store IDs, providing the link between billing and main store data"
+      - name: invoice_information
+        description: "Contains tax and fiscal information required for invoice issuance, including business details and tax identifiers"
+      - name: invoice_information_ar
+        description: "Contains additional fiscal information specific to Argentina for invoice issuance and tax compliance"
+      
 
 
   - name: stg_nuvem_envio_billing
