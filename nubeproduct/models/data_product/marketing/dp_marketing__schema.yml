@@ -1183,6 +1183,10 @@ models:
         description: "The store's public URL, constructed from the merchant's domain with the appropriate platform suffix: '.lojavirtualnuvem.com.br' for Brazilian stores (when country_code = 'BR') or '.mitiendanube.com' for all other countries. This represents the store's customer-facing website."
         tests:
           - not_null
+      - name: np_lending_available_credit
+        description: "The store's credit available limit registered in admin."
+        tests:
+          - not_null
       - name: sys_audit_created_on
         description: "Timestamp when the row was originally created."
       - name: sys_audit_created_by
