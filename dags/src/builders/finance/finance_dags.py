@@ -42,3 +42,4 @@ dag = create_dbt_dag(
     schedule_interval_tag='daily-7am',
     default_args=default_args,
     tags=['finance','daily-7am']
+)
