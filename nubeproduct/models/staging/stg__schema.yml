@@ -1399,3 +1399,91 @@ models:
         description: "System or user responsible for the most recent update to the subscription record."
         tests:
           - not_null
+
+
+  - name: marketing_analytics_events
+    description: |
+      GA4/Analytics marketing events already deduplicated by the composite key
+      (event_bundle_sequence_id, event_timestamp, user_pseudo_id, batch_event_index, event_name).
+      Keeps the newest record per key by ordering on event_date and year_month_code.
+      Includes sys_audit_* fields, is partitioned by year_month_day_code, and is materialized incrementally.
+    config:
+      meta:
+        owner: "sofia.torres@tiendanube.com"
+        domain: "marketing"
+        business_owner: "Giselle Galli"
+    columns:
+      - name: source
+        description: Ingestion source or upstream dataset identifier.
+        tests:
+          - not_null
+      - name: event_bundle_sequence_id
+        description: Event bundle sequence identifier provided by GA4.
+        tests:
+          - not_null
+      - name: batch_event_index
+        description: Position of the event within its bundle.
+      - name: user_pseudo_id
+        description: Anonymous user pseudo ID.
+        tests:
+          - not_null
+      - name: id
+        description: Synthetic ID `source-user_pseudo_id` for convenient joins.
+        tests:
+          - not_null
+      - name: ga_session_id
+        description: GA4 session id parsed from event_params (int or string coerced to bigint).
+      - name: unique_session
+        description: Unique session identifier combining source, user_pseudo_id, and ga_session_id.
+      - name: event_name
+        description: GA4 event name (e.g., page_view, session_start, purchase).
+        tests:
+          - not_null
+      - name: event_params
+        description: Array/struct of event parameters in GA4 native format.
+      - name: event_date
+        description: Event date (YYYYMMDD or date type depending on the warehouse).
+        tests:
+          - not_null
+      - name: event_timestamp
+        description: Event timestamp.
+        tests:
+          - not_null
+      - name: device_category
+        description: Device category (desktop, mobile, tablet).
+      - name: country
+        description: Country as resolved by geo IP.
+      - name: region
+        description: Region/State/Province as resolved by geo IP.
+      - name: year_month_code
+        description: YYYYMM monthly partition code.
+        tests:
+          - not_null
+      - name: year_month_day_code
+        description: YYYYMMDD daily partition code.
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: Creation timestamp for audit purposes.
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: User/process that created the record (audit).
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: Last update timestamp (audit).
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: User/process that updated the record (audit).
+        tests:
+          - not_null
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - event_bundle_sequence_id
+            - event_timestamp
+            - user_pseudo_id
+            - batch_event_index
+            - event_name

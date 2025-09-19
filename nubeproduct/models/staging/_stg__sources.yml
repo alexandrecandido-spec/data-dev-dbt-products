@@ -183,7 +183,6 @@ sources:
         description: "Merchant sales channels. Responses are received when the merchant completes the pre-onboarding questionnaire. Merchants can choose multiple options and each selection is stored as a distinct entry in the table"
 
   
-
   - name: stg_offline
     database: null
     description: "Source containing tables related to Offline (point of sale)"
@@ -193,3 +192,12 @@ sources:
         description: "Offline subscription records for stores"
       - name: plans
         description: "Offline plans available for stores"
+
+
+  - name: stg_marketing
+    database: null
+    description: "Source containing tables related to marketing"
+    schema: marketing
+    tables:
+      - name: analytics_events
+        description: "Raw events from marketing analytics"
