@@ -744,6 +744,8 @@ models:
           Adjusted end date for the subscription. If there's a subsequent subscription,
           this is set to one second before its start. Otherwise, it falls back to the actual end date
           or a far-future timestamp when no end is defined.
+      - name: next_start_date
+        description: Start date of the user's subsequent subscription, if it exists. Used in churn-related metrics and analysis.
       - name: cpt
         description: Cost per transaction applied to the subscription, including manual overrides.
         tests:
