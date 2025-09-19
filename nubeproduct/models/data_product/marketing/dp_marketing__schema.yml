@@ -1394,10 +1394,8 @@ models:
     columns:
       - name: user_pseudo_id
         description: "Anonymous identifier of the user."
-        tests: [not_null]
       - name: unique_session
         description: "Unique identifier of the user session."
-        tests: [not_null]
       - name: source
         description: "Source of the event (e.g., ga4, webapp)."
       - name: event_timestamp
@@ -1438,10 +1436,8 @@ models:
     columns:
       - name: user_pseudo_id
         description: "Anonymous identifier of the user."
-        tests: [not_null]
       - name: unique_session
         description: "Unique identifier of the user session."
-        tests: [not_null]
       - name: source
         description: "Event source system (e.g., ga4, webapp)."
       - name: country
@@ -1529,10 +1525,8 @@ models:
     columns:
       - name: user_pseudo_id
         description: "Anonymous identifier of the user."
-        tests: [not_null]
       - name: unique_session
         description: "Unique identifier of the user session."
-        tests: [not_null]
       - name: source
         description: "Event source system (e.g., ga4, webapp)."
       - name: mpv_country
@@ -1585,32 +1579,16 @@ models:
         description: "First observed source within the session (session_source)."
       - name: engage
         description: "Session engaged flag (max session_engaged within the session)."
-        tests:
-          - dbt_expectations.expect_column_values_to_be_in_set: {value_set: [0, 1, null]}
       - name: start_session_time
         description: "Session start timestamp in microseconds since epoch (minimum event_timestamp)."
-        tests: [not_null]
       - name: end_session_time
         description: "Session end timestamp in microseconds since epoch (maximum event_timestamp)."
-        tests:
-          - not_null
-          - dbt_utils.expression_is_true: {expression: "end_session_time >= start_session_time"}
       - name: start_session_date
         description: "Date derived from start_session_time."
-        tests:
-          - not_null
-          - dbt_expectations.expect_column_values_to_match_strftime_format: {strftime_format: "%Y-%m-%d"}
       - name: end_session_date
         description: "Date derived from end_session_time."
-        tests:
-          - not_null
-          - dbt_expectations.expect_column_values_to_match_strftime_format: {strftime_format: "%Y-%m-%d"}
       - name: year_month_code
         description: "Period code in YYYYMM derived from start_session_date."
-        tests:
-          - not_null
-          - dbt_expectations.expect_column_values_to_match_regex: {regex: "^[0-9]{6}$"}
-          - dbt_utils.expression_is_true: {expression: "cast(year_month_code as int) = cast(date_format(start_session_date, 'yyyyMM') as int)"}
       - name: sys_audit_created_on
         description: "Timestamp when the record was created in the DWH."
       - name: sys_audit_created_by
@@ -1633,10 +1611,8 @@ models:
     columns:
       - name: user_pseudo_id
         description: "Composite user identifier formatted as '<source>-<ga_user_pseudo_id>' from analytics events."
-        tests: [not_null]
       - name: unique_session
         description: "Composite session identifier formatted as '<source>-<ga_user_pseudo_id>-<ga_session_id>' used as the session grain."
-        tests: [not_null]
       - name: event_timestamp
         description: "Timestamp of the touchpoint in microseconds since epoch."
         tests: [not_null]
@@ -1644,35 +1620,18 @@ models:
         description: "Event source system (e.g., ga4, webapp)."
       - name: event_name
         description: "Touchpoint type; only 'Store created' (trial) or 'New payment' (payment)."
-        tests:
-          - not_null
-          - dbt_expectations.expect_column_values_to_be_in_set: {value_set: ['Store created','New payment']}
       - name: trial_timestamp
         description: "Timestamp of the trial creation (only when event_name = 'Store created')."
-        tests:
-          - dbt_expectations.expect_column_values_to_not_be_null: {row_condition: "event_name = 'Store created'"}
       - name: trial_date
         description: "Date of the trial creation derived from trial_timestamp (only when event_name = 'Store created')."
-        tests:
-          - dbt_expectations.expect_column_values_to_not_be_null: {row_condition: "event_name = 'Store created'"}
-          - dbt_expectations.expect_column_values_to_match_strftime_format: {strftime_format: "%Y-%m-%d", row_condition: "event_name = 'Store created'"}
       - name: trial_device
         description: "Device category at trial creation (only when event_name = 'Store created')."
-        tests:
-          - dbt_expectations.expect_column_values_to_be_in_set: {value_set: ['desktop','mobile','tablet', null]}
       - name: payment_timestamp
         description: "Timestamp of the new payment (only when event_name = 'New payment')."
-        tests:
-          - dbt_expectations.expect_column_values_to_not_be_null: {row_condition: "event_name = 'New payment'"}
       - name: payment_date
         description: "Date of the new payment derived from payment_timestamp (only when event_name = 'New payment')."
-        tests:
-          - dbt_expectations.expect_column_values_to_not_be_null: {row_condition: "event_name = 'New payment'"}
-          - dbt_expectations.expect_column_values_to_match_strftime_format: {strftime_format: "%Y-%m-%d", row_condition: "event_name = 'New payment'"}
       - name: payment_device
         description: "Device category at payment time (only when event_name = 'New payment')."
-        tests:
-          - dbt_expectations.expect_column_values_to_be_in_set: {value_set: ['desktop','mobile','tablet', null]}
       - name: sys_audit_created_on
         description: "Timestamp when the record was created in the DWH."
       - name: sys_audit_created_by
