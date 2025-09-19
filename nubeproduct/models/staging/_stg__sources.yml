@@ -128,8 +128,8 @@ sources:
         description: "Contains information about the version of the model used to make predictions."
       - name: marketing_cutoffs_table
         description: "Contains information about the cutoffs used to define QLs."
-      - name: marketing_churn_model_predictions
-        description: "Stores the outputs of the Potential Churn model. Predicts the likelihood of a store churning based on its payment history and other relevant factors."
+      - name: marketing_potential_churn_predictions
+        description: "Contains the outputs of the Potential Churn model. Predicts the likelihood of a store churning based on its payment history and other relevant factors."
 
 
   - name: stg_billing
