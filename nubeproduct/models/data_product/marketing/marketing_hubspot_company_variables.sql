@@ -77,6 +77,7 @@ from source_data as info
             "stats_url",
             "associated_partner_id",
             "website",
+            "np_lending_available_credit"
         ] %}
     where
         existing_data.store_id is null
