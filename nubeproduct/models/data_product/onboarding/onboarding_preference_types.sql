@@ -3,7 +3,7 @@
         materialized='incremental',
         unique_key= 'store_id',
         on_schema_change='fail',
-        tags=['daily-8am']
+        tags=['daily-8_30am']
     )
 }}
 
@@ -13,8 +13,13 @@ WITH store_info AS (
         created_at
     FROM
         {{ ref('moltres__mwp_store_info') }}
-    WHERE DATE(created_at) >= add_months(current_date(), -12)
-        AND is_store_blocked IS FALSE
+    WHERE is_store_blocked IS FALSE
+    
+    {% if is_incremental() %}
+    AND sys_audit_updated_on >= (select coalesce(DATE_SUB(max(sys_audit_updated_on), 1), '1900-01-01') from {{ this }} )
+    {% else %}
+    AND DATE(created_at) >= add_months(current_date(), -12)
+    {% endif %}
 ),
 
 onboarding_types AS (
@@ -43,10 +48,6 @@ source AS (
     LEFT JOIN
         onboarding_types AS ot
         ON si.store_id = ot.store_id
-
-    {% if is_incremental() %}
-    WHERE sys_audit_updated_on >= (select coalesce(max(sys_audit_updated_on),'1900-01-01') from {{ this }} )
-    {% endif %}
 ),
 
 existing_data AS (

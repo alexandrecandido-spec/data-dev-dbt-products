@@ -1379,3 +1379,264 @@ models:
     - dbt_utils.equality:
         compare_model: ref('company_metrics_merchant_info')
         compare_columns: ['store_id']
+
+
+  - name: marketing_event_info
+    description: "Incremental dataset with marketing events (clicks and scroll) enriched from GA/analytics. Deduplicated by user-session-timestamp-event, exposes page, action, and device metadata, and includes audit traces."
+    config:
+      meta:
+        owner: "sofia.torres@tiendanube.com"
+        domain: "marketing"
+        business_owner: "Giselle Galli"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: ['user_pseudo_id','unique_session','event_timestamp','event_name']
+    columns:
+      - name: user_pseudo_id
+        description: "Anonymous identifier of the user."
+      - name: unique_session
+        description: "Unique identifier of the user session."
+      - name: source
+        description: "Source of the event (e.g., ga4, webapp)."
+      - name: event_timestamp
+        description: "Event timestamp in microseconds since epoch."
+        tests: [not_null]
+      - name: event_date
+        description: "Date derived from event_timestamp."
+      - name: event_name
+        description: "Event name; only values containing 'clicked' or 'scroll'."
+      - name: event_page
+        description: "Full URL of the page (page_location) where the event occurred."
+        tests: [not_null]
+      - name: event_action
+        description: "Event action (eventAction) for click events."
+      - name: event_device
+        description: "Reported device category (device_category)."
+      - name: year_month_code
+        description: "Period code in YYYYMM format derived from event_date."
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was created in the DWH."
+      - name: sys_audit_created_by
+        description: "Process/system that created the record."
+      - name: sys_audit_updated_on
+        description: "Timestamp when the record was last updated in the DWH."
+      - name: sys_audit_updated_by
+        description: "Process/system that last updated the record."
+
+
+  - name: marketing_all_pageviews
+    description: "Incremental dataset of all GA page_view events with session-level landing page, UTM breakdown, device category, geography, and audit fields; deduplicated by user-session-timestamp."
+    config:
+      meta:
+        owner: "rodrigo.torres@tiendanube.com"
+        domain: "marketing"
+        tags: ["marketing","daily-8am"]
+    tests:
+      - dbt_utils.unique_combination_of_columns: {combination_of_columns: ['user_pseudo_id','event_timestamp','unique_session']}
+    columns:
+      - name: user_pseudo_id
+        description: "Anonymous identifier of the user."
+      - name: unique_session
+        description: "Unique identifier of the user session."
+      - name: source
+        description: "Event source system (e.g., ga4, webapp)."
+      - name: country
+        description: "Reported country for the event."
+      - name: region
+        description: "Reported region/state for the event."
+      - name: category
+        description: "Reported device category."
+      - name: event_date
+        description: "Event date derived from event_timestamp."
+      - name: event_timestamp
+        description: "Event timestamp in microseconds since epoch."
+        tests: [not_null]
+      - name: env
+        description: "Environment where the event occurred (e.g., prd, stg, dev)."
+      - name: page
+        description: "Full page URL (page_location) of the view."
+      - name: landing_page
+        description: "First non-null page URL within the session."
+      - name: event_source
+        description: "UTM source extracted from event parameters."
+      - name: event_medium
+        description: "UTM medium extracted from event parameters."
+      - name: event_campaign
+        description: "UTM campaign extracted from event parameters."
+      - name: event_content
+        description: "UTM content extracted from event parameters."
+      - name: event_term
+        description: "UTM term extracted from event parameters."
+      - name: event_percent_scrolled
+        description: "Percent scrolled for the page view (0–100) when available."
+      - name: year_month_code
+        description: "Period code in YYYYMM derived from event_date."
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was created in the DWH."
+      - name: sys_audit_created_by
+        description: "Process/system that created the record."
+      - name: sys_audit_updated_on
+        description: "Timestamp when the record was last updated in the DWH."
+      - name: sys_audit_updated_by
+        description: "Process/system that last updated the record."
+
+
+  - name: marketing_first_visit
+    description: "Incremental dataset with a single earliest 'first_visit' event per user, including event timestamp, derived first_visit_date, period code, and audit fields."
+    config:
+      meta:
+        owner: "sofia.torres@tiendanube.com"
+        business_owner: "Giselle Galli"
+        domain: "marketing"
+    tests:
+      - dbt_utils.unique_combination_of_columns: {combination_of_columns: ['user_pseudo_id']}
+    columns:
+      - name: user_pseudo_id
+        description: "Anonymous identifier of the user; primary grain of the model (one row per user)."
+        tests: [not_null, unique]
+      - name: source
+        description: "Event source system (e.g., ga4, webapp)."
+      - name: event_timestamp
+        description: "Timestamp of the user's first_visit event in microseconds since epoch."
+        tests: [not_null]
+      - name: first_visit_date
+        description: "Date of the user's first visit derived from event_timestamp."
+      - name: year_month_code
+        description: "Period code in YYYYMM derived from first_visit_date."
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was created in the DWH."
+      - name: sys_audit_created_by
+        description: "Process/system that created the record."
+      - name: sys_audit_updated_on
+        description: "Timestamp when the record was last updated in the DWH."
+      - name: sys_audit_updated_by
+        description: "Process/system that last updated the record."
+
+
+  - name: marketing_mod_pv_info
+    description: "Incremental dataset of GA page_view events with per-session landing page and last-touch UTM attribution (source/medium/campaign) at the moment of each page view; deduplicated by user-session-timestamp and enriched with device, geography, environment, and audit fields."
+    config:
+      meta:
+        owner: "sofia.torres@tiendanube.com"
+        business_owner: "Giselle Galli"
+        domain: "marketing"
+    tests:
+      - dbt_utils.unique_combination_of_columns: {combination_of_columns: ['user_pseudo_id','mpv_event_timestamp','unique_session']}
+    columns:
+      - name: user_pseudo_id
+        description: "Anonymous identifier of the user."
+      - name: unique_session
+        description: "Unique identifier of the user session."
+      - name: source
+        description: "Event source system (e.g., ga4, webapp)."
+      - name: mpv_country
+        description: "Reported country for the page view."
+      - name: mpv_category
+        description: "Reported device category for the page view."
+      - name: event_date_parsed
+        description: "Event date parsed from event_date (yyyyMMdd) or event_timestamp."
+      - name: mpv_event_timestamp
+        description: "Timestamp of the page view in microseconds since epoch."
+        tests: [not_null]
+      - name: mpv_env
+        description: "Environment where the event occurred."
+      - name: mpv_page
+        description: "Full page URL (page_location) of the view."
+      - name: mpv_landing_page
+        description: "First non-null page URL within the session (session landing page)."
+      - name: mpv_last_source
+        description: "Last-touch UTM source within the session at the time of this page view."
+      - name: mpv_last_medium
+        description: "Last-touch UTM medium within the session at the time of this page view."
+      - name: mpv_last_campaign
+        description: "Last-touch UTM campaign within the session at the time of this page view."
+      - name: year_month_code
+        description: "Period code in YYYYMM derived from event_date_parsed."
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was created in the DWH."
+      - name: sys_audit_created_by
+        description: "Process/system that created the record."
+      - name: sys_audit_updated_on
+        description: "Timestamp when the record was last updated in the DWH."
+      - name: sys_audit_updated_by
+        description: "Process/system that last updated the record."
+
+
+  - name: marketing_session_info
+    description: "Incremental dataset with one row per unique session including engagement flag, start/end timestamps and dates, session source, period code, and audit fields."
+    config:
+      meta:
+        owner: "sofia.torres@tiendanube.com"
+        business_owner: "Giselle Galli"
+        domain: "marketing"
+    tests:
+      - dbt_utils.unique_combination_of_columns: {combination_of_columns: ['unique_session']}
+    columns:
+      - name: unique_session
+        description: "Unique identifier of the session; primary grain is one row per session."
+        tests: [not_null, unique]
+      - name: source
+        description: "First observed source within the session (session_source)."
+      - name: engage
+        description: "Session engaged flag (max session_engaged within the session)."
+      - name: start_session_time
+        description: "Session start timestamp in microseconds since epoch (minimum event_timestamp)."
+      - name: end_session_time
+        description: "Session end timestamp in microseconds since epoch (maximum event_timestamp)."
+      - name: start_session_date
+        description: "Date derived from start_session_time."
+      - name: end_session_date
+        description: "Date derived from end_session_time."
+      - name: year_month_code
+        description: "Period code in YYYYMM derived from start_session_date."
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was created in the DWH."
+      - name: sys_audit_created_by
+        description: "Process/system that created the record."
+      - name: sys_audit_updated_on
+        description: "Timestamp when the record was last updated in the DWH."
+      - name: sys_audit_updated_by
+        description: "Process/system that last updated the record."
+
+
+  - name: marketing_tp_info
+    description: "Incremental dataset of trial and payment touchpoints from GA, keeping one record per (unique_session, user_pseudo_id, event_timestamp). Emits conditional fields for trial (Store created) and payment (New payment) with device info and audit fields."
+    config:
+      meta:
+        owner: "sofia.torres@tiendanube.com"
+        business_owner: "Giselle Galli"
+        domain: "marketing"
+    tests:
+      - dbt_utils.unique_combination_of_columns: {combination_of_columns: ['unique_session','user_pseudo_id','event_timestamp']}
+    columns:
+      - name: user_pseudo_id
+        description: "Composite user identifier formatted as '<source>-<ga_user_pseudo_id>' from analytics events."
+      - name: unique_session
+        description: "Composite session identifier formatted as '<source>-<ga_user_pseudo_id>-<ga_session_id>' used as the session grain."
+      - name: event_timestamp
+        description: "Timestamp of the touchpoint in microseconds since epoch."
+        tests: [not_null]
+      - name: source
+        description: "Event source system (e.g., ga4, webapp)."
+      - name: event_name
+        description: "Touchpoint type; only 'Store created' (trial) or 'New payment' (payment)."
+      - name: trial_timestamp
+        description: "Timestamp of the trial creation (only when event_name = 'Store created')."
+      - name: trial_date
+        description: "Date of the trial creation derived from trial_timestamp (only when event_name = 'Store created')."
+      - name: trial_device
+        description: "Device category at trial creation (only when event_name = 'Store created')."
+      - name: payment_timestamp
+        description: "Timestamp of the new payment (only when event_name = 'New payment')."
+      - name: payment_date
+        description: "Date of the new payment derived from payment_timestamp (only when event_name = 'New payment')."
+      - name: payment_device
+        description: "Device category at payment time (only when event_name = 'New payment')."
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was created in the DWH."
+      - name: sys_audit_created_by
+        description: "Process/system that created the record."
+      - name: sys_audit_updated_on
+        description: "Timestamp when the record was last updated in the DWH."
+      - name: sys_audit_updated_by
+        description: "Process/system that last updated the record."
