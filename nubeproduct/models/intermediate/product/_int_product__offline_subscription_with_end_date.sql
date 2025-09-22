@@ -37,6 +37,7 @@ SELECT
     , plan_type
     , start_date
     , effective_end_date
+    , next_start_date
     , cpt
     , subscription_updated_on
     , store_updated_on

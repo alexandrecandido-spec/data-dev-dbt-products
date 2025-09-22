@@ -204,7 +204,7 @@ commands:
                   fi
                   
                   echo "Successfully ran all modified models and their dependencies"
-                no_output_timeout: 30m
+                no_output_timeout: 60m
   deploy-dbt-project:
     parameters:
       dp-dbt-project-location:

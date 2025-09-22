@@ -14,6 +14,7 @@ SELECT
     , plan_type
     , start_date
     , effective_end_date
+    , next_start_date
     , cpt
     , bill_cycle
     , subscription_updated_on
@@ -33,6 +34,7 @@ SELECT
     , base.plan_type
     , base.start_date
     , base.effective_end_date
+    , base.next_start_date
     , base.cpt
     , base.bill_cycle
     , COALESCE(existing_data.sys_audit_created_on, CURRENT_TIMESTAMP) AS sys_audit_created_on
