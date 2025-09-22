@@ -19,4 +19,4 @@ SELECT
 FROM {{source('int_orders', 'mwp_orders_fulfillments') }} of
     INNER JOIN {{ ref('_int_logistics_gsv__all_orders') }} ao
       ON ao.order_id = of.order_id
-WHERE year_month_code >= 202301
+WHERE of.year_month_code >= 202301

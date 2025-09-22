@@ -6,7 +6,6 @@ WITH
 paid_orders_aux AS (
   SELECT
     fpo.order_id AS shipment_id,
-    fpo.store_id,
     fpo.payment_status,
     fpo.store_id,
     CAST(fpo.completed_at AS DATE) AS completed_at,

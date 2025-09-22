@@ -218,7 +218,6 @@ sources:
       - name: stitchdata__mbr_success
         description: "MBR (Success) snapshot from legacy Postgres."
 
-<<<<<<< HEAD
   - name: int_nuvem_envio_conciliation
     database: null
     schema: nuvem_envio_conciliation
@@ -227,5 +226,3 @@ sources:
         description: "Accounting data about shipping"
       - name: pre_invoice
         description: "Table with Order's invoices informations"
-=======
->>>>>>> main

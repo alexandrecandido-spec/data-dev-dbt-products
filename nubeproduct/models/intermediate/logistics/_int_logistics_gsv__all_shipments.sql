@@ -20,7 +20,7 @@
     CAST(COALESCE(ff.completed_at, ao.completed_at) AS DATE)          AS completed_at,
     CAST(COALESCE(p.posted_at, 
       COALESCE(ff.completed_at, ao.completed_at)) AS DATE)            AS final_date,
-    postage_label_creation_date,
+    fdo.postage_label_creation_date,
 
     CASE
       WHEN ff.class IS NOT NULL THEN 'Fulfillment order'
@@ -75,10 +75,10 @@
 
 
     CASE
-      WHEN billing_status = 'provisioned' 
-        AND type = 'deliveryOrder' THEN 'created'
-      WHEN billing_status IN ('billed', 'pre-billed') 
-        AND type = 'deliveryOrder' THEN 'posted'
+      WHEN ae.billing_status = 'provisioned' 
+        AND ae.type = 'deliveryOrder' THEN 'created'
+      WHEN ae.billing_status IN ('billed', 'pre-billed') 
+        AND ae.type = 'deliveryOrder' THEN 'posted'
       WHEN p.posted_at IS NOT NULL THEN 'posted'
       ELSE 'other_delivery_status'
     END                                                                 AS delivery_status,
