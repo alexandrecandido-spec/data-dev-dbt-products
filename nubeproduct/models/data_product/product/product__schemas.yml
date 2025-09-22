@@ -481,7 +481,7 @@ models:
         tests:
           - not_null
           - unique
-      -name: registered_month
+      - name: registered_month
         description: "month in which the issue is active"
         tests:
           - not_null
