@@ -1,7 +1,7 @@
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'merge',
-    unique_key = ['issue_number', 'platform_country_state', 'country'],
+    unique_key = ['registered_month', 'issue_number', 'platform_country_state', 'country'],
     partition_by = 'created_at',
     on_schema_change = 'fail',
     tags = ['daily-8am']
@@ -14,7 +14,7 @@ problems_dates as (
         ,p.*
     from {{ ref('_int__pd_github_problems') }} p
     cross join {{ ref('_int_pd_github_dates') }} d
-)
+),
 base as (
     select 
     pf.registered_month
