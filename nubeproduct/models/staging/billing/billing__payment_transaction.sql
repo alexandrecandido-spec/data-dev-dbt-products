@@ -8,7 +8,7 @@
 }}
 
 SELECT DISTINCT
-    payOrderId AS paid_order_id,
+    payOrderId AS pay_order_id,
     DATE(paidAt) AS paid_at,
     status,
     current_timestamp AS sys_audit_updated_on,

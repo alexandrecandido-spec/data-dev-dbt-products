@@ -1,7 +1,7 @@
 SELECT
     bcf.store_id,
     bcf.external_pay_order_id,
-    pt.paid_order_id,
+    pt.pay_order_id,
     bcf.billing_cycle_id,
     si.domain,
     bcf.cycle_status,
@@ -34,6 +34,6 @@ INNER JOIN {{ ref('moltres__mwp_store_info') }} si
 INNER JOIN {{ ref('_int_logistics_billing__invoice_info_ranked') }} ii
     ON ii.store_id = TRY_CAST(bcf.store_id AS BIGINT)
 LEFT JOIN {{ ref('_int_logistics_billing__payment_transaction') }} pt
-    ON pt.paid_order_id = bcf.external_pay_order_id
+    ON pt.pay_order_id = bcf.external_pay_order_id
 LEFT JOIN {{ ref('billing__receipt') }} r
     ON r.id = bcf.external_receipt_id
