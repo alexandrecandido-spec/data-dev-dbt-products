@@ -58,4 +58,4 @@ GROUP BY
   store_creation_date,
   store_state_name,
   country
-ORDER BY date_ref DESC;
+ORDER BY date_ref DESC
