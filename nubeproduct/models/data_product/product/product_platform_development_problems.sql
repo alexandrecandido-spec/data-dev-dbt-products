@@ -69,13 +69,13 @@ base as (
     left join {{ ref('_int__pd_stores_gmv') }} g
         on pf.store_id = g.store_id
     and (case when is_solved_by_app_country then
-            g.registered_month between date_add('month', -3, date_trunc('month', min_close_date)) and date_trunc('month', min_close_date)
-        else g.registered_month >= date_add('month', -3, date_trunc('month', current_date)) 
+            g.registered_month between add_months(date_trunc('month', min_close_date), -3) and date_trunc('month', min_close_date)
+        else g.registered_month >= add_months(date_trunc('month', current_date()), -3)
         end)
     where true
         and pf.registered_month between date_trunc('month', created_at) and coalesce(min_close_date, date('2100-01-01')) 
         or (pf.registered_month = min_close_date and pf.registered_month = created_at)
-    group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17
+    group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18
 )
 select
     concat(cast(p.registered_month as string) , cast(p.issue_number as string), p.country) as unique_issue_country
