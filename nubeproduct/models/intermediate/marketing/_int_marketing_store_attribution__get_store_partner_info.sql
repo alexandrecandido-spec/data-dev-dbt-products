@@ -1,19 +1,21 @@
 WITH blocked_stores AS (
 	SELECT
-	distinct related_id,
-	'blocked_store' as blocked_store_tag
-	FROM {{ source('int_moltres', 'mwp_tags') }} as tg
+	DISTINCT related_id,
+	'blocked_store' AS blocked_store_tag
+	FROM {{ source('int_moltres', 'mwp_tags') }} AS tg
 	WHERE tg.type = 'store'
 	AND (tg.tag = 'sre-block-store-429' OR tg.tag = 'sre-block-store-404')
 )
 
 SELECT
 att.store_id
-, att.order as click_order
-, att.quantity as click_qty
+, att.order AS click_order
+, att.quantity AS click_qty
 , att.click_id
 , att.click_timestamp
-, lower(att.source) AS source
+, CASE 
+	WHEN att.source IS NULL AND lower(att.medium) = 'cpc' AND (position('web-search' IN att.campaign) > 0) THEN 'google'
+	ELSE lower(att.source) END AS source
 , lower(att.medium) AS medium
 , lower(att.campaign) AS campaign
 , lower(att.content) AS content

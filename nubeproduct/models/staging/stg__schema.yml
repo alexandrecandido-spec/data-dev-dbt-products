@@ -680,21 +680,428 @@ models:
         description: "Receipt code"
 
 
-  - name: billing__payment_transaction
-    description: "Payment transactions, with status filtering and date conversion."
+  - name: billing__charge
+    description: "Staging model for billing charges. Contains charge information including amounts, dates, and references."
     config:
       meta:
-        owner: "gustavo.oliveira@nuvemshop.com.br"
+        owner: "gustavo.braga@nuvemshop.com.br"
         domain: "finance"
-        business_owner: "Mônica Orlando"
+        business_owner: "Pablo San Martin"
     columns:
-      - name: paid_order_id
-        description: "Payment order ID"
-        tests: [not_null]
-      - name: paid_at
-        description: "Date when the payment was made"
+      - name: charge_id
+        description: "Unique charge identifier"
+        tests:
+          - not_null
+          - unique
+      - name: store_id
+        description: "Store identifier linked to the charge"
+        tests:
+          - not_null
+      - name: concept_id
+        description: "Concept identifier associated with the charge"
+      - name: invoice_id
+        description: "Invoice identifier linked to the charge"
+      - name: amount_value
+        description: "Monetary value of the charge"
+      - name: from_date
+        description: "Start date for the charge period"
+      - name: to_date
+        description: "End date for the charge period"
+      - name: external_reference
+        description: "External reference for the charge"
+      - name: deleted_at
+        description: "Timestamp when the charge was deleted"
+      - name: year_month_day_code
+        description: "Date code in YYYYMMDD format extracted from from_date"
+      - name: updated_at
+        description: "Timestamp when the record was last updated in the source"
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model"
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model"
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed"
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run"
+        tests:
+          - not_null
+
+
+  - name: billing__concept
+    description: "Staging model for billing concepts. Contains concept codes and identifiers."
+    config:
+      meta:
+        owner: "gustavo.braga@nuvemshop.com.br"
+        domain: "finance"
+        business_owner: "Pablo San Martin"
+    columns:
+      - name: concept_id
+        description: "Unique concept identifier"
+        tests:
+          - not_null
+          - unique
+      - name: concept_code
+        description: "Code identifier for the billing concept"
+      - name: type
+        description: "Type of billing concept"
+      - name: year_month_day_code
+        description: "Date code in YYYYMMDD format extracted from creation date"
+      - name: updated_at
+        description: "Timestamp when the record was last updated in the source"
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model"
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model"
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed"
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run"
+        tests:
+          - not_null
+
+
+  - name: billing__country
+    description: "Staging model for billing countries. Contains country codes and identifiers."
+    config:
+      meta:
+        owner: "gustavo.braga@nuvemshop.com.br"
+        domain: "finance"
+        business_owner: "Pablo San Martin"
+    columns:
+      - name: country_id
+        description: "Unique country identifier"
+        tests:
+          - not_null
+          - unique
+      - name: country_code
+        description: "Code identifier for the country"
+      - name: name
+        description: "Country name"
+      - name: year_month_day_code
+        description: "Date code in YYYYMMDD format extracted from creation date"
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model"
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model"
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed"
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run"
+        tests:
+          - not_null
+
+
+  - name: billing__invoice
+    description: "Staging model for billing invoices. Contains invoice information including amounts, numbers, and dates."
+    config:
+      meta:
+        owner: "gustavo.braga@nuvemshop.com.br"
+        domain: "finance"
+        business_owner: "Pablo San Martin"
+    columns:
+      - name: invoice_id
+        description: "Unique invoice identifier"
+        tests:
+          - not_null
+          - unique
+      - name: associated_invoice_id
+        description: "Associated invoice identifier for linked invoices"
+      - name: document_type
+        description: "Type of document for the invoice"
+      - name: invoice_number
+        description: "Invoice number"
+      - name: amount_value
+        description: "Monetary value of the invoice"
+      - name: issued_at
+        description: "Date when the invoice was issued"
+      - name: year_month_day_code
+        description: "Date code in YYYYMMDD format extracted from issued_at"
+      - name: updated_at
+        description: "Timestamp when the record was last updated in the source"
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model"
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model"
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed"
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run"
+        tests:
+          - not_null
+
+
+  - name: billing__invoice_tax
+    description: "Staging model for billing invoice taxes. Contains tax information for invoices."
+    config:
+      meta:
+        owner: "gustavo.braga@nuvemshop.com.br"
+        domain: "finance"
+        business_owner: "Pablo San Martin"
+    columns:
+      - name: invoice_tax_id
+        description: "Unique invoice tax identifier"
+        tests:
+          - not_null
+          - unique
+      - name: invoice_id
+        description: "Invoice identifier linked to the tax"
+        tests:
+          - not_null
+      - name: tax_code
+        description: "Tax code identifier"
+      - name: amount_value
+        description: "Monetary value of the tax"
+      - name: year_month_day_code
+        description: "Date code in YYYYMMDD format extracted from creation date"
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model"
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model"
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed"
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run"
+        tests:
+          - not_null
+
+
+  - name: billing__payment_method
+    description: "Staging model for billing payment methods. Contains payment method information."
+    config:
+      meta:
+        owner: "gustavo.braga@nuvemshop.com.br"
+        domain: "finance"
+        business_owner: "Pablo San Martin"
+    columns:
+      - name: payment_method_id
+        description: "Unique payment method identifier"
+        tests:
+          - not_null
+          - unique
+      - name: type
+        description: "Type of payment method"
+      - name: countryid
+        description: "Country identifier for the payment method"
+      - name: recurrentpaymentcompatible
+        description: "Whether the payment method supports recurrent payments"
+      - name: year_month_day_code
+        description: "Date code in YYYYMMDD format extracted from creation date"
+      - name: updated_at
+        description: "Timestamp when the record was last updated in the source"
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model"
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model"
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed"
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run"
+        tests:
+          - not_null
+
+
+  - name: billing__pay_order
+    description: "Staging model for billing pay orders. Contains payment order information and status."
+    config:
+      meta:
+        owner: "gustavo.braga@nuvemshop.com.br"
+        domain: "finance"
+        business_owner: "Pablo San Martin"
+    columns:
+      - name: pay_order_id
+        description: "Unique payment order identifier"
+        tests:
+          - not_null
+          - unique
       - name: status
-        description: "Transaction status (expected: 'SUCCESS')"
+        description: "Status of the payment order"
+      - name: year_month_day_code
+        description: "Date code in YYYYMMDD format extracted from creation date"
+      - name: updated_at
+        description: "Timestamp when the record was last updated in the source"
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model"
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model"
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed"
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run"
+        tests:
+          - not_null
+
+
+  - name: billing__pay_order_charge
+    description: "Staging model for billing pay order charges. Contains the relationship between payment orders and charges."
+    config:
+      meta:
+        owner: "gustavo.braga@nuvemshop.com.br"
+        domain: "finance"
+        business_owner: "Pablo San Martin"
+    columns:
+      - name: pay_order_charge_id
+        description: "Unique pay order charge identifier (composite key)"
+        tests:
+          - not_null
+          - unique
+      - name: pay_order_id
+        description: "Payment order identifier"
+        tests:
+          - not_null
+      - name: charge_id
+        description: "Charge identifier linked to the payment order"
+        tests:
+          - not_null
+      - name: year_month_day_code
+        description: "Date code in YYYYMMDD format extracted from creation date"
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model"
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model"
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed"
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run"
+        tests:
+          - not_null
+
+
+  - name: billing__store
+    description: "Staging model for billing stores. Contains store information within the billing context."
+    config:
+      meta:
+        owner: "gustavo.braga@nuvemshop.com.br"
+        domain: "finance"
+        business_owner: "Pablo San Martin"
+    columns:
+      - name: billing_store_id
+        description: "Unique billing store identifier"
+        tests:
+          - not_null
+          - unique
+      - name: store_id
+        description: "Core store identifier"
+        tests:
+          - not_null
+      - name: country_id
+        description: "Country identifier linked to the store"
+      - name: year_month_day_code
+        description: "Date code in YYYYMMDD format extracted from creation date"
+      - name: updated_at
+        description: "Timestamp when the record was last updated in the source"
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model"
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model"
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed"
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run"
+        tests:
+          - not_null
+
+
+  - name: billing__payment_transaction
+    description: "Staging model for billing payment transactions. Contains payment transaction information with status and timing details."
+    config:
+      meta:
+        owner: "gustavo.braga@nuvemshop.com.br"
+        domain: "finance"
+        business_owner: "Pablo San Martin"
+    columns:
+      - name: payment_transaction_id
+        description: "Unique payment transaction identifier"
+        tests:
+          - not_null
+          - unique
+      - name: pay_order_id
+        description: "Payment order identifier linked to the transaction"
+        tests:
+          - not_null
+      - name: paid_order_id
+        description: "Payment order identifier linked to the transaction"
+        tests:
+          - not_null
+      - name: payment_method_id
+        description: "Payment method identifier used for the transaction"
+      - name: status
+        description: "Transaction status (e.g., 'SUCCESS')"
+      - name: paid_at
+        description: "Timestamp when the payment was made"
+      - name: year_month_day_code
+        description: "Date code in YYYYMMDD format extracted from paid_at"
+      - name: updated_at
+        description: "Timestamp when the record was last updated in the source"
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model"
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model"
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed"
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run"
+        tests:
+          - not_null
 
 
   - name: moltres__mwp_invoice_info
@@ -823,51 +1230,60 @@ models:
         description: "Unique identifier of the store."
         tests:
           - not_null
-      - name: churn_prediction_period
-        description: "Date (last day of the month) representing the observation/reference period of the store."
-        tests:
-          - not_null
-      - name: execution_date
-        description: "Date of the execution of the churn prediction model."
-        tests:
-          - not_null
       - name: country
         description: "Country of the store."
         tests:
           - not_null
-      - name: life_stage_at_prediction
+      - name: month_end
+        description: "Date (last day of the month) representing the observation/reference period of the store."
+        tests:
+          - not_null
+      - name: timestamp
+        description: "Date of the execution of the churn prediction model."
+        tests:
+          - not_null
+      - name: life_stage
         description: "Store lifecycle stage at the time of prediction:
                     - A1 = Up to 30 days old
                     - A2 = Between 1 and 6 months old
-                    - B  = More than 6 months old"
+                    - B  = More than 6 months old
+                    - C = More than 12 months old"
         tests:
           - not_null
           - accepted_values:
-              values: ['B', 'A1', 'A2']
+              values: ['A1', 'A2', 'B', 'C']
+      - name: month_segment
+        description: "Segment the store belonged to at the time of prediction."
+        tests:
+          - dbt_expectations.expect_column_values_to_be_in_set:
+              value_set: ['no-seller', 'struggling-seller', 'tiny-seller', 'small-seller', 'medium-seller', 'large-seller', 'top-seller', null]
+      - name: max_segment
+        description: "Highest segment ever reached by the store historically."
+        tests:
+          - dbt_expectations.expect_column_values_to_be_in_set:
+              value_set: ['no-seller', 'struggling-seller', 'tiny-seller', 'small-seller', 'medium-seller', 'large-seller', 'top-seller', null]
       - name: seller_type
         description: "Store classification according to segment:
             - no-seller: segmento_max ∈ {null, struggling, no-seller}
             - seller: segmento_max ≥ tiny"
         tests:
           - not_null
-      - name: segment_at_prediction
-        description: "Segment the store belonged to at the time of prediction."
+          - dbt_expectations.expect_column_values_to_be_in_set:
+              value_set: ['no-seller', 'seller']
+      - name: profile
+        description: "Segmentation label based on life_stage and additional model features (e.g., orders, products, admin access, and sessions at different thresholds). 
+                      For more details, see the documentation (https://docs.google.com/document/d/1VOUsUj_KOQp7krS9WcusGtmO1X8Yq-VJEvIaxCB8ozo/)."
         tests:
           - dbt_expectations.expect_column_values_to_be_in_set:
-              value_set: ['no-seller', 'large-seller', 'top-seller', 'tiny-seller', 'struggling-seller', 'small-seller', 'medium-seller', null]
-      - name: max_segment
-        description: "Highest segment ever reached by the store historically."
-        tests:
-          - dbt_expectations.expect_column_values_to_be_in_set:
-              value_set: ['no-seller', 'large-seller', 'top-seller', 'tiny-seller', 'struggling-seller', 'small-seller', 'medium-seller', null]
-      - name: churn_predicted_prob
+              value_set: ['1. Adormecido','1. Desinteressado','1. Inexperiente','2. Básico','2. Esporádico','2. Perseverante','2. Persistente','3. Baixa conversão','3. Configurado','3. Newbie','3. Regular','4. Potencial','4. Promissor','4. Regular','5. Extraordinário','5. Profissional','6. NA']
+      - name: probability
         description: "Estimated probability (0–100%) that the store will become a seller. The higher the value, the greater the chance."
         tests:
           - dbt_expectations.expect_column_values_to_be_between:
               min_value: 0.00000000001
               max_value: 1
               strictly: false
-      - name: churn_cutoff
+      - name: threshold
         description: "Threshold used to classify probabilities as high or low."
         tests:
           - not_null
@@ -875,13 +1291,21 @@ models:
               min_value: 0
               max_value: 1
               strictly: true 
-      - name: churn_prediction
+      - name: prediction
         description: "Binary prediction outcome:
             - 1 = store predicted as potential seller (probability ≥ cutoff)
             - 0 = store not predicted as potential seller (probability < cutoff)"
         tests:
           - accepted_values:
               values: [0, 1]
+      - name: model_id
+        description: "Unique identifier for the model name and version. Also indicates the location of the model registered in the Databricks Catalog. Format: catalog.schema.model_name/version_number"
+        tests:
+          - not_null
+      - name: year_month_code
+        description: "Date code in YYYYMM format used for identification row."
+        tests:
+          - not_null
       - name: sys_audit_created_on
         description: "Timestamp when the record was first loaded into the model. Defaults to current_timestamp if not available."
       - name: sys_audit_created_by
@@ -890,7 +1314,35 @@ models:
         description: "Timestamp of the current model run when the record was processed."
       - name: sys_audit_updated_by
         description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
+        
 
+  - name: onboarding__preference_types
+    description: "Staging model that contains store id, the sales channels chosen during the pre onboarding questionnaire and the creation date of stores created in the past 12 months."
+    config:
+      meta:
+        owner: "ynara.oliveira@nuvemshop.com.br"
+        domain: "growth"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: store_id
+        description: "Merchant id."
+        tests:
+          - not_null
+      - name: onboarding_type
+        description: "Sales channels chosen by the merchant that can be online, pos and/or chat."
+      - name: created_at
+        tests:
+          - not_null
+        description: "Store creation date."
+      - name: sys_audit_created_on
+        description: "Timestamp of when this record was created in our data warehouse"
+      - name: sys_audit_created_by
+        description: "System identifier of the process that created this record"
+      - name: sys_audit_updated_on
+        description: "Timestamp of when this record was last updated in our data warehouse"
+      - name: sys_audit_updated_by
+        description: "System identifier of the process that last updated this record"
+        
 
   - name: product__offline_plan_subscriptions
     description: >
@@ -982,3 +1434,90 @@ models:
       - name: depth
         description: "Shipments depth"
       
+
+  - name: marketing_analytics_events
+    description: |
+      GA4/Analytics marketing events already deduplicated by the composite key
+      (event_bundle_sequence_id, event_timestamp, user_pseudo_id, batch_event_index, event_name).
+      Keeps the newest record per key by ordering on event_date and year_month_code.
+      Includes sys_audit_* fields, is partitioned by year_month_day_code, and is materialized incrementally.
+    config:
+      meta:
+        owner: "sofia.torres@tiendanube.com"
+        domain: "marketing"
+        business_owner: "Giselle Galli"
+    columns:
+      - name: source
+        description: Ingestion source or upstream dataset identifier.
+        tests:
+          - not_null
+      - name: event_bundle_sequence_id
+        description: Event bundle sequence identifier provided by GA4.
+        tests:
+          - not_null
+      - name: batch_event_index
+        description: Position of the event within its bundle.
+      - name: user_pseudo_id
+        description: Anonymous user pseudo ID.
+        tests:
+          - not_null
+      - name: id
+        description: Synthetic ID `source-user_pseudo_id` for convenient joins.
+        tests:
+          - not_null
+      - name: ga_session_id
+        description: GA4 session id parsed from event_params (int or string coerced to bigint).
+      - name: unique_session
+        description: Unique session identifier combining source, user_pseudo_id, and ga_session_id.
+      - name: event_name
+        description: GA4 event name (e.g., page_view, session_start, purchase).
+        tests:
+          - not_null
+      - name: event_params
+        description: Array/struct of event parameters in GA4 native format.
+      - name: event_date
+        description: Event date (YYYYMMDD or date type depending on the warehouse).
+        tests:
+          - not_null
+      - name: event_timestamp
+        description: Event timestamp.
+        tests:
+          - not_null
+      - name: device_category
+        description: Device category (desktop, mobile, tablet).
+      - name: country
+        description: Country as resolved by geo IP.
+      - name: region
+        description: Region/State/Province as resolved by geo IP.
+      - name: year_month_code
+        description: YYYYMM monthly partition code.
+        tests:
+          - not_null
+      - name: year_month_day_code
+        description: YYYYMMDD daily partition code.
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: Creation timestamp for audit purposes.
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: User/process that created the record (audit).
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: Last update timestamp (audit).
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: User/process that updated the record (audit).
+        tests:
+          - not_null
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - event_bundle_sequence_id
+            - event_timestamp
+            - user_pseudo_id
+            - batch_event_index
+            - event_name

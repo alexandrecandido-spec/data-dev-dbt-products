@@ -11,9 +11,9 @@ SLACK_IDS= ast.literal_eval(Variable.get('slack_ids_analytics_engineer_alert'))
 
 
 default_args = {
-    'owner': 'Rodrigo Nicolás Torres',
+    'owner': 'Ynara Oliveira de Sousa',
     'depends_on_past': False,
-    'start_date': datetime(2024, 10, 1),
+    'start_date': datetime(2025, 9, 16),
     'email_on_failure': False,
     'email_on_retry': False,
     'on_failure_callback': partial(task_fail_slack_alert_bi,slack_ids=SLACK_IDS)
@@ -22,24 +22,15 @@ default_args = {
 
 # Crear el DAG frecuencia diaria
 dag = create_dbt_dag(
-    dag_id='dbt_finance_daily-8_30am',
+    dag_id='dbt_onboarding_daily-8am',
+    schedule_interval_tag='daily-8am',
+    default_args=default_args,
+    tags=['onboarding','daily-8am']
+)
+
+dag = create_dbt_dag(
+    dag_id='dbt_onboarding_daily-8_30am',
     schedule_interval_tag='daily-8_30am',
     default_args=default_args,
-    tags=['finance','daily-8_30am']
-)
-
-# Criar o DAG para a frequência mensal (revenue by store)
-dag_monthly = create_dbt_dag(
-    dag_id='dbt_finance_monthly-4th-7am',
-    schedule_interval_tag='monthly-4th-7am',
-    default_args=default_args,
-    tags=['finance','monthly-4th-8am']
-)
-
-# Crear el DAG frecuencia diaria (billing)
-dag = create_dbt_dag(
-    dag_id='dbt_finance_daily-7am',
-    schedule_interval_tag='daily-7am',
-    default_args=default_args,
-    tags=['finance','daily-7am']
+    tags=['onboarding','daily-8_30am']
 )
