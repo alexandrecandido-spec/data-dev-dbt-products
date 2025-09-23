@@ -65,6 +65,7 @@ models:
         description: "Shipping cost using Loggi"
       - name: mandae_cost_value
         description: "Shipping cost using Mandae"
+
   - name: logistics_shipping__orders_shipping_options
     description: >
       Standardized view of the shipping options selected by customers when placing orders,
@@ -86,8 +87,132 @@ models:
       - name: carrier_name
         description: "Grouper name"
       - name: shipping_partner
-        description: "Partner name, if any, "
+        description: "Partner name, if any"
       - name: year_month_code
         description: "Date of order creation in the format YearMonth"
       - name: shipping_service
         description: "Logistic service select by the client"
+
+  - name: logistics_gsv__orders
+    description: >
+      Final materialized table that consolidates shipments in Brazil and paid orders
+      not linked to shipments. It provides a unified view of logistics performance,
+      including GSV, GMV, shipment type, carrier details, and Nuvem Envio adoption.
+      This dataset feeds dashboards and financial/logistics reporting.
+    config:
+      meta:
+        owner: "gustavo.oliveira@nuvemshop.com.br"
+        domain: "logistics"
+        business_owner: "Simone Harnik"
+    columns:
+      - name: shipment_id
+        description: "Unique shipment identifier (either from fulfillment, delivery order, or paid order)."
+        tests: [not_null, unique]
+      - name: payment_status
+        description: "Payment status associated with the order/shipment (e.g., paid, cancelled, detatched)."
+        tests: [not_null]
+      - name: store_id
+        description: "Store identifier related to the shipment."
+        tests: [not_null]
+      - name: domain
+        description: "Domain of the store linked to the shipment."
+      - name: current_segment
+        description: "Current commercial segment of the store."
+      - name: vertical_name
+        description: "Vertical classification of the store."
+      - name: plan
+        description: "Commercial plan of the store."
+      - name: store_creation_date
+        description: "Date when the store was created in the platform."
+      - name: store_state_name
+        description: "State of the store (geographical or operational)."
+      - name: completed_at
+        description: "Date when the order was completed."
+      - name: final_date
+        description: "Final posting date, either posted_at or completed_at."
+      - name: postage_label_creation_date
+        description: "Date when the postage label was created."
+      - name: shipment_type
+        description: "Shipment classification (Fulfillment order, Paid order, Cancelled order, etc.)."
+        tests: [not_null]
+      - name: gsv
+        description: "Gross Shipment Value associated with the shipment."
+      - name: gmv
+        description: "Gross Merchandise Value associated with the shipment."
+      - name: flg_gsv
+        description: "Flag indicating whether the record contributes to GSV (1=yes, 0=no)."
+      - name: flg_gmv
+        description: "Flag indicating whether the record contributes to GMV (1=yes, 0=no)."
+      - name: flg_shipment
+        description: "Flag indicating that the record represents a shipment."
+      - name: flg_multicd
+        description: "Flag indicating multiple fulfillments (multi-CD)."
+      - name: flg_ne_selected
+        description: "Flag indicating if Nuvem Envio was selected as the carrier."
+      - name: flg_ne_enabled
+        description: "Flag indicating if Nuvem Envio was enabled for the store."
+      - name: selected_shipping_partner
+        description: "Name of the selected shipping partner."
+      - name: delivery_shipping_partner
+        description: "Standardized shipping partner derived from carrier_code."
+      - name: carriers
+        description: "List of all carriers linked to the shipment (aggregated)."
+      - name: delivery_status
+        description: "Final delivery status (created, posted, etc.)."
+      - name: country
+        description: "Country of the store/shipment."
+        tests:
+          - accepted_values:
+              values: ['BR']
+      - name: sys_audit_created_on
+        description: "System audit timestamp when the record was first created."
+      - name: sys_audit_created_by
+        description: "System audit user/process that created the record."
+      - name: sys_audit_updated_on
+        description: "System audit timestamp when the record was last updated."
+      - name: sys_audit_updated_by
+        description: "System audit user/process that last updated the record."
+
+  - name: logistics_gsv__daily_summary
+    description: >
+      Daily aggregated table that summarizes shipments and orders in Brazil.
+      Provides aggregated counts and values for both GSV and GMV,
+      broken down by store, date, and segment. Used for reporting and monitoring
+      logistics and sales performance trends.
+    config:
+      meta:
+        owner: "gustavo.oliveira@nuvemshop.com.br"
+        domain: "logistics"
+        business_owner: "Simone Harnik"
+    columns:
+      - name: date_ref
+        description: "Reference date for the aggregation (day granularity)."
+        tests: [not_null]
+      - name: store_id
+        description: "Store identifier."
+        tests: [not_null]
+      - name: domain
+        description: "Domain of the store."
+      - name: current_segment
+        description: "Current commercial segment of the store."
+      - name: vertical_name
+        description: "Vertical classification of the store."
+      - name: plan
+        description: "Commercial plan of the store."
+      - name: store_creation_date
+        description: "Date when the store was created in the platform."
+      - name: store_state_name
+        description: "State of the store (geographical or operational)."
+      - name: country
+        description: "Country of the store/shipment."
+        tests:
+          - accepted_values:
+              values: ['BR']
+      - name: qtd_orders_gsv
+        description: "Total number of orders contributing to GSV on the given day."
+      - name: total_gsv
+        description: "Aggregated GSV value for the day."
+      - name: qtd_orders_gmv
+        description: "Total number of orders contributing to GMV on the given day."
+      - name: total_gmv
+        description: "Aggregated GMV value for the day."

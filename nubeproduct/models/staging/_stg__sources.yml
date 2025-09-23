@@ -193,6 +193,12 @@ sources:
       - name: plans
         description: "Offline plans available for stores"
 
+  - name: stg_nuvem_envio_conciliation
+    database: null
+    schema: nuvem_envio_conciliation
+    tables:
+      - name: delivery_order
+        description: "Orders delivered with Nuvem Envio/Envio Nube"
 
   - name: stg_marketing
     database: null
