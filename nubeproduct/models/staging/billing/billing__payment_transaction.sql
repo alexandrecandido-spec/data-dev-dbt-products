@@ -21,7 +21,7 @@ WITH source_data AS (
     FROM
         {{ source('stg_billing', 'payment_transaction') }}
     {% if is_incremental() %}
-    WHERE updatedat >= (SELECT COALESCE(MAX(updated_at), '1900-01-01') - INTERVAL '1 hour' FROM {{ this }})
+    WHERE updatedat >= (SELECT COALESCE(MAX(updatedat), '1900-01-01') - INTERVAL '1 hour' FROM {{ this }})
     {% endif %}
 ),
 
