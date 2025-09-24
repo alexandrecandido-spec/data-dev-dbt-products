@@ -1400,6 +1400,40 @@ models:
         tests:
           - not_null
 
+  - name: nuvem_envio__delivery_order
+    description: "Delivery data about NE shipments"
+    config:
+      meta:
+        owner: "gustavo.oliveira@nuvemshop.com.br"
+        domain: "logistics"
+        business_owner: "Simone Harnik"
+    columns:
+      - name: year_month_code
+        description: "Reference year and month"
+      - name: id
+        description: "Postage label unique identifier"
+        tests: [not_null, unique]
+      - name: created_at
+        description: "Postage label creation timestamp"
+      - name: order_id
+        description: "Order unique identifier"
+      - name: store_id
+        description: "Order unique identifier"
+      - name: carrier_code
+        description: "Carrier code"
+      - name: delivery_option_code
+        description: "Delivery option codes availables for the carriers"
+      - name: tracking_code
+        description: "Shipment tracking code"
+      - name: weight
+        description: "Shipment's weight"
+      - name: width
+        description: "Shipment's width"
+      - name: height
+        description: "Shipments height"
+      - name: depth
+        description: "Shipments depth"
+      
 
   - name: marketing_analytics_events
     description: |
