@@ -4,64 +4,50 @@
 -- depends_on: {{ ref('ga4__session_info') }}
 -- depends_on: {{ ref('_int_marketing__ga4_sessions_with_dimensions') }}
 
-{{ config(
-    materialized='incremental',
-    incremental_strategy='merge',
-    partition_by=['year_month_day_code'],
-    unique_key=['year_month_day_code','unique_session'],
-    on_schema_change='fail',
-    tags=['daily-6am']
-) }}
+{%- set days_to_rebuild = 5 -%}  {# ventana robusta: hoy + 4 días previos #}
 
--- 1) Baseline del DP (último updated_on)
-WITH baseline AS (
-  {% if is_incremental() %}
-  SELECT COALESCE(MAX(sys_audit_updated_on), TIMESTAMP '1900-01-01 00:00:00') AS last_dp_update
-  FROM {{ this }}
-  {% else %}
-  SELECT TIMESTAMP '1900-01-01 00:00:00' AS last_dp_update
-  {% endif %}
-),
-
--- 2) Fechas impactadas por updates en staging (con solape 5')
-impacted_dates AS (
-  {% if is_incremental() %}
-  SELECT DISTINCT d FROM (
-    SELECT e.event_date         AS d FROM {{ ref('ga4__event_info') }}   e, baseline b
-     WHERE e.sys_audit_updated_on >= b.last_dp_update - INTERVAL 5 MINUTES
-     AND e.year_month_day_code >= CAST(date_format(date_sub(date(b.last_dp_update), 30),'yyyyMMdd') AS INT) -- opcional, ayuda al pruning
-    UNION ALL
-    SELECT m.event_date         AS d FROM {{ ref('ga4__mod_pv_info') }} m, baseline b
-     WHERE m.sys_audit_updated_on >= b.last_dp_update - INTERVAL 5 MINUTES
-     AND m.year_month_day_code >= CAST(date_format(date_sub(date(b.last_dp_update), 30),'yyyyMMdd') AS INT)
-    UNION ALL
-    SELECT t.event_date         AS d FROM {{ ref('ga4__tp_info') }}     t, baseline b
-     WHERE t.sys_audit_updated_on >= b.last_dp_update - INTERVAL 5 MINUTES
-     AND t.year_month_day_code >= CAST(date_format(date_sub(date(b.last_dp_update), 30),'yyyyMMdd') AS INT)
-    UNION ALL
-    SELECT s.start_session_date AS d FROM {{ ref('ga4__session_info') }} s, baseline b
-     WHERE s.sys_audit_updated_on >= b.last_dp_update - INTERVAL 5 MINUTES
-     AND s.year_month_day_code >= CAST(date_format(date_sub(date(b.last_dp_update), 30),'yyyyMMdd') AS INT)
+{{
+  config(
+    materialized         = 'incremental',
+    incremental_strategy = 'merge',
+    partition_by         = ['year_month_day_code'],
+    unique_key           = ['year_month_day_code','unique_session'],
+    on_schema_change     = 'fail',
+    tags                 = ['daily-6am'],
+    pre_hook = [
+      "{% if is_incremental() %}
+         -- Borrar particiones de los últimos " ~ days_to_rebuild ~ " días (robusto ante borrados/reclasificaciones)
+         DELETE FROM {{ this }}
+         WHERE year_month_day_code IN (
+           SELECT DISTINCT CAST(date_format(date_sub(current_date, n),'yyyyMMdd') AS INT)
+           FROM (SELECT posexplode(sequence(0, " ~ (days_to_rebuild - 1) ~ ")) AS (n, _)) s
+         );
+       {% endif %}"
+    ]
   )
+}}
+
+-- Ventana de reconstrucción (últimos N días)
+WITH window_days AS (
+  {% if is_incremental() %}
+  SELECT date_sub(current_date, n) AS d
+  FROM (SELECT posexplode(sequence(0, {{ days_to_rebuild - 1 }})) AS (n, _)) s
   {% else %}
   SELECT DATE '1900-01-01' AS d WHERE FALSE
   {% endif %}
 ),
 
--- 3) Particiones target a tocar (impactadas + ventana 7 días)
+-- Particiones objetivo (YYYYMMDD)
 target_partitions AS (
   {% if is_incremental() %}
   SELECT DISTINCT CAST(date_format(d,'yyyyMMdd') AS INT) AS ymd
-  FROM impacted_dates
-  UNION
-  SELECT DISTINCT CAST(date_format(date_sub(current_date, n),'yyyyMMdd') AS INT) AS ymd
-  FROM (SELECT posexplode(sequence(0, 6)) AS (n, _)) tmp   -- últimos 7 días
+  FROM window_days
   {% else %}
   SELECT 0 AS ymd WHERE FALSE
   {% endif %}
 ),
 
--- 4) existing_data SOLO de las particiones a tocar 
+-- existing_data recortado a particiones a reescribir (para preservar created_on/by)
 existing_data AS (
   {% if is_incremental() %}
   SELECT year_month_day_code, unique_session, sys_audit_created_on, sys_audit_created_by
@@ -76,7 +62,7 @@ existing_data AS (
   {% endif %}
 ),
 
--- 5) Fuente limitada (fechas impactadas + ventana 7 días)
+-- Fuente limitada a la ventana robusta en incremental
 src AS (
   SELECT
       date,
@@ -108,14 +94,13 @@ src AS (
       pageviews_per_session
   FROM {{ ref('_int_marketing__ga4_sessions_with_dimensions') }}
   {% if is_incremental() %}
-    WHERE date IN (SELECT d FROM impacted_dates)
-       OR date >= date_sub(current_date, 7)
+    WHERE date IN (SELECT d FROM window_days)
   {% else %}
     WHERE date >= DATE '2024-01-01'
   {% endif %}
 )
 
--- 6) Select final + clasificación país 
+-- Select final + clasificación de país (misma lógica)
 SELECT
   src.*,
   CASE

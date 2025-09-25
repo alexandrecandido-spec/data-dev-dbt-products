@@ -84,7 +84,7 @@ first_visits AS (
                 PARTITION BY user_pseudo_id
                 ORDER BY first_visit_date ASC
             ) AS rn
-        FROM {{ source('int_ga4', 'first_visit') }}
+        FROM {{ ref('marketing_first_visit') }}
     ) t
     WHERE rn = 1
 )
