@@ -1081,7 +1081,7 @@ models:
         description: Simple classification of traffic based on the medium. "Organic" if last_medium equals 'organic', otherwise "Other".
     
 
-  - name: first_seller_date
+  - name: marketing_first_seller_date
     description: "This data product identifies the first date on which a store qualified as a “seller”, based on sales performance, and aligns it with the store’s presence in the moltres_store_info. The main goal is to determine when each store first achieved at least 7 sales in a rolling 90-day window, according to data from company_metrics_paid_orders."
     config:
       meta:
