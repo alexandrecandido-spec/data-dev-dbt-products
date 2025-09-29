@@ -343,6 +343,23 @@ models:
       - name: initial_principal_expected_amount
         description: "Expected amount of principal component to be received according to the initial structure of the contract."
 
+  - name: nuvem_credito__last_credit_offer
+    config:
+      meta:
+        owner: "calvin.hetem@nuvemshop.com.br"
+        domain: "fintech"
+        owner: "Calvin Hetem"
+    description: "Staging model with last credit available limit registered"
+    columns:
+      - name: store_id
+        description: "Store identifier."
+        tests:
+          - not_null
+      - name: available_limit
+        description: "Amount available for hiring."
+      - name: closed_at
+        description: "Date when the credit offer was closed."
+
   - name: antifraud_service__vertifier_store_inferences
     description: "Staging model with vertifier of current store_id provided by antifraud inferences."
     config:
