@@ -15,7 +15,8 @@ SELECT
     pp.created_at,
     mv.model_id,
     pp.predicted_prob,
-    CAST(date_format(pp.created_at, 'yyyyMMdd') AS INT) AS year_month_day_code
+    CAST(date_format(pp.created_at, 'yyyyMMdd') AS INT) AS year_month_day_code,
+    ROW_NUMBER() OVER (PARTITION BY pp.store_id ORDER BY pp.created_at DESC) AS rownumber
 FROM  {{source('stg_data_predictors', 'marketing_new_payment_predictor')}} AS pp
 LEFT JOIN {{source('stg_data_predictors', 'marketing_model_version_aux')}} AS mv 
         ON pp.model_id = mv.model_id
@@ -48,3 +49,4 @@ SELECT
     'data-dev-dbt-products' AS sys_audit_updated_by
 FROM source
 LEFT JOIN existing_data e ON source.store_id = e.store_id 
+WHERE source.rownumber = 1
