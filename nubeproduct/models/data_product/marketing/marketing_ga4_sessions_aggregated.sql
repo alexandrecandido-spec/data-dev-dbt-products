@@ -1,6 +1,8 @@
 -- depends_on: {{ ref('marketing_ga4_sessions_classified') }}
 
-{{  
+{%- set days_to_rebuild = 5 -%}  {# hoy + 4 previos #}
+
+{{
   config(
     materialized         = 'incremental',
     incremental_strategy = 'merge',
@@ -11,84 +13,46 @@
     tags                 = ['daily-6am'],
     pre_hook = [
       "{% if is_incremental() %}
-       DELETE FROM {{ this }}
-       WHERE year_month_day_code IN (
-         -- Particiones impactadas según updates en el DP 'classified' (solape 5') + últimos 7 días
-         SELECT DISTINCT CAST(date_format(c.date,'yyyyMMdd') AS INT)
-         FROM {{ ref('marketing_ga4_sessions_classified') }} c
-         WHERE c.sys_audit_updated_on >= (
-                 SELECT COALESCE(MAX(sys_audit_updated_on), TIMESTAMP '1900-01-01 00:00:00')
-                 FROM {{ this }}
-               ) - INTERVAL 5 MINUTES
-            OR c.date >= date_sub(current_date, 7)
-       )
+         -- Borrar particiones desde (MAX updated_on - N días) hasta hoy
+         WITH b AS (
+           SELECT COALESCE(MAX(sys_audit_updated_on), TIMESTAMP '1900-01-01') AS last_upd
+           FROM {{ this }}
+         ),
+         dd AS (
+           SELECT EXPLODE(SEQUENCE(DATE_SUB(DATE(b.last_upd), {{ days_to_rebuild-1 }}), CURRENT_DATE)) AS d
+           FROM b
+         )
+         DELETE FROM {{ this }}
+         WHERE year_month_day_code IN (
+           SELECT CAST(date_format(d,'yyyyMMdd') AS INT) FROM dd
+         );
        {% endif %}"
     ]
-  )  
+  )
 }}
 
--- 1) Último update del propio agregado (baseline watermark)
 WITH baseline AS (
   {% if is_incremental() %}
-  SELECT COALESCE(MAX(sys_audit_updated_on), TIMESTAMP '1900-01-01 00:00:00') AS last_agg_update
+  SELECT COALESCE(MAX(sys_audit_updated_on), TIMESTAMP '1900-01-01') AS last_upd
   FROM {{ this }}
   {% else %}
-  SELECT TIMESTAMP '1900-01-01 00:00:00' AS last_agg_update
+  SELECT TIMESTAMP '1900-01-01' AS last_upd
   {% endif %}
 ),
 
--- 2) Fechas impactadas en el DP 'classified' + ventana 7 días
-impacted_dates AS (
-  {% if is_incremental() %}
-  SELECT DISTINCT c.date AS d
-  FROM {{ ref('marketing_ga4_sessions_classified') }} c, baseline b
-  WHERE c.sys_audit_updated_on >= b.last_agg_update - INTERVAL 5 MINUTES
-     OR c.date >= date_sub(current_date, 7)
-  {% else %}
-  SELECT DATE '1900-01-01' AS d WHERE FALSE
-  {% endif %}
-),
-
--- 3) Particiones target a tocar (YYYYMMDD)
-target_partitions AS (
-  {% if is_incremental() %}
-  SELECT DISTINCT CAST(date_format(d,'yyyyMMdd') AS INT) AS ymd FROM impacted_dates
-  UNION
-  SELECT DISTINCT CAST(date_format(date_sub(current_date, n),'yyyyMMdd') AS INT) AS ymd
-  FROM (SELECT posexplode(sequence(0, 6)) AS (n, _)) tmp
-  {% else %}
-  SELECT 0 AS ymd WHERE FALSE
-  {% endif %}
-),
-
--- 4) existing_data recortado a las particiones a reescribir 
-existing_data AS (
-  {% if is_incremental() %}
-  SELECT row_hash, sys_audit_created_on, sys_audit_created_by
-  FROM {{ this }}
-  WHERE year_month_day_code IN (SELECT ymd FROM target_partitions)
-  {% else %}
-  SELECT CAST(NULL AS STRING) AS row_hash,
-         CAST(NULL AS TIMESTAMP) AS sys_audit_created_on,
-         CAST(NULL AS STRING) AS sys_audit_created_by
-  WHERE 1=0
-  {% endif %}
-),
-
--- 5) Fuente limitada a fechas impactadas 
 prepared AS (
   SELECT
       cls.*,
       CASE WHEN engage = 1 THEN 'Engaged' ELSE 'Bounced' END AS session_status
   FROM {{ ref('marketing_ga4_sessions_classified') }} cls
+  CROSS JOIN baseline b
   {% if is_incremental() %}
-  WHERE cls.date IN (SELECT d FROM impacted_dates)
+  WHERE cls.date >= DATE_SUB(DATE(b.last_upd), {{ days_to_rebuild-1 }})
   {% else %}
   WHERE cls.date >= DATE '2024-01-01'
   {% endif %}
 ),
 
--- 6) Agregado 
 aggregated AS (
   SELECT
       date,
@@ -148,7 +112,6 @@ aggregated AS (
       session_status
 ),
 
--- 7) row_hash: clave de merge
 final AS (
   SELECT *,
          MD5(CONCAT_WS('|',
@@ -184,6 +147,25 @@ SELECT
   current_timestamp                                          AS sys_audit_updated_on,
   'data-dev-dbt-products'                                    AS sys_audit_updated_by
 FROM final f
-LEFT JOIN existing_data e
+LEFT JOIN (
+  {% if is_incremental() %}
+  WITH b AS (
+    SELECT COALESCE(MAX(sys_audit_updated_on), TIMESTAMP '1900-01-01') AS last_upd
+    FROM {{ this }}
+  ),
+  dd AS (
+    SELECT EXPLODE(SEQUENCE(DATE_SUB(DATE(b.last_upd), {{ days_to_rebuild-1 }}), CURRENT_DATE)) AS d
+    FROM b
+  )
+  SELECT row_hash, sys_audit_created_on, sys_audit_created_by
+  FROM {{ this }}
+  WHERE year_month_day_code IN (SELECT CAST(date_format(d,'yyyyMMdd') AS INT) FROM dd)
+  {% else %}
+  SELECT CAST(NULL AS STRING) AS row_hash,
+         CAST(NULL AS TIMESTAMP) AS sys_audit_created_on,
+         CAST(NULL AS STRING) AS sys_audit_created_by
+  WHERE 1=0
+  {% endif %}
+) e
   ON f.row_hash = e.row_hash
 

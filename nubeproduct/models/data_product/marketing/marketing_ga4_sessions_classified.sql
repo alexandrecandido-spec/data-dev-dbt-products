@@ -4,65 +4,41 @@
 -- depends_on: {{ ref('ga4__session_info') }}
 -- depends_on: {{ ref('_int_marketing__ga4_sessions_with_dimensions') }}
 
-{%- set days_to_rebuild = 5 -%}  {# ventana robusta: hoy + 4 días previos #}
+{{ config(
+  materialized         = 'incremental',
+  incremental_strategy = 'merge',
+  partition_by         = ['year_month_day_code'],
+  unique_key           = ['year_month_day_code','unique_session'],
+  on_schema_change     = 'fail',
+  tags                 = ['daily-6am'],
+  pre_hook = [
+    "{% if is_incremental() %}
+       -- Borrar particiones desde (MAX updated_on - 5 días) hasta hoy
+       WITH b AS (
+         SELECT COALESCE(MAX(sys_audit_updated_on), TIMESTAMP '1900-01-01') AS last_upd
+         FROM {{ this }}
+       ),
+       dd AS (
+         SELECT EXPLODE(SEQUENCE(DATE_SUB(DATE(b.last_upd), 5), CURRENT_DATE)) AS d
+         FROM b
+       )
+       DELETE FROM {{ this }}
+       WHERE year_month_day_code IN (
+         SELECT CAST(date_format(d,'yyyyMMdd') AS INT) FROM dd
+       );
+     {% endif %}"
+  ]
+) }}
 
-{{
-  config(
-    materialized         = 'incremental',
-    incremental_strategy = 'merge',
-    partition_by         = ['year_month_day_code'],
-    unique_key           = ['year_month_day_code','unique_session'],
-    on_schema_change     = 'fail',
-    tags                 = ['daily-6am'],
-    pre_hook = [
-      "{% if is_incremental() %}
-         -- Borrar particiones de los últimos " ~ days_to_rebuild ~ " días (robusto ante borrados/reclasificaciones)
-         DELETE FROM {{ this }}
-         WHERE year_month_day_code IN (
-           SELECT DISTINCT CAST(date_format(date_sub(current_date, n),'yyyyMMdd') AS INT)
-           FROM (SELECT posexplode(sequence(0, " ~ (days_to_rebuild - 1) ~ ")) AS (n, _)) s
-         );
-       {% endif %}"
-    ]
-  )
-}}
-
--- Ventana de reconstrucción (últimos N días)
-WITH window_days AS (
+WITH baseline AS (
   {% if is_incremental() %}
-  SELECT date_sub(current_date, n) AS d
-  FROM (SELECT posexplode(sequence(0, {{ days_to_rebuild - 1 }})) AS (n, _)) s
-  {% else %}
-  SELECT DATE '1900-01-01' AS d WHERE FALSE
-  {% endif %}
-),
-
--- Particiones objetivo (YYYYMMDD)
-target_partitions AS (
-  {% if is_incremental() %}
-  SELECT DISTINCT CAST(date_format(d,'yyyyMMdd') AS INT) AS ymd
-  FROM window_days
-  {% else %}
-  SELECT 0 AS ymd WHERE FALSE
-  {% endif %}
-),
-
--- existing_data recortado a particiones a reescribir (para preservar created_on/by)
-existing_data AS (
-  {% if is_incremental() %}
-  SELECT year_month_day_code, unique_session, sys_audit_created_on, sys_audit_created_by
+  SELECT COALESCE(MAX(sys_audit_updated_on), TIMESTAMP '1900-01-01') AS last_upd
   FROM {{ this }}
-  WHERE year_month_day_code IN (SELECT ymd FROM target_partitions)
   {% else %}
-  SELECT CAST(NULL AS INT) AS year_month_day_code,
-         CAST(NULL AS STRING) AS unique_session,
-         CAST(NULL AS TIMESTAMP) AS sys_audit_created_on,
-         CAST(NULL AS STRING) AS sys_audit_created_by
-  WHERE 1=0
+  SELECT TIMESTAMP '1900-01-01' AS last_upd
   {% endif %}
 ),
 
--- Fuente limitada a la ventana robusta en incremental
 src AS (
   SELECT
       date,
@@ -92,15 +68,15 @@ src AS (
       payment,
       session_duration_minutes,
       pageviews_per_session
-  FROM {{ ref('_int_marketing__ga4_sessions_with_dimensions') }}
+  FROM {{ ref('_int_marketing__ga4_sessions_with_dimensions') }} cls
+  CROSS JOIN baseline b
   {% if is_incremental() %}
-    WHERE date IN (SELECT d FROM window_days)
+  WHERE cls.date >= DATE_SUB(DATE(b.last_upd), 5)
   {% else %}
-    WHERE date >= DATE '2024-01-01'
+  WHERE cls.date >= DATE '2024-01-01'
   {% endif %}
 )
 
--- Select final + clasificación de país (misma lógica)
 SELECT
   src.*,
   CASE
@@ -161,7 +137,27 @@ SELECT
   COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by,
   current_timestamp                                          AS sys_audit_updated_on,
   'data-dev-dbt-products'                                    AS sys_audit_updated_by
+
 FROM src
-LEFT JOIN existing_data e
+LEFT JOIN (
+  {% if is_incremental() %}
+  SELECT year_month_day_code, unique_session, sys_audit_created_on, sys_audit_created_by
+  FROM {{ this }}
+  WHERE year_month_day_code IN (
+    SELECT CAST(date_format(d,'yyyyMMdd') AS INT)
+    FROM (
+      SELECT EXPLODE(SEQUENCE(DATE_SUB(DATE((SELECT COALESCE(MAX(sys_audit_updated_on), TIMESTAMP '1900-01-01') FROM {{ this }})), 5),
+                               CURRENT_DATE)) AS d
+    )
+  )
+  {% else %}
+  SELECT CAST(NULL AS INT) AS year_month_day_code,
+         CAST(NULL AS STRING) AS unique_session,
+         CAST(NULL AS TIMESTAMP) AS sys_audit_created_on,
+         CAST(NULL AS STRING) AS sys_audit_created_by
+  WHERE 1=0
+  {% endif %}
+) e
   ON  src.year_month_day_code = e.year_month_day_code
   AND src.unique_session      = e.unique_session
+

@@ -58,7 +58,7 @@ LEFT JOIN existing_data e
 WHERE src.unique_session       IS NOT NULL
   AND src.user_pseudo_id       IS NOT NULL
   AND src.mpv_event_timestamp  IS NOT NULL
-  AND COALESCE(src.source,'') <> 'ecosystem'
+  --AND COALESCE(src.source,'') <> 'ecosystem'
   AND src.event_date_parsed    >= DATE '2024-01-01'
   {% if is_incremental() %}
   AND (

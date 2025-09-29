@@ -481,6 +481,10 @@ models:
         tests:
           - not_null
           - unique
+      - name: registered_month
+        description: "month in which the issue is active"
+        tests:
+          - not_null
       - name: issue_number
         description: "Unique identifier for the issue"
         tests:
