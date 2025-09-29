@@ -10,17 +10,20 @@ SUMMARY=""
 STEP_START=0
 STEP_DESC=""
 
+# log prints a timestamped message to stdout; accepts an optional message argument and prints the timestamp followed by the message.
 log() {
   local msg="${1:-}"
   printf "[%s] %s\n" "$(date '+%Y-%m-%d %H:%M:%S')" "$msg"
 }
 
+# start_step records a step description, captures the current start time in SECONDS, and logs the step start message.
 start_step() {
   STEP_DESC="${1:-}"
   STEP_START=$SECONDS
   log "$STEP_DESC..."
 }
 
+# end_step appends the current step description and its elapsed time in seconds to SUMMARY with a checkmark.
 end_step() {
   local duration=$((SECONDS - STEP_START))
   SUMMARY="${SUMMARY}\n${STEP_DESC} ✅ (${duration}s)"
@@ -30,6 +33,7 @@ end_step() {
 __SOURCED=0
 ( return 0 2>/dev/null ) && __SOURCED=1
 
+# die logs an error message and exits with status 1, or returns 1 when the script is sourced.
 die() {
   log "❌ ${1:-Unknown error}"
   if [ "$__SOURCED" -eq 1 ]; then
@@ -55,6 +59,7 @@ SKIP_GIT=0                       # --skip-git
 DBT_SCHEMA="${DBT_SCHEMA:-testing}"
 DBT_THREADS="${DBT_THREADS:-3}"
 
+# print_usage prints the usage help text and available CLI options for the dbt macOS setup script.
 print_usage() {
   cat <<'USAGE'
 Usage: ./.setup/dbt-setup-macos.sh [options]
