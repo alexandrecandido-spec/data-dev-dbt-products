@@ -211,6 +211,13 @@ sources:
       - name: stitchdata__mbr_success
         description: "MBR (Success) snapshot from legacy Postgres."
 
+  - name: int_hubspot
+    database: raw
+    schema: hubspot
+    tables:
+      - name: companies
+        description: "Hubspot companies information."
+
   - name: int_nuvem_envio_conciliation
     database: null
     schema: nuvem_envio_conciliation

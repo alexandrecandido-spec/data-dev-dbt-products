@@ -61,6 +61,7 @@ agencies_stores AS -- Create a table with the stores depending on partners
     FROM {{ ref('partners_agencies_affiliates_stores')}}
     CROSS JOIN date_spine AS DS
     WHERE partnership_type = 'store_development'
+        AND acquired_by = 'Partner'
         AND DATE(created_at) <= DS.snapshot_date
 ),
 contracts AS    -- Create a table with the historicalcontracts for each store

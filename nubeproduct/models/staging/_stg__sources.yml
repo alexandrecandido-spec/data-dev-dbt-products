@@ -192,3 +192,11 @@ sources:
     tables:
       - name: analytics_events
         description: "Raw events from marketing analytics"
+
+  - name: stg_storefronts
+    database: null
+    description: "Source containing tables related to storefronts events and sessions"
+    schema: storefronts_curated
+    tables:
+      - name: sessions
+        description: "Raw sessions from users"

@@ -62,7 +62,7 @@ SELECT
     st.status, 
     p.country,
     fg.franchise_group,
-    COALESCE(m.main, false) as main, 
+    COALESCE(m.main, true) as main, 
     CAST(lri.last_relevant_interaction AS DATE) as last_relevant_interaction,
     CAST(fg.last_group_interaction AS DATE) as last_group_interaction,
     st.days_since_last_relevant_interaction,
