@@ -976,18 +976,19 @@ models:
 
 
   - name: marketing_ga4_sessions_daily_attribution
-    description: Extends the aggregated table with marketing-team mappings
-      (mkt_source, mkt_subteam), URL ownership and cleansed domain/path.  
+    description: Extends the aggregated GA4 sessions table with marketing classification (mkt_source, mkt_subteam), URL ownership, partner_code and incremental logic.
     config:
       meta:
         owner: "sofia.torres@tiendanube.com"
         domain: "marketing"
         business_owner: "Giselle Galli"
     columns:
-      - name: date
-        description: Session date.
       - name: year_month_day_code
         description: YYYYMMDD integer partition.
+        tests: [not_null]
+      - name: date
+        description: Session date.
+        tests: [not_null]
       - name: source_ga4_classification
         description: GA4 source label at session level.
       - name: original_user_country
@@ -999,21 +1000,15 @@ models:
       - name: landing_page
         description: First page-view URL of the session.
       - name: landing_page_domain
-        description: Domain part extracted from *landing_page*.
+        description: Domain part extracted from landing_page.
       - name: landing_page_path
-        description: Path part extracted from *landing_page*.
+        description: Path part extracted from landing_page.
       - name: last_source
         description: Final traffic source of the session.
       - name: last_medium
         description: Final traffic medium.
       - name: last_campaign
         description: Final campaign name.
-      - name: utm_ad_id
-        description: utm_id of the landing_page (nullable).
-      - name: utm_content
-        description: utm_content of the landing_page (nullable).
-      - name: utm_term
-        description: utm_term of the landing_page (nullable).
       - name: first_event_device
         description: Device category of the first event.
       - name: last_event_device
@@ -1028,6 +1023,30 @@ models:
         description: New or Returning.
       - name: session_status
         description: Engaged or Bounced.
+      - name: utm_ad_id
+        description: utm_id of the landing_page (nullable).
+      - name: utm_content
+        description: utm_content of the landing_page (nullable).
+      - name: utm_term
+        description: utm_term of the landing_page (nullable).
+      - name: partner_code
+        description: Extracted partner_code from landing_page_path (/partners/<code>).
+      - name: url_owner
+        description: Team that owns the landing URL (lookup table).
+      - name: url_content_type
+        description: Content-type/subteam derived from the URL.
+      - name: insti_pages
+        description: Flag identifying whether the session belongs to the institutional environment (Insti/Next/Partners).
+      - name: insti_page_groups
+        description: Thematic grouping of institutional landing pages for content analysis.
+      - name: type_of_page
+        description: Content type classification of the landing page "Content Pages" (Blog, Downloadables, Tools, Trilhas) or "Other Pages".
+      - name: organic_results
+        description: Organic if last medium equals "organic", otherwise "Other".
+      - name: mkt_source
+        description: High-level marketing source bucket after rule-set.
+      - name: mkt_subteam
+        description: Finer marketing sub-team (fallback to mkt_source if null).
       - name: distinct_user_count
         description: Distinct users (user_pseudo_id) aggregated.
       - name: distinct_session_count
@@ -1046,39 +1065,23 @@ models:
         description: Average page-views per session.
       - name: median_pageviews_per_session
         description: Median page-views per session (approximate).
-      - name: domain_clean
-        description: Landing-page domain stripped of protocol and “www”.
-      - name: path_clean
-        description: Landing-page path string.
-      - name: url_owner
-        description: Team that owns the landing URL (lookup table).
-      - name: url_content_type
-        description: Content-type / sub-team derived from the URL.
-      - name: mkt_source
-        description: High-level marketing source bucket after rule-set.
-      - name: mkt_subteam
-        description: Finer marketing sub-team or campaign bucket.
+      - name: input_sources
+        description: Input tags that influenced the row (utm, subteam, referrer, url, insti, partner_exception, affiliate_classification, partner_code).
+      - name: change_timestamp_incremental
+        description: Max sys_audit_updated_on across relevant inputs; used for selective incremental recalculation.
       - name: row_hash
-        description: MD5 hash of all dimension columns (incremental merge key).
+        description: MD5 merge key for the DP (dp_row_hash exposed as row_hash).
         tests:
           - not_null
           - unique
       - name: sys_audit_created_on
         description: Timestamp when the row was created by dbt.
       - name: sys_audit_created_by
-        description: dbt job or service account that created the row.
+        description: Service account that created the row.
       - name: sys_audit_updated_on
         description: Timestamp of the last update.
       - name: sys_audit_updated_by
-        description: dbt job or service account that last updated the row.
-      - name: insti_pages
-        description: Flag identifying whether the session belongs to the institutional environment (Insti/Next/Partners). Derived from environment, trial events, and exclusion rules for paths and campaigns (admin, awareness, tools).
-      - name: insti_page_groups
-        description: Thematic grouping of institutional landing pages for content analysis. Includes categories such as Affiliates, Apps, Channels, Company, Home, among others.
-      - name: type_of_page
-        description: Content type classification of the landing page:"Content Pages" (Blog, Downloadables, Tools, Trilhas) or "Other Pages".
-      - name: organic_results
-        description: Simple classification of traffic based on the medium. "Organic" if last_medium equals 'organic', otherwise "Other".
+        description: Service account that last updated the row.
     
 
   - name: marketing_first_seller_date
