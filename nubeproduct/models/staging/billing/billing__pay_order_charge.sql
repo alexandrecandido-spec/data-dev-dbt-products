@@ -3,7 +3,7 @@
     materialized='incremental',
     unique_key=['pay_order_id', 'charge_id'],
     on_schema_change='fail',
-    tags=['finance', 'daily-7am']
+    tags=['finance', 'daily-10am']
   )
 }}
 
