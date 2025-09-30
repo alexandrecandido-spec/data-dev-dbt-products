@@ -1,7 +1,7 @@
 {{
   config(
     materialized = 'table',
-    tags = ['finance', 'daily-7am']
+    tags = ['finance', 'daily-10am']
   )
 }}
 
