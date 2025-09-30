@@ -79,59 +79,48 @@ src AS (
 
 SELECT
   src.*,
-  CASE
-    WHEN lower(coalesce(source_ga4_classification,'')) = 'inst-br'
-         AND (
-           lower(coalesce(landing_page_domain,'')) LIKE '%tiendanube%'
-           OR  lower(coalesce(landing_page,''))     LIKE '%tiendanube.com%'
-         )
-      THEN CASE
-             WHEN original_user_country = 'Argentina' THEN 'AR'
-             WHEN original_user_country = 'Mexico'    THEN 'MX'
-             WHEN original_user_country = 'Chile'     THEN 'CL'
-             WHEN original_user_country = 'Colombia'  THEN 'CO'
-             ELSE 'Other'
-           END
-    WHEN lower(coalesce(source_ga4_classification,'')) <> 'inst-br'
-         AND (
-           lower(coalesce(landing_page_domain,'')) LIKE '%nuvemshop%'
-           OR  lower(coalesce(landing_page,''))     LIKE '%nuvemshop.com%'
-         )
-      THEN 'BR'
-    WHEN date <= DATE '2024-09-07' THEN
-      CASE
-        WHEN lower(coalesce(source_ga4_classification,'')) = 'inst-br'
-             OR (
-               lower(coalesce(source_ga4_classification,'')) NOT LIKE '%inst%'
-               AND (
-                 lower(coalesce(landing_page_domain,'')) LIKE '%nuvemshop%'
-                 OR  lower(coalesce(landing_page,''))     LIKE '%nuvemshop.com%'
-               )
-             ) THEN 'BR'
-        WHEN lower(coalesce(source_ga4_classification,'')) = 'inst-ar' THEN 'AR'
-        WHEN lower(coalesce(source_ga4_classification,'')) = 'inst-mx' THEN 'MX'
-        WHEN lower(coalesce(source_ga4_classification,'')) = 'inst-co' THEN 'CO'
-        WHEN lower(coalesce(source_ga4_classification,'')) = 'inst-cl' THEN 'CL'
-        WHEN lower(coalesce(source_ga4_classification,'')) NOT LIKE '%inst%' AND original_user_country = 'Argentina' THEN 'AR'
-        WHEN lower(coalesce(source_ga4_classification,'')) NOT LIKE '%inst%' AND original_user_country = 'Mexico'    THEN 'MX'
-        WHEN lower(coalesce(source_ga4_classification,'')) NOT LIKE '%inst%' AND original_user_country = 'Chile'     THEN 'CL'
-        WHEN lower(coalesce(source_ga4_classification,'')) NOT LIKE '%inst%' AND original_user_country = 'Colombia'  THEN 'CO'
-        ELSE 'Other'
-      END
-    ELSE
-      CASE
-        WHEN lower(coalesce(source_ga4_classification,'')) = 'inst-br'
-             OR (
-               lower(coalesce(landing_page_domain,'')) LIKE '%nuvemshop%'
-               OR  lower(coalesce(landing_page,''))     LIKE '%nuvemshop.com%'
-             ) THEN 'BR'
-        WHEN original_user_country = 'Argentina' THEN 'AR'
-        WHEN original_user_country = 'Mexico'    THEN 'MX'
-        WHEN original_user_country = 'Chile'     THEN 'CL'
-        WHEN original_user_country = 'Colombia'  THEN 'CO'
-        ELSE 'Other'
-      END
-  END AS classified_country,
+CASE
+  WHEN date <= DATE '2024-09-07' THEN
+    CASE
+      WHEN source_ga4_classification = 'inst-br'
+           OR (source_ga4_classification NOT LIKE '%inst%'
+               AND landing_page LIKE '%nuvemshop%')                                       THEN 'BR'
+      WHEN source_ga4_classification = 'inst-ar'                                          THEN 'AR'
+      WHEN source_ga4_classification = 'inst-mx'                                          THEN 'MX'
+      WHEN source_ga4_classification = 'inst-co'                                          THEN 'CO'
+      WHEN source_ga4_classification = 'inst-cl'                                          THEN 'CL'
+      WHEN source_ga4_classification NOT LIKE '%inst%' AND original_user_country = 'Argentina' THEN 'AR'
+      WHEN source_ga4_classification NOT LIKE '%inst%' AND original_user_country = 'Mexico'    THEN 'MX'
+      WHEN source_ga4_classification NOT LIKE '%inst%' AND original_user_country = 'Chile'     THEN 'CL'
+      WHEN source_ga4_classification NOT LIKE '%inst%' AND original_user_country = 'Colombia'  THEN 'CO'
+      WHEN source_ga4_classification NOT LIKE '%inst%' AND original_user_country NOT IN
+           ('Brazil','Mexico','Argentina','Chile','Colombia')                               THEN 'Other'
+      ELSE original_user_country
+    END
+
+  ELSE
+    /* >= cutoff: primero inst-br -> BR, luego Tiendanube paths MX/CO/CL, luego original_user_country */
+    CASE
+      /* 1) inst-br post-cutoff sigue yendo a BR */
+      WHEN LOWER(COALESCE(source_ga4_classification,'')) = 'inst-br' THEN 'BR'
+
+      /* 2) Tiendanube.com con prefijos de país -> MX/CO/CL */
+      WHEN LOWER(COALESCE(landing_page_domain,'')) LIKE '%tiendanube.com%'
+           AND LOWER(COALESCE(landing_page_path,'')) LIKE '/mx%'                         THEN 'MX'
+      WHEN LOWER(COALESCE(landing_page_domain,'')) LIKE '%tiendanube.com%'
+           AND LOWER(COALESCE(landing_page_path,'')) LIKE '/co%'                         THEN 'CO'
+      WHEN LOWER(COALESCE(landing_page_domain,'')) LIKE '%tiendanube.com%'
+           AND LOWER(COALESCE(landing_page_path,'')) LIKE '/cl%'                         THEN 'CL'
+
+      /* 3) Fallback por original_user_country (igual a tu lógica original post-cutoff) */
+      WHEN original_user_country = 'Argentina'                                            THEN 'AR'
+      WHEN original_user_country = 'Mexico'                                               THEN 'MX'
+      WHEN original_user_country = 'Chile'                                                THEN 'CL'
+      WHEN original_user_country = 'Colombia'                                             THEN 'CO'
+      WHEN original_user_country NOT IN ('Mexico','Argentina','Chile','Colombia')         THEN 'Other'
+      ELSE original_user_country
+    END
+END AS classified_country,
 
   COALESCE(e.sys_audit_created_on, current_timestamp)       AS sys_audit_created_on,
   COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by,
