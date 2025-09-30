@@ -706,6 +706,8 @@ models:
         description: "Concept identifier associated with the charge"
       - name: invoice_id
         description: "Invoice identifier linked to the charge"
+      - name: subscription_id
+        description: "Subscription identifier linked to the charge"
       - name: amount_value
         description: "Monetary value of the charge"
       - name: from_date
