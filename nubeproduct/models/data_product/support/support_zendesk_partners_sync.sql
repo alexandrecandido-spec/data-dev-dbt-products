@@ -10,13 +10,24 @@
 }}
 
 with
+    partner_tags as (
+        select 
+            related_id as partner_id,
+            string_agg(tag, ',') as partner_tags
+        from {{ source("int_ecosystem", "partners_tags_campaign") }}
+        where type = 'partner' 
+            and tag in ('platinum', 'gold', 'silver')
+        group by related_id
+    ),
     source_data as (
         select 
             mp.id as partner_id, 
             mp.email,
             false as has_store,
-            true as user_is_partner
+            true as user_is_partner,
+            coalesce(pt.partner_tags, '') as partner_tags
         from {{ source("int_ecosystem", "mwp_partners") }} as mp
+        left join partner_tags pt on mp.id = pt.partner_id
         where 1 = 1 and mp.email is not null
     )
 
@@ -25,6 +36,7 @@ select
     info.email,
     info.has_store,
     info.user_is_partner,
+    info.partner_tags,
     {% if is_incremental() %}
         coalesce(
             existing_data.sys_audit_created_on, current_timestamp
@@ -46,7 +58,8 @@ from source_data as info
         {% set monitored_cols = [
             "email",
             "has_store",
-            "user_is_partner"
+            "user_is_partner",
+            "partner_tags"
         ] %}
     where
         existing_data.partner_id is null

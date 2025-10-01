@@ -165,6 +165,8 @@ sources:
     tables:
       - name: mwp_partners
         description: "Contains information about the partners of the ecosystem."
+      - name: tags
+        description: "Contains information about the entities tags in ecosystem."
       - name: partners_tags_campaign
         description: "Contains information about the tags and campaigns of the partners."
 

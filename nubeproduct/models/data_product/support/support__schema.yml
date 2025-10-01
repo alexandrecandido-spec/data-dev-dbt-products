@@ -62,6 +62,10 @@ models:
         description: "Boolean flag indicating if the user is a partner. Always true for partners."
         tests:
           - not_null
+      - name: partner_tags
+        description: "Comma-separated list of partner tags (platinum, gold, silver). Returns empty string if no tags."
+        tests:
+          - not_null
       - name: year_month_day_code
         description: "Date code in YYYYMMDD format for partitioning."
         tests:
