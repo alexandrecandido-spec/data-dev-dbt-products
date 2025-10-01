@@ -7,7 +7,7 @@
 
 WITH source_data AS (
     SELECT
-        coalesce(segment.segment_name, '') as status_by_orders,
+        segment.segment_name as status_by_orders,
         'https://stats.tiendanube.com/store/profile?store_id='
             || active_stores.store_id as url_stats,
         coalesce(

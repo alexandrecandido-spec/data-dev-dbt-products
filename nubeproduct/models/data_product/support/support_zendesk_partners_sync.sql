@@ -25,7 +25,7 @@ with
             mp.email,
             false as has_store,
             true as user_is_partner,
-            coalesce(pt.partner_tags, '') as partner_tags
+            pt.partner_tags
         from {{ source("int_ecosystem", "mwp_partners") }} as mp
         left join partner_tags pt on mp.id = pt.partner_id
         where 1 = 1 and mp.email is not null

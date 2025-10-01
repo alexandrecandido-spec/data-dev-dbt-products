@@ -15,9 +15,7 @@ models:
           - not_null
           - unique
       - name: status_by_orders
-        description: "Descriptive name of the current segment (e.g., no-seller, struggling-seller) associated with this store. Returns empty string if null."
-        tests:
-          - not_null
+        description: "Descriptive name of the current segment (e.g., no-seller, struggling-seller) associated with this store."
       - name: url_stats
         description: "URL to the stats profile page for the store in the format 'https://stats.tiendanube.com/store/profile?store_id={store_id}'."
         tests:
@@ -63,9 +61,7 @@ models:
         tests:
           - not_null
       - name: partner_tags
-        description: "Comma-separated list of partner tags (platinum, gold, silver). Returns empty string if no tags."
-        tests:
-          - not_null
+        description: "Comma-separated list of partner tags (platinum, gold, silver)."
       - name: year_month_day_code
         description: "Date code in YYYYMMDD format for partitioning."
         tests:
