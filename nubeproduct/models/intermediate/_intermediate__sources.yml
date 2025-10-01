@@ -194,7 +194,8 @@ sources:
         description: "Contains information about all editions and their timestamps"
       - name: mwp_orders_fulfillments
         description: "Table with order fullfilment data"
-
+      - name: order_saved_search
+        description: "Table with orders saved searches"
   - name: int_shipping
     database: null
     schema: shipping
