@@ -11,7 +11,7 @@ models:
       segment status and stats URL. Returns empty strings instead of null values 
       to ensure the values are set in Zendesk as empty.
     columns:
-      - name: store_id
+      - name: external_id
         description: "Unique identifier of the store. Primary key."
         tests:
           - not_null
@@ -26,10 +26,6 @@ models:
           - not_null
           - dbt_expectations.expect_column_values_to_match_like_pattern:
               like_pattern: "https://stats.tiendanube.com/store/profile?store_id=%"
-      - name: external_id
-        description: "External identifier for the store, same as store_id, used for Zendesk integration."
-        tests:
-          - not_null
       - name: name
         description: "Store name derived from the domain field. If no domain is available, defaults to 'Organization-{store_id}'."
         tests:
