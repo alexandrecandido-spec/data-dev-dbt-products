@@ -11,17 +11,14 @@
 
 with
     partner_tags as (
-        select 
-            related_id as partner_id,
-            string_agg(tag_value, ',') as partner_tags
+        select partner_id, string_agg(tag_value, ',') as partner_tags
         from {{ source("int_ecosystem", "partners_tags_campaign") }}
-        where tag_type = 'partner' 
-            and tag_value in ('platinum', 'gold', 'silver')
-        group by related_id
+        where tag_type = 'partner' and tag_value in ('platinum', 'gold', 'silver')
+        group by partner_id
     ),
     source_data as (
-        select 
-            mp.id as partner_id, 
+        select
+            mp.id as partner_id,
             mp.email,
             false as has_store,
             true as user_is_partner,
@@ -49,7 +46,7 @@ select
         'data-dev-dbt-products' as sys_audit_created_by,
     {% endif %}
     current_timestamp as sys_audit_updated_on,
-    CAST(date_format(sys_audit_updated_on , 'yyyyMMdd') AS INT) AS year_month_day_code,
+    cast(date_format(sys_audit_updated_on, 'yyyyMMdd') as int) as year_month_day_code,
     'data-dev-dbt-products' as sys_audit_updated_by
 from source_data as info
 {% if is_incremental() %}
@@ -59,7 +56,7 @@ from source_data as info
             "email",
             "has_store",
             "user_is_partner",
-            "partner_tags"
+            "partner_tags",
         ] %}
     where
         existing_data.partner_id is null
