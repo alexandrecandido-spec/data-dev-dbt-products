@@ -24,6 +24,7 @@ with
                 ''
             ) as website,
             coalesce(msi.partner_id, '') as associated_partner_id,
+            coalesce(credit_limit.available_limit_admin, 0.0) as np_lending_available_credit,
             active_stores.store_id
         from {{ ref("hubspot_active_stores") }} active_stores
         left join
@@ -40,6 +41,9 @@ with
             on country.country_id = merchant.country_id
         left join
             {{ ref("moltres__mwp_store_info") }} msi on msi.store_id = active_stores.store_id
+        left join
+            {{ ref("int_credit_last_available_limit") }} credit_limit
+            on active_stores.store_id = credit_limit.store_id
     )
 
 select
@@ -49,6 +53,7 @@ select
     info.stats_url,
     info.associated_partner_id,
     info.website,
+    info.np_lending_available_credit,
     {% if is_incremental() %}
         coalesce(
             existing_data.sys_audit_created_on, current_timestamp
@@ -72,6 +77,7 @@ from source_data as info
             "stats_url",
             "associated_partner_id",
             "website",
+            "np_lending_available_credit"
         ] %}
     where
         existing_data.store_id is null

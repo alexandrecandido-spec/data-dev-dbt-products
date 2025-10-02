@@ -41,6 +41,18 @@ sources:
         description: "Table with zipcodes from Brazil."
       - name: mwp_contracts
         description: "Table with contracts information"
+      - name: mwp_shipping_carriers_options
+        description: "Table with carriers shipping options information"
+      - name: mwp_store_settings_i18n
+        description: "i18n overrides for store settings (labels/strings por idioma)."
+      - name: wp_users
+        description: "WordPress users por store (emails/ids)."
+      - name: mwp_store_info
+        description: "Información general de la tienda (emails alternativos, etc.)."
+      - name: instagram_store_info
+        description: "Snapshots de estadísticas de Instagram por store_id."
+      - name: mwp_invoice_info
+        description: "Información de facturación/razón social asociada a la tienda."
 
   - name: int_finance
     database: null
@@ -142,6 +154,9 @@ sources:
         description: "Contains information about the version of the model used to make predictions."
       - name: marketing_cutoffs_table
         description: "Contains information about the cutoffs used to define QLs."
+      - name: marketing_new_payment_predictor_profiles
+        description: "Table with ql info by store"
+
 
   - name: int_ecosystem
     database: null
@@ -177,7 +192,10 @@ sources:
         description: "Contains information about all requotes after an edit"
       - name: orders_edit_history
         description: "Contains information about all editions and their timestamps"
-
+      - name: mwp_orders_fulfillments
+        description: "Table with order fullfilment data"
+      - name: order_saved_search
+        description: "Table with orders saved searches"
   - name: int_shipping
     database: null
     schema: shipping
@@ -200,3 +218,19 @@ sources:
         description: "WBR (Success) snapshot from legacy Postgres."
       - name: stitchdata__mbr_success
         description: "MBR (Success) snapshot from legacy Postgres."
+
+  - name: int_hubspot
+    database: raw
+    schema: hubspot
+    tables:
+      - name: companies
+        description: "Hubspot companies information."
+
+  - name: int_nuvem_envio_conciliation
+    database: null
+    schema: nuvem_envio_conciliation
+    tables:
+      - name: accounting_entry
+        description: "Accounting data about shipping"
+      - name: pre_invoice
+        description: "Table with Order's invoices informations"

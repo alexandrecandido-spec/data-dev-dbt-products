@@ -55,6 +55,7 @@ base_classification AS (
 			WHEN att.source IN ('chatgpt.com', 'claude.ai', 'copilot.microsoft.com')				
 				AND (position(gii.landing_page_path IN att.landing_page_path) > 0)
 				AND (position(gii.landing_page_domain IN att.landing_page_domain) > 0) THEN gii.team
+			WHEN position('chatgpt' IN att.source) > 0 THEN 'Organic'
 			WHEN utms.source_mkt = 'Communications' THEN 'Communications'				
 			WHEN utms.source_mkt = 'Performance' AND (att.source IN ('google','bing') AND (position('-brand' IN att.campaign) > 0)) THEN 'Performance Brand'		
 			WHEN utms.source_mkt = 'Performance' THEN 'Performance No Brand'
@@ -74,7 +75,8 @@ base_classification AS (
 			WHEN utms.source_mkt IS NULL AND att.partner_id IS NOT NULL AND att.partnership_type = 'store_development' THEN 'Partners'				
 			WHEN utms.source_mkt IS NULL AND att.source = 'youtube' AND att.medium = 'social' 
 				AND (position(urls.landing_page_path IN att.landing_page_path) > 0)
-				AND (position(urls.landing_page_domain IN att.landing_page_domain) > 0) THEN urls.team				
+				AND (position(urls.landing_page_domain IN att.landing_page_domain) > 0) THEN urls.team	
+			WHEN utms.source_mkt IS NULL AND att.medium = 'affiliates' THEN 'Affiliates'			
 			WHEN (att.source = '' OR att.source IS NULL) AND (att.medium = '' OR att.medium IS NULL) AND att.partner_id IS NULL THEN 'Others'				
 			WHEN utms.source_mkt IS NULL THEN 'Others'				
 			ELSE utms.source_mkt END AS mkt_source
@@ -101,6 +103,7 @@ final_classification AS (
             AND (position(bc.sub_utm_campaign IN bc.campaign) > 0) THEN bc.sub_subteam              
         WHEN bc.source = 'google' AND bc.medium = 'organic' AND bc.referrer_domain = 'gemini.google.com' THEN 'AI'              
         WHEN bc.source = 'chatgpt.com' AND (bc.medium  = '' OR bc.medium  IS NULL) THEN 'AI'
+		WHEN bc.mkt_source = 'Organic' and (position('chatgpt' IN bc.source) > 0) THEN 'AI'
 		WHEN bc.mkt_source = 'Affiliates' THEN bc.affiliate_type              
         WHEN bc.utms_subteam IS NULL AND bc.mkt_source = bc.sub_team 
             AND (position(bc.sub_utm_campaign IN bc.campaign) > 0) THEN bc.sub_subteam      

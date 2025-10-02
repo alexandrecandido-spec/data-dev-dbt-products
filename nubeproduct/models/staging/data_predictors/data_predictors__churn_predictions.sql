@@ -2,7 +2,7 @@
     config(
         materialized='incremental',
         incremental_strategy = 'merge',
-        unique_key=['store_id', 'churn_prediction_period', 'execution_date'],
+        unique_key=['store_id', 'month_end', 'year_month_code'],
         on_schema_change='fail',
         tags=["marketing","monthly-2nd-10AM"]
     )
@@ -13,50 +13,58 @@
 WITH source AS (
     SELECT
     mcmp.store_id
-    , mcmp.country as country
-    , date(mcmp.mes_fim) as churn_prediction_period
-    , mcmp.date_exec as execution_date
-    , mcmp.life_stage as life_stage_at_prediction 
-    , mcmp.seller_type as seller_type
-    , mcmp.segmento_mensal as segment_at_prediction
-    , mcmp.segmento_max as max_segment
-    , mcmp.predicted_prob as churn_predicted_prob
-    , mcmp.cutoff as churn_cutoff
-    , mcmp.predicted as churn_prediction
-    FROM {{source('stg_data_predictors', 'marketing_churn_model_predictions')}} AS mcmp
+    , mcmp.country
+    , mcmp.month_end
+    , mcmp.timestamp
+    , mcmp.life_stage 
+    , mcmp.month_segment
+    , mcmp.max_segment
+    , mcmp.seller_type
+    , mcmp.profile
+    , mcmp.probability
+    , mcmp.threshold
+    , mcmp.prediction
+    , mcmp.model_id
+    , CAST(date_format(mcmp.timestamp, 'yyyyMM') AS BIGINT) AS year_month_code
+    , ROW_NUMBER() OVER (PARTITION BY mcmp.store_id, mcmp.month_end ORDER BY mcmp.timestamp DESC) AS rn
+    FROM {{source('stg_data_predictors', 'marketing_potential_churn_predictions')}} AS mcmp
     WHERE
     {% if not is_incremental() %}
-       date(mcmp.mes_fim) >= DATE '2025-01-01'
+       date(mcmp.month_end) >= DATE '2025-01-01'
     {% endif %}
     {% if is_incremental() %}
     -- this filter will only be applied on an incremental run
     -- (uses >= to include records whose timestamp occurred since the last run of this model)
     -- (If event_time is NULL or the table is truncated, the condition will always be true and load all records)
-    date(mcmp.mes_fim) > (select coalesce(max(churn_prediction_period), DATE '2025-01-01') from {{ this }} )
+    date(mcmp.month_end) > (select coalesce(max(month_end), DATE '2025-01-01') from {{ this }} )
     {% endif %}
 ),
 existing_data AS (
-    {{ get_existing_data(this, ['store_id', 'churn_prediction_period', 'execution_date', 'sys_audit_created_on', 'sys_audit_created_by']) }}
+    {{ get_existing_data(this, ['store_id', 'month_end', 'year_month_code', 'sys_audit_created_on', 'sys_audit_created_by']) }}
 )
 
 
 SELECT 
-    source.store_id,
-    source.churn_prediction_period,
-    source.execution_date,
-    source.country,
-    source.life_stage_at_prediction,
-    source.seller_type,
-    source.segment_at_prediction,
-    source.max_segment,
-    source.churn_predicted_prob,
-    source.churn_cutoff,
-    source.churn_prediction,
-    COALESCE(e.sys_audit_created_on, current_timestamp) AS sys_audit_created_on,
-    COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by,
-    current_timestamp AS sys_audit_updated_on,
-    'data-dev-dbt-products' AS sys_audit_updated_by
+    source.store_id
+    , source.country
+    , source.month_end
+    , source.timestamp
+    , source.life_stage
+    , source.month_segment
+    , source.max_segment
+    , source.seller_type
+    , source.profile
+    , source.probability
+    , source.threshold
+    , source.prediction
+    , source.model_id
+    , source.year_month_code
+    , COALESCE(e.sys_audit_created_on, current_timestamp) AS sys_audit_created_on
+    , COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by
+    , current_timestamp AS sys_audit_updated_on
+    , 'data-dev-dbt-products' AS sys_audit_updated_by
 FROM source
 LEFT JOIN existing_data e ON source.store_id = e.store_id 
-                            AND source.churn_prediction_period = e.churn_prediction_period 
-                            AND source.execution_date = e.execution_date
+                            AND source.month_end = e.month_end 
+                            AND source.year_month_code = e.year_month_code
+WHERE source.rn = 1

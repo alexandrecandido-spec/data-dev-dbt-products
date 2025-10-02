@@ -1,7 +1,7 @@
 WITH base_orders AS (
     SELECT *
     FROM {{ ref('company_metrics_paid_orders') }}
-    WHERE year_month_day_code  >=  20221003
+    WHERE year_month_day_code  >=  20200101
 ),
 
 orders_with_sales_90d AS (
@@ -20,5 +20,5 @@ SELECT
     store_id,
     completed_at
 FROM orders_with_sales_90d
-WHERE completed_at >= DATE '2023-01-01'
+WHERE completed_at >= DATE '2020-01-01'
   AND sales_90d >= 7

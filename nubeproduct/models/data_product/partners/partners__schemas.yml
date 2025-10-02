@@ -147,9 +147,9 @@ models:
         domain: "partners"
         business_owner: "Franco Tiberti"
     description: >
-      Weekly historical performance summary of store development agencies, providing point-in-time 
-      metrics for trials, payments, GMV, and lifecycle status. Each row represents the state of 
-      a partner's performance at a specific snapshot date (weekly snapshots starting from 2023).
+      Weekly historical performance summary of agencies with stores acquired by them (acquired_by = 'Partner'), 
+      providing point-in-time metrics for trials, payments, GMV, and lifecycle status. Each row represents 
+      the state of a partner's performance at a specific snapshot date (weekly snapshots starting from 2023).
       Enables trend analysis and historical comparisons of partner performance over time.
     columns:
       - name: snapshot_date
