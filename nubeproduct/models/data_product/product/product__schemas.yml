@@ -763,3 +763,95 @@ models:
           - not_null
           - dbt_expectations.expect_column_values_to_be_between:
               min_value: 1
+
+  - name: product_orders_saved_searches
+    description:  This data product contains information on usage of the saved searches feature within the orders admin. Each row will have information of a specific saved search with data on what filters are included in the saved search, if that saved search is custom or not, the order in which the merchant has position that saved search, if it is hidden or not, etc. If a saved search is modified, this table will only store the latest version of the saved search. Additionally, if a saved search is deleted, this table will not store that saved search anymore.
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "product"
+        business_owner: "Martin Palombo"    
+    columns:
+      - name: saved_search_id
+        description: "unique identifier for the saved search"
+        tests:
+          - not_null
+          - unique
+      - name: store_id
+        description: "Merchant's id that created the saved search"
+        tests:
+          - not_null
+      - name: merchant_created_at
+        description: "Date and time when the merchant was created"
+      - name: country_code
+        description: "Country code of the merchant that created the saved search"
+      - name: country_name
+        description: "Country name of the merchant that created the saved search"
+      - name: current_segment_name
+        description: "Name of the current segment of the merchant that created the saved search"
+      - name: vertical_name
+        description: "Name of the vertical of the merchant that created the saved search"
+      - name: business_size_name
+        description: "Name of the business size of the merchant that created the saved search"
+      - name: group_name
+        description: "Name of the plan of the merchant that created the saved search"
+      - name: domain
+        description: "Domain of the merchant that created the saved search"
+      - name: first_payment
+        description: "First payment of the merchant that created the saved search"
+      - name: saved_search_user_id
+        description: "User id that created the saved search"
+      - name: saved_search_name
+        description: "Name of the saved search"
+      - name: saved_search_position
+        description: "Position of the saved search in the merchant's saved searches list"
+      - name: saved_search_default
+        description: "Whether the saved search is a default saved search. Default saved searches will not have information on the filters, just the names."
+      - name: saved_search_hidden
+        description: "Whether the saved search is hidden. Despite their position, if a saved search is hidden, it will not be shown to the merchant in the saved searches list."
+      - name: saved_search_created_at
+        description: "Date when the saved search was created"
+      - name: saved_search_number_of_keys
+        description: "Number of filter types used in the saved search"
+      - name: saved_search_page
+        description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
+      - name: saved_search_q
+        description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
+      - name: saved_search_per_page
+        description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
+      - name: saved_search_date_from
+        description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
+      - name: saved_search_date_to
+        description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
+      - name: saved_search_status
+        description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
+      - name: saved_search_payment_status
+        description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
+      - name: saved_search_fulfillment_status
+        description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
+      - name: saved_search_payment_methods
+        description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
+      - name: saved_search_payment_provider
+        description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
+      - name: saved_search_shipping_method
+        description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
+      - name: saved_search_location
+        description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
+      - name: saved_search_origin
+        description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
+      - name: saved_search_appId
+        description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
+      - name: saved_search_products
+        description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
+      - name: saved_search_exact_product_set
+        description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
+      - name: saved_search_min_units
+        description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
+      - name: saved_search_max_units
+        description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
+      - name: saved_search_is_wholesale
+        description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
+      - name: saved_search_coupon_ids_raw
+        description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
+      - name: saved_search_stock_issues
+        description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
