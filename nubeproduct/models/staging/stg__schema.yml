@@ -1649,8 +1649,8 @@ models:
       Part of the HubSpot deals processing pipeline.
     config:
       meta:
-        tech_steward: "pedro.fregonese@tiendanube.com"
-        domain: "operations"
+        owner: "pedro.fregonese@tiendanube.com"
+        domain: "midmarket"
         business_owner: "Franco Tiberti"
     columns:
       - name: deal_id
@@ -1694,8 +1694,8 @@ models:
       Part of the HubSpot deals processing pipeline.
     config:
       meta:
-        tech_steward: "pedro.fregonese@tiendanube.com"
-        domain: "operations"
+        owner: "pedro.fregonese@tiendanube.com"
+        domain: "midmarket"
         business_owner: "Franco Tiberti"
     columns:
       - name: deal_id
