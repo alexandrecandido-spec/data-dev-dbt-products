@@ -12,7 +12,7 @@ with
         d.deal_id as merged_deal_id,
         d.sys_audit_updated_on as audit_merged_updated_on,
         explode(split(d.merged_deal_ids, '; ')) AS deal_id
-      FROM {{ source('int_third_party', 'midmarket_hubspot_deals') }} d
+      FROM {{ source('stg_third_party', 'midmarket_hubspot_deals') }} d
       WHERE 
         d.merged_deal_ids IS NOT NULL 
         AND d.merged_deal_ids != ''
@@ -30,7 +30,7 @@ with
         d.closedate,
         d.last_modified_date
       from exploded_deals as ed
-        left join {{ source('int_third_party', 'midmarket_hubspot_deals') }} d
+        left join {{ source('stg_third_party', 'midmarket_hubspot_deals') }} d
           on CAST(ed.deal_id AS BIGINT) = d.deal_id
         {% if is_incremental() %} 
         WHERE 
