@@ -11,10 +11,10 @@
 
 with
     partner_tags as (
-        select partner_id, string_agg(tag_value, ',') as partner_tags
-        from {{ source("int_ecosystem", "partners_tags_campaign") }}
-        where tag_type = 'partner' and tag_value in ('platinum', 'gold', 'silver')
-        group by partner_id
+        select related_id as partner_id, string_agg(tag, ',') as partner_tags
+        from {{ source("int_ecosystem", "tags") }}
+        where type = 'partner' and tag in ('platinum', 'gold', 'silver')
+        group by related_id
     ),
     source_data as (
         select
