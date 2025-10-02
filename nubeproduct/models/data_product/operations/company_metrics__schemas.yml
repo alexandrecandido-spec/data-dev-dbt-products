@@ -571,3 +571,51 @@ models:
         description: Timestamp when the row was initially created in the summary table.
       - name: sys_audit_created_by
         description: Source or user responsible for the initial row creation.
+
+
+  - name: operations_hubspot_deleted_deals
+    description: >
+      Data product that combines archived and merged HubSpot deals into a unified view.
+      This model unions data from stg_archived_deals and stg_merged_deals to provide 
+      a comprehensive view of all deals that have been removed from active HubSpot pipelines.
+      Uses incremental strategy with merge to efficiently process only new or updated records
+      from both staging models, optimizing performance and maintaining data consistency.
+    config:
+      meta:
+        tech_steward: "pedro.fregonese@tiendanube.com"
+        domain: "operations"
+        business_owner: "Franco Tiberti"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: 
+            - deal_id
+    columns:
+      - name: deal_id
+        description: "Unique identifier for the HubSpot deal. Primary key combining both archived and merged deals."
+        tests:
+          - unique
+          - not_null
+      - name: deletion_type
+        description: "Type of deal removal indicating the reason the deal is no longer active. Either 'archived' for deals explicitly archived in HubSpot, or 'merged' for deals that were merged into other deals."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["archived", "merged"]
+      - name: archived_at
+        description: "Timestamp when the deal was archived in HubSpot. Only populated for archived deals (deletion_type = 'archived'). Null for merged deals as they don't have archive timestamps."
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model. Preserved from staging models and maintains historical tracking of when each deal was first processed."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model. Inherited from staging models, typically 'data-dev-dbt-products'."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed. Updated on each incremental run for both archived and merged deals."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run. Always 'data-dev-dbt-products' for this automated process."
+        tests:
+          - not_null

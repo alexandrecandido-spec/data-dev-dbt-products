@@ -225,3 +225,11 @@ sources:
     tables:
       - name: sessions
         description: "Raw sessions from users"
+
+
+  - name: stg_hubspot
+    database: raw
+    schema: hubspot
+    tables:
+      - name: deals_archived 
+        description: "Contains a record of Hubspot deals that were archived (only last 90 days)"
