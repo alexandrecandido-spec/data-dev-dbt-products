@@ -4,7 +4,7 @@
         unique_key="partner_id",
         on_schema_change="sync_all_columns",
         incremental_strategy="merge",
-        tags=["daily-6am"],
+        tags=["daily-4_30am"],
         partition_by=["year_month_day_code"],
     )
 }}

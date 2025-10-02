@@ -3,7 +3,7 @@
         materialized="incremental",
         unique_key="external_id",
         incremental_strategy="merge",
-        tags=["daily-6am"],
+        tags=["daily-4_30am"],
     )
 }}
 
