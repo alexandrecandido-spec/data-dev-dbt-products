@@ -299,7 +299,7 @@ models:
       meta:
         owner: "sofia.sanchez@tiendanube.com"
         domain: "fintech"
-        owner: "Calvin Hetem"
+        business_owner: "Lending"
     description: "Staging model with credit proposals, clean data with current store_id"
     columns:
       - name: id
@@ -322,14 +322,21 @@ models:
         description: "Date when the credit was finalized (It could be by being renegotiated or fully paid)."
       - name: original_contract_ids
         description: "Not null only if the credit is a renegotiation. It contains all contracts ids that were renegotiated."
-
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model. Defaults to current_timestamp if not available."
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model. Defaults to 'data-dev-dbt-products'."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed."
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
 
   - name: nuvem_credito__initial_installments
     config:
       meta:
         owner: "sofia.sanchez@tiendanube.com"
         domain: "fintech"
-        owner: "Calvin Hetem"
+        business_owner: "Lending"
     description: "Staging model with initial installments of each contract"
     columns:
       - name: hub_contract_id
@@ -342,7 +349,39 @@ models:
         description: "Expected amount to be received according to the initial structure of the contract."
       - name: initial_principal_expected_amount
         description: "Expected amount of principal component to be received according to the initial structure of the contract."
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model. Defaults to current_timestamp if not available."
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model. Defaults to 'data-dev-dbt-products'."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed."
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
 
+  - name: nuvem_credito__last_credit_offer
+    config:
+      meta:
+        owner: "calvin.hetem@nuvemshop.com.br"
+        domain: "fintech"
+        business_owner: "Lending"
+    description: "Staging model with last credit available limit registered"
+    columns:
+      - name: store_id
+        description: "Store identifier."
+        tests:
+          - not_null
+      - name: available_limit
+        description: "Amount available for hiring."
+      - name: closed_at
+        description: "Date when the credit offer was closed."
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model. Defaults to current_timestamp if not available."
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model. Defaults to 'data-dev-dbt-products'."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed."
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
 
   - name: antifraud_service__vertifier_store_inferences
     description: "Staging model with vertifier of current store_id provided by antifraud inferences."
