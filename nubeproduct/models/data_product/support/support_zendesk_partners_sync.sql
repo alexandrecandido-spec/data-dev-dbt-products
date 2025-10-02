@@ -18,7 +18,7 @@ with
     ),
     source_data as (
         select
-            cast(mp.id as string) as partner_id,
+            cast(mp.id as int) as partner_id,
             mp.email,
             false as has_store,
             true as user_is_partner,
