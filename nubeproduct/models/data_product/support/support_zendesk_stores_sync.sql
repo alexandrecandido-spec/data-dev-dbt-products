@@ -3,6 +3,7 @@
         materialized="incremental",
         unique_key="external_id",
         incremental_strategy="merge",
+        on_schema_change="sync_all_columns",
         tags=["daily-4_30am"],
     )
 }}

@@ -10,26 +10,18 @@
 }}
 
 with
-    partner_tags as (
-        select related_id as partner_id, string_agg(tag, ',') as partner_tags
-        from {{ source("int_ecosystem", "tags") }}
-        where type = 'partner' and tag in ('platinum', 'gold', 'silver')
-        group by related_id
-    ),
     source_data as (
         select
-            cast(mp.id as int) as partner_id,
-            mp.email,
+            partner_id,
+            email,
             false as has_store,
             true as user_is_partner,
-            pt.partner_tags,
+            partner_tags,
             coalesce(
-                nullif(trim(mp.name), ''),
-                'Partner-' || mp.id
+                nullif(trim(name), ''),
+                'Partner-' || cast(partner_id as string)
             ) as name
-        from {{ source("int_ecosystem", "mwp_partners") }} as mp
-        left join partner_tags pt on mp.id = pt.partner_id
-        where 1 = 1 and mp.email is not null
+        from {{ ref("_int_support_partners_raw") }}
     )
 
 select
