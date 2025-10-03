@@ -212,3 +212,26 @@ sources:
     tables:
       - name: sessions
         description: "Raw sessions from users"
+
+
+  - name: stg_hubspot
+    database: raw
+    schema: hubspot
+    tables:
+      - name: deals_archived 
+        description: "Contains a record of Hubspot deals that were archived (only last 90 days)"
+
+
+  - name: stg_third_party
+    description: "Raw tables loaded from the ingestion of external data sources"
+    schema: third_party
+    tables:
+      - name: finance_exchange_rate_ars_to_usd
+      - name: marketing_github_mkt_attribution
+        description: "List of marketing github issues/inputs created by the marketing team"
+      - name: midmarket_hubspot_deals
+      - name: midmarket_hubspot_calls
+      - name: midmarket_hubspot_meetings
+      - name: midmarket_hubspot_email
+      - name: midmarket_hubspot_communications
+      - name: midmarket_hubspot_tasks
