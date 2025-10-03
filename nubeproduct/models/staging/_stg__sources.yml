@@ -100,7 +100,17 @@ sources:
     tables:
       - name: apps
         description: "Apps table from bronze_risk.ecosystem"
+      - name: mwp_countries
+        description: "countries table from bronze_risk.ecosystem"
 
+  - name: stg_ecosystem
+    database: hive_metastore
+    schema: ecosystem
+    tables:
+      - name: mwp_partner_partner_types
+        description: "partner_types table from hive_metastore.ecosystem"
+      - name: mwp_partners
+        description: "partners table from hive_metastore.ecosystem"
 
   - name: stg_ga4
     database: null
