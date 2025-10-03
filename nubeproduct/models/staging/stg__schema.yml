@@ -1644,3 +1644,71 @@ models:
         description: "System or user that last updated the row in this model."
         tests:
           - not_null
+
+
+  - name: github_data__issue_comment
+    description: >
+      Staging model that contains the list of every comment associated to an Issue/Problem.
+      This table has no filter applied, so it contains all comments.
+      In order to replicate what is found on GitHub (deleted comments will not be included as well as previews versions of edited comments), this model is not incremental but performs a full refresh on each run.
+    config:
+      meta:
+        owner: "matias.scasso@tiendanube.com"
+        domain: "product"
+        business_owner: "Martin Palombo"
+    columns: 
+      - name: repo_name
+        description: "Determines if row is related to an Issue or Problem"
+      - name: issue_number
+        description: "Issue/problem identification number. Must be combined with repo_name to correctly identify the issue/problem"
+      - name: comment_id
+        description: "Comment identification number. Must be combined with repo_name and issue_number to get the unique key of the model"
+      - name: author
+        description: "Author of the comment"
+      - name: is_relevant
+        description: "Determines if the comment is relevant to the Issues & Problems model logic, i.e. if it is a +1 comment"
+      - name: comment_date
+        description: "Date when the comment was created"
+
+
+  - name: github_data__issue_store
+    description: > 
+      Staging model that contains ONE store that is associated to the comment.
+      Some comments contain references to multiple stores, which is not according to the standard practice.
+      In order to replicate what is found on GitHub (deleted comments will not be included as well as previews versions of edited comments), this model is not incremental but performs a full refresh on each run.
+    config:
+      meta:
+        owner: "matias.scasso@tiendanube.com"
+        domain: "product"
+        business_owner: "Martin Palombo"
+    columns:
+      - name: repo_name
+        description: "Determines if row is related to an Issue or Problem"
+      - name: issue_number
+        description: "Issue/problem identification number. Must be combined with repo_name to correctly identify the issue/problem"
+      - name: comment_id
+        description: "Comment identification number. Must be combined with repo_name and issue_number to get the unique key of the model"
+      - name: store_id
+        description: "Store identification number. Only one is included per comment_id."
+  
+
+  - name: github_data__store_impact
+    description: >
+      Staging model that contains the impact of the comment related to the store. It applied only to Mid Market stores.
+      Comment_id < 0 are not included and only one impact is included per comment_id, just in case.
+      In order to replicate what is found on GitHub (deleted comments will not be included as well as previews versions of edited comments), this model is not incremental but performs a full refresh on each run.
+    config:
+      meta:
+        owner: "matias.scasso@tiendanube.com"
+        domain: "product"
+        business_owner: "Martin Palombo"
+    columns:
+      - name: repo_name
+        description: "Determines if row is related to an Issue or Problem"
+      - name: issue_number
+        description: "Issue/problem identification number. Must be combined with repo_name to correctly identify the issue/problem"
+      - name: comment_id
+        description: "Comment identification number. Must be combined with repo_name and issue_number to get the unique key of the model"
+      - name: impact
+        description: "Only for Mid Market stores, determines the criticity of the comment"
+

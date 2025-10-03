@@ -890,3 +890,52 @@ models:
         description: 1 if the merchant has the saved searches feature available, 0 otherwise (based on tags)
       - name: saved_searches_available_at
         description: the date when the saved searches feature was made available to the merchant (tag was added)
+
+
+  - name: product_issues_and_problems_comments
+    description: >
+      Contains the list of every comment associated to an Issue/Problem.
+      It contains all relevant information about the comment and its unique key is the combination of repo_name, issue_number and comment_id.
+      In order to replicate what is found on GitHub (deleted comments will not be included as well as previews versions of edited comments), this model is not incremental but performs a full refresh on each run.
+    config:
+      meta:
+        owner: "matias.scasso@tiendanube.com"
+        domain: "product"
+        business_owner: "Martin Palombo"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: 
+            - repo_name
+            - issue_number
+            - comment_id
+    columns:
+      - name: repo_name
+        description: "Determines if row is related to an Issue or Problem"
+        tests:
+          - not_null
+      - name: issue_number
+        description: "Issue/problem identification number. Must be combined with repo_name to correctly identify the issue/problem"
+        tests:
+          - not_null
+      - name: comment_id
+        description: "Comment identification number. Must be combined with repo_name and issue_number to get the unique key of the model."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 1
+      - name: author
+        description: "Author of the comment"
+      - name: is_relevant
+        description: "Determines if the comment is relevant to the Issues & Problems model logic, i.e. if it is a +1 comment"
+      - name: comment_date
+        description: "Date when the comment was created"
+        tests:
+          - not_null
+      - name: store_id
+        description: "Store identification number. Only one is included per comment_id for business logic consistency."
+      - name: impact
+        description: "Impact of the comment. It is only included for Mid Market stores."
+      - name: year_month_day_code
+        description: "Comment date in YYYYMMDD format (integer)."
+        tests:
+          - not_null
