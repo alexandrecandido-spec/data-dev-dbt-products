@@ -18,13 +18,13 @@ with issue_store as (
     FROM {{ source('stg_github_data', 'issue_store') }}
 )
     SELECT
-        is.repo_name,
-        is.issue_number,
-        is.comment_id,
-        is.store_id,
+        repo_name,
+        issue_number,
+        comment_id,
+        store_id,
         current_timestamp AS sys_audit_created_on,
         'data-dev-dbt-products' AS sys_audit_created_by,
         current_timestamp AS sys_audit_updated_on,
         'data-dev-dbt-products' AS sys_audit_updated_by
-    FROM issue_store is
-    WHERE is.row_number = 1 -- we only want one store_id per comment_id
+    FROM issue_store
+    WHERE row_number = 1 -- we only want one store_id per comment_id

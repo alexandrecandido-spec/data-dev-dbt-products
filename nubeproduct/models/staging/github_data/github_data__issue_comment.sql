@@ -18,4 +18,4 @@ SELECT
     'data-dev-dbt-products' AS sys_audit_created_by,
     current_timestamp AS sys_audit_updated_on,
     'data-dev-dbt-products' AS sys_audit_updated_by
-FROM {{ source('stg_github_data', 'issue_comment') }} ic
+FROM {{ source('stg_github_data', 'issue_comment') }}

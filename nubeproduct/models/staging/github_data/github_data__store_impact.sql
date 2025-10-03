@@ -18,14 +18,14 @@ with store_impact as (
     FROM {{ source('stg_github_data', 'store_impact') }}
 )
     SELECT
-        si.repo_name,
-        si.issue_number,
-        si.comment_id,
-        si.impact,
+        repo_name,
+        issue_number,
+        comment_id,
+        impact,
         current_timestamp AS sys_audit_created_on,
         'data-dev-dbt-products' AS sys_audit_created_by,
         current_timestamp AS sys_audit_updated_on,
         'data-dev-dbt-products' AS sys_audit_updated_by
-    FROM store_impact si
-    WHERE si.row_number = 1 -- we only want one impact per comment_id (just in case)
-    AND si.comment_id > 0 -- there are some with comment_id = -1
+    FROM store_impact
+    WHERE row_number = 1 -- we only want one impact per comment_id (just in case)
+    AND comment_id > 0 -- there are some with comment_id = -1
