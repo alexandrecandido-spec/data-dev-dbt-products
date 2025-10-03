@@ -14,7 +14,7 @@ WITH get_status AS (
         ON d.deal_id = ss.deal_id
     LEFT JOIN {{ ref('_int_midmarket_wbr_mbr__last_relevant_interaction') }} lri
         ON ss.store_id = lri.store_id
-    LEFT JOIN {{ ref('_int_midmarket_wbr_mbr__franchise_group') }} fg
+    LEFT JOIN {{ ref('_int_midmarket_wbr_mbr__monthly_franchise_group') }} fg
         ON ss.store_id = fg.store_id
     left join {{ ref('_int_midmarket_wbr_mbr__level') }} l
       on d.deal_id = l.deal_id
