@@ -40,14 +40,13 @@ WITH source AS (
         CAST(date_format(completed_at, 'yyyyMMdd') AS INT) AS year_month_day_code
 
     FROM {{ source('stg_orders', 'mwp_orders') }}
-    WHERE total_in_usd <= 10000 and total_in_usd >= 0
     
     {% if is_incremental() %}
 
     -- this filter will only be applied on an incremental run
     -- (uses >= to include records whose timestamp occurred since the last run of this model)
     -- (If event_time is NULL or the table is truncated, the condition will always be true and load all records)
-    AND sys_audit_updated_on >= (select coalesce(max(sys_audit_updated_on),'1900-01-01') - INTERVAL '1 hour' from {{ this }} )
+    WHERE sys_audit_updated_on >= (select coalesce(max(sys_audit_updated_on),'1900-01-01') - INTERVAL '1 hour' from {{ this }} )
 
     {% endif %}
 ),
