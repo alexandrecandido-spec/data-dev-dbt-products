@@ -1,8 +1,6 @@
 -- depends_on: {{ ref('marketing_ga4_sessions_classified') }}
 
-{%- set days_to_rebuild = 5 -%}  {# hoy + 4 previos #}
-
-{{
+{{ 
   config(
     materialized         = 'incremental',
     incremental_strategy = 'merge',
@@ -12,23 +10,25 @@
     on_schema_change     = 'fail',
     tags                 = ['daily-6am'],
     pre_hook = [
-      "{% if is_incremental() %}
-         -- Borrar particiones desde (MAX updated_on - N días) hasta hoy
-         WITH b AS (
-           SELECT COALESCE(MAX(sys_audit_updated_on), TIMESTAMP '1900-01-01') AS last_upd
-           FROM {{ this }}
-         ),
-         dd AS (
-           SELECT EXPLODE(SEQUENCE(DATE_SUB(DATE(b.last_upd), {{ days_to_rebuild-1 }}), CURRENT_DATE)) AS d
-           FROM b
-         )
-         DELETE FROM {{ this }}
-         WHERE year_month_day_code IN (
-           SELECT CAST(date_format(d,'yyyyMMdd') AS INT) FROM dd
-         );
-       {% endif %}"
+      "
+      {% if is_incremental() %}
+        -- Borrar particiones desde (MAX updated_on - 5 días) hasta hoy -> 6 días en total (incluye extremos)
+        WITH b AS (
+          SELECT COALESCE(MAX(sys_audit_updated_on), TIMESTAMP '1900-01-01') AS last_upd
+          FROM {{ this }}
+        ),
+        dd AS (
+          SELECT EXPLODE(SEQUENCE(DATE_SUB(DATE(b.last_upd), 5), CURRENT_DATE)) AS d
+          FROM b
+        )
+        DELETE FROM {{ this }}
+        WHERE year_month_day_code IN (
+          SELECT CAST(date_format(d,'yyyyMMdd') AS INT) FROM dd
+        );
+      {% endif %}
+      "
     ]
-  )
+  ) 
 }}
 
 WITH baseline AS (
@@ -47,7 +47,8 @@ prepared AS (
   FROM {{ ref('marketing_ga4_sessions_classified') }} cls
   CROSS JOIN baseline b
   {% if is_incremental() %}
-  WHERE cls.date >= DATE_SUB(DATE(b.last_upd), {{ days_to_rebuild-1 }})
+  -- hoy + 5 previos => 6 días
+  WHERE cls.date >= DATE_SUB(DATE(b.last_upd), 5)
   {% else %}
   WHERE cls.date >= DATE '2024-01-01'
   {% endif %}
@@ -154,7 +155,7 @@ LEFT JOIN (
     FROM {{ this }}
   ),
   dd AS (
-    SELECT EXPLODE(SEQUENCE(DATE_SUB(DATE(b.last_upd), {{ days_to_rebuild-1 }}), CURRENT_DATE)) AS d
+    SELECT EXPLODE(SEQUENCE(DATE_SUB(DATE(b.last_upd), 5), CURRENT_DATE)) AS d
     FROM b
   )
   SELECT row_hash, sys_audit_created_on, sys_audit_created_by
