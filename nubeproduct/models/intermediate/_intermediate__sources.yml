@@ -82,6 +82,8 @@ sources:
     tables:
       - name: midmarket_success_stores
         description: "List of current active stores in the Mid Market portfolio"
+      - name: midmarket_weekly_business_review
+      - name: midmarket_monthly_business_review
 
   - name: int_product
     description: "Product Data Products"
