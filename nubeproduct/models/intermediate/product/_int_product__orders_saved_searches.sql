@@ -1,15 +1,14 @@
   SELECT
     s.id AS saved_search_id,
     s.store_id,
-    i.created_at merchant_created_at,
-    i.country_code,
-    i.country_name,
-    i.current_segment_name,
-    i.vertical_name,
-    i.business_size_name,
-    i.group_name,
-    i.domain,
-    i.first_payment,
+    msi.state,
+    msi.country,
+    msi.currency,
+    msi.current_segment,
+    msi.first_payment,
+    msi.churned_at,
+    gp.grupo plan_name,
+    msi.created_at merchant_created_at,
     s.user_id saved_search_user_id,
     s.name AS saved_search_name,
     s.position saved_search_position,
@@ -37,22 +36,23 @@
     MAX(CASE WHEN parsed_json.key = 'maxUnits' THEN parsed_json.value ELSE NULL END) AS saved_search_max_units,
     MAX(CASE WHEN parsed_json.key = 'isWholesale' THEN parsed_json.value ELSE NULL END) AS saved_search_is_wholesale,
     MAX(CASE WHEN parsed_json.key = 'couponIdsRaw' THEN parsed_json.value ELSE NULL END) AS saved_search_coupon_ids_raw,
-    MAX(CASE WHEN parsed_json.key = 'stockIssues' THEN parsed_json.value ELSE NULL END) AS saved_search_stock_issues
+    MAX(CASE WHEN parsed_json.key = 'stockIssues' THEN parsed_json.value ELSE NULL END) AS saved_search_stock_issues,
+    max(s.sys_audit_updated_on) as sys_audit_updated_on
 FROM {{ source('int_orders', 'order_saved_search') }} AS s
-INNER JOIN {{ ref('company_metrics_merchant_info') }} i ON s.store_id = i.store_id
+inner join {{ ref('moltres__mwp_store_info') }} msi on msi.store_id = s.store_id
+left join {{ ref('operations_grouping_plans') }} gp on gp.plan = msi.plan
 LATERAL VIEW explode(from_json(s.filter, 'MAP<STRING, STRING>')) parsed_json AS key, value
 GROUP BY
     s.id,
     s.store_id,
-    i.created_at,
-    i.country_code,
-    i.country_name,
-    i.current_segment_name,
-    i.vertical_name,
-    i.business_size_name,
-    i.group_name,
-    i.domain,
-    i.first_payment,
+    msi.state,
+    msi.country,
+    msi.currency,
+    msi.current_segment,
+    msi.first_payment,
+    msi.churned_at,
+    gp.grupo,
+    msi.created_at,
     s.user_id,
     s.name,
     s.position,

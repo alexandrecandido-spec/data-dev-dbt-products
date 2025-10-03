@@ -170,13 +170,6 @@ sources:
       - name: partners_tags_campaign
         description: "Contains information about the tags and campaigns of the partners."
 
-  - name: int_ga4    
-    database: null
-    schema: ga4
-    description: "GA4 refined tables available in Danubio"
-    tables:
-      - name: first_visit
-        description: "Table from GA4 containing the first visit date for each user_pseudo_id."
   - name: int_orders
     database: null
     schema: orders
