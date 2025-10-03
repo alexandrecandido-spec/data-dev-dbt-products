@@ -22,7 +22,11 @@ with
             mp.email,
             false as has_store,
             true as user_is_partner,
-            pt.partner_tags
+            pt.partner_tags,
+            coalesce(
+                nullif(trim(mp.name), ''),
+                'Partner-' || mp.id
+            ) as name
         from {{ source("int_ecosystem", "mwp_partners") }} as mp
         left join partner_tags pt on mp.id = pt.partner_id
         where 1 = 1 and mp.email is not null
@@ -34,6 +38,7 @@ select
     info.has_store,
     info.user_is_partner,
     info.partner_tags,
+    info.name,
     {% if is_incremental() %}
         coalesce(
             existing_data.sys_audit_created_on, current_timestamp
@@ -57,6 +62,7 @@ from source_data as info
             "has_store",
             "user_is_partner",
             "partner_tags",
+            "name",
         ] %}
     where
         existing_data.partner_id is null
