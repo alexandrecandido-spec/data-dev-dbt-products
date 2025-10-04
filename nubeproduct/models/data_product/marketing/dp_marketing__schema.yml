@@ -1435,7 +1435,7 @@ models:
     description: "Incremental dataset of all GA page_view events with session-level landing page, UTM breakdown, device category, geography, and audit fields; deduplicated by user-session-timestamp."
     config:
       meta:
-        owner: "rodrigo.torres@tiendanube.com"
+        owner: "sofia.torres@tiendanube.com"
         domain: "marketing"
         tags: ["marketing","daily-8am"]
     tests:

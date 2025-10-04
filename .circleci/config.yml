@@ -130,6 +130,13 @@ commands:
         type: boolean
         default: false
     steps:
+      - run:
+          name: Skip if not a Pull Request
+          command: |
+            if [ -z "$CIRCLE_PULL_REQUEST" ]; then
+              echo "Not a PR pipeline (CIRCLE_PULL_REQUEST is empty). Skipping dbt tests."
+              circleci step halt
+            fi
       - when:
           condition: << parameters.skip-tests >>
           steps:
