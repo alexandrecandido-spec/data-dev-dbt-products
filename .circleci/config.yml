@@ -246,7 +246,20 @@ commands:
 
             aws s3 sync \
                 << parameters.dp-dbt-project-location >> s3://$NUBEPRODUCT_ARTIFACTS_BUCKET/dags/dbt/nubeproduct \
-                --cache-control "max-age=86400" 
+                --cache-control "max-age=86400"
+  check_if_pr:
+    steps:
+      - run:
+          name: Set PR environment flag
+          command: |
+            if [ -n "$CIRCLE_PULL_REQUEST" ]; then
+              echo "export IS_PR=true" >> $BASH_ENV
+              echo "Running in a pull request context: $CIRCLE_PULL_REQUEST"
+            else
+              echo "export IS_PR=false" >> $BASH_ENV
+              echo "Not running in a pull request context"
+            fi
+            source $BASH_ENV 
             
 
 # Common jobs for the main workflows
@@ -256,6 +269,21 @@ jobs:
       - image: alpine
     steps:
       - run: echo 'Jobs with `common-` prefix are intended to be shared among modules'
+  check-pr-status:
+    docker:
+      - image: 'cimg/base:stable'
+    steps:
+      - check_if_pr
+      - run:
+          name: Determine whether to continue
+          command: |
+            if [ "$IS_PR" = "true" ]; then
+              echo "This is a pull request, proceeding with build"
+            else
+              echo "This is not a pull request, halting workflow"
+              circleci-agent step halt
+              exit 1
+            fi       
 
   
 workflows:
@@ -276,6 +304,20 @@ workflows:
             nubeproduct
             dags/src
             notebooks
+  pr-basics:
+    when:
+      not: << pipeline.parameters.run-setup >>
+    jobs:
+      - common-pre:
+          filters:
+            branches:
+              ignore: main
+      - check-pr-status:
+          requires:
+            - common-pre
+          filters:
+            branches:
+              ignore: main
 
 orbs:
   aws-cli: circleci/aws-cli@4.1.3
@@ -322,14 +364,27 @@ orbs:
                 << parameters.modules >>
                 EOD
 
-                # Check if only dags/src has changes and nubeproduct doesn't
-                if ! grep -q "nubeproduct" << parameters.modules-filtered >>; then
-                  echo "Only dags/src has changes, setting dags-or-nbks-only-changes parameter"
+                # Si NO hay cambios en nubeproduct, necesitamos igualmente un módulo que provea
+                # el job `test-dbt-nubeproduct` (como no-op) para satisfacer el check requerido de GitHub.
+                if ! grep -qx "nubeproduct" << parameters.modules-filtered >>; then
+                  echo "No changes in 'nubeproduct'. Enabling dags-or-nbks-only-changes and ensuring a fallback module is present."
+
+                  # Garantiza que 'dags/src' esté en la lista (aportará el job test-dbt-nubeproduct no-op)
+                  if ! grep -qx "dags/src" << parameters.modules-filtered >>; then
+                    echo "dags/src" >> << parameters.modules-filtered >>
+                  fi
+
+                  # (Opcional) también podrías asegurar notebooks como segundo fallback:
+                  # if ! grep -qx "notebooks" << parameters.modules-filtered >>; then
+                  #   echo "notebooks" >> << parameters.modules-filtered >>
+                  # fi
+
                   echo '{"run-setup":false, "dags-or-nbks-only-changes":true}' > /tmp/continuation-params.json
                 else
-                  echo "Setting dags-or-nbks-only-changes parameter to false"
+                  echo "Changes detected in 'nubeproduct'. dags-or-nbks-only-changes = false"
                   echo '{"run-setup":false, "dags-or-nbks-only-changes":false}' > /tmp/continuation-params.json
                 fi
+
       merge-modular-configs:
         parameters:
           modules:
@@ -418,3 +473,4 @@ orbs:
           - continuation/continue:
               configuration_path: << parameters.continue-config >>
               parameters: /tmp/continuation-params.json
+           
