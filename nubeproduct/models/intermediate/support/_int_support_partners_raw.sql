@@ -1,10 +1,3 @@
-{{
-    config(
-        materialized="table"
-    )
-}}
-
--- Raw partner data from sources without business logic
 with
     partner_tags as (
         select related_id as partner_id, string_agg(tag, ',') as partner_tags
