@@ -939,3 +939,11 @@ models:
         description: "Comment date in YYYYMMDD format (integer)."
         tests:
           - not_null
+      - name: saved_searches_first_use
+        description: the date when the merchant first used the saved searches feature
+      - name: saved_searches_last_use
+        description: the date when the merchant last used the saved searches feature
+      - name: saved_searches_count
+        description: the total non default saved searches the merchant has active currently
+      - name: saved_searches_user
+        description: 1 if the merchant has used the saved searches feature, 0 otherwise
