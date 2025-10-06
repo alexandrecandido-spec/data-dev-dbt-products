@@ -12,7 +12,7 @@ with weekly_meetings AS (
         ON CAST(m.deal AS BIGINT) = sid.deal_id
     WHERE 
         meeting_outcome = 'Completed'
-        AND (call_and_meeting_type IS NULL OR call_and_meeting_type != 'CS - Negative Retention Outcome')
+        AND (call_and_meeting_type IS NULL OR call_and_meeting_type != 'CS - Non-Value Interaction')
         AND activity_date < date_trunc('week', current_date)
     GROUP BY CAST(deal AS BIGINT), CAST(date_trunc('week', activity_date) AS DATE)
 ),
@@ -31,7 +31,7 @@ monthly_meetings AS (
         ON CAST(m.deal AS BIGINT) = sid.deal_id
     WHERE 
         meeting_outcome = 'Completed'
-        AND (call_and_meeting_type IS NULL OR call_and_meeting_type != 'CS - Negative Retention Outcome')
+        AND (call_and_meeting_type IS NULL OR call_and_meeting_type != 'CS - Non-Value Interaction')
         AND activity_date < date_trunc('month', current_date)
     GROUP BY CAST(deal AS BIGINT), CAST(date_trunc('month', activity_date) AS DATE)
 )

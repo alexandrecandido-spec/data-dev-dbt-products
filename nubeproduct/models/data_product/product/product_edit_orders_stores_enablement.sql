@@ -32,5 +32,5 @@ select
 FROM {{ ref('_int_product__edit_orders_stores_enablement_and_usage') }} e
         {% if is_incremental() %}
     WHERE 
-        e.sys_audit_updated_on >= (select coalesce(max(sys_audit_updated_on),'1900-01-01') from {{ this }} a )
+        e.max_sys_audit_updated_on >= (select coalesce(max(sys_audit_updated_on),'1900-01-01') from {{ this }} a )
     {% endif %}

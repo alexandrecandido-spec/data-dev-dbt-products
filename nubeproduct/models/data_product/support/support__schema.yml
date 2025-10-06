@@ -1,0 +1,80 @@
+version: 2
+
+models:
+  - name: support_zendesk_stores_sync
+    meta:
+      owner: "santiago.gandolfo@tiendanube.com"
+      domain: "support"
+      business_owner: "Support Team"
+    description: >
+      Contains simplified store attributes for Zendesk integration.
+    columns:
+      - name: external_id
+        description: "Unique identifier of the store. Primary key."
+        tests:
+          - not_null
+          - unique
+      - name: status_by_orders
+        description: "Descriptive name of the current segment (e.g., no-seller, struggling-seller) associated with this store."
+      - name: url_stats
+        description: "URL to the stats profile page for the store in the format 'https://stats.tiendanube.com/store/profile?store_id={store_id}'."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_match_like_pattern:
+              like_pattern: "https://stats.tiendanube.com/store/profile?store_id=%"
+      - name: name
+        description: "Store name derived from the domain field. If no domain is available, defaults to 'Organization-{store_id}'."
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created."
+      - name: sys_audit_created_by
+        description: "System or user that created the row."
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated."
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row."
+
+  - name: support_zendesk_partners_sync
+    meta:
+      owner: "santiago.gandolfo@tiendanube.com"
+      domain: "support"
+      business_owner: "Support Team"
+    description: >
+      Contains simplified partner attributes for Zendesk integration.
+    columns:
+      - name: partner_id
+        description: "Unique identifier of the partner. Primary key."
+        tests:
+          - not_null
+          - unique
+      - name: email
+        description: "Partner email address. Only includes partners with non-null email."
+        tests:
+          - not_null
+      - name: has_store
+        description: "Boolean flag indicating if the partner has a store. Always false for partners."
+        tests:
+          - not_null
+      - name: user_is_partner
+        description: "Boolean flag indicating if the user is a partner. Always true for partners."
+        tests:
+          - not_null
+      - name: partner_tags
+        description: "Comma-separated list of partner tags (platinum, gold, silver)."
+      - name: name
+        description: "Partner name derived from the name field. If no name is available, defaults to 'Partner-{partner_id}'."
+        tests:
+          - not_null
+      - name: year_month_day_code
+        description: "Date code in YYYYMMDD format for partitioning."
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created."
+      - name: sys_audit_created_by
+        description: "System or user that created the row."
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated."
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row."

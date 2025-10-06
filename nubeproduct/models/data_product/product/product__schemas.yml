@@ -763,3 +763,187 @@ models:
           - not_null
           - dbt_expectations.expect_column_values_to_be_between:
               min_value: 1
+
+  - name: product_orders_saved_searches
+    description:  This data product contains information on usage of the saved searches feature within the orders admin. Each row will have information of a specific saved search with data on what filters are included in the saved search, if that saved search is custom or not, the order in which the merchant has position that saved search, if it is hidden or not, etc. If a saved search is modified, this table will only store the latest version of the saved search. Additionally, if a saved search is deleted, this table will not store that saved search anymore.
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "product"
+        business_owner: "Martin Palombo"    
+    columns:
+      - name: saved_search_id
+        description: "unique identifier for the saved search"
+        tests:
+          - not_null
+          - unique
+      - name: store_id
+        description: "Merchant's id that created the saved search"
+        tests:
+          - not_null
+      - name: state
+        description: "State of the merchant that created the saved search"
+      - name: country
+        description: "Country of the merchant that created the saved search"
+      - name: currency
+        description: "Currency of the merchant that created the saved search"
+      - name: current_segment
+        description: "Current segment of the merchant that created the saved search"
+      - name: first_payment
+        description: "First payment of the merchant that created the saved search"
+      - name: churned_at
+        description: "Date when the merchant churned"
+      - name: plan_name
+        description: "Name of the plan of the merchant that created the saved search"
+      - name: merchant_created_at
+        description: "Date when the merchant was created"
+      - name: saved_search_user_id
+        description: "User id that created the saved search"
+      - name: saved_search_name
+        description: "Name of the saved search"
+      - name: saved_search_position
+        description: "Position of the saved search in the merchant's saved searches list"
+      - name: saved_search_default
+        description: "Whether the saved search is a default saved search. Default saved searches will not have information on the filters, just the names."
+      - name: saved_search_hidden
+        description: "Whether the saved search is hidden. Despite their position, if a saved search is hidden, it will not be shown to the merchant in the saved searches list."
+      - name: saved_search_created_at
+        description: "Date when the saved search was created"
+      - name: saved_search_number_of_keys
+        description: "Number of filter types used in the saved search"
+      - name: saved_search_page
+        description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
+      - name: saved_search_q
+        description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
+      - name: saved_search_per_page
+        description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
+      - name: saved_search_date_from
+        description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
+      - name: saved_search_date_to
+        description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
+      - name: saved_search_status
+        description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
+      - name: saved_search_payment_status
+        description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
+      - name: saved_search_fulfillment_status
+        description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
+      - name: saved_search_payment_methods
+        description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
+      - name: saved_search_payment_provider
+        description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
+      - name: saved_search_shipping_method
+        description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
+      - name: saved_search_location
+        description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
+      - name: saved_search_origin
+        description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
+      - name: saved_search_appId
+        description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
+      - name: saved_search_products
+        description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
+      - name: saved_search_exact_product_set
+        description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
+      - name: saved_search_min_units
+        description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
+      - name: saved_search_max_units
+        description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
+      - name: saved_search_is_wholesale
+        description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
+      - name: saved_search_coupon_ids_raw
+        description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
+      - name: saved_search_stock_issues
+        description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
+
+  - name: product_orders_saved_searches_enablement
+    description:  This data product contains information on the enablement of the saved searches feature within the orders admin. Each row will have information of a specific store with data on if the saved searches feature is available for that store, when it was enabled for that store, etc.
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "product"
+        business_owner: "Martin Palombo"    
+    columns:
+      - name: store_id
+        description: merchant's store id
+        tests:
+          - not_null
+      - name: state
+        description: the state of the merchant. State_Ok > 0 it is not a trial and we are receiving the payments as expected - awaiting_payment > 1 during the first 10 days after the contract expires - admin_down > 2 from day 10 to day 20 after the contract is expired, admin is blocked (but the store is still live) - store_down > 3 the store is blocked from day 20, we consider it as a churn - state_test > 4 a store created as a test by someone from our company, it is not a trial - state_in_development > 5 stores created via Partners Portal while they are being set up.
+      - name: country
+        description: merchant's country (from the store_info table)
+        tests:
+          - not_null
+      - name: currency
+        description: merchant's currency (from the store_info table)
+        tests:
+          - not_null
+      - name: current_segment
+        description: merchant's current segment
+      - name: first_payment
+        description: the date when the merchant made their first payment
+      - name: churned_at
+        description: the date when the merchant churned
+      - name: plan_name
+        description: the group name of the merchant's plan (using operations__grouping_plans data product) 
+      - name: created_at
+        description: the date when the merchant was created
+      - name: has_saved_searches_available
+        description: 1 if the merchant has the saved searches feature available, 0 otherwise (based on tags)
+      - name: saved_searches_available_at
+        description: the date when the saved searches feature was made available to the merchant (tag was added)
+
+
+  - name: product_issues_and_problems_comments
+    description: >
+      Contains the list of every comment associated to an Issue/Problem.
+      It contains all relevant information about the comment and its unique key is the combination of repo_name, issue_number and comment_id.
+      In order to replicate what is found on GitHub (deleted comments will not be included as well as previews versions of edited comments), this model is not incremental but performs a full refresh on each run.
+    config:
+      meta:
+        owner: "matias.scasso@tiendanube.com"
+        domain: "product"
+        business_owner: "Martin Palombo"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: 
+            - repo_name
+            - issue_number
+            - comment_id
+    columns:
+      - name: repo_name
+        description: "Determines if row is related to an Issue or Problem"
+        tests:
+          - not_null
+      - name: issue_number
+        description: "Issue/problem identification number. Must be combined with repo_name to correctly identify the issue/problem"
+        tests:
+          - not_null
+      - name: comment_id
+        description: "Comment identification number. Must be combined with repo_name and issue_number to get the unique key of the model."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 1
+      - name: author
+        description: "Author of the comment"
+      - name: is_relevant
+        description: "Determines if the comment is relevant to the Issues & Problems model logic, i.e. if it is a +1 comment"
+      - name: comment_date
+        description: "Date when the comment was created"
+        tests:
+          - not_null
+      - name: store_id
+        description: "Store identification number. Only one is included per comment_id for business logic consistency."
+      - name: impact
+        description: "Impact of the comment. It is only included for Mid Market stores."
+      - name: year_month_day_code
+        description: "Comment date in YYYYMMDD format (integer)."
+        tests:
+          - not_null
+      - name: saved_searches_first_use
+        description: the date when the merchant first used the saved searches feature
+      - name: saved_searches_last_use
+        description: the date when the merchant last used the saved searches feature
+      - name: saved_searches_count
+        description: the total non default saved searches the merchant has active currently
+      - name: saved_searches_user
+        description: 1 if the merchant has used the saved searches feature, 0 otherwise

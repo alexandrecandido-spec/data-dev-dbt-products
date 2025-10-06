@@ -20,6 +20,7 @@ FROM
 	WHERE
 		DATE(completed_at) >= '2021-09-01'
 		AND DATE(completed_at) <= DATE(current_date)
+        AND total_in_usd <= 10000 and total_in_usd >= 0
         )
     ),
 stores AS (

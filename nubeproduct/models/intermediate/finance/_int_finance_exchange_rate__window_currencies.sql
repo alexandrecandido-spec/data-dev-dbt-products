@@ -76,7 +76,7 @@ SELECT
     SUM(total_in_usd) / SUM(total) AS indirect_exchange_rate,
     SUM(total) / SUM(total_in_usd) AS direct_exchange_rate
 FROM {{ ref('orders__mwp_orders') }}
-WHERE currency not in ('ARS', 'ars')
+WHERE currency not in ('ARS', 'ars') AND total_in_usd <= 10000 and total_in_usd >= 0
 GROUP BY DATE(completed_at), currency
 )
 
