@@ -33,7 +33,6 @@ select
     s.new_merchant_cost_usd,
     s.previous_consumer_cost_usd,
     s.new_consumer_cost_usd,
-    oe.sys_audit_updated_on,
     oe.app_id,
     --data on order
     o.id,
@@ -62,7 +61,16 @@ select
     e.edit_orders_user as store_edit_orders_user,
     e.edit_first_use as store_edit_first_use,
     e.edit_last_use as store_edit_last_use,
-    e.edit_count as store_edit_count
+    e.edit_count as store_edit_count,
+    -- Single combined audit field - cleaner approach!
+    GREATEST(
+        COALESCE(ae.sys_audit_updated_on, '1900-01-01'),
+        COALESCE(oe.sys_audit_updated_on, '1900-01-01'),
+        COALESCE(o.max_sys_audit_updated_on, '1900-01-01'),
+        COALESCE(e.max_sys_audit_updated_on, '1900-01-01'),
+        COALESCE(vh.sys_audit_updated_on, '1900-01-01'),
+        COALESCE(s.sys_audit_updated_on, '1900-01-01')
+    ) as max_sys_audit_updated_on
     FROM {{ ref('_int_product__edit_orders_union_edit_types') }} ae
     JOIN {{ ref('_int_product__edit_orders_orders_usage') }} o on o.id = ae.order_id
     JOIN {{ ref('_int_product__edit_orders_stores_enablement_and_usage') }} e on e.store_id = o.store_id

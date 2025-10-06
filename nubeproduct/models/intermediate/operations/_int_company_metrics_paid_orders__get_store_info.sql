@@ -62,3 +62,4 @@ WHERE
     paid_orders.store_id not in (SELECT related_id FROM blocked_stores)
     AND is_paid_order = TRUE AND storefront <> 'permalink'
     AND DATE(paid_orders.completed_at) < CURRENT_DATE()
+    AND paid_orders.total_in_usd <= 10000 AND paid_orders.total_in_usd >= 0

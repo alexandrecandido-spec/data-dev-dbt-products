@@ -11,7 +11,8 @@ select
     null as previous_product_qty,
     null as new_product_qty,
     extra as extra,
-    null as happened_at
+    null as happened_at,
+    sys_audit_updated_on
 from {{ source('int_orders', 'orders_edit_history_discounts') }} 
 
 union all
@@ -29,7 +30,8 @@ select
     null as previous_product_qty,
     null as new_product_qty,
     null as extra,
-    cast(happened_at as date)  as happened_at
+    cast(happened_at as date)  as happened_at,
+    sys_audit_updated_on
 from {{ source('int_orders', 'mwp_orders_logging') }} 
 where type = 'shipping-address' and year_month_code >= CAST(date_format(date_add(MONTH, -7, current_date),'yyyyMM') AS INTEGER)
 
@@ -48,5 +50,6 @@ select
     previous_quantity as previous_product_qty,
     new_quantity as new_product_qty,
     null as extra,
-    null as happened_at
+    null as happened_at,
+    sys_audit_updated_on
 from {{ source('int_orders', 'orders_edit_history_products') }} 

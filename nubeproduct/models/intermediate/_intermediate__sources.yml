@@ -82,6 +82,8 @@ sources:
     tables:
       - name: midmarket_success_stores
         description: "List of current active stores in the Mid Market portfolio"
+      - name: midmarket_weekly_business_review
+      - name: midmarket_monthly_business_review
 
   - name: int_product
     description: "Product Data Products"
@@ -165,16 +167,11 @@ sources:
     tables:
       - name: mwp_partners
         description: "Contains information about the partners of the ecosystem."
+      - name: tags
+        description: "Contains information about the entities tags in ecosystem."
       - name: partners_tags_campaign
         description: "Contains information about the tags and campaigns of the partners."
 
-  - name: int_ga4    
-    database: null
-    schema: ga4
-    description: "GA4 refined tables available in Danubio"
-    tables:
-      - name: first_visit
-        description: "Table from GA4 containing the first visit date for each user_pseudo_id."
   - name: int_orders
     database: null
     schema: orders
@@ -194,7 +191,8 @@ sources:
         description: "Contains information about all editions and their timestamps"
       - name: mwp_orders_fulfillments
         description: "Table with order fullfilment data"
-
+      - name: order_saved_search
+        description: "Table with orders saved searches"
   - name: int_shipping
     database: null
     schema: shipping
