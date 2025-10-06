@@ -53,5 +53,5 @@ select
     'data-dev-dbt-products' AS sys_audit_updated_by
 FROM {{ ref('_int_product__orders_saved_searches') }} s
     {% if is_incremental() %}
-WHERE s.sys_audit_updated_on >= (select coalesce(max(sys_audit_updated_on),'1900-01-01') from {{ this }})
+WHERE s.max_sys_audit_updated_on >= (select coalesce(max(sys_audit_updated_on),'1900-01-01') from {{ this }})
     {% endif %}

@@ -1,4 +1,4 @@
-  SELECT
+SELECT
     s.id AS saved_search_id,
     s.store_id,
     msi.state,
@@ -7,15 +7,16 @@
     msi.current_segment,
     msi.first_payment,
     msi.churned_at,
-    gp.grupo plan_name,
-    msi.created_at merchant_created_at,
-    s.user_id saved_search_user_id,
+    gp.grupo AS plan_name,
+    msi.created_at AS merchant_created_at,
+    s.user_id AS saved_search_user_id,
     s.name AS saved_search_name,
-    s.position saved_search_position,
-    s.default saved_search_default,
-    s.hidden saved_search_hidden,
-    date(s.created_at) saved_search_created_at,
-    size(json_object_keys(s.filter)) AS saved_search_number_of_keys,
+    s.position AS saved_search_position,
+    s.default AS saved_search_default,
+    s.hidden AS saved_search_hidden,
+    DATE(s.created_at) AS saved_search_created_at,
+    -- Handle NULL filter
+    CASE WHEN s.filter IS NULL THEN 0 ELSE size(json_object_keys(s.filter)) END AS saved_search_number_of_keys,
     MAX(CASE WHEN parsed_json.key = 'page' THEN parsed_json.value ELSE NULL END) AS saved_search_page,
     MAX(CASE WHEN parsed_json.key = 'q' THEN parsed_json.value ELSE NULL END) AS saved_search_q,
     MAX(CASE WHEN parsed_json.key = 'perPage' THEN parsed_json.value ELSE NULL END) AS saved_search_per_page,
@@ -37,11 +38,24 @@
     MAX(CASE WHEN parsed_json.key = 'isWholesale' THEN parsed_json.value ELSE NULL END) AS saved_search_is_wholesale,
     MAX(CASE WHEN parsed_json.key = 'couponIdsRaw' THEN parsed_json.value ELSE NULL END) AS saved_search_coupon_ids_raw,
     MAX(CASE WHEN parsed_json.key = 'stockIssues' THEN parsed_json.value ELSE NULL END) AS saved_search_stock_issues,
-    max(s.sys_audit_updated_on) as sys_audit_updated_on
+    GREATEST(
+        COALESCE(MAX(s.sys_audit_updated_on), '1900-01-01'),
+        COALESCE(MAX(msi.sys_audit_updated_on), '1900-01-01'),
+        COALESCE(MAX(gp.sys_audit_updated_on), '1900-01-01'),
+        COALESCE(MAX(parsed_json.sys_audit_updated_on), '1900-01-01')
+    ) AS max_sys_audit_updated_on
 FROM {{ source('int_orders', 'order_saved_search') }} AS s
-inner join {{ ref('moltres__mwp_store_info') }} msi on msi.store_id = s.store_id
-left join {{ ref('operations_grouping_plans') }} gp on gp.plan = msi.plan
-LATERAL VIEW explode(from_json(s.filter, 'MAP<STRING, STRING>')) parsed_json AS key, value
+INNER JOIN {{ ref('moltres__mwp_store_info') }} msi ON msi.store_id = s.store_id
+LEFT JOIN {{ ref('operations_grouping_plans') }} gp ON gp.plan = msi.plan
+LEFT JOIN (
+    SELECT
+        id,
+        sys_audit_updated_on,
+        parsed_json_key AS key,
+        parsed_json_value AS value
+    FROM {{ source('int_orders', 'order_saved_search') }}
+    LATERAL VIEW EXPLODE(from_json(filter, 'MAP<STRING, STRING>')) parsed_json AS parsed_json_key, parsed_json_value
+) AS parsed_json ON s.id = parsed_json.id
 GROUP BY
     s.id,
     s.store_id,
