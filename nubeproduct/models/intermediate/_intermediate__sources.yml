@@ -53,6 +53,18 @@ sources:
         description: "Snapshots de estadísticas de Instagram por store_id."
       - name: mwp_invoice_info
         description: "Información de facturación/razón social asociada a la tienda."
+      - name: mwp_payment_stores
+        description: "Información de pagos de subscription por payment y store."
+      - name: mwp_payments
+        description: "Información de pagos."
+      - name: mwp_payment_transaction_fees
+        description: "Información de payment transaction fees."
+      - name: mwp_invoices
+        description: "Información de invoices."
+      - name: mwp_payment_tax
+        description: "Información de impuestos de pagos."
+      - name: mwp_invoices_credit_notes
+        description: "Información de notas de crédito de facturas."
 
   - name: int_finance
     database: null
