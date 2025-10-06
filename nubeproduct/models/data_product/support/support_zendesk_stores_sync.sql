@@ -2,9 +2,10 @@
     config(
         materialized="incremental",
         unique_key="external_id",
-        incremental_strategy="merge",
         on_schema_change="sync_all_columns",
+        incremental_strategy="merge",
         tags=["daily-4_30am"],
+        partition_by=["year_month_day_code"],
     )
 }}
 
@@ -45,6 +46,7 @@ select
         'data-dev-dbt-products' as sys_audit_created_by,
     {% endif %}
     current_timestamp as sys_audit_updated_on,
+    cast(date_format(current_timestamp, 'yyyyMMdd') as int) as year_month_day_code,
     'data-dev-dbt-products' as sys_audit_updated_by
 from source_data as info
 {% if is_incremental() %}

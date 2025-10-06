@@ -43,7 +43,7 @@ select
         'data-dev-dbt-products' as sys_audit_created_by,
     {% endif %}
     current_timestamp as sys_audit_updated_on,
-    cast(date_format(sys_audit_updated_on, 'yyyyMMdd') as int) as year_month_day_code,
+    cast(date_format(current_timestamp, 'yyyyMMdd') as int) as year_month_day_code,
     'data-dev-dbt-products' as sys_audit_updated_by
 from source_data as info
 {% if is_incremental() %}
