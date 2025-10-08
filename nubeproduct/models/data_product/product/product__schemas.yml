@@ -809,11 +809,15 @@ models:
         description: "Whether the saved search is hidden. Despite their position, if a saved search is hidden, it will not be shown to the merchant in the saved searches list."
       - name: saved_search_created_at
         description: "Date when the saved search was created"
+      - name: saved_search_filter
+        description: "Raw filter field with all keys and values"
       - name: saved_search_number_of_keys
         description: "Number of filter types used in the saved search"
       - name: saved_search_page
         description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
       - name: saved_search_q
+        description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
+      - name: saved_search_metafield
         description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
       - name: saved_search_per_page
         description: "This is a type of filter. The column contains the value/s the merchant is filtering by"

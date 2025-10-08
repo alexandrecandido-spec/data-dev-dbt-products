@@ -15,9 +15,11 @@ SELECT
     s.default AS saved_search_default,
     s.hidden AS saved_search_hidden,
     DATE(s.created_at) AS saved_search_created_at,
+    s.filter as saved_search_filter,
     -- Handle NULL filter
     CASE WHEN s.filter IS NULL THEN 0 ELSE size(json_object_keys(s.filter)) END AS saved_search_number_of_keys,
     MAX(CASE WHEN parsed_json.key = 'page' THEN parsed_json.value ELSE NULL END) AS saved_search_page,
+    MAX(CASE WHEN parsed_json.key like 'mf-%' THEN parsed_json.value ELSE NULL END) AS saved_search_metafield,
     MAX(CASE WHEN parsed_json.key = 'q' THEN parsed_json.value ELSE NULL END) AS saved_search_q,
     MAX(CASE WHEN parsed_json.key = 'perPage' THEN parsed_json.value ELSE NULL END) AS saved_search_per_page,
     MAX(CASE WHEN parsed_json.key = 'dateFrom' THEN parsed_json.value ELSE NULL END) AS saved_search_date_from,
