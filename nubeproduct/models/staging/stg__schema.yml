@@ -1602,3 +1602,434 @@ models:
       - name: impact
         description: "Only for Mid Market stores, determines the criticity of the comment"
 
+
+
+  - name: mwp_product_categories
+    description: "Contains the list of every product category"
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: id
+        description: "Unique identifier for the category"
+        tests:
+          - not_null
+          - unique
+      - name: store_id
+        description: "Unique identifier of the store linked to the product category."
+        tests:
+          - not_null
+      - name: category_parent
+        description: "Category id of the parent category to this category"
+      - name: order
+        description: "Vertical order of the category"
+      - name: created_at
+        description: "Timestamp when the category was created"
+      - name: updated_at
+        description: "Timestamp when the category was last updated"
+      - name: deleted_at
+        description: "Timestamp when the category was deleted"
+      - name: google_shopping_category
+        description: "Google Shopping category"
+      - name: matpath
+        description: "Matpath of the category. Shows the category ids that are above of this category in the hierarchy separated by / . Parent categories only have a / in this field."
+      - name: sort_by
+        description: "The selected way of sorting the products in the category (best-selling, price-descending, etc)"
+      - name: min_price
+        description: "Minimum price for a product within the category in local currency"
+
+  - name: shipping_locations
+    description: "Contains information on all the distribution centers of the stores"
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: address
+        description: "Object with adress metadata (region, city, zipcode)"
+      - name: chosenAsDefaultAt
+        description: "Timestamp when the distribution center was chosen as the default. If the CD is no longer default, the date gets deleted from this field"
+      - name: createdAt
+        description: "Timestamp when the distribution center was created"
+      - name: deletedAt
+        description: "Timestamp when the distribution center was deleted"
+      - name: id
+        description: "Unique identifier for the distribution center. This id is present in the CD's URL in the admin "
+        tests:
+          - not_null
+          - unique
+      - name: isDraft
+        description: "A location will only have this field set to true when the store is being created until the merchant created a location which will be the default. The id for this first location they add will be the same as the draft one. Only recently created merchants will have a location in isDraft = true"
+      - name: name
+        description: "Name of the distribution center"
+      - name: priority
+        description: "This priority level is determined by the merchant and it will be taken into account when deciding the shipping sources if that's the rule selected."
+      - name: storeId
+        description: "Unique identifier of the store linked to the distribution center."
+      - name: tags
+        description: "If a merchant has both online and PDV, this tag will inform if the CD can be used for a specific channel or both. If a merchant has only online or has enabled the CD for both,the field will be null. So the tags will only show up if only 1 of the options is allowed for the CD"
+      - name: updatedAt
+        description: "Timestamp when the distribution center was last updated"
+      - name: year_month_code
+        description: "Reference year and month. Also the field used to partition the table."
+
+  - name: mwp_inventory_levels
+    description: "Contains information stock on each CD for each variant"
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: year_month_code
+        description: "Reference year and month. Also the field used to partition the table."
+      - name: id
+        description: "Unique identifier for the inventory level"
+        tests:
+          - not_null
+          - unique
+      - name: variant_id
+        description: "Unique identifier for the variant. Can be connected to a product via the mwp_product_variants table"
+      - name: location_id
+        description: "Unique identifier for the CD. Can be connected to a location via the shipping_locations table"
+      - name: stock
+        description: "Available stock for the variant in the specific CD. If the stock is infinite, the field will be null."
+      - name: created_at
+        description: "Timestamp when the inventory level was created"
+      - name: updated_at
+        description: "Timestamp when the inventory level was last updated"
+      - name: deleted_at
+        description: "Timestamp when the inventory level was deleted"
+
+  - name: mwp_user_languages
+    description: "Table with user languages (from 'Paises Habilitados')"
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: id
+        description: "Unique identifier for the user language"
+        tests:
+          - not_null
+          - unique
+      - name: store_id
+        description: "Unique identifier of the store linked to the user language."
+        tests:
+          - not_null
+      - name: language
+        description: "Language of the user (es_AR,pt_BR, etc.)"
+      - name: name
+        description: "Name of the user language (Español, Português, etc.)"
+      - name: currency
+        description: "Currency of the user language (ARS, BRL, etc.)"
+      - name: active
+        description: "If the user language is active (1 or 0)"
+      - name: flag
+        description: "Flag of the user language (US,BR,ES)"
+
+  - name: mwp_user_countries
+    description: "Table with user countries (from 'Paises Habilitados')"
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: id
+        description: "Unique identifier for the user country"
+        tests:
+          - not_null
+          - unique
+      - name: store_id
+        description: "Unique identifier of the store linked to the user country."
+      - name: country_id
+        description: "Unique identifier of the country linked to the user country (mwp_countries table)"
+      - name: language_id
+        description: "Unique identifier of the language linked to the user country (mwp_user_languages table)"
+      - name: currency_id
+        description: "Unique identifier of the currency linked to the user country."
+      - name: created_at
+        description: "Timestamp when the user country was created"
+      - name: updated_at
+        description: "Timestamp when the user country was last updated"
+
+  - name: metafields__metafield_product_variants
+    description: "Contains all product variants metafields"
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: uuid
+        description: "Unique identifier for the metafield"
+        tests:
+          - not_null
+          - unique
+      - name: namespace
+        description: "Namespace of the metafield (admin vs api)"
+      - name: key
+        description: "URL key of the metafield"
+      - name: store_id
+        description: "Unique identifier of the store linked to the metafield."
+      - name: owner_resource
+        description: "Owner resource of the metafield"
+      - name: value_type
+        description: "Value type of the metafield (1 ='text_list', 2 'text',3 = 'numeric', 4 = 'date')"
+      - name: source
+        description: "Source of the metafield"
+      - name: name
+        description: "Name of the metafield"
+      - name: description
+        description: "Description of the metafield"
+      - name: created_at
+        description: "Timestamp when the metafield was created"
+      - name: updated_at
+        description: "Timestamp when the metafield was last updated"
+      - name: deleted_at
+        description: "Timestamp when the metafield was deleted"
+      - name: read_only
+        description: "If the metafield is read only (1 or 0)"
+      - name: app_id
+        description: "Unique identifier of the app linked to the metafield."
+
+  - name: metafields__metafield_products
+    description: "Contains all products metafields"
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: uuid
+        description: "Unique identifier for the metafield"
+        tests:
+          - not_null
+          - unique
+      - name: namespace
+        description: "Namespace of the metafield (admin vs api)"
+      - name: key
+        description: "URL key of the metafield"
+      - name: store_id
+        description: "Unique identifier of the store linked to the metafield."
+      - name: owner_resource
+        description: "Owner resource of the metafield"
+      - name: value_type
+        description: "Value type of the metafield (1 ='text_list', 2 'text',3 = 'numeric', 4 = 'date'"
+      - name: source
+        description: "Source of the metafield"
+      - name: name
+        description: "Name of the metafield"
+      - name: description
+        description: "Description of the metafield"
+      - name: read_only
+        description: "If the metafield is read only (1 or 0)"
+      - name: app_id
+        description: "Unique identifier of the app the metafield was created from"
+      - name: created_at
+        description: "Timestamp when the metafield was created"
+      - name: updated_at
+        description: "Timestamp when the metafield was last updated"
+      - name: deleted_at
+        description: "Timestamp when the metafield was deleted"
+
+  - name: mwp_product_list
+    description: "Contains all products"
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: id
+        description: "Unique identifier for the product"
+        tests:
+          - not_null
+          - unique
+      - name: store_id
+        description: "Unique identifier of the store linked to the product."
+      - name: publish
+        description: "If the product is published/visible in the store (1 or 0)"
+      - name: free_shipping
+        description: "If the product has free shipping (1 or 0)"
+      - name: created_at
+        description: "Timestamp when the product was created"
+      - name: updated_at
+        description: "Timestamp when the product was last updated"
+      - name: deleted_at
+        description: "Timestamp when the product was deleted"
+      - name: brand
+        description: "Brand of the product (data from merchant)"
+      - name: gtin
+        description: "GTIN of the product (data from merchant)"
+      - name: mpn
+        description: "MPN of the product (data from merchant)"
+      - name: gender
+        description: "Gender of the product (data from merchant)"
+      - name: age_group
+        description: "Age group of the product (data from merchant)"
+      - name: evaluated_at
+        description: "Timestamp when the product was evaluated"
+      - name: name_invalid_at
+        description: "Timestamp when the product name was invalid"
+      - name: suggested_name
+        description: "Suggested name of the product"
+      - name: min_price
+        description: "Minimum price of the product"
+      - name: max_price
+        description: "Maximum price of the product"
+      - name: sold_qty
+        description: "Quantity of the product sold"
+      - name: has_stock
+        description: "If the product has stock (1 or 0)"
+      - name: requires_shipping
+        description: "If the product requires shipping - digital or physical (1 or 0)"
+      - name: video_url
+        description: "URL of a product video if available. This field is only populated with links to videos, not the videos directly uploaded to Tiendanube"
+      
+  - name: mwp_product_variants
+    description: "Contains all product variants"
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: id
+        description: "Unique identifier for the variant"
+        tests:
+          - not_null
+          - unique
+      - name: product_id
+        description: "Unique identifier of the product linked to the variant."
+      - name: order
+        description: "Order of the variant within the product"
+      - name: price
+        description: "Price of the variant"
+      - name: promotional_price
+        description: "Promotional price of the variant"
+      - name: promotional_discount_price
+        description: "Promotional discount price of the variant"
+      - name: weight
+        description: "Weight of the variant"
+      - name: stock
+        description: "Stock of the variant"
+      - name: sku
+        description: "SKU of the variant"
+      - name: created_at
+        description: "Timestamp when the variant was created"
+      - name: updated_at
+        description: "Timestamp when the variant was last updated"
+      - name: deleted_at
+        description: "Timestamp when the variant was deleted"
+      - name: height
+        description: "Height of the variant"
+      - name: width
+        description: "Width of the variant"
+      - name: depth
+        description: "Depth of the variant"
+      - name: image_id
+        description: "Unique identifier of the image linked to the variant."
+      - name: barcode
+        description: "Barcode of the variant"
+      - name: mpn
+        description: "MPN of the variant"
+      - name: gender
+        description: "Gender of the variant"
+      - name: age_group
+        description: "Age group of the variant"
+
+  - name: mwp_product_videos
+    description: "Contains all product videos uploaded to Tiendanube"
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: id
+        description: "Unique identifier for the video"
+        tests:
+          - not_null
+          - unique
+      - name: order
+        description: "Order of the video within the product"
+      - name: store_id
+        description: "Unique identifier of the store linked to the video."
+      - name: product_id
+        description: "Unique identifier of the product linked to the video."
+      - name: video_id
+        description: "Unique identifier of the video linked to the product."
+      - name: created_at
+        description: "Timestamp when the video was created"
+      - name: updated_at
+        description: "Timestamp when the video was last updated"
+      - name: deleted_at
+        description: "Timestamp when the video was deleted"
+
+  - name: mwp_stock_history
+    description: "Contains all the stock changes and variant creations with information on the source of the change"
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: id
+        description: "Unique identifier for the stock change"
+        tests:
+          - not_null
+          - unique
+      - name: variant_id
+        description: "Unique identifier of the variant linked to the stock change."
+      - name: store_id
+        description: "Unique identifier of the store linked to the stock change."
+      - name: user_id
+        description: "Unique identifier of the user linked to the stock change."
+      - name: user_display_name
+        description: "Display name of the user that made the stock change"
+      - name: employee_id
+        description: "Unique identifier of the employee linked to the stock change."
+      - name: app_id
+        description: "Unique identifier of the app the stock change was made from"
+      - name: app_display_name
+        description: "Display name of the app the stock change was made from"
+      - name: order_id
+        description: "The order id that caused the stock change, if any"
+      - name: order_number
+        description: "Number of the order that caused the stock change, if any"
+      - name: stock_operation
+        description: "Operation performed on the stock (addition, replacement, substraction)"
+      - name: previous_stock
+        description: "Previous stock of the variant"
+      - name: current_stock
+        description: "Current stock of the variant"
+      - name: previous_location_id
+        description: "location id where the stock was (if transferred)"
+      - name: location_id
+        description: "location id where the stock is"
+      - name: current_location_id
+        description: "location id where the stock is (if transferred)"
+      - name: from_location_id
+        description: "location id where the stock was (if transferred)"
+      - name: event
+        description: "Event that triggered the stock change (variant-stock-changed, variant-created, variant-duplicated)"
+      - name: source
+        description: "Source of the stock change (checkout, api, admin, csv_import)"
+      - name: source_details
+        description: "Details of the source of the stock change."
+      - name: device
+        description: "Device used to perform the stock change."
+      - name: ip
+        description: "IP address of the device used to perform the stock change."
+      - name: created_at
+        description: "Timestamp when the stock change was created"
+      - name: year_month_code
+        description: "Reference year and month. Also the field used to partition the table."
+
+    

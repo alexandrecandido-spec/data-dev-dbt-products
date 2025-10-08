@@ -39,6 +39,8 @@ sources:
         description: "Table with zipcodes from Mexico."
       - name: ceps
         description: "Table with zipcodes from Brazil."
+      - name: mwp_options
+        description: "Information on themes for each store"
       - name: mwp_contracts
         description: "Table with contracts information"
       - name: mwp_shipping_carriers_options
@@ -205,14 +207,7 @@ sources:
         description: "Table with order fullfilment data"
       - name: order_saved_search
         description: "Table with orders saved searches"
-  - name: int_shipping
-    database: null
-    schema: shipping
-    description: "Intermediate tables built from raw data in the shipping schema, typically used to normalize or enrich store-level information."
-    tables:
-      - name: locations
-        description: "Contains information about address by merchants."
-
+      
   - name: int_storefronts_curated
     database: null
     schema: storefronts_curated
@@ -243,3 +238,11 @@ sources:
         description: "Accounting data about shipping"
       - name: pre_invoice
         description: "Table with Order's invoices informations"
+
+  - name: int_shipping
+    database: null
+    schema: shipping
+    description: "Staging tables built from raw data in the shipping schema, typically used to normalize or enrich store-level information."
+    tables:
+      - name: locations
+        description: "Contains information about the store's distribution centers"

@@ -19,6 +19,10 @@ sources:
         description: "Contains all the list of stores who installed and or uninstalled an app"
       - name: mwp_tags
         description: "Tags associadas a lojas e outras entidades. Inclui flags como sre-block-store-404 e sre-block-store-429"
+      - name: mwp_user_languages
+        description: "Table with user languages (from 'Paises Habilitados')"
+      - name: mwp_user_countries
+        description: "Table with user countries (from 'Paises Habilitados')"
       - name: mwp_store_settings
       - name: mwp_countries
       - name: mwp_provinces
@@ -161,8 +165,6 @@ sources:
       - name: invoice_information_ar
         description: "Contains additional fiscal information specific to Argentina for invoice issuance and tax compliance"
       
-
-
   - name: stg_nuvem_envio_billing
     database: null
     schema: nuvem_envio_billing
@@ -205,6 +207,32 @@ sources:
       - name: analytics_events
         description: "Raw events from marketing analytics"
 
+  - name: stg_catalog
+    database: null
+    description: "Source containing tables related to catalog"
+    schema: catalog
+    tables:
+      - name: mwp_product_categories
+        description: "Contains the list of every product category"
+      - name: mwp_inventory_levels
+        description: "Contains information stock on each CD for each variant"
+      - name: mwp_product_list 
+        description: "Contains all products"
+      - name: mwp_product_variants
+        description: "Contains all product variants"
+      - name: mwp_product_videos
+        description: "Contains all product videos"
+      - name: mwp_stock_history
+        description: "Contains all the stock changes and variant creations with information on the source of the change"
+
+  - name: stg_shipping
+    database: null
+    schema: shipping
+    description: "Staging tables built from raw data in the shipping schema, typically used to normalize or enrich store-level information."
+    tables:
+      - name: locations
+        description: "Contains information about the store's distribution centers"
+
   - name: stg_storefronts
     database: null
     description: "Source containing tables related to storefronts events and sessions"
@@ -235,3 +263,13 @@ sources:
       - name: midmarket_hubspot_email
       - name: midmarket_hubspot_communications
       - name: midmarket_hubspot_tasks
+
+  - name: stg_metafields
+    database: null
+    schema: metafields
+    description: "Intermediate tables built from the multiple metafields tables"
+    tables:
+      - name: metafield_product_variants
+        description: "Contains all product variants metafields"
+      - name: metafield_products
+        description: "Contains all products metafields"
