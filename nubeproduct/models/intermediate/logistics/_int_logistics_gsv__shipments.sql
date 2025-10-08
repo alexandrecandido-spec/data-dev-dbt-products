@@ -42,8 +42,8 @@ info_complementar AS (
         ANY_VALUE(store_creation_date) AS store_creation_date,
         ANY_VALUE(store_state_name) AS store_state_name,
         ANY_VALUE(completed_at) AS completed_at,
-        ANY_VALUE(final_date) AS final_date,
-        ANY_VALUE(postage_label_creation_date) AS postage_label_creation_date,
+        ANY_VALUE(posted_at) AS posted_at,
+        ANY_VALUE(postage_label_created_at) AS postage_label_created_at,
         ANY_VALUE(shipment_type) AS shipment_type,
         ANY_VALUE(gsv) AS gsv,
         ANY_VALUE(gmv) AS gmv,
@@ -70,8 +70,8 @@ SELECT
     i.store_creation_date,
     i.store_state_name,
     i.completed_at,
-    i.final_date,
-    i.postage_label_creation_date,
+    i.posted_at,
+    i.postage_label_created_at,
     CASE 
       WHEN s.delivery_status = 'created' AND i.shipment_type  = 'Paid delivered order' THEN 'Postage label created' 
       WHEN s.delivery_status = 'created' AND i.shipment_type  = 'Cancelled delivered order' THEN 'Postage label created' 
@@ -96,4 +96,3 @@ FROM status_priorizado s
     ON s.shipment_id = c.shipment_id
   LEFT JOIN info_complementar i 
     ON s.shipment_id = i.shipment_id
-WHERE delivery_status IN ('created', 'posted')

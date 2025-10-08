@@ -16,7 +16,7 @@
 WITH
 base AS (
   SELECT
-    DATE(DATE_TRUNC('DAY', COALESCE(final_date, completed_at))) AS date_ref,
+    DATE(DATE_TRUNC('DAY', COALESCE(posted_at, completed_at))) AS date_ref,
     store_id,
     domain,
     current_segment,

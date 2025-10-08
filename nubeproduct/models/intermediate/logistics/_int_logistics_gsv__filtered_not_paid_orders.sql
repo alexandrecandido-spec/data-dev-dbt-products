@@ -41,7 +41,7 @@ SELECT
 FROM filtered_not_paid_orders fnpo 
     INNER JOIN {{ ref('moltres__mwp_store_info') }} i 
         ON fnpo.store_id = i.store_id
-        AND i.country = 'BR'
+        AND i.country IN ('BR', 'AR', 'MX')
         AND i.state <> 4
     LEFT JOIN {{ ref('_int_logistics_gsv__filtered_paid_orders') }} p 
       ON p.order_id = fnpo.order_id

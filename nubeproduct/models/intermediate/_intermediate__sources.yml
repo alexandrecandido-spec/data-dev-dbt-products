@@ -226,3 +226,10 @@ sources:
         description: "Accounting data about shipping"
       - name: pre_invoice
         description: "Table with Order's invoices informations"
+
+  - name: int_logistics_tracking
+    database: null
+    schema: logistics_tracking
+    tables:
+      - name: tracking_history
+        description: "Shipments tracking history"

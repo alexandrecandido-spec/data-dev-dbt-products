@@ -8,8 +8,8 @@
 -- Result: base table for all logistics shipment analysis.
 
  SELECT
-    COALESCE(ff.order_id, ao.order_id, fdo.delivery_order_id)         AS shipment_id,
-    COALESCE(ff.payment_status, ao.payment_status, 'detached')       AS payment_status,
+    COALESCE(ff.order_id, ao.order_id, fdo.id)                        AS shipment_id,
+    COALESCE(ff.payment_status, ao.payment_status, 'detached')        AS payment_status,
     fdo.store_id,
     mi.domain,
     mi.current_segment_name                                           AS current_segment,
@@ -18,12 +18,13 @@
     mi.created_at                                                     AS store_creation_date,
     mi.base_state_name                                                AS store_state_name,
     CAST(COALESCE(ff.completed_at, ao.completed_at) AS DATE)          AS completed_at,
-    CAST(COALESCE(p.posted_at, 
-      COALESCE(ff.completed_at, ao.completed_at)) AS DATE)            AS final_date,
-    fdo.postage_label_creation_date,
+    fdo.postage_label_created_at                                      AS postage_label_created_at,
+    CAST(GREATEST(ds.posted_at, fdo.postage_label_created_at,
+      ff.completed_at, ao.completed_at) AS DATE)                      AS posted_at,
+    
 
     CASE
-      WHEN ff.class IS NOT NULL THEN 'Fulfillment order'
+      WHEN ff.class IS NOT NULL THEN 'Fullfillment order'
       WHEN ao.class = 'Cancelled order' THEN 'Cancelled delivered order'
       WHEN ao.class = 'Paid order' THEN 'Paid delivered order'
       ELSE 'Detached'
@@ -54,11 +55,13 @@
 
     CASE
       WHEN spi.carrier_name = 'Nuvem Envio' THEN 1
+      WHEN spi.carrier_name = 'Envío Nube' THEN 1
       ELSE 0
       END                                                             AS flg_ne_selected,
 
     CASE
       WHEN spi.carrier_name = 'Nuvem Envio' THEN 1
+      WHEN spi.carrier_name = 'Envío Nube' THEN 1
       ELSE COALESCE(ns.flg_ne_enabled,0)
       END                                                              AS flg_ne_enabled,
 
@@ -70,26 +73,33 @@
       WHEN fdo.carrier_code = 'loggi' THEN 'Loggi'
       WHEN fdo.carrier_code = 'mandae' THEN 'Mandae'
       WHEN fdo.carrier_code = 'jadlog' THEN 'Jadlog'
+      WHEN fdo.carrier_code = 'correo-argentino' THEN 'Correo Argentino'
+      WHEN fdo.carrier_code = 'andreani' THEN 'Andreani'
+      WHEN fdo.carrier_code = 'envia' THEN 'Envia'      
       ELSE NULL
     END                                                                 AS delivery_shipping_partner,
 
+    ds.delivery_status,
 
-    CASE
-      WHEN ae.billing_status = 'provisioned' 
-        AND ae.type = 'deliveryOrder' THEN 'created'
-      WHEN ae.billing_status IN ('billed', 'pre-billed') 
-        AND ae.type = 'deliveryOrder' THEN 'posted'
-      WHEN p.posted_at IS NOT NULL THEN 'posted'
-      ELSE 'other_delivery_status'
-    END                                                                 AS delivery_status,
 
-  'BR'                                                                  AS country
+    -- CASE
+    --   WHEN ae.billing_status = 'provisioned' 
+    --     AND ae.type = 'deliveryOrder' THEN 'created'
+    --   WHEN ae.billing_status IN ('billed', 'pre-billed') 
+    --     AND ae.type = 'deliveryOrder' THEN 'posted'
+    --   WHEN p.posted_at IS NOT NULL THEN 'posted'
+    --   ELSE 'other_delivery_status'
+    -- END                                                                 AS delivery_status,
+
+  fdo.country                                                           AS country
 
 FROM {{ ref('_int_logistics_gsv__filtered_delivery_order') }} fdo
-    LEFT JOIN {{source('int_nuvem_envio_conciliation', 'accounting_entry') }} ae
-      ON fdo.delivery_order_id = ae.delivery_order_id
-    LEFT JOIN {{source('int_nuvem_envio_conciliation', 'pre_invoice') }} p 
-      ON fdo.delivery_order_id = p.delivery_order_id
+    -- LEFT JOIN {{source('int_nuvem_envio_conciliation', 'accounting_entry') }} ae
+    --   ON fdo.id = ae.delivery_order_id
+    -- LEFT JOIN {{source('int_nuvem_envio_conciliation', 'pre_invoice') }} p 
+    --   ON fdo.id = p.delivery_order_id
+    LEFT JOIN {{ ref('_int_logistics_gsv__delivery_status') }} ds
+      ON fdo.id = ds.id
     LEFT JOIN {{ ref('_int_logistics_gsv__fullfilment_orders') }} ff
       ON fdo.order_id = ff.fulfillment_order_id
     LEFT JOIN {{ ref('_int_logistics_gsv__all_orders') }} ao

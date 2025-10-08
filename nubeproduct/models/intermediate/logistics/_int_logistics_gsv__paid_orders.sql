@@ -32,8 +32,8 @@ SELECT
     mi.created_at AS store_creation_date,
     mi.base_state_name AS store_state_name,
     CAST(poa.completed_at AS DATE) AS completed_at,
-    NULL AS final_date,
-    NULL AS postage_label_creation_date,
+    NULL AS posted_at,
+    NULL AS postage_label_created_at,
     poa.shipment_type,
     NULL AS gsv,
     poa.gmv,
@@ -43,10 +43,12 @@ SELECT
     COALESCE(ff.flg_multicd, 0) AS flg_multicd,
     CASE
       WHEN spi.carrier_name = 'Nuvem Envio' THEN 1
+      WHEN spi.carrier_name = 'Envío Nube' THEN 1
       ELSE 0
       END AS flg_ne_selected,
     CASE
       WHEN spi.carrier_name = 'Nuvem Envio' THEN 1
+      WHEN spi.carrier_name = 'Envío Nube' THEN 1
       ELSE COALESCE(ns.flg_ne_enabled,0)
       END AS flg_ne_enabled,
     COALESCE(spi.selected_shipping_partner, 'Custom') AS selected_shipping_partner,

@@ -24,4 +24,4 @@ FROM {{ ref('company_metrics_paid_orders') }}
 WHERE year_month_day_code >= 20230101
   AND platform_type = 'on'
   AND storefront <> 'pos'
-  AND country = 'BR'
+  AND country IN ('BR', 'AR', 'MX')

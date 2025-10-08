@@ -4,6 +4,7 @@ SELECT
     year_month_code,
     id,
     created_at,
+    DATE(dispatched_at) AS dispatched_at,
     external_sale_order_id AS order_id,
     CAST(external_store_id AS INT) AS store_id,
     carrier_code,

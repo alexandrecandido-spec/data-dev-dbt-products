@@ -21,4 +21,4 @@ SELECT
 FROM all_stores
 GROUP BY store_id
   HAVING 
-    COUNT(DISTINCT CASE WHEN carrier_name = 'Nuvem Envio' THEN carrier_name END) > 0
+    COUNT(DISTINCT CASE WHEN carrier_name = 'Nuvem Envio' OR carrier_name = 'Envío Nube'  THEN carrier_name END) > 0

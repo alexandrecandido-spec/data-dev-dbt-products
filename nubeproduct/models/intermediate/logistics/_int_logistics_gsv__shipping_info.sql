@@ -9,6 +9,7 @@ SELECT
     carrier_name,
     CASE
       WHEN carrier_name = 'Nuvem Envio' THEN CONCAT(carrier_name, ' - ', shipping_partner)
+      WHEN carrier_name = 'Envío Nube' THEN CONCAT(carrier_name, ' - ', shipping_partner)
       WHEN carrier_name IN ('Correo Argentino Shipping', 'Correios', 'Envío Nube', 'Andreani Online',
                             'Melhor Envio', 'Mandaê', 'Frenet', 'Shipnow', 'OCA', 'Total Express',
                             'Manda Bem', 'Shippy', 'SuperFrete', 'Urbano Envios', 'Fast Mail', 'JadLog',
