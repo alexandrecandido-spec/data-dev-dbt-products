@@ -1,7 +1,7 @@
 -- Adds N time units (default: 4 months) to the max date field found in the table.
 -- period_unit = 'day' | 'week' | 'month'
 
-{% macro get_max_date_range(this, date_field='event_date', period_value=4, period_unit='month') %}
+{% macro get_max_date_range(relation=this, date_field='event_date', period_value=4, period_unit='month') %}
 
     -- Defensive validation of period_unit
     {% if period_unit not in ['month', 'week', 'day'] %}
@@ -12,7 +12,7 @@
         SELECT 
             COALESCE(MAX(DATE({{ date_field }})), DATE('1900-01-01')) AS max_date
         FROM 
-            {{ this }}
+            {{ relation }}
     )
 
     , max_date_add AS (
