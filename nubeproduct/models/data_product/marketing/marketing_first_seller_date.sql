@@ -46,7 +46,7 @@ FROM first_seller f
 LEFT JOIN existing_data e ON f.store_id = e.store_id 
 WHERE
     {% if not is_incremental() %}
-     (first_seller_at >= DATE '2023-01-01' OR first_seller_at IS NULL)
+     (first_seller_at >= DATE '2020-01-01' OR first_seller_at IS NULL)
     {% endif %}
     {% if is_incremental() %}
      (

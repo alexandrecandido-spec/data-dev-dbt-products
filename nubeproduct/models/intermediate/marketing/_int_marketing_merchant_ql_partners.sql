@@ -16,11 +16,10 @@ pd as (
   from {{ ref('partners_agencies_affiliates_stores') }}
 ),
 
--- Agrego flags por store (evita duplicados)
+-- Flags por store (ya queda 1x store_id)
 partner_flags as (
   select
     b.store_id,
-
     max(case
           when p.partner_id is not null
            and p.mkt_exclusion is null
@@ -45,17 +44,19 @@ partner_flags as (
            and p.partner_country_code = b.country_code
           then p.affiliate_classification
         end)                                                       as affiliate_classification_local
-
   from base b
-  left join pd p on b.store_id = p.store_id
+  left join pd p
+    on b.store_id = p.store_id
   group by 1
 ),
 
+-- QL profiles: colapsar a 1x store_id (evita fan-out)
 ql_profiles as (
   select
     store_id,
-    profile as ql_profile
+    max(profile) as ql_profile        -- determinístico y simple
   from {{ source('int_data_predictors','marketing_new_payment_predictor_profiles') }}
+  group by store_id
 )
 
 select
@@ -79,4 +80,5 @@ select
 
 from base b
 left join partner_flags pf on b.store_id = pf.store_id
-left join ql_profiles  qp on b.store_id = qp.store_id
+left join ql_profiles  qp  on b.store_id = qp.store_id
+

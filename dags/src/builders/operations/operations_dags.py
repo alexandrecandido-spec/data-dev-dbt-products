@@ -77,6 +77,13 @@ dag = create_dbt_dag(
     tags=['operations','monthly-1st-10AM']
 )
 
+dag = create_dbt_dag(
+    dag_id='dbt_operations_monthly-4st-10AM',
+    schedule_interval_tag='monthly-4st-10AM',
+    default_args=default_args,
+    tags=['operations','monthly-4st-10AM']
+)
+
 # Crear el DAG frecuencia diaria
 dag = create_dbt_dag(
     dag_id='dbt_operations_daily-12pm',

@@ -5,6 +5,7 @@ with franchise_and_interaction as (
         sid.store_id,
         lower(trim(t.tag)) as franchise_group,
         lri.last_relevant_interaction,
+        sid.in_portfolio,
             ROW_NUMBER() OVER (
             PARTITION BY t.related_id
             ORDER BY t.created DESC
@@ -12,7 +13,8 @@ with franchise_and_interaction as (
     from  {{ source('int_moltres', 'mwp_tags') }} t
         inner join {{ ref('midmarket_success_stores') }} sid
             on t.related_id = sid.store_id 
-            and sid.in_portfolio = true
+            and (sid.in_portfolio = true
+                or sid.store_id in (select store_id from {{ ref('_int_midmarket_wbr_mbr__last_month_stores') }}))
         left join {{ ref('_int_midmarket_wbr_mbr__last_relevant_interaction') }} lri
             on sid.store_id = lri.store_id
     where 
@@ -30,6 +32,7 @@ max_interaction as (
 )
 select 
     store_id,
+    in_portfolio,
     fai.franchise_group,
     last_group_interaction
 from 
