@@ -6,14 +6,7 @@
     tags = ['product', 'daily-9pm']
 ) }}
 
-WITH
-{% if is_incremental() %}
-    {{ get_max_date_range(this, 'base_date', 4, 'month') }}
-    , sessions AS (
-{% else %}
-    sessions AS (
-{% endif %}
-
+WITH sessions AS (
 SELECT
     MD5(CONCAT_WS('_', session_id, consumer_id, store_id)) AS unique_session_key
     , ses.timestamp AS session_timestamp
@@ -35,21 +28,11 @@ SELECT
     , NULLIF(LOWER(ses.http_referral), '') AS http_referral
 FROM
     {{ source('stg_storefronts', 'sessions') }} AS ses
-
-{% if is_incremental() %}
-CROSS JOIN max_date_add
-{% endif %}
-
 WHERE 
     DATE(ses.timestamp) >= DATE('2024-01-01')
 
-    {% if not is_incremental() %}
-        AND DATE(ses.timestamp) BETWEEN DATE('2024-01-01') AND DATE('2024-01-05')
-    {% else %}
-        AND DATE(ses.timestamp) >= max_date_add.max_date
-        AND DATE(ses.timestamp) <= max_date_add.max_date_range
-        --AND sys_audit_updated_on >= (
-        --    SELECT COALESCE(MAX(sys_audit_updated_on), DATE '1900-01-01') FROM {{ this }})
+    {% if is_incremental() %}
+    AND ses.date_id >= DATE_FORMAT((SELECT MAX(base_date) FROM {{ this }}), 'yyyyMMdd')
     {% endif %}
 )
 
