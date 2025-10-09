@@ -143,11 +143,11 @@ ranked_store_info AS
         CASE 
             WHEN SI.first_payment IS NOT NULL 
                 AND SI.churned_at IS NULL
-                AND SI.plan_group != 'freemium'    
+                AND OGP.grupo != 'freemium'    
             THEN 'Paying'    
             WHEN SI.churned_at IS NOT NULL
             THEN 'Churned'     
-            WHEN plan_group = 'freemium'   
+            WHEN OGP.grupo = 'freemium'   
             THEN 'Freemium'
         ELSE 'Trial'
         END AS payment_lifecycle_status,
