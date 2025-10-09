@@ -47,8 +47,10 @@ WITH store_tags AS (
         partner_id,
         partnership_type,
         domain,
+        disabled,
         CASE WHEN store_tags.store_id IS NOT NULL THEN TRUE ELSE FALSE END AS is_store_blocked,
-        custom_theme
+        custom_theme,
+        paid_until
     FROM {{ source('stg_moltres', 'mwp_store_info') }} AS msi
     LEFT JOIN 
         store_tags
@@ -85,8 +87,10 @@ SELECT
     partner_id, 
     partnership_type, 
     domain,
+    disabled,
     is_store_blocked,
     custom_theme,
+    paid_until,
     COALESCE(e.sys_audit_created_on, current_timestamp) AS sys_audit_created_on,
     COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by,
     current_timestamp AS sys_audit_updated_on,

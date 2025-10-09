@@ -144,6 +144,10 @@ models:
           values: [TRUE, FALSE]
       - name: custom_theme
         description: "Identifies the date on which the store began using a custom theme (open FTP). If the field is blank, the store is using a default theme (closed FTP)."
+      - name: disabled
+        description: "Boolean flag indicating if the store is disabled/cancelled."
+      - name: paid_until
+        description: "Date when the store's paid subscription expires. Null if the store doesn't have a paid subscription."
       - name: sys_audit_created_on
         description: "Timestamp when the record was first loaded into the model. Defaults to current_timestamp if not available."
       - name: sys_audit_created_by
