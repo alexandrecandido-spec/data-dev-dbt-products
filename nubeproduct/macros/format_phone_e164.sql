@@ -43,8 +43,8 @@
                     number
 
                 -- Case 3: Number already contains area code (duplication detected)
-                when number != '' and length(number) >= 10
-                    and area != '' and number like concat(area, '%') then
+                when area != '' and number != ''
+                    and number like concat(area, '%') then
                     case
                         when country != '' and length(country) <= 3 then
                             concat(country, number)
@@ -66,23 +66,49 @@
                 when area != '' and number != '' and country = '' then
                     concat(area, number)
 
-                -- Case 7: Only number field with 10+ digits
-                when number != '' and length(number) >= 10 then
+                -- Case 7: Only number field with 9+ digits
+                when number != '' and length(number) >= 9 then
                     number
 
                 else null
             end as phone_digits
         from phone_number_without_leading_zeros
+    ),
+
+    normalized_argentina_phones as (
+        select
+            case
+                -- Already normalized (starts with 549)
+                when phone_digits like '549%' then
+                    phone_digits
+
+                -- Remove "15" directly after country code (5415xxx → 549xxx)
+                when phone_digits like '5415%' then
+                    concat('549', substring(phone_digits, 5))
+
+                -- Remove "15" after area code (54-area-15-number → 549-area-number)
+                when phone_digits like '54%'
+                    and regexp_like(substring(phone_digits, 3), '^[0-9]{2,4}15') then
+                    concat('549', regexp_replace(substring(phone_digits, 3), '^([0-9]{2,4})15', '\\1'))
+
+                -- Add "9" after country code (54xxx → 549xxx)
+                when phone_digits like '54%' then
+                    concat('549', substring(phone_digits, 3))
+
+                else
+                    phone_digits
+            end as phone_digits
+        from phone_number_extraction
     )
 
     select
         case
             when phone_digits is not null
-                and length(phone_digits) between 9 and 15
+                and length(phone_digits) between 8 and 15
                 then concat('+', phone_digits)
             else null
         end as phone
-    from phone_number_extraction
+    from normalized_argentina_phones
 )
 {% endmacro %}
 

@@ -11,10 +11,7 @@ with
         select
             user_id,
             email,
-            coalesce(
-                nullif(trim(name), ''),
-                'User-' || cast(user_id as string)
-            ) as name,
+            name,
             store_id,
             phone,
             has_store,
