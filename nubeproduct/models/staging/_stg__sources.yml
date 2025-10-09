@@ -235,3 +235,7 @@ sources:
       - name: midmarket_hubspot_email
       - name: midmarket_hubspot_communications
       - name: midmarket_hubspot_tasks
+      - name: marketing_google_search_console_urls_results
+        description: "Results from the Google Search Console URLs report"
+      - name: marketing_google_search_console_urls_unsplit_results
+        description: "Results from the Google Search Console URLs unsplit report"

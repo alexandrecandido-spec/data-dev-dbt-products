@@ -38,6 +38,15 @@ models:
         description: "System or user that last updated the row."
         tests:
           - not_null
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - full_url
+            - path
+            - search_type
+            - country_name
+            - device
 
 
   - name: moltres__contracts
@@ -1602,3 +1611,118 @@ models:
       - name: impact
         description: "Only for Mid Market stores, determines the criticity of the comment"
 
+  - name: gsc__url_results
+    description: "Staging model with Google Search Console URL results by date, URL, search type, country and device."
+    config:
+      meta:
+        owner: "yan.santos@tiendanube.com"
+        domain: "product"
+        business_owner: "Giselle Galli"
+    columns:
+      - name: date
+        description: "Date of the Search Console metric."
+        tests:
+          - not_null
+      - name: full_url
+        description: "Full URL for which the metrics were recorded."
+        tests:
+          - not_null
+      - name: path
+        description: "Path component of the URL."
+        tests:
+          - not_null
+      - name: search_type
+        description: "Search type reported by Search Console."
+        tests:
+          - not_null
+      - name: country_name
+        description: "Country name for which the metrics were aggregated."
+        tests:
+          - not_null
+      - name: device
+        description: "Device category reported by Search Console."
+      - name: impressions
+        description: "Number of impressions."
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "impressions >= 0"
+      - name: clicks
+        description: "Number of clicks."
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "clicks >= 0"
+      - name: average_position
+        description: "Average position for the URL in search results."
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "System or user that created the row."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this table."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row."
+        tests:
+          - not_null
+
+  - name: gsc__url_unsplit_results
+    description: "Staging model with Google Search Console URL results by date, URL, search type, country and device."
+    config:
+      meta:
+        owner: "yan.santos@tiendanube.com"
+        domain: "product"
+        business_owner: "Giselle Galli"
+    columns:
+      - name: date
+        description: "Date of the Search Console metric."
+        tests:
+          - not_null
+      - name: full_url
+        description: "Full URL for which the metrics were recorded."
+        tests:
+          - not_null
+      - name: path
+        description: "Path component of the URL."
+        tests:
+          - not_null
+      - name: search_type
+        description: "Search type reported by Search Console."
+        tests:
+          - not_null
+      - name: impressions
+        description: "Number of impressions."
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "impressions >= 0"
+      - name: clicks
+        description: "Number of clicks."
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "clicks >= 0"
+      - name: position
+        description: "Position for the URL in search results."
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "System or user that created the row."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this table."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row."
+        tests:
+          - not_null

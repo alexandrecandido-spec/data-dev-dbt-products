@@ -1647,3 +1647,48 @@ models:
         description: "Timestamp when the record was last updated in the DWH."
       - name: sys_audit_updated_by
         description: "Process/system that last updated the record."
+
+  - name: marketing_gsc__growth_results
+    description: "Incremental dataset of Google Search Console growth results by date, full URL, path, search type, country name, device, impressions, clicks, and average position."
+    config:
+      meta:
+        owner: "yan.santos@nuvemshop.com.br"
+        business_owner: "Giselle Galli"
+        domain: "marketing"
+    columns:
+      - name: date
+        description: "Record date from GSC dataset."
+        tests: [not_null]
+      - name: full_url
+        description: "Full landing page URL."
+      - name: path
+        description: "URL path component starting with '/'."
+      - name: search_type
+        description: "GSC search type."
+        tests: [not_null]
+      - name: country_name
+        description: "Country name reported by GSC or 'Sin Identificar'."
+        tests: [not_null]
+      - name: device
+        description: "Device category reported by GSC or 'Sin Identificar'."
+      - name: impressions
+        description: "Total impressions."
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "impressions >= 0"
+      - name: clicks
+        description: "Total clicks."
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "clicks >= 0"
+      - name: average_position
+        description: "Average position (rounded to 2 decimals)."
+      - name: subteam
+        description: "Content subteam classification derived from URL patterns."
+      - name: classified_country
+        description: "Business country classification (e.g., BR, AR, MX, CO, CL, Otros)."
+        tests: [not_null]
+        accepted_values:
+          values: ['BR', 'AR', 'MX', 'CO', 'CL', 'Otros']
