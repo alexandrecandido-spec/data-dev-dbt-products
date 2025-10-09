@@ -33,6 +33,7 @@ select
     saved_search_per_page,
     saved_search_date_from,
     saved_search_date_to,
+    saved_search_date_range,
     saved_search_status,
     saved_search_payment_status,
     saved_search_fulfillment_status,

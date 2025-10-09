@@ -922,6 +922,8 @@ models:
         description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
       - name: saved_search_date_to
         description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
+      - name: saved_search_date_range
+        description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
       - name: saved_search_status
         description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
       - name: saved_search_payment_status
