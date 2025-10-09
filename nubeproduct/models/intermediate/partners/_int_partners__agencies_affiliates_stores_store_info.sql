@@ -142,7 +142,8 @@ ranked_store_info AS
         SI.active_merchant_flg,
         CASE 
             WHEN SI.first_payment IS NOT NULL 
-                AND SI.churned_at IS NULL    
+                AND SI.churned_at IS NULL
+                AND SI.plan_group != 'freemium'    
             THEN 'Paying'    
             WHEN SI.churned_at IS NOT NULL
             THEN 'Churned'     
