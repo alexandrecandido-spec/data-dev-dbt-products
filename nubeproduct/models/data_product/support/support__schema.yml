@@ -78,3 +78,56 @@ models:
         description: "Timestamp when the row was last updated."
       - name: sys_audit_updated_by
         description: "System or user that last updated the row."
+
+  - name: support_zendesk_users_sync
+    meta:
+      owner: "santiago.gandolfo@tiendanube.com"
+      domain: "support"
+      business_owner: "Support Team"
+    description: >
+      Contains simplified user attributes for Zendesk integration from active stores only.
+    columns:
+      - name: user_id
+        description: "Unique identifier of the user. Primary key."
+        tests:
+          - not_null
+          - unique
+      - name: email
+        description: "User email address. Only includes users with non-null email."
+        tests:
+          - not_null
+      - name: name
+        description: "User name derived from the name field. If no name is available, defaults to 'User-{user_id}'."
+        tests:
+          - not_null
+      - name: store_id
+        description: "Store ID associated with the user."
+        tests:
+          - not_null
+      - name: phone
+        description: "Store owner's phone number in E.164 format (+{country}{area}{number}), with a length between 10 and 16 characters including the '+' sign."
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: "is null or (startswith(phone, '+') and regexp_like(phone, '^[+][0-9]+{10,16}$'))"
+      - name: has_store
+        description: "Boolean flag indicating if the user has a store. Always true for users from active stores."
+        tests:
+          - not_null
+      - name: user_is_partner
+        description: "Boolean flag indicating if the user is also a partner."
+        tests:
+          - not_null
+      - name: partner_id
+        description: "Partner ID if the user is also a partner, null otherwise."
+      - name: year_month_day_code
+        description: "Date code in YYYYMMDD format for partitioning."
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created."
+      - name: sys_audit_created_by
+        description: "System or user that created the row."
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated."
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row."
