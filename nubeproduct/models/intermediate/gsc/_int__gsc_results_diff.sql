@@ -45,5 +45,6 @@ LEFT JOIN orig_base o
 WHERE 
   (COALESCE(u.unsplit_impr, 0) - COALESCE(o.orig_impr, 0) > 0)
   OR (COALESCE(u.unsplit_clicks, 0) - COALESCE(o.orig_clicks, 0) > 0)
+  
 
 

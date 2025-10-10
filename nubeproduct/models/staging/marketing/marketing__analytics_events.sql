@@ -81,4 +81,4 @@ LEFT JOIN existing_data e
  AND d.event_timestamp       = e.event_timestamp
  AND d.user_pseudo_id        = e.user_pseudo_id
  AND d.batch_event_index     = e.batch_event_index
- AND d.event_name            = e.event_name
+ AND d.event_name            = e.event_name 

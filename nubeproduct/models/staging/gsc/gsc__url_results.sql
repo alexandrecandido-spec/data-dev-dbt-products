@@ -50,4 +50,4 @@ LEFT JOIN existing_data e
     AND s.path = e.path 
     AND s.search_type = e.search_type 
     AND s.country_name = e.country_name 
-    AND COALESCE(s.device, 'x') = COALESCE(e.device, 'x')
+    AND COALESCE(s.device, 'x') = COALESCE(e.device, 'x') 

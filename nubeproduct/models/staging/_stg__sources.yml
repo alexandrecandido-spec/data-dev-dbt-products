@@ -278,3 +278,4 @@ sources:
         description: "Contains all product variants metafields"
       - name: metafield_products
         description: "Contains all products metafields"
+

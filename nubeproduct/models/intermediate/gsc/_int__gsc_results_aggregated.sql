@@ -10,3 +10,4 @@
     AVG(o.average_position) AS average_position
   FROM {{ ref('gsc__url_results') }} o
   GROUP BY 1,2,3,4,5,6
+  
