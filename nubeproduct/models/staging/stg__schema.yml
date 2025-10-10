@@ -144,6 +144,10 @@ models:
           values: [TRUE, FALSE]
       - name: custom_theme
         description: "Identifies the date on which the store began using a custom theme (open FTP). If the field is blank, the store is using a default theme (closed FTP)."
+      - name: disabled
+        description: "Boolean flag indicating if the store is disabled/cancelled."
+      - name: paid_until
+        description: "Date when the store's paid subscription expires. Null if the store doesn't have a paid subscription."
       - name: sys_audit_created_on
         description: "Timestamp when the record was first loaded into the model. Defaults to current_timestamp if not available."
       - name: sys_audit_created_by
@@ -1604,7 +1608,7 @@ models:
 
 
 
-  - name: mwp_product_categories
+  - name: product__mwp_product_categories
     description: "Contains the list of every product category"
     config:
       meta:
@@ -1640,7 +1644,7 @@ models:
       - name: min_price
         description: "Minimum price for a product within the category in local currency"
 
-  - name: shipping_locations
+  - name: product__shipping_locations
     description: "Contains information on all the distribution centers of the stores"
     config:
       meta:
@@ -1676,7 +1680,7 @@ models:
       - name: year_month_code
         description: "Reference year and month. Also the field used to partition the table."
 
-  - name: mwp_inventory_levels
+  - name: product__mwp_inventory_levels
     description: "Contains information stock on each CD for each variant"
     config:
       meta:
@@ -1704,7 +1708,7 @@ models:
       - name: deleted_at
         description: "Timestamp when the inventory level was deleted"
 
-  - name: mwp_user_languages
+  - name: moltres__mwp_user_languages
     description: "Table with user languages (from 'Paises Habilitados')"
     config:
       meta:
@@ -1732,7 +1736,7 @@ models:
       - name: flag
         description: "Flag of the user language (US,BR,ES)"
 
-  - name: mwp_user_countries
+  - name: moltres__mwp_user_countries
     description: "Table with user countries (from 'Paises Habilitados')"
     config:
       meta:
@@ -1838,7 +1842,7 @@ models:
       - name: deleted_at
         description: "Timestamp when the metafield was deleted"
 
-  - name: mwp_product_list
+  - name: product__mwp_product_list
     description: "Contains all products"
     config:
       meta:
@@ -1892,7 +1896,7 @@ models:
       - name: video_url
         description: "URL of a product video if available. This field is only populated with links to videos, not the videos directly uploaded to Tiendanube"
       
-  - name: mwp_product_variants
+  - name: product__mwp_product_variants
     description: "Contains all product variants"
     config:
       meta:
@@ -1944,7 +1948,7 @@ models:
       - name: age_group
         description: "Age group of the variant"
 
-  - name: mwp_product_videos
+  - name: product__mwp_product_videos
     description: "Contains all product videos uploaded to Tiendanube"
     config:
       meta:
@@ -1972,7 +1976,7 @@ models:
       - name: deleted_at
         description: "Timestamp when the video was deleted"
 
-  - name: mwp_stock_history
+  - name: product__mwp_stock_history
     description: "Contains all the stock changes and variant creations with information on the source of the change"
     config:
       meta:

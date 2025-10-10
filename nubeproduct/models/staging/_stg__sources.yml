@@ -41,6 +41,7 @@ sources:
       - name: mwp_payment_transaction_fees
       - name: mwp_payment_apps
       - name: mwp_payment_domains
+      - name: mwp_options
       - name: wp_users
 
 

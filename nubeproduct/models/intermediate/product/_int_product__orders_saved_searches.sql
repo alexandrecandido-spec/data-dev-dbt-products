@@ -23,6 +23,7 @@ SELECT
     MAX(CASE WHEN parsed_json.key = 'q' THEN parsed_json.value ELSE NULL END) AS saved_search_q,
     MAX(CASE WHEN parsed_json.key = 'perPage' THEN parsed_json.value ELSE NULL END) AS saved_search_per_page,
     MAX(CASE WHEN parsed_json.key = 'dateFrom' THEN parsed_json.value ELSE NULL END) AS saved_search_date_from,
+    MAX(CASE WHEN parsed_json.key = 'dateRange' THEN parsed_json.value ELSE NULL END) AS saved_search_date_range,
     MAX(CASE WHEN parsed_json.key = 'dateTo' THEN parsed_json.value ELSE NULL END) AS saved_search_date_to,
     MAX(CASE WHEN parsed_json.key = 'status' THEN parsed_json.value ELSE NULL END) AS saved_search_status,
     MAX(CASE WHEN parsed_json.key = 'paymentStatus' THEN parsed_json.value ELSE NULL END) AS saved_search_payment_status,
