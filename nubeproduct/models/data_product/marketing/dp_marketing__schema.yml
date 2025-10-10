@@ -1678,14 +1678,14 @@ models:
         description: "Total impressions for the URL, search type, country, and device."
         tests:
           - not_null
-          - dbt_utils.expression_is_true:
-              expression: "impressions >= 0"
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
       - name: clicks
         description: "Total clicks for the URL, search type, country, and device."
         tests:
           - not_null
-          - dbt_utils.expression_is_true:
-              expression: "clicks >= 0"
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
       - name: average_position
         description: "Average position in Google Search results."
       - name: subteam

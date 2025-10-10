@@ -2040,7 +2040,7 @@ models:
     description: "Staging model with Google Search Console URL results by date, URL, search type, country and device."
     config:
       meta:
-        owner: "yan.santos@tiendanube.com"
+        owner: "yan.santos@nuvemshop.com.br"
         domain: "product"
         business_owner: "Giselle Galli"
     columns:
@@ -2064,14 +2064,14 @@ models:
         description: "Number of impressions."
         tests:
           - not_null
-          - dbt_utils.expression_is_true:
-              expression: "impressions >= 0"
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
       - name: clicks
         description: "Number of clicks."
         tests:
           - not_null
-          - dbt_utils.expression_is_true:
-              expression: "clicks >= 0"
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
       - name: position
         description: "Position for the URL in search results."
       - name: sys_audit_created_on
@@ -2090,12 +2090,16 @@ models:
         description: "System or user that last updated the row."
         tests:
           - not_null
+      - name: year_month_day_code
+        description: "Reference year and month. Also the field used to partition the table."
+        tests:
+          - not_null
 
   - name: gsc__url_unsplit_results
     description: "Staging model with Google Search Console URL unsplit results by date, URL, search type, country and device."
     config:
       meta:
-        owner: "yan.santos@tiendanube.com"
+        owner: "yan.santos@nuvemshop.com.br"
         domain: "product"
         business_owner: "Giselle Galli"
     columns:
@@ -2119,14 +2123,14 @@ models:
         description: "Number of impressions."
         tests:
           - not_null
-          - dbt_utils.expression_is_true:
-              expression: "impressions >= 0"
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
       - name: clicks
         description: "Number of clicks."
         tests:
           - not_null
-          - dbt_utils.expression_is_true:
-              expression: "clicks >= 0"
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
       - name: position
         description: "Position for the URL in search results."
       - name: sys_audit_created_on

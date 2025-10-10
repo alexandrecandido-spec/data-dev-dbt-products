@@ -4,7 +4,7 @@
   unique_key=['date','full_url','path','search_type','country_name','device'],
   partition_by='year_month_day_code',
   on_schema_change='fail',
-  tags=['daily-7am', 'marketing']
+  tags=['daily-8am', 'marketing']
 ) }}
 
 WITH source AS (
@@ -35,19 +35,19 @@ existing_data AS (
 )
 
 SELECT
-    source.*,
+    s.*,
     
-    CAST(date_format(source.date, 'yyyyMMdd') AS INT) AS year_month_day_code,
+    CAST(date_format(s.date, 'yyyyMMdd') AS INT) AS year_month_day_code,
     CAST(COALESCE(e.sys_audit_created_on, current_timestamp) AS TIMESTAMP) AS sys_audit_created_on,
     CAST(COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS STRING) AS sys_audit_created_by,
     CAST(current_timestamp AS TIMESTAMP) AS sys_audit_updated_on,
     CAST('data-dev-dbt-products' AS STRING) AS sys_audit_updated_by
 
-FROM source
+FROM source s
 LEFT JOIN existing_data e 
-    ON source.date = e.date 
-    AND source.full_url = e.full_url 
-    AND source.path = e.path 
-    AND source.search_type = e.search_type 
-    AND source.country_name = e.country_name 
-    AND COALESCE(source.device, 'x') = COALESCE(e.device, 'x')
+    ON s.date = e.date 
+    AND s.full_url = e.full_url 
+    AND s.path = e.path 
+    AND s.search_type = e.search_type 
+    AND s.country_name = e.country_name 
+    AND COALESCE(s.device, 'x') = COALESCE(e.device, 'x')
