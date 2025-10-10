@@ -108,6 +108,10 @@ models:
       - name: shipment_id
         description: "Unique shipment identifier (either from fulfillment, delivery order, or paid order)."
         tests: [not_null, unique]
+      - name: order_id
+        description: "Unique order identifier"
+      - name: delivery_order_id
+        description: "Unique delivery order identifier"
       - name: payment_status
         description: "Payment status associated with the order/shipment (e.g., paid, cancelled, detatched)."
         tests: [not_null]
@@ -185,7 +189,7 @@ models:
         domain: "logistics"
         business_owner: "Simone Harnik"
     columns:
-      - name: date_ref
+      - name: ref_date
         description: "Reference date for the aggregation (day granularity)."
         tests: [not_null]
       - name: store_id
@@ -208,11 +212,9 @@ models:
         tests:
           - accepted_values:
               values: ['BR', 'AR', 'MX']
-      - name: qtd_orders_gsv
-        description: "Total number of orders contributing to GSV on the given day."
-      - name: total_gsv
-        description: "Aggregated GSV value for the day."
-      - name: qtd_orders_gmv
+      - name: sum_type
+        description: "Type of value: GSV or GMV"
+      - name: total_value
+        description: "Aggregated GSV or GMV value for the day."
+      - name: orders_qty
         description: "Total number of orders contributing to GMV on the given day."
-      - name: total_gmv
-        description: "Aggregated GMV value for the day."

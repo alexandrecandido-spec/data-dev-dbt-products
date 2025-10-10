@@ -13,27 +13,10 @@
     ) 
 }}
 
-WITH
-base AS (
-  SELECT
-    DATE(DATE_TRUNC('DAY', COALESCE(posted_at, completed_at))) AS date_ref,
-    store_id,
-    domain,
-    current_segment,
-    vertical_name,
-    plan,
-    store_creation_date,
-    store_state_name,
-    country,
-    flg_gsv,
-    flg_gmv,
-    gsv,
-    gmv,
-    shipment_id
-  FROM {{ ref('logistics_gsv__orders') }}
-)
+
+WITH db AS (
 SELECT
-  date_ref,
+  DATE(DATE_TRUNC('DAY', completed_at)) AS ref_date,
   store_id,
   domain,
   current_segment,
@@ -42,14 +25,15 @@ SELECT
   store_creation_date,
   store_state_name,
   country,
-  SUM(CASE WHEN flg_gsv = 1 THEN 1 ELSE 0 END) AS qtd_orders_gsv,
-  SUM(CASE WHEN flg_gsv = 1 THEN CAST(gsv AS DOUBLE) ELSE 0 END) AS total_gsv,
-  SUM(CASE WHEN flg_gmv = 1 THEN 1 ELSE 0 END) AS qtd_orders_gmv,
-  SUM(CASE WHEN flg_gmv = 1 THEN CAST(gmv AS DOUBLE) ELSE 0 END) AS total_gmv
-FROM base
-WHERE date_ref IS NOT NULL
+  'GMV' AS sum_type,
+  COUNT(shipment_id) AS qty,
+  SUM(gmv) AS total
+FROM {{ ref('logistics_gsv__orders') }}
+WHERE 1=1
+  AND flg_gmv = 1
+  AND completed_at IS NOT NULL
 GROUP BY
-  date_ref,
+  ref_date,
   store_id,
   domain,
   current_segment,
@@ -58,4 +42,36 @@ GROUP BY
   store_creation_date,
   store_state_name,
   country
-ORDER BY date_ref DESC
+
+UNION ALL
+
+SELECT
+  DATE(DATE_TRUNC('DAY', posted_at)) AS ref_date,
+  store_id,
+  domain,
+  current_segment,
+  vertical_name,
+  plan,
+  store_creation_date,
+  store_state_name,
+  country,
+  'GSV' AS sum_type,
+  COUNT(shipment_id) AS orders_qty,
+  SUM(gsv) AS total_value
+FROM {{ ref('logistics_gsv__orders') }}
+WHERE 1=1
+  AND flg_gsv = 1
+  AND posted_at IS NOT NULL
+GROUP BY
+  ref_date,
+  store_id,
+  domain,
+  current_segment,
+  vertical_name,
+  plan,
+  store_creation_date,
+  store_state_name,
+  country
+)
+
+SELECT * FROM db

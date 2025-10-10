@@ -6,6 +6,7 @@ WITH
 paid_orders_aux AS (
   SELECT
     fpo.order_id AS shipment_id,
+    fpo.order_id AS order_id,
     fpo.payment_status,
     fpo.store_id,
     CAST(fpo.completed_at AS DATE) AS completed_at,
@@ -23,6 +24,8 @@ FROM {{ ref('_int_logistics_gsv__filtered_paid_orders') }} fpo
 SELECT
   DISTINCT
     poa.shipment_id,
+    poa.order_id,
+    NULL AS delivery_order_id,
     poa.payment_status,
     poa.store_id,
     mi.domain,

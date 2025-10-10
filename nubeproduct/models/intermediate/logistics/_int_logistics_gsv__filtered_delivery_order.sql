@@ -21,5 +21,5 @@ INNER JOIN {{ ref('moltres__mwp_store_info') }} i
         ON do.store_id = i.store_id
         AND i.country IN ('BR', 'AR', 'MX')
         AND i.state <> 4
-WHERE year_month_code >= 202401
+WHERE year_month_code >= 202301
     AND do.carrier_code IN ('correios', 'jadlog', 'loggi', 'mandae', 'correo-argentino', 'andreani','envia')

@@ -245,11 +245,12 @@ sources:
     tables:
       - name: tracking_history
         description: "Shipments tracking history"
-        
+
   - name: int_shipping
     database: null
     schema: shipping
     description: "Staging tables built from raw data in the shipping schema, typically used to normalize or enrich store-level information."
+    
     tables:
       - name: locations
         description: "Contains information about the store's distribution centers"
