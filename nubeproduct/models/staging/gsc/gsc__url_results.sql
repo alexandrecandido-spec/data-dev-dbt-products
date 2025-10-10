@@ -2,9 +2,11 @@
   materialized='incremental',
   incremental_strategy='merge',
   unique_key=['date','full_url','path','search_type','country_name','device'],
+  partition_by='year_month_day_code',
   on_schema_change='fail',
-  tags=['daily-7am','marketing']
+  tags=['daily-7am', 'marketing']
 ) }}
+
 WITH source AS (
     SELECT
         CAST(date AS DATE) AS date,
@@ -18,19 +20,29 @@ WITH source AS (
         CAST(average_position AS FLOAT) AS average_position
     FROM {{ source('stg_third_party', 'marketing_google_search_console_urls_results') }}
     {% if is_incremental() %}
-        WHERE sys_audit_updated_on >= (SELECT COALESCE(MAX(sys_audit_updated_on), TIMESTAMP '1900-01-01') FROM {{ this }})
+        WHERE sys_audit_updated_on >= (
+            SELECT COALESCE(MAX(sys_audit_updated_on), TIMESTAMP '1900-01-01')
+            FROM {{ this }}
+        )
     {% endif %}
 ),
--- como funciona isso? 
+
 existing_data AS (
-    {{ get_existing_data(this, ['date','full_url','path','search_type','country_name','device','sys_audit_created_on','sys_audit_created_by']) }}
+    {{ get_existing_data(this, [
+        'date', 'full_url', 'path', 'search_type', 'country_name', 'device',
+        'sys_audit_created_on', 'sys_audit_created_by'
+    ]) }}
 )
+
 SELECT
     source.*,
+    
+    CAST(date_format(source.date, 'yyyyMMdd') AS INT) AS year_month_day_code,
     CAST(COALESCE(e.sys_audit_created_on, current_timestamp) AS TIMESTAMP) AS sys_audit_created_on,
     CAST(COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS STRING) AS sys_audit_created_by,
     CAST(current_timestamp AS TIMESTAMP) AS sys_audit_updated_on,
     CAST('data-dev-dbt-products' AS STRING) AS sys_audit_updated_by
+
 FROM source
 LEFT JOIN existing_data e 
     ON source.date = e.date 

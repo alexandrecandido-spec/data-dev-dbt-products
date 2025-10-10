@@ -1648,8 +1648,9 @@ models:
       - name: sys_audit_updated_by
         description: "Process/system that last updated the record."
 
-  - name: marketing_gsc__growth_results
-    description: "Incremental dataset of Google Search Console growth results by date, full URL, path, search type, country name, device, impressions, clicks, and average position."
+
+  - name: marketing_gscgrowth_results
+    description: "Aggregated and classified Google Search Console results with audit fields."
     config:
       meta:
         owner: "yan.santos@nuvemshop.com.br"
@@ -1657,38 +1658,49 @@ models:
         domain: "marketing"
     columns:
       - name: date
-        description: "Record date from GSC dataset."
+        description: "Date of the record."
         tests: [not_null]
       - name: full_url
-        description: "Full landing page URL."
+        description: "Canonical page URL."
       - name: path
-        description: "URL path component starting with '/'."
+        description: "URL path portion."
       - name: search_type
-        description: "GSC search type."
-        tests: [not_null]
+        description: "Google Search Console search type."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['web', 'image', 'video', 'news']
       - name: country_name
-        description: "Country name reported by GSC or 'Sin Identificar'."
-        tests: [not_null]
+        description: "Country reported by Google Search Console."
       - name: device
-        description: "Device category reported by GSC or 'Sin Identificar'."
+        description: "Device category reported by Google Search Console."
       - name: impressions
-        description: "Total impressions."
+        description: "Total impressions for the URL, search type, country, and device."
         tests:
           - not_null
           - dbt_utils.expression_is_true:
               expression: "impressions >= 0"
       - name: clicks
-        description: "Total clicks."
+        description: "Total clicks for the URL, search type, country, and device."
         tests:
           - not_null
           - dbt_utils.expression_is_true:
               expression: "clicks >= 0"
       - name: average_position
-        description: "Average position (rounded to 2 decimals)."
+        description: "Average position in Google Search results."
       - name: subteam
-        description: "Content subteam classification derived from URL patterns."
+        description: "Marketing subteam classification inferred from URL patterns."
       - name: classified_country
-        description: "Business country classification (e.g., BR, AR, MX, CO, CL, Otros)."
+        description: "Country classification inferred from URL and context."
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created."
         tests: [not_null]
-        accepted_values:
-          values: ['BR', 'AR', 'MX', 'CO', 'CL', 'Otros']
+      - name: sys_audit_created_by
+        description: "System or user that created the row."
+        tests: [not_null]
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this table."
+        tests: [not_null]
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row."
+        tests: [not_null]

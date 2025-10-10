@@ -149,6 +149,3 @@ seeds:
     +schema: manual
     +file_format: delta
     +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/data_manual/"
-
-vars:
-  'dbt_date:time_zone': 'America/Argentina/Buenos_Aires'
