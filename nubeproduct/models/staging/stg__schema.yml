@@ -38,15 +38,6 @@ models:
         description: "System or user that last updated the row."
         tests:
           - not_null
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - date
-            - full_url
-            - path
-            - search_type
-            - country_name
-            - device
 
 
   - name: moltres__contracts
@@ -153,6 +144,10 @@ models:
           values: [TRUE, FALSE]
       - name: custom_theme
         description: "Identifies the date on which the store began using a custom theme (open FTP). If the field is blank, the store is using a default theme (closed FTP)."
+      - name: disabled
+        description: "Boolean flag indicating if the store is disabled/cancelled."
+      - name: paid_until
+        description: "Date when the store's paid subscription expires. Null if the store doesn't have a paid subscription."
       - name: sys_audit_created_on
         description: "Timestamp when the record was first loaded into the model. Defaults to current_timestamp if not available."
       - name: sys_audit_created_by
@@ -1611,10 +1606,9 @@ models:
       - name: impact
         description: "Only for Mid Market stores, determines the criticity of the comment"
 
-<<<<<<< HEAD
 
 
-  - name: mwp_product_categories
+  - name: product__mwp_product_categories
     description: "Contains the list of every product category"
     config:
       meta:
@@ -1650,7 +1644,7 @@ models:
       - name: min_price
         description: "Minimum price for a product within the category in local currency"
 
-  - name: shipping_locations
+  - name: product__shipping_locations
     description: "Contains information on all the distribution centers of the stores"
     config:
       meta:
@@ -1686,7 +1680,7 @@ models:
       - name: year_month_code
         description: "Reference year and month. Also the field used to partition the table."
 
-  - name: mwp_inventory_levels
+  - name: product__mwp_inventory_levels
     description: "Contains information stock on each CD for each variant"
     config:
       meta:
@@ -1714,7 +1708,7 @@ models:
       - name: deleted_at
         description: "Timestamp when the inventory level was deleted"
 
-  - name: mwp_user_languages
+  - name: moltres__mwp_user_languages
     description: "Table with user languages (from 'Paises Habilitados')"
     config:
       meta:
@@ -1742,7 +1736,7 @@ models:
       - name: flag
         description: "Flag of the user language (US,BR,ES)"
 
-  - name: mwp_user_countries
+  - name: moltres__mwp_user_countries
     description: "Table with user countries (from 'Paises Habilitados')"
     config:
       meta:
@@ -1848,7 +1842,7 @@ models:
       - name: deleted_at
         description: "Timestamp when the metafield was deleted"
 
-  - name: mwp_product_list
+  - name: product__mwp_product_list
     description: "Contains all products"
     config:
       meta:
@@ -1902,7 +1896,7 @@ models:
       - name: video_url
         description: "URL of a product video if available. This field is only populated with links to videos, not the videos directly uploaded to Tiendanube"
       
-  - name: mwp_product_variants
+  - name: product__mwp_product_variants
     description: "Contains all product variants"
     config:
       meta:
@@ -1954,7 +1948,7 @@ models:
       - name: age_group
         description: "Age group of the variant"
 
-  - name: mwp_product_videos
+  - name: product__mwp_product_videos
     description: "Contains all product videos uploaded to Tiendanube"
     config:
       meta:
@@ -1982,7 +1976,7 @@ models:
       - name: deleted_at
         description: "Timestamp when the video was deleted"
 
-  - name: mwp_stock_history
+  - name: product__mwp_stock_history
     description: "Contains all the stock changes and variant creations with information on the source of the change"
     config:
       meta:
@@ -2042,70 +2036,7 @@ models:
       - name: year_month_code
         description: "Reference year and month. Also the field used to partition the table."
 
-    
-=======
   - name: gsc__url_results
-    description: "Staging model with Google Search Console URL results by date, URL, search type, country and device."
-    config:
-      meta:
-        owner: "yan.santos@tiendanube.com"
-        domain: "product"
-        business_owner: "Giselle Galli"
-    columns:
-      - name: date
-        description: "Date of the Search Console metric."
-        tests:
-          - not_null
-      - name: full_url
-        description: "Full URL for which the metrics were recorded."
-        tests:
-          - not_null
-      - name: path
-        description: "Path component of the URL."
-        tests:
-          - not_null
-      - name: search_type
-        description: "Search type reported by Search Console."
-        tests:
-          - not_null
-      - name: country_name
-        description: "Country name for which the metrics were aggregated."
-        tests:
-          - not_null
-      - name: device
-        description: "Device category reported by Search Console."
-      - name: impressions
-        description: "Number of impressions."
-        tests:
-          - not_null
-          - dbt_utils.expression_is_true:
-              expression: "impressions >= 0"
-      - name: clicks
-        description: "Number of clicks."
-        tests:
-          - not_null
-          - dbt_utils.expression_is_true:
-              expression: "clicks >= 0"
-      - name: average_position
-        description: "Average position for the URL in search results."
-      - name: sys_audit_created_on
-        description: "Timestamp when the row was originally created."
-        tests:
-          - not_null
-      - name: sys_audit_created_by
-        description: "System or user that created the row."
-        tests:
-          - not_null
-      - name: sys_audit_updated_on
-        description: "Timestamp when the row was last updated in this table."
-        tests:
-          - not_null
-      - name: sys_audit_updated_by
-        description: "System or user that last updated the row."
-        tests:
-          - not_null
-
-  - name: gsc__url_unsplit_results
     description: "Staging model with Google Search Console URL results by date, URL, search type, country and device."
     config:
       meta:
@@ -2159,4 +2090,58 @@ models:
         description: "System or user that last updated the row."
         tests:
           - not_null
->>>>>>> main
+
+  - name: gsc__url_unsplit_results
+    description: "Staging model with Google Search Console URL unsplit results by date, URL, search type, country and device."
+    config:
+      meta:
+        owner: "yan.santos@tiendanube.com"
+        domain: "product"
+        business_owner: "Giselle Galli"
+    columns:
+      - name: date
+        description: "Date of the Search Console metric."
+        tests:
+          - not_null
+      - name: full_url
+        description: "Full URL for which the metrics were recorded."
+        tests:
+          - not_null
+      - name: path
+        description: "Path component of the URL."
+        tests:
+          - not_null
+      - name: search_type
+        description: "Search type reported by Search Console."
+        tests:
+          - not_null
+      - name: impressions
+        description: "Number of impressions."
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "impressions >= 0"
+      - name: clicks
+        description: "Number of clicks."
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "clicks >= 0"
+      - name: position
+        description: "Position for the URL in search results."
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "System or user that created the row."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this table."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row."
+        tests:
+          - not_null

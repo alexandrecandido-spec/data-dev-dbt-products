@@ -12,16 +12,17 @@
 with
     source_data as (
         select
-            partner_id,
-            email,
-            false as has_store,
-            true as user_is_partner,
-            partner_tags,
-            coalesce(
-                nullif(trim(name), ''),
-                'Partner-' || cast(partner_id as string)
-            ) as name
-        from {{ ref("_int_support_partners_raw") }}
+            p.partner_id,
+            p.email,
+            p.has_store,
+            p.user_is_partner,
+            t.partner_tags,
+            n.name
+        from {{ ref("_int_support_partners_profile") }} p
+        left join
+            {{ ref("_int_support_partners_tags") }} t on t.partner_id = p.partner_id
+        left join
+            {{ ref("_int_support_partners_name") }} n on n.partner_id = p.partner_id
     )
 
 select

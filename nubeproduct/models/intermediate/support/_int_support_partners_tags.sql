@@ -1,3 +1,4 @@
+-- Partner tags
 with
     partner_tags as (
         select related_id as partner_id, string_agg(tag, ',') as partner_tags
@@ -6,11 +7,6 @@ with
         group by related_id
     )
 
-select
-    cast(mp.id as int) as partner_id,
-    mp.email,
-    mp.name,
-    pt.partner_tags
-from {{ source("int_ecosystem", "mwp_partners") }} as mp
-left join partner_tags pt on mp.id = pt.partner_id
-where mp.email is not null
+select pp.partner_id, pt.partner_tags
+from {{ ref("_int_support_partners_profile") }} as pp
+left join partner_tags pt on pp.partner_id = pt.partner_id
