@@ -242,6 +242,61 @@ models:
       - name: sys_audit_updated_by
         description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
 
+  - name: credito_dev__mova_installment_present_value
+    config:
+      meta:
+        owner: "calvin.hetem@nuvemshop.com.br"
+        domain: "fintech"
+        business_owner: "Lending"
+    description: "Staging model with daily details taken directly from Mova's system regarding installments compostion"
+    columns:
+      - name: data_ref
+        description: "Reference date."
+      - name: hub_contract_id
+        description: "Contract identifier provided by Mova."
+        tests:
+          - not_null
+      - name: hub_installment_id
+        description: "Installment identifier provided by Mova."
+        tests:
+          - not_null
+      - name: original_hub_installment_id
+        description: "Original installment identifier provided by Mova. Aplicable only in some cases where the original installment was partialy paid or renegotiated"
+      - name: deep_hub_installment_id
+        description: "First original installment identifier provided by Mova. Aplicable only in some cases where the original installment was partialy paid or renegotiated multiple times"
+      - name: installment_status
+        description: "Installment status. Possible values are 'A VENCER', 'ATRASADA', 'INADIMPLENTE', 'PDD', 'EM APURAÇÃO'"
+      - name: installment_due_date
+        description: "Installment's due date."
+      - name: installment_number
+        description: "Installment's number. If an installment is partialy paid, the new installment will have an new number."
+      - name: installment_base_amount
+        description: "Installment's expected amount to be paid at installment's due date."
+      - name: installment_principal_amount
+        description: "Installment's principal amount to be paid at any point."
+      - name: installment_interest_amount
+        description: "Installment's expected interest amount to be paid at installment's due date."
+      - name: additional_late_fine
+        description: "Fine amount to be paid."
+      - name: additional_late_contract_interest
+        description: "Addicional interest amount to be paid."
+      - name: additional_late_penalty_interest
+        description: "Penalty interest amount to be paid."
+      - name: additional_late_taxes
+        description: "Additional taxes amount to be paid."
+      - name: discount_pre_payment
+        description: "Possible discount amount if installment is paid at data_ref."
+      - name: installment_updated_amount
+        description: "Total amount to be paid if installment is paid at data_ref."
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model. Defaults to current_timestamp if not available."
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model. Defaults to 'data-dev-dbt-products'."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed."
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
+
   - name: antifraud_service__vertifier_store_inferences
     description: "Staging model with vertifier of current store_id provided by antifraud inferences."
     config:
