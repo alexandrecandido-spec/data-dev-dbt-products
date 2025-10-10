@@ -1,9 +1,5 @@
--- Selects paid orders for Brazil.
--- Filters applied:
---   - Year >= 2023
---   - Platform type = "on" (online)
---   - Excludes POS storefront
--- Marks as "Paid order" with flg_gmv = 1.
+-- Filters all paid online orders (non-POS) from company_metrics_paid_orders for Brazil, Argentina, and Mexico since 2023. 
+-- It marks them as “Paid orders” and defines them as valid GMV transactions.
 
 SELECT
   CAST(store_id AS BIGINT) AS store_id,

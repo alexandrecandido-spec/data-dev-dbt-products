@@ -1,11 +1,5 @@
--- Selects not-paid (cancelled) orders.
--- Filters applied:
---   - Year >= 2023
---   - Excludes POS storefront
---   - Order total <= 10,000 USD
---   - Brazil only
---   - Excludes orders already present as paid
--- Marks records as "Cancelled order".
+-- Captures orders that are not paid and ensures they are not duplicated with paid ones. 
+-- It identifies “Cancelled orders” that are relevant to the analysis of total shipments (GSV denominator).
 
 WITH
 filtered_not_paid_orders AS (

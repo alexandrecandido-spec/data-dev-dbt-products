@@ -1,9 +1,5 @@
--- Daily aggregated metrics for orders and shipments.
--- Key outputs:
---   - Number of GSV orders + total GSV value
---   - Number of GMV orders + total GMV value
--- Granularity: day + store + segment.
--- Ordered with most recent dates first.
+-- Summarizes daily performance per store, segment, and plan, producing GMV and GSV totals and quantities. 
+-- It enables high-level reporting of the GSV and Adoption KPIs over time.
 
 {{ 
     config(

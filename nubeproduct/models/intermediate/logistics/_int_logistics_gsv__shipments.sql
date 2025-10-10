@@ -1,9 +1,5 @@
--- Normalizes data to ensure one row per unique shipment_id.
--- Main steps:
---   1. status_priorizado → prioritizes shipment status ("posted" > "created" > others)
---   2. carrier_agg → determines the main carrier or "Multi-carrier"
---   3. info_complementar → aggregates store info, GMV, GSV and flags
--- Result: clean and deduplicated dataset of shipments ready for analytics.
+-- Aggregates all shipments at the shipment level, consolidating duplicated records and prioritizing the most relevant delivery status (“posted” or “created”). 
+-- It also creates aggregated carrier information (e.g., multi-carrier).
 
 WITH
 status_priorizado AS (

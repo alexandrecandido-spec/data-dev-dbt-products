@@ -1,6 +1,5 @@
--- Handles paid orders that are not already linked to shipments in Brazil.
--- Enriches records with store information and shipping details.
--- Maintains shipment_id granularity for consistency with shipments datasets.
+-- Ensures inclusion of paid orders that have no corresponding delivery order (i.e., not posted via Nuvem Envio or Envío Nube).
+-- This guarantees a complete GMV representation.
 
 WITH
 paid_orders_aux AS (

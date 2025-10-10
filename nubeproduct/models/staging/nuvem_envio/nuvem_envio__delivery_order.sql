@@ -1,5 +1,5 @@
--- Staging model that exposes delivery order data from Nuvem Envio.
--- Performs only basic selections and type casts to standardize columns.
+-- Extracts the raw delivery order data from Nuvem Envio systems, mapping relevant fields such as store, carrier, dimensions, and identifiers. 
+-- It serves as the base for shipment-related transformations.
 SELECT
     year_month_code,
     id,

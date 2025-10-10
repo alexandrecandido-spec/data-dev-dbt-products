@@ -1,7 +1,6 @@
 -- Final materialized table
--- Consolidates shipments in Brazil + paid orders not linked to shipments.
--- Includes audit metadata (sys_audit_updated_on, sys_audit_updated_by).
--- Output: main unified dataset for orders and shipments, feeding dashboards and reports.
+-- The main data product that consolidates all shipments (posted and fulfilled) and standalone paid orders. 
+-- It tracks all key business metrics—GSV, GMV, and adoption—at the order/shipment level, enriched with merchant metadata and audit columns.
 
 {{ 
     config(

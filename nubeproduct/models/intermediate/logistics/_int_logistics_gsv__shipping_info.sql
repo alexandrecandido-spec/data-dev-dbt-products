@@ -1,6 +1,6 @@
 -- Determines the selected shipping partner for each order.
 -- Normalizes carrier names (Correios, Jadlog, etc.).
--- If Nuvem Envio is chosen, appends shipping partner details.
+-- If Nuvem Envio/ Envío Nube is chosen, appends shipping partner details.
 -- Covers shipping data from 2023 onwards.
 
 SELECT

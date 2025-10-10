@@ -1,11 +1,5 @@
--- Builds a unified view of shipments in Brazil.
--- Joins fulfillment orders, paid orders, not-paid orders and delivery orders.
--- Business logic applied:
---   - Defines shipment type (Paid, Cancelled, Fulfillment, etc.)
---   - Calculates GSV and GMV flags
---   - Identifies if Nuvem Envio was selected or enabled
---   - Standardizes carriers (Correios, Loggi, Mandae, Jadlog)
--- Result: base table for all logistics shipment analysis.
+-- The central model that merges all order data, fulfillment information, and delivery orders (from Nuvem Envio) into a unified “shipment” entity.
+-- It classifies shipments by type (Paid, Cancelled, Fullfillment, Detached), calculates GSV/GMV values, and adds indicators for Nuvem Envio adoption and multi-carrier usage.
 
  SELECT
     COALESCE(ff.order_id, ao.order_id, fdo.id)                        AS shipment_id,

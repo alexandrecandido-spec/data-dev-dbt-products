@@ -1,3 +1,6 @@
+-- Enriches shipment information with logistics status (created/posted) by combining data from accounting entries, invoices, and tracking events. 
+-- It standardizes delivery statuses across systems.
+
 WITH
 tracking_history AS (
 SELECT
