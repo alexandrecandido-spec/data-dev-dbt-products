@@ -465,7 +465,104 @@ models:
       - name: sys_audit_updated_by
         description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
 
-
+  - name: product_catalog_features
+    description: This data product contains a list of all stores and information on their usage of catalog features and general properties related to products, variants and categories
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "product"
+        business_owner: "Martin Palombo"
+    columns:
+      - name: store_id
+        description: merchant's store id
+        tests:
+          - not_null
+          - unique
+      - name: domain
+        description: merchant's domain
+      - name: state
+        description: the state of the merchant. State_Ok > 0 it is not a trial and we are receiving the payments as expected - awaiting_payment > 1 during the first 10 days after the contract expires - admin_down > 2 from day 10 to day 20 after the contract is expired, admin is blocked (but the store is still live) - store_down > 3 the store is blocked from day 20, we consider it as a churn - state_test > 4 a store created as a test by someone from our company, it is not a trial - state_in_development > 5 stores created via Partners Portal while they are being set up.
+      - name: country
+        description: merchant's country from the store_info table
+      - name: currency
+        description: merchant's currency from the store_info table
+      - name: current_segment
+        description: merchant's current segment from the store_info table
+      - name: first_payment
+        description: the date when the merchant made their first payment
+      - name: plan_name
+        description: the group name of the merchant's plan (using operations__grouping_plans data product) 
+      - name: theme
+        description: the theme of the merchant's store
+      - name: avg_gmv_usd_last_3m
+        description: the average GMV in USD for the last 3 closed months
+      - name: avg_orders_last_3m
+        description: the average number of orders for the last 3 closed months
+      - name: enabled_languages_count
+        description: the number of languages enabled for the merchant's store (the ones listed within 'Idiomas y Monedas' in the 'Paises Habilitados' section - mwp_user_languages table)
+      - name: has_multi_language
+        description: 1 if the merchant has multiple languages enabled, 0 otherwise
+      - name: enabled_countries_count
+        description: the number of countries enabled for the merchant's store (the ones listed within 'Idiomas y Monedas' in the 'Paises Habilitados' section - mwp_user_countries table. Can find country names to country_id relationship in the mwp_countries table)
+      - name: admin_stock_changes_count
+        description: the number of times the merchant has changed the stock of a product through the admin portal in the last 3 months (using 'variant-stock-changed' events in mwp_stock_history table looking at null app_id fields )
+      - name: api_stock_changes_count
+        description: the number of times the merchant has changed the stock of a product via API in the last 3 months (using 'variant-stock-changed' events in mwp_stock_history table, looking at non-null app_id fields with api or admin_edit as source)
+      - name: csv_variant_creations_count
+        description: the number of times the merchant has created variants via CSV import in the last 3 months (using 'variant-created' events in mwp_stock_history table looking at csv_import as source)
+      - name: product_count
+        description: the number of non deleted products in the merchant's store
+      - name: published_product_count
+        description: the number of non deleted and published products in the merchant's store
+      - name: product_with_video_link_count
+        description: the number of non deleted products with a video link in the merchant's store
+      - name: product_with_active_video_uploaded_count
+        description: the number of products with an active video uploaded in the merchant's store
+      - name: variant_count
+        description: the number of non deleted variants in the merchant's store
+      - name: published_product_variant_count
+        description: the number of non deleted variants from published productsin the merchant's store
+      - name: used_video_uploads
+        description: 1 if the merchant has used video uploads, 0 otherwise
+      - name: active_with_stock_cd_count
+        description: the number of active CD's with stock in the merchant's store (active means not deleted and with stock means with non deleted entries in mwp_inventory_levels table)
+      - name: active_cd_count
+        description: the number of active CD's in the merchant's store (active means not deleted)
+      - name: cd_count
+        description: the number of CD's in the merchant's store (active or deleted)
+      - name: category_count
+        description: the number of categories in the merchant's store (not deleted)
+      - name: category_level_count
+        description: the levels of categories in the store (i.e Women/Dresses/Long would be 3 levels. The categories may or may not have products within them, but they are not deleted )
+      - name: has_variants_metafields
+        description: 1 if the merchant has non deleted variants metafields, 0 otherwise
+      - name: has_products_metafields
+        description: 1 if the merchant has non deleted products metafields, 0 otherwise
+      - name: text_list_variants_metafield_count
+        description: the number of non deleted text list variants metafields in the merchant's store
+      - name: text_variants_metafield_count
+        description: the number of non deleted text variants metafields in the merchant's store
+      - name: numeric_variants_metafield_count
+        description: the number of non deleted numeric variants metafields in the merchant's store
+      - name: date_variants_metafield_count
+        description: the number of non deleted date variants metafields in the merchant's store
+      - name: unknown_variants_metafield_count
+        description: the number of non deleted unknown variants metafields in the merchant's store
+      - name: text_list_products_metafield_count
+        description: the number of non deleted text list products metafields in the merchant's store
+      - name: text_products_metafield_count
+        description: the number of non deleted text products metafields in the merchant's store
+      - name: numeric_products_metafield_count
+        description: the number of non deleted numeric products metafields in the merchant's store
+      - name: date_products_metafield_count
+        description: the number of non deleted date pro  ducts metafields in the merchant's store
+      - name: unknown_products_metafield_count
+        description: the number of non deleted unknown products metafields in the merchant's store
+      - name: created_at
+        description: the date when the merchant's store was created
+      - name: churned_at
+        description: the date when the merchant's store churned
+    
   - name: product_platform_development_problems
     description: 
       This data product contains the informacion of the github problems tailored for platform development.
@@ -809,17 +906,23 @@ models:
         description: "Whether the saved search is hidden. Despite their position, if a saved search is hidden, it will not be shown to the merchant in the saved searches list."
       - name: saved_search_created_at
         description: "Date when the saved search was created"
+      - name: saved_search_filter
+        description: "Raw filter field with all keys and values"
       - name: saved_search_number_of_keys
         description: "Number of filter types used in the saved search"
       - name: saved_search_page
         description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
       - name: saved_search_q
         description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
+      - name: saved_search_metafield
+        description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
       - name: saved_search_per_page
         description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
       - name: saved_search_date_from
         description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
       - name: saved_search_date_to
+        description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
+      - name: saved_search_date_range
         description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
       - name: saved_search_status
         description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
