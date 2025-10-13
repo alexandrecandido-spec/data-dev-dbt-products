@@ -118,6 +118,13 @@ sources:
       - name: apps
         description: "Apps table from bronze_risk.ecosystem"
   
+  - name: bronze_risk_new_admin
+    database: bronze_risk
+    schema: new_admin
+    tables:
+      - name: auth_authentication_factors
+        description: "Authentication factors per user (2FA) from bronze_risk.new_admin"
+  
   
   - name: stg_data_predictors
     database: null
@@ -269,6 +276,26 @@ sources:
       - name: marketing_google_search_console_urls_unsplit_results
         description: "Results from the Google Search Console URLs unsplit report"
 
+  - name: stg_nuvemchat
+    database: null
+    description: "Source containing tables related to Nuvemchat"
+    schema: nuvemchat_api_backend
+    tables:
+      - name: store
+        description: "All merchants that have Nuvemchat installed"
+      - name: billing_plan
+        description: "Information on billing and trials for merchants"
+      - name: conversation
+        description: "All conversations with Nuvemchat"
+      - name: message
+        description: "All messages with Nuvemchat"
+      - name: channel
+        description: "All channels for chats with Nuvemchat"
+      - name: invoice
+        description: "Data on all invoices related to Nuvemchat"
+      - name: invoice_state
+        description: "Data on all invoice states over time"
+        
   - name: stg_metafields
     database: null
     schema: metafields
@@ -278,4 +305,3 @@ sources:
         description: "Contains all product variants metafields"
       - name: metafield_products
         description: "Contains all products metafields"
-

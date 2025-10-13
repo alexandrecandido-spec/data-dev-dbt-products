@@ -1,9 +1,9 @@
 {{
     config(
         materialized='incremental',
-        unique_key='id',
+        unique_key='uuid',
         on_schema_change='fail',
-        tags=["product","daily-10am"]
+        tags=["product","daily-9am"]
     )
 }}
 with metafield_products as (
