@@ -71,3 +71,11 @@ sources:
     schema: hubspot
     tables:
       - name: deals_archived
+
+  - name: data_staging
+    database: null
+    schema: data_staging
+    tables:
+      - name: storefronts_curated__sessions
+      - name: moltres__mwp_store_info
+
