@@ -83,7 +83,7 @@ models:
     meta:
       owner: "santiago.gandolfo@tiendanube.com"
       domain: "support"
-      business_owner: "Support Team"
+      business_owner: "gabriela.silva@nuvemshop.com.br"
     description: >
       User attributes for Zendesk integration from active stores.
       Deduplicated by email (priority: oldest user_id, then lowest store_id).
