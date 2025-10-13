@@ -1228,6 +1228,43 @@ models:
       - name: year_month_day_code
         description: "Date in YYYYMMDD integer format used for partitioning."
 
+  - name: marketing_hubspot_users_contacts_variables
+    meta:
+      owner: "santiago.gandolfo@tiendanube.com"
+      domain: "operations"
+      business_owner: "Ane Paschoalino"
+    description: >-
+      Contains simplified user attributes for HubSpot contacts integration based on active stores, including main-user flag and 2FA status. Returns defaults to ensure no nulls are sent to HubSpot.
+    columns:
+      - name: user_id
+        description: "Unique identifier of the user (WP). External key."
+        tests: [not_null, unique]
+      - name: email
+        description: "User email."
+        tests: [not_null]
+      - name: is_main_user
+        description: "Boolean indicating whether the user is the store's main user."
+        tests:
+          - accepted_values:
+              values: [true, false]
+              quote: false
+      - name: has_2fa
+        description: "Boolean indicating whether the user has at least one enabled 2FA factor."
+        tests:
+          - accepted_values:
+              values: [true, false]
+              quote: false
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created."
+      - name: sys_audit_created_by
+        description: "System or user that created the row."
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated."
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row."
+      - name: year_month_day_code
+        description: "Date in YYYYMMDD integer format used for partitioning."
+
   
   - name: marketing_merchant_info_refined
     config:
