@@ -1,11 +1,5 @@
--- Selects not-paid (cancelled) orders.
--- Filters applied:
---   - Year >= 2023
---   - Excludes POS storefront
---   - Order total <= 10,000 USD
---   - Brazil only
---   - Excludes orders already present as paid
--- Marks records as "Cancelled order".
+-- Captures orders that are not paid and ensures they are not duplicated with paid ones. 
+-- It identifies “Cancelled orders” that are relevant to the analysis of total shipments (GSV denominator).
 
 WITH
 filtered_not_paid_orders AS (
@@ -41,7 +35,7 @@ SELECT
 FROM filtered_not_paid_orders fnpo 
     INNER JOIN {{ ref('moltres__mwp_store_info') }} i 
         ON fnpo.store_id = i.store_id
-        AND i.country = 'BR'
+        AND i.country IN ('BR', 'AR', 'MX')
         AND i.state <> 4
     LEFT JOIN {{ ref('_int_logistics_gsv__filtered_paid_orders') }} p 
       ON p.order_id = fnpo.order_id
