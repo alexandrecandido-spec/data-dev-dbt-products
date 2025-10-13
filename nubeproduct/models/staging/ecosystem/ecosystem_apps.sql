@@ -16,7 +16,8 @@ apps as (
          ,date(published_at) as app_published_date
          ,date(a.deleted_at) as app_deleted_date
          ,date(date_trunc('month', a.created_at)) as month_creation_date
-         ,LISTAGG(mc.code , ', ') within group (order by mac.country_id) as app_published_countries
+         ,case when published_at is not null then true else false end as is_app_published
+         ,mc.code as app_published_country
       from {{ source('stg_ecosystem', 'apps') }} a
       left join {{ source('stg_ecosystem', 'apps_categories') }} ac
          on a.categories_id = ac.id
