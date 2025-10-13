@@ -265,6 +265,26 @@ sources:
       - name: midmarket_hubspot_communications
       - name: midmarket_hubspot_tasks
 
+  - name: stg_nuvemchat
+    database: null
+    description: "Source containing tables related to Nuvemchat"
+    schema: nuvemchat_api_backend
+    tables:
+      - name: store
+        description: "All merchants that have Nuvemchat installed"
+      - name: billing_plan
+        description: "Information on billing and trials for merchants"
+      - name: conversation
+        description: "All conversations with Nuvemchat"
+      - name: message
+        description: "All messages with Nuvemchat"
+      - name: channel
+        description: "All channels for chats with Nuvemchat"
+      - name: invoice
+        description: "Data on all invoices related to Nuvemchat"
+      - name: invoice_state
+        description: "Data on all invoice states over time"
+        
   - name: stg_metafields
     database: null
     schema: metafields
