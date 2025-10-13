@@ -3,36 +3,36 @@
     unique_key = 'unique_session_key',
     partition_by = 'base_date',
     on_schema_change = 'fail',
-    tags = ['product', 'daily-9pm']
+    tags = ['product', 'daily-9am-9pm']
 ) }}
 
 WITH sessions AS (
 SELECT
     MD5(CONCAT_WS('_', session_id, consumer_id, store_id)) AS unique_session_key
-    , ses.timestamp AS session_timestamp
-    , DATE(ses.timestamp) AS base_date
-    , ses.session_id
-    , ses.consumer_id
-    , ses.store_id
-    , ses.country AS visitor_country
-    , ses.device
-    , ses.theme
-    , ses.user_agent
-    , ses.ip_address
-    , NULLIF(LOWER(ses.utm_source), '')   AS utm_source
-    , NULLIF(LOWER(ses.utm_medium), '')   AS utm_medium
-    , NULLIF(LOWER(ses.utm_campaign), '') AS utm_campaign
-    , NULLIF(LOWER(ses.utm_term), '')     AS utm_term
-    , NULLIF(LOWER(ses.utm_content), '')  AS utm_content
-    , NULLIF(LOWER(ses.landing_page), '') AS landing_page
-    , NULLIF(LOWER(ses.http_referral), '') AS http_referral
+    , timestamp AS session_timestamp
+    , DATE(timestamp) AS base_date
+    , session_id
+    , consumer_id
+    , store_id
+    , country AS visitor_country
+    , device
+    , theme
+    , user_agent
+    , ip_address
+    , NULLIF(LOWER(utm_source), '')   AS utm_source
+    , NULLIF(LOWER(utm_medium), '')   AS utm_medium
+    , NULLIF(LOWER(utm_campaign), '') AS utm_campaign
+    , NULLIF(LOWER(utm_term), '')     AS utm_term
+    , NULLIF(LOWER(utm_content), '')  AS utm_content
+    , NULLIF(LOWER(landing_page), '') AS landing_page
+    , NULLIF(LOWER(http_referral), '') AS http_referral
 FROM
-    {{ source('stg_storefronts', 'sessions') }} AS ses
+    {{ source('stg_storefronts', 'sessions') }}
 WHERE 
-    DATE(ses.timestamp) >= DATE('2024-01-01')
-
-    {% if is_incremental() %}
-    AND ses.date_id >= DATE_FORMAT((SELECT MAX(base_date) FROM {{ this }}), 'yyyyMMdd')
+    {% if not is_incremental() %}
+    TO_DATE(date_id, 'yyyyMMdd') BETWEEN DATE('2024-01-01') AND DATE('2024-01-05')
+    {% else %}
+    TO_DATE(date_id, 'yyyyMMdd') {{ get_max_date(this, 'base_date', 1, 'week') }}
     {% endif %}
 )
 
