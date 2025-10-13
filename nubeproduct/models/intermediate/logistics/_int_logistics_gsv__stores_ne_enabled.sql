@@ -1,5 +1,5 @@
--- Identifies stores that have Nuvem Envio enabled.
--- Flags store_id with flg_ne_enabled = 1 when Nuvem Envio carrier is active in settings.
+-- Identifies stores that have Nuvem Envio/Envío Nube enabled.
+-- Flags store_id with flg_ne_enabled = 1 when Nuvem Envio/Envío Nube carrier is active in settings.
 
 WITH
 all_stores AS (
@@ -21,4 +21,4 @@ SELECT
 FROM all_stores
 GROUP BY store_id
   HAVING 
-    COUNT(DISTINCT CASE WHEN carrier_name = 'Nuvem Envio' THEN carrier_name END) > 0
+    COUNT(DISTINCT CASE WHEN carrier_name = 'Nuvem Envio' OR carrier_name = 'Envío Nube'  THEN carrier_name END) > 0

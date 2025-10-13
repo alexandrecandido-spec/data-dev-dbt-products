@@ -1,6 +1,5 @@
--- Relates orders with their fulfillment orders.
--- Adds flag flg_multicd when an order has multiple fulfillments.
--- Supports GSV calculation for shipments.
+-- Maps fulfillment orders linked to store orders. 
+-- It flags multi-CD (multi-fulfillment) cases and contributes to shipment-level aggregation.
 
 SELECT
       of.fulfillment_order_id
