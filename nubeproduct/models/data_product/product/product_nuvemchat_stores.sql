@@ -45,6 +45,8 @@ SELECT
     state,
     tiendanube_state,
     current_segment,
+    avg_gmv_usd_last_3m,
+    avg_orders_last_3m,
     current_timestamp AS sys_audit_created_on,
     'data-dev-dbt-products' AS sys_audit_created_by,
     current_timestamp AS sys_audit_updated_on,
