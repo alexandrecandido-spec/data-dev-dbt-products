@@ -2367,3 +2367,94 @@ models:
         description: "Timestamp of the most recent update to the record."
       - name: sys_audit_updated_by
         description: "User or process that performed the last update."
+
+  - name: thirdparty__hubspot_deals
+    description: >
+      Staging model for HubSpot deals loaded from the third_party schema.
+    config:
+      meta:
+        owner: "m.blanco@tiendanube.com"
+        domain: "midmarket"
+        business_owner: "Franco Tiberti"
+    columns:
+      - name: deal_id
+        description: "Unique identifier for the HubSpot deal. Primary key"
+        tests:
+          - unique
+          - not_null
+      - name: store_id
+        description: "Internal store identifier linked to the deal."
+      - name: pipeline
+        description: "HubSpot pipeline in which the deal is/was located."
+      - name: dealname
+        description: "Deal name/title in HubSpot."
+      - name: gmv_potencial
+        description: "Potential GMV associated with the deal."
+      - name: hubspot_owner_id
+        description: "HubSpot owner (user) identifier assigned to the deal."
+      - name: dealstage
+        description: "Deal stage within the pipeline."
+      - name: createdate
+        description: "Deal created date (cast to DATE)."
+      - name: kickoff_date
+        description: "Kick-off date for the onboarding process (cast to DATE)."
+      - name: go_live_forecast
+        description: "Expected go-live date (forecast) (cast to DATE)."
+      - name: data_go_live
+        description: "Actual go-live date (cast to DATE)."
+      - name: effective_churn_at
+        description: "Effective churn date, if applicable (cast to DATE)."
+      - name: effective_out_of_portfolio_at
+        description: "Effective out-of-portfolio date, if applicable (cast to DATE)."
+      - name: date_entered_churn_onboarding_ar
+        description: "Date when the deal entered 'Churn' in AR onboarding."
+      - name: date_entered_churn_onboarding_br
+        description: "Date when the deal entered 'Churn' in BR onboarding."
+      - name: date_entered_churn_onboarding_mx
+        description: "Date when the deal entered 'Churn' in MX onboarding."
+      - name: date_entered_downgrade_onboarding_ar
+        description: "Date when the deal entered 'Downgrade' in AR onboarding."
+      - name: date_entered_downgrade_onboarding_br
+        description: "Date when the deal entered 'Downgrade' in BR onboarding."
+      - name: date_entered_downgrade_onboarding_mx
+        description: "Date when the deal entered 'Downgrade' in MX onboarding."
+      - name: deadline_goal
+        description: "Target onboarding deadline value as a label (e.g., '30 days')."
+      - name: forecast
+        description: "HubSpot forecast category (e.g., Closed Won, Firm, Risk, Upside)."
+      - name: delay_reason
+        description: "Reason for delay when applicable."
+      - name: need_professional_services
+        description: "Whether professional services are required for onboarding (raw value)."
+      - name: type_of_onboarding
+        description: "Type/category of onboarding process (raw value)."
+      - name: payment_method_actual_operation
+        description: "Payment method currently used in operation (raw value)."
+      - name: shipping_method_actual_operation
+        description: "Shipping method currently used in operation (raw value)."
+      - name: erp
+        description: "ERP used by the merchant (raw value)."
+      - name: e_commerce
+        description: "E-commerce platform integration detail (raw value)."
+      - name: where_did_the_lead_came_from_
+        description: "Lead acquisition channel as recorded in HubSpot (raw value)."
+      - name: cidade_territorio_sales
+        description: "City and state/territory label used by Sales."
+      - name: vertical
+        description: "Business vertical/category of the merchant."
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model. Preserved from previous loads for existing records."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model. Defaults to 'data-dev-dbt-products'."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
+        tests:
+          - not_null
