@@ -3,7 +3,7 @@
         materialized='table',
         unique_key='store_id',
         on_schema_change='fail',
-        tags=["fintech", "daily-5am"]
+        tags=["fintech", "daily-4am"]
     )
 }}
 
