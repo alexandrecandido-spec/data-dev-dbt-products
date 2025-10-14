@@ -44,11 +44,11 @@ SELECT
 	current_timestamp AS sys_audit_updated_on,
 	'data-dev-dbt-products' AS sys_audit_updated_by
 FROM
-	{{ source('stg_hubspot', 'dealbreakers') }}
+	{{ source('stg_hubspot', 'dealbreakers') }} d
 
 {% if is_incremental() %}
 
-WHERE _airbyte_extracted_at >= 
+WHERE d._airbyte_extracted_at >= 
 (select coalesce(max(sys_audit_updated_on),'1900-01-01') from {{ this }} )
 
 {% endif %}
