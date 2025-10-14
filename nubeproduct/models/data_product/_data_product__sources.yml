@@ -73,7 +73,7 @@ sources:
       - name: deals_archived
 
   - name: data_staging
-    database: null
+    database: hive_metastore
     schema: data_staging
     tables:
       - name: storefronts_curated__sessions

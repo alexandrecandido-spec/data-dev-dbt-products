@@ -243,17 +243,16 @@ sources:
         description: "Table with Order's invoices informations"
 
   - name: int_logistics_tracking
-    database: null
+    database: hive_metastore
     schema: logistics_tracking
     tables:
       - name: tracking_history
         description: "Shipments tracking history"
 
   - name: int_shipping
-    database: null
+    database: hive_metastore
     schema: shipping
     description: "Staging tables built from raw data in the shipping schema, typically used to normalize or enrich store-level information."
-    
     tables:
       - name: locations
         description: "Contains information about the store's distribution centers"

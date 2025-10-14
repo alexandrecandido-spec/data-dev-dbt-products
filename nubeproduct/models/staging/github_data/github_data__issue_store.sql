@@ -1,5 +1,5 @@
 {{
-    config(
+    config( 
         materialized='table',
         unique_key=['repo_name', 'issue_number', 'comment_id'],
         on_schema_change='fail',

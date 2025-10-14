@@ -274,7 +274,7 @@ sources:
       - name: midmarket_hubspot_tasks
 
   - name: stg_nuvemchat
-    database: null
+    database: hive_metastore
     description: "Source containing tables related to Nuvemchat"
     schema: nuvemchat_api_backend
     tables:
