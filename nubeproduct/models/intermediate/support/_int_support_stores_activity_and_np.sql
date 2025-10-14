@@ -11,14 +11,18 @@ with
     ),
 
     gmv as (
-        select gmv_data.store_id, gmv_data.gmv
+        select store_id, gmv_usd_90d
         from
             (
-                select store_id, sum(gmv_usd_monthly) as gmv
+                select
+                    store_id,
+                    gmv_usd_90d,
+                    row_number() over (
+                        partition by store_id order by datemonth desc
+                    ) as rn
                 from {{ ref("company_metrics_gmv_and_segments") }}
-                where datemonth >= date_format(date_sub(current_date(), 30), 'yyyyMM')
-                group by store_id
-            ) gmv_data
+            ) latest
+        where rn = 1
     ),
 
     np_trx as (
@@ -65,7 +69,7 @@ with
 select
     a.store_id,
     u.url_stats,
-    coalesce(g.gmv, 0) as gmv,
+    cast(round(coalesce(g.gmv_usd_90d, 0)) as int) as gmv_usd_90d,
     coalesce(t.np_trx_last_30, 0) as np_trx_last_30,
     coalesce(k.np_kyc_rejected, false) as np_kyc_rejected,
     coalesce(r.np_clearsale_risk, false) as np_clearsale_risk,
