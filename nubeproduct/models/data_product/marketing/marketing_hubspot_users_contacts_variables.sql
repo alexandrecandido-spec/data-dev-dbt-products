@@ -1,37 +1,29 @@
 {{
     config(
         materialized="incremental",
-        unique_key="partner_id",
+        unique_key="user_id",
         on_schema_change="sync_all_columns",
         incremental_strategy="merge",
-        tags=["daily-4_30am"],
+        tags=["daily-6am"],
         partition_by=["year_month_day_code"],
     )
 }}
 
-with
-    source_data as (
-        select
-            p.partner_id,
-            p.email,
-            p.has_store,
-            p.user_is_partner,
-            t.partner_tags,
-            n.name
-        from {{ ref("_int_support_partners_profile") }} p
-        left join
-            {{ ref("_int_support_partners_tags") }} t on t.partner_id = p.partner_id
-        left join
-            {{ ref("_int_support_partners_name") }} n on n.partner_id = p.partner_id
-    )
+with source_data as (
+    select distinct
+        p.email,
+        p.user_id,
+        p.is_main_user,
+        coalesce(f.has_2fa, false) as has_2fa
+    from {{ ref('_int_marketing_hubspot_users_contacts_profile') }} p
+    left join {{ ref('_int_marketing_hubspot_users_contacts_2fa') }} f on f.user_id = p.user_id
+)
 
 select
-    info.partner_id,
     info.email,
-    info.has_store,
-    info.user_is_partner,
-    info.partner_tags,
-    info.name,
+    info.user_id,
+    info.is_main_user,
+    info.has_2fa,
     {% if is_incremental() %}
         coalesce(
             existing_data.sys_audit_created_on, current_timestamp
@@ -49,17 +41,16 @@ select
 from source_data as info
 {% if is_incremental() %}
     left join
-        {{ this }} as existing_data on info.partner_id = existing_data.partner_id
+        {{ this }} as existing_data on info.user_id = existing_data.user_id
         {% set monitored_cols = [
             "email",
-            "has_store",
-            "user_is_partner",
-            "partner_tags",
-            "name",
+            "is_main_user",
+            "has_2fa",
         ] %}
     where
-        existing_data.partner_id is null
+        existing_data.user_id is null
         {%- for col in monitored_cols %}
             or (info.{{ col }} is distinct from existing_data.{{ col }})
         {%- endfor %}
 {% endif %}
+

@@ -156,7 +156,7 @@ if [ -n "${DBT_TOKEN:-}" ]; then
 nubeproduct:
   outputs:
     dev:
-      catalog: hive_metastore
+      catalog: data_products_dev
       host: dbc-dd2db5df-9953.cloud.databricks.com
       http_path: /sql/1.0/warehouses/fa8c9959249110a9
       schema: ${DBT_SCHEMA}
