@@ -256,3 +256,11 @@ sources:
     tables:
       - name: locations
         description: "Contains information about the store's distribution centers"
+
+  - name: int_offline
+    database: hive_metastore
+    description: "Source containing tables related to Offline (point of sale)"
+    schema: offline
+    tables:
+      - name: plans
+        description: "Offline plans available for stores"
