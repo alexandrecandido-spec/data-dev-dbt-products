@@ -248,6 +248,8 @@ sources:
     tables:
       - name: sessions
         description: "Raw sessions from users"
+      - name: events
+        description: "Raw events from users"
 
 
   - name: stg_hubspot
