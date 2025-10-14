@@ -5,7 +5,7 @@
         unique_key=['order_id'],
         partition_by='year_month_day_code',
         on_schema_change='fail',
-        tags=["daily-9am-9pm"]
+        tags=["daily-2am"]
     )
 }}
 

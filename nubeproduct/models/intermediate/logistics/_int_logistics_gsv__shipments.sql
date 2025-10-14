@@ -1,9 +1,5 @@
--- Normalizes data to ensure one row per unique shipment_id.
--- Main steps:
---   1. status_priorizado → prioritizes shipment status ("posted" > "created" > others)
---   2. carrier_agg → determines the main carrier or "Multi-carrier"
---   3. info_complementar → aggregates store info, GMV, GSV and flags
--- Result: clean and deduplicated dataset of shipments ready for analytics.
+-- Aggregates all shipments at the shipment level, consolidating duplicated records and prioritizing the most relevant delivery status (“posted” or “created”). 
+-- It also creates aggregated carrier information (e.g., multi-carrier).
 
 WITH
 status_priorizado AS (
@@ -33,34 +29,38 @@ carrier_agg AS (
 info_complementar AS (
     SELECT
         shipment_id,
-        ANY_VALUE(payment_status) AS payment_status,
-        ANY_VALUE(store_id) AS store_id,
-        ANY_VALUE(domain) AS domain,
-        ANY_VALUE(current_segment) AS current_segment,
-        ANY_VALUE(vertical_name) AS vertical_name,
-        ANY_VALUE(plan) AS plan,
-        ANY_VALUE(store_creation_date) AS store_creation_date,
-        ANY_VALUE(store_state_name) AS store_state_name,
-        ANY_VALUE(completed_at) AS completed_at,
-        ANY_VALUE(final_date) AS final_date,
-        ANY_VALUE(postage_label_creation_date) AS postage_label_creation_date,
-        ANY_VALUE(shipment_type) AS shipment_type,
-        ANY_VALUE(gsv) AS gsv,
-        ANY_VALUE(gmv) AS gmv,
-        ANY_VALUE(flg_gsv) AS flg_gsv,
-        ANY_VALUE(flg_gmv) AS flg_gmv,
-        ANY_VALUE(flg_shipment) AS flg_shipment,
-        ANY_VALUE(flg_multicd) AS flg_multicd,
-        ANY_VALUE(flg_ne_selected) AS flg_ne_selected,
-        ANY_VALUE(flg_ne_enabled) AS flg_ne_enabled,
-        ANY_VALUE(selected_shipping_partner) AS selected_shipping_partner,
-        ANY_VALUE(country) AS country
+        ANY_VALUE(order_id)                     AS order_id,
+        ANY_VALUE(delivery_order_id)            AS delivery_order_id,
+        ANY_VALUE(payment_status)               AS payment_status,
+        ANY_VALUE(store_id)                     AS store_id,
+        ANY_VALUE(domain)                       AS domain,
+        ANY_VALUE(current_segment)              AS current_segment,
+        ANY_VALUE(vertical_name)                AS vertical_name,
+        ANY_VALUE(plan)                         AS plan,
+        ANY_VALUE(store_creation_date)          AS store_creation_date,
+        ANY_VALUE(store_state_name)             AS store_state_name,
+        ANY_VALUE(completed_at)                 AS completed_at,
+        ANY_VALUE(posted_at)                    AS posted_at,
+        ANY_VALUE(postage_label_created_at)     AS postage_label_created_at,
+        ANY_VALUE(shipment_type)                AS shipment_type,
+        ANY_VALUE(gsv)                          AS gsv,
+        ANY_VALUE(gmv)                          AS gmv,
+        ANY_VALUE(flg_gsv)                      AS flg_gsv,
+        ANY_VALUE(flg_gmv)                      AS flg_gmv,
+        ANY_VALUE(flg_shipment)                 AS flg_shipment,
+        ANY_VALUE(flg_multicd)                  AS flg_multicd,
+        ANY_VALUE(flg_ne_selected)              AS flg_ne_selected,
+        ANY_VALUE(flg_ne_enabled)               AS flg_ne_enabled,
+        ANY_VALUE(selected_shipping_partner)    AS selected_shipping_partner,
+        ANY_VALUE(country)                      AS country
     FROM {{ ref('_int_logistics_gsv__all_shipments') }}
     GROUP BY shipment_id
 )
 
 SELECT
     s.shipment_id,
+    i.order_id,
+    i.delivery_order_id,
     i.payment_status,
     i.store_id,
     i.domain,
@@ -70,8 +70,8 @@ SELECT
     i.store_creation_date,
     i.store_state_name,
     i.completed_at,
-    i.final_date,
-    i.postage_label_creation_date,
+    CASE WHEN s.delivery_status != 'posted' THEN NULL ELSE i.posted_at END AS posted_at,
+    i.postage_label_created_at,
     CASE 
       WHEN s.delivery_status = 'created' AND i.shipment_type  = 'Paid delivered order' THEN 'Postage label created' 
       WHEN s.delivery_status = 'created' AND i.shipment_type  = 'Cancelled delivered order' THEN 'Postage label created' 
@@ -96,4 +96,3 @@ FROM status_priorizado s
     ON s.shipment_id = c.shipment_id
   LEFT JOIN info_complementar i 
     ON s.shipment_id = i.shipment_id
-WHERE delivery_status IN ('created', 'posted')
