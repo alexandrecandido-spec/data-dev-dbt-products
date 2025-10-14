@@ -41,7 +41,7 @@ INNER JOIN
     filtered_stores AS fs
     ON bs.store_id = fs.store_id
 LEFT JOIN 
-    offline.plans AS p
+    {{ source('int_offline', 'plans') }} AS p
     ON bs.plan_id = p.id
 )
 

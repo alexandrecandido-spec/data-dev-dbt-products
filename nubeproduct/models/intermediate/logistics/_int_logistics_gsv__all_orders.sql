@@ -1,5 +1,4 @@
--- Consolidates both paid and not-paid orders into a single unified dataset.
--- Acts as the base table for linking orders to shipments.
+-- Combines both paid and non-paid orders into a unified table that represents the complete order universe for GSV processing.
 
 
 SELECT

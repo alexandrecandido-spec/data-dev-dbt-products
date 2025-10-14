@@ -246,6 +246,61 @@ models:
       - name: sys_audit_updated_by
         description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
 
+  - name: credito_dev__mova_installment_present_value
+    config:
+      meta:
+        owner: "calvin.hetem@nuvemshop.com.br"
+        domain: "fintech"
+        business_owner: "Lending"
+    description: "Staging model with daily details taken directly from Mova's system regarding installments compostion"
+    columns:
+      - name: data_ref
+        description: "Reference date."
+      - name: hub_contract_id
+        description: "Contract identifier provided by Mova."
+        tests:
+          - not_null
+      - name: hub_installment_id
+        description: "Installment identifier provided by Mova."
+        tests:
+          - not_null
+      - name: original_hub_installment_id
+        description: "Original installment identifier provided by Mova. Aplicable only in some cases where the original installment was partialy paid or renegotiated"
+      - name: deep_hub_installment_id
+        description: "First original installment identifier provided by Mova. Aplicable only in some cases where the original installment was partialy paid or renegotiated multiple times"
+      - name: installment_status
+        description: "Installment status. Possible values are 'A VENCER', 'ATRASADA', 'INADIMPLENTE', 'PDD', 'EM APURAÇÃO'"
+      - name: installment_due_date
+        description: "Installment's due date."
+      - name: installment_number
+        description: "Installment's number. If an installment is partialy paid, the new installment will have an new number."
+      - name: installment_base_amount
+        description: "Installment's expected amount to be paid at installment's due date."
+      - name: installment_principal_amount
+        description: "Installment's principal amount to be paid at any point."
+      - name: installment_interest_amount
+        description: "Installment's expected interest amount to be paid at installment's due date."
+      - name: additional_late_fine
+        description: "Fine amount to be paid."
+      - name: additional_late_contract_interest
+        description: "Addicional interest amount to be paid."
+      - name: additional_late_penalty_interest
+        description: "Penalty interest amount to be paid."
+      - name: additional_late_taxes
+        description: "Additional taxes amount to be paid."
+      - name: discount_pre_payment
+        description: "Possible discount amount if installment is paid at data_ref."
+      - name: installment_updated_amount
+        description: "Total amount to be paid if installment is paid at data_ref."
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model. Defaults to current_timestamp if not available."
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model. Defaults to 'data-dev-dbt-products'."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed."
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
+
   - name: antifraud_service__vertifier_store_inferences
     description: "Staging model with vertifier of current store_id provided by antifraud inferences."
     config:
@@ -1605,9 +1660,7 @@ models:
         description: "Comment identification number. Must be combined with repo_name and issue_number to get the unique key of the model"
       - name: impact
         description: "Only for Mid Market stores, determines the criticity of the comment"
-
-
-
+        
   - name: product__mwp_product_categories
     description: "Contains the list of every product category"
     config:
@@ -1761,6 +1814,126 @@ models:
         description: "Timestamp when the user country was created"
       - name: updated_at
         description: "Timestamp when the user country was last updated"
+      
+  - name: nuvem_chat__store
+    description: "Staging model that contains the list of all merchants that have Nuvemchat installed"
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: year_month_code
+        description: "Year and month code in YYYYMM format. Also used as partition key."
+      - name: cn_store_id
+        description: "Unique identifier within Nuvemchat"
+        tests:
+          - not_null
+          - unique
+      - name: name
+        description: "Name of the store"
+      - name: installed_at
+        description: "Timestamp when the store had Nuvemchat installed"
+      - name: updated_at
+        description: "Timestamp when the store was last updated"
+      - name: deleted_at
+        description: "Timestamp when the store removed Nuvemchat"
+      - name: store_id
+        description: "Store identifier in TiendaNube"
+      - name: billing_plan_id
+        description: "Billing plan identifier. To join with billing_plan table"
+      - name: ia_response_length_id
+        description: "IA response length selected"
+      - name: ia_purpose_id
+        description: "IA purpose selected"
+      - name: ia_language_id
+        description: "IA language selected"
+      - name: ia_tone_id
+        description: "IA tone selected"
+      - name: ia_personality_id
+        description: "IA personality selected"
+      - name: ia_operation_mode_id
+        description: "IA operation mode selected"
+      - name: closed_message
+        description: "Closed message"
+      - name: high_demand_message
+        description: "High demand message"
+      - name: ia_personalization
+        description: "IA personalization"
+      - name: url
+        description: "Store URL"
+      - name: tools
+        description: "Tools"
+      - name: services
+        description: "Services"
+      - name: emojies
+        description: "Emojies enabled or not"
+      - name: personality_traits
+        description: "Personality traits selected"
+      - name: agree_to_use_information_from_store
+        description: "Agree to use information from store"
+      - name: take_order_in_chat
+        description: "Take order in chat"
+      - name: onboarding
+        description: "Onboarding true if the store is currently onboarding and false if they already completed the onboarding process"
+      - name: funnel_stage_id
+        description: "Funnel stage identifier"
+    
+  - name: nuvem_chat__billing_plan
+    description: "Staging model that contains information on billing and trials for merchants using Nuvemchat"
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: year_month_code
+        description: "Year and month code in YYYYMM format. Also used as partition key."
+      - name: billing_plan_id
+        description: "billing plan identifier"
+        tests:
+          - not_null
+          - unique
+      - name: billing_plan_created_at
+        description: "billing plan timestamps"
+      - name: plan_id
+        description: "Plan identifier"
+      - name: cn_store_id
+        description: "Unique identifier within Nuvemchat"
+      - name: trial_id
+        description: "Trial identifier"
+      - name: trial_start_date
+        description: "Trial start date"
+      - name: trial_end_date
+        description: "End date of the free trial"
+      - name: billing_cycle_start_date
+        description: "Start date of the Tiendanube billing cycle"
+      - name: billing_cycle_end_date
+        description: "End date of the Tiendanube billing cycle"
+
+  - name: nuvem_chat__conversation
+    description: "Staging model that contains all conversations from Nuvemchat"
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: year_month_code
+        description: "Year and month code in YYYYMM format. Also used as partition key."
+      - name: conversation_id
+        description: "Conversation identifier"
+        tests:
+          - not_null
+          - unique
+      - name: channel_id
+        description: "Channel identifier. Can be joined with channel table"
+      - name: cn_store_id
+        description: "Unique identifier within Nuvemchat"
+      - name: customer_id
+        description: "Customer identifier"
+      - name: conversation_created_at
+        description: "Conversation timestamp"
 
   - name: metafields__metafield_product_variants
     description: "Contains all product variants metafields"
@@ -1801,7 +1974,33 @@ models:
         description: "If the metafield is read only (1 or 0)"
       - name: app_id
         description: "Unique identifier of the app linked to the metafield."
-
+     
+  - name: nuvem_chat__channel
+    description: "Staging model that contains all channels from conversations in Nuvemchat"
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: year_month_code
+        description: "Year and month code in YYYYMM format. Also used as partition key."
+      - name: channel_id
+        description: "Channel identifier"
+        tests:
+          - not_null
+          - unique
+      - name: cn_store_id
+        description: "Unique identifier within Nuvemchat"
+      - name: created_at
+        description: "Channel created timestamp"
+      - name: updated_at
+        description: "Channel updated timestamp"
+      - name: deleted_at
+        description: "Channel deleted timestamp"
+      - name: channel_discr
+        description: "Channel discriminator ('playground' when used during testing)"
+    
   - name: metafields__metafield_products
     description: "Contains all products metafields"
     config:
@@ -1842,6 +2041,28 @@ models:
       - name: deleted_at
         description: "Timestamp when the metafield was deleted"
 
+  - name: nuvem_chat__message
+    description: "Staging model that contains all messages from conversations in Nuvemchat"
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: year_month_code
+        description: "Year and month code in YYYYMM format. Also used as partition key."
+      - name: message_id
+        description: "Message identifier"
+        tests:
+          - not_null
+          - unique
+      - name: conversation_id
+        description: "Conversation identifier. Can be joined with conversation table"
+      - name: created_at
+        description: "Message timestamp"
+      - name: message_discr
+        description: "Message discriminator ('bot' when message from AI)"
+   
   - name: product__mwp_product_list
     description: "Contains all products"
     config:
@@ -1896,6 +2117,37 @@ models:
       - name: video_url
         description: "URL of a product video if available. This field is only populated with links to videos, not the videos directly uploaded to Tiendanube"
       
+  - name: nuvem_chat__invoice
+    description: "Staging model that contains all invoices from Nuvemchat"
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: year_month_code
+        description: "Year and month code in YYYYMM format. Also used as partition key."
+      - name: invoice_id
+        description: "Invoice identifier"
+        tests:
+          - not_null
+      - name: cn_store_id
+        description: "Unique identifier within Nuvemchat"
+      - name: invoice_cost_total
+        description: "Total cost of the invoice"
+      - name: invoice_created_at
+        description: "Invoice timestamp"
+      - name: invoice_cost_conversation
+        description: "Cost of the conversations"
+      - name: invoice_count_conversation
+        description: "Number of conversations"
+      - name: invoice_start_cycle_date
+        description: "Start date of the invoice cycle"
+      - name: invoice_end_cycle_date
+        description: "End date of the invoice cycle"
+      - name: extra_grace_days
+        description: "Extra grace days to pay. Default is 10."
+
   - name: product__mwp_product_variants
     description: "Contains all product variants"
     config:
@@ -1948,6 +2200,30 @@ models:
       - name: age_group
         description: "Age group of the variant"
 
+  - name: nuvem_chat__invoice_state
+    description: "Staging model that contains all invoice states from Nuvemchat"
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: year_month_code
+        description: "Year and month code in YYYYMM format. Also used as partition key."
+      - name: invoice_state_id
+        description: "Invoice state identifier"
+        tests:
+          - not_null
+          - unique
+      - name: invoice_id
+        description: "Invoice identifier. Can be joined with invoice table"
+      - name: invoice_state_created_at
+        description: "Invoice state timestamp"
+      - name: state_id
+        description: "State identifier"
+      - name: invoice_state
+        description: "State string (paid, unpaid)"
+  
   - name: product__mwp_product_videos
     description: "Contains all product videos uploaded to Tiendanube"
     config:
@@ -2041,7 +2317,7 @@ models:
     config:
       meta:
         owner: "yan.santos@nuvemshop.com.br"
-        domain: "product"
+        domain: "Marketing"
         business_owner: "Giselle Galli"
     columns:
       - name: date
@@ -2060,6 +2336,12 @@ models:
         description: "Search type reported by Search Console."
         tests:
           - not_null
+      - name: country_name
+        description: "Country."
+        tests:
+          - not_null
+      - name: device
+        description: "device sesion user"
       - name: impressions
         description: "Number of impressions."
         tests:
@@ -2100,7 +2382,7 @@ models:
     config:
       meta:
         owner: "yan.santos@nuvemshop.com.br"
-        domain: "product"
+        domain: "Marketing"
         business_owner: "Giselle Galli"
     columns:
       - name: date
@@ -2149,4 +2431,60 @@ models:
         description: "System or user that last updated the row."
         tests:
           - not_null
+
           
+
+  - name: storefronts_curated__events_cart_product_add
+    description: >
+      Curated model that maps the relationship between sessions and carts based on the event 'cart_product_add'.
+      It generates a deterministic technical session key and selects a single representative event per (session, cart) pair.
+      Used to identify which session originated or interacted with each cart. Valid data available since 2024-01-23.
+    config:
+      meta:
+        owner: "barbara.marques@nuvemshop.com.br"
+        domain: "product"
+        business_owner: "Tomas Musich"
+    columns:
+      - name: event_id
+        description: "Unique identifier of the raw event emitted by the storefront."
+        tests:
+          - not_null
+          - unique
+      - name: event_timestamp
+        description: "Original timestamp of the event 'cart_product_add'."
+        tests:
+          - not_null
+      - name: base_date
+        description: "Partition date for the table, based on the event timestamp."
+        tests:
+          - not_null
+      - name: unique_session_key
+        description: "Deterministic technical key for each session (MD5 of session_id, consumer_id, store_id)."
+        tests:
+          - not_null
+      - name: session_id
+        description: "Identifier of the session generated by the storefront visitor."
+      - name: consumer_id
+        description: "Identifier of the consumer (visitor) associated with the session."
+      - name: store_id
+        description: "Store identifier where the session occurred."
+        tests:
+          - not_null
+      - name: event
+        description: "Type of event recorded. Filtered to 'cart_product_add' in this model."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['cart_product_add']
+      - name: cart_id
+        description: "Identifier of the cart associated with the event, extracted from attributes."
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first inserted into this table."
+      - name: sys_audit_created_by
+        description: "User or process that first inserted the record."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the most recent update to the record."
+      - name: sys_audit_updated_by
+        description: "User or process that performed the last update."
