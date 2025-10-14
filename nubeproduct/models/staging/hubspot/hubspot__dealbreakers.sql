@@ -2,13 +2,13 @@
     config(
         tags = ['product', 'daily-8am'],
         materialized='incremental',
-        unique_key='record_id',
+        unique_key='dealbreaker_id',
         on_schema_change='fail'
     )
 }}
 
 SELECT
-	properties_hs_object_id as record_id,
+	cast(properties_hs_object_id as integer) as dealbreaker_id, -- lo casteo porque estaba como decimal
     archived as is_archived,
     properties_hs_createdate as record_created_at,
     properties_hs_lastmodifieddate as record_updated_at,
@@ -29,13 +29,13 @@ SELECT
     properties_hs_pipeline_stage as pipeline_stage,
     properties_github_title as github_title,
     properties_github_status as github_status,
-    properties_hubspot_team_id as owner_team_id,
-    properties_hubspot_owner_id as owner_id,
-    properties_hs_object_source_id as source_id,
-    properties_hs_created_by_user_id as created_by_user_id,
-    properties_hs_updated_by_user_id as updated_by_user_id,
-    properties_hs_object_source_user_id as source_user_id,
-    properties_hs_user_ids_of_all_owners as all_owners_ids,
+    cast(properties_hubspot_team_id as integer) as owner_team_id,
+    cast(properties_hubspot_owner_id as integer) as owner_id,
+    properties_hs_object_source_id as source_id, -- no se castea porque toma valores no numericos cuando es cargado por un user_id
+    cast(properties_hs_created_by_user_id as integer) as created_by_user_id,
+    cast(properties_hs_updated_by_user_id as integer) as updated_by_user_id,
+    cast(properties_hs_object_source_user_id as integer) as source_user_id,
+    properties_hs_user_ids_of_all_owners as all_owners_ids, -- no sabemos que valores puede tomar
     properties_hubspot_owner_assigneddate as owner_assigned_at,
     properties_hs_all_assigned_business_unit_ids as brands,
     properties_close_date as record_closed_at,
