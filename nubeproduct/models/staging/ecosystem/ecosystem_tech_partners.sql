@@ -21,7 +21,7 @@ with partners as (
       from {{ source('stg_ecosystem', 'mwp_partners') }} p
       left join {{ source('stg_ecosystem', 'mwp_partner_partner_types') }} pt
          on p.id = pt.partner_id
-      left join {{ source('bronze_risk_ecosystem', 'mwp_countries') }} mc 
+      left join {{ source('stg_ecosystem', 'countries') }} mc 
          on p.country = mc.id
       where true 
       and p.id not in (83)
@@ -30,10 +30,10 @@ with partners as (
 SELECT 
     concat(p.partner_id, '_', p.country_code) as unique_partner_country_code
     ,p.*
-    current_timestamp AS sys_audit_created_on,
-    'data-dev-dbt-products' AS sys_audit_created_by,
-    current_timestamp AS sys_audit_updated_on,
-    'data-dev-dbt-products' AS sys_audit_updated_by 
+    ,current_timestamp AS sys_audit_created_on
+    ,'data-dev-dbt-products' AS sys_audit_created_by
+    ,current_timestamp AS sys_audit_updated_on
+    ,'data-dev-dbt-products' AS sys_audit_updated_by 
 FROM partners p
 {% if is_incremental() %}
 WHERE NOT EXISTS (

@@ -109,8 +109,16 @@ sources:
     tables:
       - name: mwp_partner_partner_types
         description: "partner_types table from hive_metastore.ecosystem"
+      - name: apps
+        description: "apps table from hive_metastore.ecosystem"
+      - name: apps_categories
+        description: "apps_categories table from hive_metastore.ecosystem"
+      - name: apps_countries
+        description: "apps_countries table from hive_metastore.ecosystem"
       - name: mwp_partners
         description: "partners table from hive_metastore.ecosystem"
+      - name: countries
+        description: "countries table from hive_metastore.ecosystem"
 
   - name: stg_ga4
     database: null

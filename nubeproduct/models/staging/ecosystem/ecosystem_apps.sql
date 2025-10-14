@@ -6,6 +6,7 @@
     tags = ['product','daily-8am']
 ) }}
 
+with
 apps as (
       select
          a.id as app_id
@@ -23,24 +24,23 @@ apps as (
          on a.categories_id = ac.id
       left join (select distinct app_id, country_id from {{ source('stg_ecosystem', 'apps_countries') }} ) mac 
          on mac.app_id = a.id
-      left join {{ source('bronze_risk_ecosystem', 'mwp_countries') }} mc 
+      left join {{ source('stg_ecosystem', 'countries') }} mc 
          on mac.country_id = mc.id
       where a.deleted_at is null
-      group by 1,2,3,4,5,6,7,8
 )
 SELECT 
-    concat(a.app_id, '_', p.country_code) as unique_partner_country_code
+    concat(a.app_id, '_', a.app_published_country) as unique_app_country_code
     ,a.*
-    current_timestamp AS sys_audit_created_on,
-    'data-dev-dbt-products' AS sys_audit_created_by,
-    current_timestamp AS sys_audit_updated_on,
-    'data-dev-dbt-products' AS sys_audit_updated_by 
+    ,current_timestamp AS sys_audit_created_on
+    ,'data-dev-dbt-products' AS sys_audit_created_by
+    ,current_timestamp AS sys_audit_updated_on
+    ,'data-dev-dbt-products' AS sys_audit_updated_by 
 FROM apps a
 {% if is_incremental() %}
 WHERE NOT EXISTS (
     SELECT 1 
     FROM {{ this }} existing 
-    WHERE existing.partner_id = p.partner_id 
-    AND existing.country_code = p.country_code
+    WHERE existing.app_id = p.app_id
+    AND existing.app_published_country = p.app_published_country
 )
 {% endif %}
