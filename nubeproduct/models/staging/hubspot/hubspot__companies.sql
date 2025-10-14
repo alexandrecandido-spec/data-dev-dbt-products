@@ -8,8 +8,8 @@
 }}
 
 SELECT
-	cast(company_id as integer) as company_id, --lo casteo porque estaba como string
-    cast(store_id as integer) as store_id, --lo casteo porque estaba como string
+	company_id,
+    store_id,
 	current_timestamp AS sys_audit_created_on,
 	'data-dev-dbt-products' AS sys_audit_created_by,
 	current_timestamp AS sys_audit_updated_on,

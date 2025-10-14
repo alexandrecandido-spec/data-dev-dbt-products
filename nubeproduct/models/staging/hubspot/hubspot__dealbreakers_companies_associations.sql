@@ -8,9 +8,9 @@
 }}
 
 SELECT
-	cast(dealbreaker_id as integer) as dealbreaker_id, -- lo casteo porque estaba como string
+	dealbreaker_id, -- lo casteo porque estaba como string
     type as association_type,
-    cast(company_id as integer) as company_id, -- lo casteo porque estaba como string
+    company_id, -- lo casteo porque estaba como string
 	current_timestamp AS sys_audit_created_on,
 	'data-dev-dbt-products' AS sys_audit_created_by,
 	current_timestamp AS sys_audit_updated_on,
