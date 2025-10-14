@@ -1135,6 +1135,10 @@ models:
         description: the state of the merchant with detailed names
       - name: current_segment
         description: merchant's current segment
+      - name: avg_gmv_usd_last_3m
+        description: merchant's average GMV in the last 3 months
+      - name: avg_orders_last_3m
+        description: merchant's average orders in the last 3 months
 
   - name: product__non_user_sessions
     description: >
