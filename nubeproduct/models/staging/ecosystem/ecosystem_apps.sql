@@ -13,7 +13,7 @@ apps as (
          ,partners_id as partner_id
          ,handle as app_name
          ,ac.name as app_category
-         ,date(a.created_at) as app_cretion_date
+         ,date(a.created_at) as app_creation_date
          ,date(published_at) as app_published_date
          ,date(a.deleted_at) as app_deleted_date
          ,date(date_trunc('month', a.created_at)) as month_creation_date
@@ -40,7 +40,7 @@ FROM apps a
 WHERE NOT EXISTS (
     SELECT 1 
     FROM {{ this }} existing 
-    WHERE existing.app_id = p.app_id
-    AND existing.app_published_country = p.app_published_country
+    WHERE existing.app_id = a.app_id
+    AND existing.app_published_country = a.app_published_country
 )
 {% endif %}

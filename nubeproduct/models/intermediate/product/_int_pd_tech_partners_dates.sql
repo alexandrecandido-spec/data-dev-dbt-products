@@ -2,7 +2,7 @@ WITH
 fechas as (
     select
         registered_month
-    {{ ref('_int_pd_github_dates') }}
+    from {{ ref('_int_pd_github_dates') }}
 ),
 partners as (
     select
@@ -25,7 +25,7 @@ partner_dates as (
     cross join partners p
 )
 select
-    pd.registered_month
+    p.registered_month
     ,p.partner_id
     ,p.partner_name
     ,p.email
@@ -35,4 +35,6 @@ select
     ,p.description
     ,p.partner_creation_date
     ,p.partner_type
-from partner_dates pd
+    ,case when p.registered_month between date_trunc('month', p.partner_creation_date) and current_date then true else false end as is_partner_active
+    ,case when p.registered_month = date_trunc('month', p.partner_creation_date) then true else false end as is_new_partner
+from partner_dates p
