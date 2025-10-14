@@ -138,7 +138,7 @@ models:
         +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/data_product/onboarding/"
       +post-hook:
        # testing_unity_{domain}, donde {domain} = this.schema (marketing, finance, etc.)
-        - "CREATE mirror_hms_prefix IF NOT EXISTS {{ var('mirror_catalog') }}.{{ this.schema }}.{{ this.identifier }} USING DELTA LOCATION '{{ 
+        - "CREATE TABLE IF NOT EXISTS {{ var('mirror_catalog') }}.{{ this.schema }}.{{ this.identifier }} USING DELTA LOCATION '{{ 
             ('s3://dn-lkh-dev01' if target.name == 'dev' else 's3://dn-lkh-products-prd01') 
             ~ '/data-dev-dbt-products/data_product/' 
             ~ (this.schema | replace('testing_', '') | replace('data_', '')) 
