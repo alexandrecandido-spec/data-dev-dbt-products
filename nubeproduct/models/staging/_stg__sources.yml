@@ -2,7 +2,7 @@ version: 2
 
 sources:
   - name: stg_active_merchants
-    database: null
+    database: hive_metastore
     schema: finance
     tables:
       - name: active_merchants
@@ -10,7 +10,7 @@ sources:
 
 
   - name: stg_moltres
-    database: null
+    database: hive_metastore
     schema: moltres
     tables:
       - name: mwp_store_info
@@ -47,7 +47,7 @@ sources:
 
   - name: stg_orders
     description: "Source containing tables related to order movements"
-    database: null
+    database: hive_metastore
     schema: orders
     tables:
       - name: mwp_orders
@@ -64,7 +64,7 @@ sources:
 
   - name: stg_nuvem_credito
     description: "Source containing tables related to Nuvem credito"
-    database: null
+    database: hive_metastore
     schema: nuvem_credito
     tables:
       - name: contracts
@@ -78,7 +78,7 @@ sources:
 
   - name: stg_credito_dev
     description: "Source containing tables created by Underwritting team"
-    database: null
+    database: hive_metastore
     schema: credito_dev
     tables:
       - name: engine_offers
@@ -88,7 +88,7 @@ sources:
 
 
   - name: stg_antifraud_service
-    database: null
+    database: hive_metastore
     schema: antifraud_service
     tables:
       - name: vertifier_store_inferences
@@ -96,7 +96,7 @@ sources:
 
 
   - name: stg_github_data
-    database: null
+    database: hive_metastore
     schema: github_data
     tables:
       - name: issue_events 
@@ -129,7 +129,7 @@ sources:
   
   
   - name: stg_data_predictors
-    database: null
+    database: hive_metastore
     schema: data_predictors
     description: "Intermediate tables built from raw data in the data_predictors schema, typically used to normalize or enrich store-level information."
     tables:
@@ -145,7 +145,7 @@ sources:
 
   - name: stg_billing
     description: "Source containing tables related to billing operations, including charges, invoices, payments, and store information"
-    database: null
+    database: hive_metastore
     schema: billing
     tables:
       - name: charge
@@ -176,7 +176,7 @@ sources:
         description: "Contains additional fiscal information specific to Argentina for invoice issuance and tax compliance"
       
   - name: stg_nuvem_envio_billing
-    database: null
+    database: hive_metastore
     schema: nuvem_envio_billing
     tables:
       - name: billing_cycle
@@ -185,7 +185,7 @@ sources:
         description: "Carrier-specific delivery cost breakdown for each billing cycle."
 
   - name: stg_onboarding
-    database: null
+    database: hive_metastore
     schema: onboarding
     tables:
       - name: onboarding_store_preference_types 
@@ -193,7 +193,7 @@ sources:
 
   
   - name: stg_offline
-    database: null
+    database: hive_metastore
     description: "Source containing tables related to Offline (point of sale)"
     schema: offline
     tables:
@@ -203,14 +203,14 @@ sources:
         description: "Offline plans available for stores"
 
   - name: stg_nuvem_envio_conciliation
-    database: null
+    database: hive_metastore
     schema: nuvem_envio_conciliation
     tables:
       - name: delivery_order
         description: "Orders delivered with Nuvem Envio/Envio Nube"
 
   - name: stg_marketing
-    database: null
+    database: hive_metastore
     description: "Source containing tables related to marketing"
     schema: marketing
     tables:
@@ -218,7 +218,7 @@ sources:
         description: "Raw events from marketing analytics"
 
   - name: stg_catalog
-    database: null
+    database: hive_metastore
     description: "Source containing tables related to catalog"
     schema: catalog
     tables:
@@ -236,7 +236,7 @@ sources:
         description: "Contains all the stock changes and variant creations with information on the source of the change"
 
   - name: stg_shipping
-    database: null
+    database: hive_metastore
     schema: shipping
     description: "Staging tables built from raw data in the shipping schema, typically used to normalize or enrich store-level information."
     tables:
@@ -244,7 +244,7 @@ sources:
         description: "Contains information about the store's distribution centers"
 
   - name: stg_storefronts
-    database: null
+    database: hive_metastore
     description: "Source containing tables related to storefronts events and sessions"
     schema: storefronts_curated
     tables:
@@ -261,6 +261,7 @@ sources:
 
 
   - name: stg_third_party
+    database: hive_metastore    
     description: "Raw tables loaded from the ingestion of external data sources"
     schema: third_party
     tables:
@@ -275,7 +276,7 @@ sources:
       - name: midmarket_hubspot_tasks
 
   - name: stg_nuvemchat
-    database: null
+    database: hive_metastore
     description: "Source containing tables related to Nuvemchat"
     schema: nuvemchat_api_backend
     tables:
@@ -295,7 +296,7 @@ sources:
         description: "Data on all invoice states over time"
         
   - name: stg_metafields
-    database: null
+    database: hive_metastore
     schema: metafields
     description: "Intermediate tables built from the multiple metafields tables"
     tables:

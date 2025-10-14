@@ -3,7 +3,7 @@
     unique_key = 'unique_session_key',
     partition_by = 'base_date',
     on_schema_change = 'fail',
-    tags = ['daily-9am-9pm']
+    tags = ['daily-2am']
 ) }}
 
 WITH base_sessions_raw AS (

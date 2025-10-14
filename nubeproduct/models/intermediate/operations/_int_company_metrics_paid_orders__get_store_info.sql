@@ -12,7 +12,7 @@ payment_date AS (
         order_id,
         MAX(happened_at) as paid_at
     FROM
-        orders.mwp_orders_logging
+        {{ source('int_orders', 'mwp_orders_logging') }} 
     WHERE
         data_2 = 'paid'
     GROUP BY order_id)
