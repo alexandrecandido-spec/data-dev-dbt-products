@@ -1668,8 +1668,6 @@ models:
         description: "Google Search Console search type."
         tests:
           - not_null
-          - accepted_values:
-              values: ['web', 'image', 'video', 'news']
       - name: country_name
         description: "Country reported by Google Search Console."
       - name: device

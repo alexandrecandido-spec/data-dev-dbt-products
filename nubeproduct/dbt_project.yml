@@ -73,8 +73,6 @@ models:
         +tags: ["dimensions"]
       onboarding:
         +tags: ["onboarding"]
-      gsc:
-        +tags: ["gsc"]
 
     data_product:
       +materialized: table
@@ -130,10 +128,6 @@ models:
         +schema: onboarding
         +tags: ["onboarding"]
         +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/data_product/onboarding/"
-      gsc:
-        +schema: gsc
-        +tags: ["gsc"]
-        +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/data_product/gsc/"
 
   dbt_artifacts:
     +materialized: table

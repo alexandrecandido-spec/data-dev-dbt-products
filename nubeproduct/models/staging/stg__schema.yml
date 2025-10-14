@@ -2072,7 +2072,7 @@ models:
           - not_null
           - dbt_expectations.expect_column_values_to_be_between:
               min_value: 0
-      - name: position
+      - name: average_position
         description: "Position for the URL in search results."
       - name: sys_audit_created_on
         description: "Timestamp when the row was originally created."
@@ -2131,7 +2131,7 @@ models:
           - not_null
           - dbt_expectations.expect_column_values_to_be_between:
               min_value: 0
-      - name: position
+      - name: average_position
         description: "Position for the URL in search results."
       - name: sys_audit_created_on
         description: "Timestamp when the row was originally created."
