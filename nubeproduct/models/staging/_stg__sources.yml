@@ -258,6 +258,12 @@ sources:
     tables:
       - name: deals_archived 
         description: "Contains a record of Hubspot deals that were archived (only last 90 days)"
+      - name: dealbreakers
+        description: "Contains a record of Hubspot dealbreakers objects"
+      - name: dealbreakers_companies_associations   
+        description: "Contains all the dealbreakers and its association to a company in Hubspot" 
+      - name: companies
+        description: "Contains a record of all Hubspot companies, including their store_id"
 
 
   - name: stg_third_party
