@@ -87,9 +87,10 @@
                     concat('549', substring(phone_digits, 5))
 
                 -- Remove "15" after area code (54-area-15-number → 549-area-number)
+                -- Only remove "15" if it's at the beginning of the number part (mobile prefix)
                 when phone_digits like '54%'
-                    and regexp_like(substring(phone_digits, 3), '^[0-9]{2,4}15') then
-                    concat('549', regexp_replace(substring(phone_digits, 3), '^([0-9]{2,4})15', '\\1'))
+                    and regexp_like(substring(phone_digits, 3), '^[0-9]{2,4}15[0-9]{7,}') then
+                    concat('549', regexp_replace(substring(phone_digits, 3), '^([0-9]{2,4})15([0-9]{7,})', '\\1\\2'))
 
                 -- Add "9" after country code (54xxx → 549xxx)
                 when phone_digits like '54%' then

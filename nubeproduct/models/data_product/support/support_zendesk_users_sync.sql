@@ -55,6 +55,9 @@ from source_data as info
             "name",
             "store_id",
             "phone",
+            "has_store",
+            "user_is_partner",
+            "partner_id",
         ] %}
     where
         existing_data.user_id is null
