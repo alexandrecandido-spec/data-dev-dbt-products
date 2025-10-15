@@ -310,7 +310,7 @@ sources:
       
   - name: stg_ecosystem
     database: hive_metastore
-    schema: metafields
+    schema: ecosystem
     description: "Intermediate tables built from the multiple metafields tables"
     tables:
       - name: mwp_partner_partner_types
