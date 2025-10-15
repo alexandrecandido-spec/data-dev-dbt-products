@@ -15,7 +15,6 @@ with
             user_id,
             email,
             name,
-            store_id,
             phone,
             has_store,
             user_is_partner,
@@ -27,7 +26,6 @@ select
     info.user_id,
     info.email,
     info.name,
-    info.store_id,
     info.phone,
     info.has_store,
     info.user_is_partner,
@@ -53,7 +51,6 @@ from source_data as info
         {% set monitored_cols = [
             "email",
             "name",
-            "store_id",
             "phone",
             "has_store",
             "user_is_partner",

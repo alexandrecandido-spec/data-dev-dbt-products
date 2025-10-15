@@ -49,7 +49,6 @@ select
     cast(u.user_id as int) as user_id,
     u.email,
     {{ format_username('u.user_id', 'u.first_name', 'u.last_name') }} as name,
-    u.store_id,
     {{ format_phone_e164('ss.owner_phone_country', 'ss.owner_phone_area', 'ss.owner_phone_number') }} as phone,
     p.partner_id is not null as user_is_partner,
     p.partner_id,

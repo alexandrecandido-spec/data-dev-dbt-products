@@ -163,10 +163,6 @@ models:
         description: "User name. Format: 'First Last', 'First', 'Last', or 'User-{user_id}' (fallback)."
         tests:
           - not_null
-      - name: store_id
-        description: "Store ID associated with the user."
-        tests:
-          - not_null
       - name: phone
         description: "Store owner phone number in E.164 format. Format: '+' followed by 8-15 digits (e.g., +5491150081400). Null if unavailable or invalid."
         tests:
