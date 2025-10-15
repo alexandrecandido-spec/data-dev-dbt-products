@@ -1,0 +1,139 @@
+version: 2
+
+models:
+  - name: support_zendesk_stores_sync
+    meta:
+      owner: "santiago.gandolfo@tiendanube.com"
+      domain: "support"
+      business_owner: "Support Team"
+    description: >
+      Contains simplified store attributes for Zendesk integration.
+    columns:
+      - name: external_id
+        description: "Unique identifier of the store. Primary key."
+        tests:
+          - not_null
+          - unique
+      - name: status_by_orders
+        description: "Descriptive name of the current segment (e.g., no-seller, struggling-seller) associated with this store."
+      - name: url_stats
+        description: "URL to the stats profile page for the store in the format 'https://stats.tiendanube.com/store/profile?store_id={store_id}'."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_match_like_pattern:
+              like_pattern: "https://stats.tiendanube.com/store/profile?store_id=%"
+      - name: name
+        description: "Store name derived from the domain field. If no domain is available, defaults to 'Organization-{store_id}'. Null if store not found in dim_merchant_info."
+      - name: age_range
+        description: "Store age range based on creation date (0-7d, 8-14d, 15-30d, etc.). Null if store not found in dim_merchant_info."
+      - name: range_since_first_payment
+        description: "Time range since first payment (0-7d, 8-14d, 15-30d, etc.). Null if no first payment."
+      - name: created_at_org
+        description: "Store creation date in YYYY-MM-DD format. Null if store not found in dim_merchant_info."
+      - name: country
+        description: "Store country code. Null if store not found in dim_merchant_info."
+      - name: url_admin
+        description: "Admin store URL with appropriate domain suffix. Null if store not found in dim_merchant_info."
+      - name: tags_routing
+        description: "Comma-separated list of relevant store tags"
+      - name: gmv_usd_90d
+        description: "GMV in USD for the last 90 days (integer)"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: int
+      - name: np_trx_last_30
+        description: "Number of NuvemPago transactions in the last 30 days"
+        tests:
+          - not_null
+      - name: np_kyc_rejected
+        description: "Boolean flag indicating if store has NuvemPago KYC rejected tag. False if store doesn't have this tag."
+        tests:
+          - not_null
+      - name: np_clearsale_risk
+        description: "Boolean flag indicating if store has NuvemPago risk tag. False if store doesn't have this tag."
+        tests:
+          - not_null
+      - name: np_document
+        description: "NuvemPago document number (CPF/CNPJ) from marketing_merchant_info_refined"
+      - name: confirmed_account
+        description: "Boolean flag indicating if main user account is confirmed (based on account_confirmed_at)"
+        tests:
+          - not_null
+      - name: ftp
+        description: "Boolean flag indicating if store has custom theme (FTP access)"
+        tests:
+          - not_null
+      - name: plan
+        description: "Store plan handle (e.g., 'freemium', 'plan-a', 'plan-b', 'enterprise'). Defaults to 'custom' if no plan. Null if store not found in dim_merchant_info."
+      - name: layout
+        description: "Store theme template from mwp_options (twig_template option_value)"
+      - name: paid_until_at
+        description: "Store paid subscription expiration date in YYYY-MM-DD format"
+        tests:
+          - dbt_expectations.expect_column_values_to_match_regex:
+              regex: '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'
+      - name: has_associated_partner
+        description: "Boolean flag indicating if store has an associated partner"
+        tests:
+          - not_null
+      - name: has_instagram
+        description: "Boolean flag indicating if store has Instagram integration. Null if store not found in mwp_store_settings."
+      - name: status
+        description: "Store status (test, churn, free, trial, paying, development, mobile, etc.)"
+      - name: year_month_day_code
+        description: "Date code in YYYYMMDD format for partitioning"
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created."
+      - name: sys_audit_created_by
+        description: "System or user that created the row."
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated."
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row."
+
+  - name: support_zendesk_partners_sync
+    meta:
+      owner: "santiago.gandolfo@tiendanube.com"
+      domain: "support"
+      business_owner: "Support Team"
+    description: >
+      Contains simplified partner attributes for Zendesk integration.
+    columns:
+      - name: partner_id
+        description: "Unique identifier of the partner. Primary key."
+        tests:
+          - not_null
+          - unique
+      - name: email
+        description: "Partner email address. Only includes partners with non-null email."
+        tests:
+          - not_null
+      - name: has_store
+        description: "Boolean flag indicating if the partner has a store. Always false for partners."
+        tests:
+          - not_null
+      - name: user_is_partner
+        description: "Boolean flag indicating if the user is a partner. Always true for partners."
+        tests:
+          - not_null
+      - name: partner_tags
+        description: "Comma-separated list of partner tags (platinum, gold, silver)."
+      - name: name
+        description: "Partner name with smart logic: uses user's first_name + last_name if available and no demo stores, otherwise uses partner name, with fallbacks to 'Partner-{partner_id}' or 'User-{user_id}'."
+        tests:
+          - not_null
+      - name: year_month_day_code
+        description: "Date code in YYYYMMDD format for partitioning."
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created."
+      - name: sys_audit_created_by
+        description: "System or user that created the row."
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated."
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row."

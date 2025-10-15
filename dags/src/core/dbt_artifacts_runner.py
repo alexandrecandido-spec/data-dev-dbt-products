@@ -7,13 +7,13 @@ import boto3
 import os
 import yaml 
 
-def create_profiles_yml():
+def create_profiles_yml(): 
     dbt_conn = BaseHook.get_connection("dbt_profiles")
     profiles_config = {
         'nubeproduct': {
             'outputs': {
                 'prod': {
-                    'catalog': None,
+                    'catalog': 'data_products_prd',
                     'host': dbt_conn.host,
                     'http_path': '/sql/1.0/warehouses/2f8b52bf3d2088a2',
                     'schema': 'data',

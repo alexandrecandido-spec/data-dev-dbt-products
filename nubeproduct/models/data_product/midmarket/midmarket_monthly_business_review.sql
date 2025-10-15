@@ -62,7 +62,7 @@ SELECT
     st.status, 
     p.country,
     fg.franchise_group,
-    COALESCE(m.main, false) as main, 
+    COALESCE(m.main, true) as main, 
     CAST(lri.last_relevant_interaction AS DATE) as last_relevant_interaction,
     CAST(fg.last_group_interaction AS DATE) as last_group_interaction,
     st.days_since_last_relevant_interaction,
@@ -87,11 +87,11 @@ FROM
       on d.deal_id = l.deal_id
     left join {{ ref('_int_midmarket_wbr_mbr__last_relevant_interaction') }} lri
       on d.store_id = lri.store_id
-    left join {{ ref('_int_midmarket_wbr_mbr__status') }} st
+    left join {{ ref('_int_midmarket_wbr_mbr__monthly_status') }} st
       on d.store_id = st.store_id 
-    left join {{ ref('_int_midmarket_wbr_mbr__franchise_group') }} fg
+    left join {{ ref('_int_midmarket_wbr_mbr__monthly_franchise_group') }} fg
       on d.store_id = fg.store_id  
-    left join {{ ref('_int_midmarket_wbr_mbr__main') }} m
+    left join {{ ref('_int_midmarket_wbr_mbr__monthly_main') }} m
       on d.store_id = m.store_id       
     left join {{ ref('_int_midmarket_wbr_mbr__plan') }} p
       on d.store_id = p.store_id

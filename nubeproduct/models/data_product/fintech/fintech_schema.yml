@@ -154,3 +154,58 @@ models:
         description: "System audit field indicating when the record was last updated."
         tests:
           - not_null
+  - name: credit_contracts_present_value
+    description: >
+      Contains all balance informations regarding each contract for each day since 2025-04-14
+    config:
+      meta:
+        owner: "calvin.hetem@nuvemshop.com.br"
+        domain: "fintech"
+        business_owner: "Calvin Hetem"
+    columns:
+      - name: data_ref
+        description: "Reference date."
+      - name: store_id
+        description: "Store identifier."
+      - name: hub_contract_id
+        description: "Unique external identifier for each proposal."
+        tests:
+          - not_null
+      - name: installment_status
+        description: "Installment status. Possible values are 'A VENCER', 'ATRASADA', 'INADIMPLENTE', 'PDD', 'EM APURAÇÃO'"
+      - name: contract_base_amount
+        description: "contract's expected amount to be paid if each installment is paid on it's due date."
+      - name: contract_principal_amount
+        description: "contract's principal amount to be paid at any point."
+      - name: contract_interest_amount
+        description: "contract's expected interest amount to be paid if each installment is paid on it's due date."
+      - name: additional_late_fine
+        description: "Fine amount to be paid."
+      - name: additional_late_contract_interest
+        description: "Addicional interest amount to be paid."
+      - name: additional_late_penalty_interest
+        description: "Penalty interest amount to be paid."
+      - name: additional_late_taxes
+        description: "Additional taxes amount to be paid."
+      - name: discount_pre_payment
+        description: "Possible discount amount if contract is paid at data_ref."
+      - name: contract_accumulated_amount
+        description: "Total interest amount to be paid if contract is paid at data_ref."
+      - name: contract_updated_amount
+        description: "Total amount to be paid if contract is paid at data_ref."
+      - name: sys_audit_created_by
+        description: "System audit field indicating who created the record."
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: "System audit field indicating when the record was created."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "System audit field indicating who last updated the record."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "System audit field indicating when the record was last updated."
+        tests:
+          - not_null
