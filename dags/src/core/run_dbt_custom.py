@@ -16,7 +16,7 @@ def create_profiles_yml():
         'nubeproduct': {
             'outputs': {
                 'prod': {
-                    'catalog': None,
+                    'catalog': 'data_products_prd',
                     'host': dbt_conn.host,
                     'http_path': '/sql/1.0/warehouses/2f8b52bf3d2088a2',
                     'schema': 'data',
@@ -53,14 +53,16 @@ def create_dbt_dag(
     """
     
     """Continuar sumando condiciones de acuerdo a los schedules/tags"""
-    if schedule_interval_tag == 'daily-4am':
+    if schedule_interval_tag == 'daily-2am':
+        schedule_interval='0 2 * * *'
+    elif schedule_interval_tag == 'daily-4am':
         schedule_interval='0 4 * * *'
     elif schedule_interval_tag == 'daily-4_30am':
         schedule_interval = '30 4 * * *'
     elif schedule_interval_tag == 'daily-6am':
         schedule_interval='0 6 * * *'
-    elif schedule_interval_tag == 'daily-7am':
-        schedule_interval='0 7 * * *'
+    elif schedule_interval_tag == 'daily-10am':
+        schedule_interval='0 10 * * *'
     elif schedule_interval_tag == 'daily-8am':
         schedule_interval='0 8 * * *'
     elif schedule_interval_tag == 'daily-8_30am':
@@ -83,14 +85,18 @@ def create_dbt_dag(
         schedule_interval = '0 9 * * 1' 
     elif schedule_interval_tag == 'weekly-monday-10am':
         schedule_interval = '0 10 * * 1' 
+    elif schedule_interval_tag == 'weekly-monday-1030am':
+        schedule_interval = '30 10 * * 1'
     elif schedule_interval_tag == 'monthly-1st-10AM':
         schedule_interval='5 10 1 * *'
     elif schedule_interval_tag == 'monthly-1st-12pm':
         schedule_interval = '0 12 1 * *' 
     elif schedule_interval_tag == 'monthly-2nd-10AM':
         schedule_interval='0 10 2 * *'
-    elif schedule_interval_tag == 'monthly-4th-7am':
-        schedule_interval='0 7 4 * *'
+    elif schedule_interval_tag == 'monthly-4th-11am':
+        schedule_interval='0 11 4 * *'
+    elif schedule_interval_tag == 'monthly-4st-10AM':
+        schedule_interval='0 10 4 * *'
     else:
         schedule_interval=None 
 

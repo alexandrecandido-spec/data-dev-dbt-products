@@ -12,7 +12,7 @@ payment_date AS (
         order_id,
         MAX(happened_at) as paid_at
     FROM
-        orders.mwp_orders_logging
+        {{ source('int_orders', 'mwp_orders_logging') }} 
     WHERE
         data_2 = 'paid'
     GROUP BY order_id)
@@ -62,3 +62,4 @@ WHERE
     paid_orders.store_id not in (SELECT related_id FROM blocked_stores)
     AND is_paid_order = TRUE AND storefront <> 'permalink'
     AND DATE(paid_orders.completed_at) < CURRENT_DATE()
+    AND paid_orders.total_in_usd <= 10000 AND paid_orders.total_in_usd >= 0
