@@ -123,6 +123,7 @@ sources:
   - name: bronze_risk_new_admin
     database: bronze_risk
     schema: new_admin
+    tables:
       - name: mwp_countries
         description: "countries table from bronze_risk.ecosystem"
 
