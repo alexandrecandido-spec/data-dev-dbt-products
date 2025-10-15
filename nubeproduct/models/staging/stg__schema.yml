@@ -1581,6 +1581,39 @@ models:
         description: "Timestamp of the last modification made to the deal in HubSpot."
       - name: sys_audit_created_on
         description: "Timestamp when the record was first loaded into the model. Preserved from previous loads for existing records."
+          
+  - name: ecosystem_tech_partners
+    description: "Staging model that contains information about the tech partners in the ecosystem."
+    config:
+      meta:
+        owner: "fernando.martinez@tiendanube.com"
+        domain: "product"
+        business_owner: "Nicolas Loreti"
+    columns:
+      - name: partner_id
+        description: "Unique identifier of the partner."
+        tests:
+          - not_null
+      - name: partner_name
+        description: "Name of the partner."
+        tests:
+          - not_null
+      - name: email
+        description: "Email of the partner."
+      - name: country
+        description: "Country of the partner." 
+      - name: country_code
+        description: "Country code of the partner."
+      - name: phone_number
+        description: "Phone number of the partner."
+      - name: partner_creation_date
+        description: "Date when the partner was created."
+        tests:
+          - not_null
+      - name: partner_type
+        description: "Type of the partner."
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model. Defaults to current_timestamp if not available."
         tests:
           - not_null
       - name: sys_audit_created_by
@@ -1589,6 +1622,7 @@ models:
           - not_null
       - name: sys_audit_updated_on
         description: "Timestamp of the current model run when the record was processed."
+        description: "Timestamp of the current model run when the record was processed. Defaults to current_timestamp if not available."
         tests:
           - not_null
       - name: sys_audit_updated_by
@@ -2367,106 +2401,4 @@ models:
         description: "Timestamp of the most recent update to the record."
       - name: sys_audit_updated_by
         description: "User or process that performed the last update."
-
-    
-  - name: ecosystem_apps
-    description: "Staging model that contains information about the apps in the ecosystem schema."
-    config:
-      meta:
-        owner: "fernando.martinez@tiendanube.com"
-        domain: "product"
-        business_owner: "Nicolas Loreti"
-    columns:
-      - name: app_id
-        description: "Unique identifier of the app."
-        tests:
-          - not_null
-      - name: partner_id
-        description: "Unique identifier of the partner."
-        tests:
-          - not_null
-      - name: app_name
-        description: "Name of the app."
-        tests:
-          - not_null
-      - name: app_category
-        description: "Category of the app."
-      - name: app_creation_date
-        description: "Date when the app was created."
-        tests:
-          - not_null
-      - name: app_published_date
-        description: "Date when the app was published."
-      - name: app_deleted_date
-        description: "Date when the app was deleted."
-      - name: month_creation_date
-        description: "Date when the app was created in the month."
-      - name: is_app_published
-        description: "Flag indicating if the app is published."
-        tests:
-          - not_null
-      - name: app_published_country
-        description: "Country where the app is published."
-      - name: sys_audit_created_on
-        description: "Timestamp when the record was first loaded into the model. Defaults to current_timestamp if not available."
-        tests:
-          - not_null
-      - name: sys_audit_created_by
-        description: "User or process that first loaded the record into the model. Defaults to 'data-dev-dbt-products'."
-        tests:
-          - not_null
-      - name: sys_audit_updated_on  
-        description: "Timestamp of the current model run when the record was processed. Defaults to current_timestamp if not available."
-        tests:
-          - not_null
-      - name: sys_audit_updated_by
-        description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
-        tests:
-          - not_null
-          
-  - name: ecosystem_tech_partners
-    description: "Staging model that contains information about the tech partners in the ecosystem."
-    config:
-      meta:
-        owner: "fernando.martinez@tiendanube.com"
-        domain: "product"
-        business_owner: "Nicolas Loreti"
-    columns:
-      - name: partner_id
-        description: "Unique identifier of the partner."
-        tests:
-          - not_null
-      - name: partner_name
-        description: "Name of the partner."
-        tests:
-          - not_null
-      - name: email
-        description: "Email of the partner."
-      - name: country
-        description: "Country of the partner." 
-      - name: country_code
-        description: "Country code of the partner."
-      - name: phone_number
-        description: "Phone number of the partner."
-      - name: partner_creation_date
-        description: "Date when the partner was created."
-        tests:
-          - not_null
-      - name: partner_type
-        description: "Type of the partner."
-      - name: sys_audit_created_on
-        description: "Timestamp when the record was first loaded into the model. Defaults to current_timestamp if not available."
-        tests:
-          - not_null
-      - name: sys_audit_created_by
-        description: "User or process that first loaded the record into the model. Defaults to 'data-dev-dbt-products'."
-        tests:
-          - not_null
-      - name: sys_audit_updated_on
-        description: "Timestamp of the current model run when the record was processed. Defaults to current_timestamp if not available."
-        tests:
-          - not_null
-      - name: sys_audit_updated_by
-        description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
-        tests:
           - not_null

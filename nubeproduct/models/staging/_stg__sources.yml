@@ -119,7 +119,11 @@ sources:
     tables:
       - name: apps
         description: "Apps table from bronze_risk.ecosystem"
-        - name: mwp_countries
+  
+  - name: bronze_risk_new_admin
+    database: bronze_risk
+    schema: new_admin
+      - name: mwp_countries
         description: "countries table from bronze_risk.ecosystem"
 
 
