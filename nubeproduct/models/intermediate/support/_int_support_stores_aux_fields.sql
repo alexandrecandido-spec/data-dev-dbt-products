@@ -16,7 +16,9 @@ with
     ),
 
     paid_until as (
-        select store_id, unix_timestamp(paid_until) as paid_until_at
+        select 
+            store_id, 
+            date_format(cast(paid_until as date), 'yyyy-MM-dd') as paid_until_at
         from {{ ref("moltres__mwp_store_info") }}
         where paid_until is not null
     ),

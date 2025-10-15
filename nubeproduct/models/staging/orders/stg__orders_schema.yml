@@ -30,6 +30,8 @@ models:
         description: "Timestamp when the order was successfully completed."
       - name: cancelled_at
         description: "Timestamp when the order was cancelled, if applicable."
+      - name: cancel_reason
+        description: "Reason for the order cancellation, if applicable."
       - name: created_at
         description: "Timestamp when the order was created."
         tests:
