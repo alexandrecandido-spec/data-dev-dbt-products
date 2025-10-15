@@ -2360,6 +2360,127 @@ models:
       - name: year_month_code
         description: "Reference year and month. Also the field used to partition the table."
 
+  - name: gsc__url_results
+    description: "Staging model with Google Search Console URL results by date, URL, search type, country and device."
+    config:
+      meta:
+        owner: "yan.santos@nuvemshop.com.br"
+        domain: "Marketing"
+        business_owner: "Giselle Galli"
+    columns:
+      - name: date
+        description: "Date of the Search Console metric."
+        tests:
+          - not_null
+      - name: full_url
+        description: "Full URL for which the metrics were recorded."
+        tests:
+          - not_null
+      - name: path
+        description: "Path component of the URL."
+        tests:
+          - not_null
+      - name: search_type
+        description: "Search type reported by Search Console."
+        tests:
+          - not_null
+      - name: country_name
+        description: "Country."
+        tests:
+          - not_null
+      - name: device
+        description: "device sesion user"
+      - name: impressions
+        description: "Number of impressions."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+      - name: clicks
+        description: "Number of clicks."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+      - name: average_position
+        description: "Position for the URL in search results."
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "System or user that created the row."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this table."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row."
+        tests:
+          - not_null
+      - name: year_month_day_code
+        description: "Reference year and month. Also the field used to partition the table."
+        tests:
+          - not_null
+
+  - name: gsc__url_unsplit_results
+    description: "Staging model with Google Search Console URL unsplit results by date, URL, search type, country and device."
+    config:
+      meta:
+        owner: "yan.santos@nuvemshop.com.br"
+        domain: "Marketing"
+        business_owner: "Giselle Galli"
+    columns:
+      - name: date
+        description: "Date of the Search Console metric."
+        tests:
+          - not_null
+      - name: full_url
+        description: "Full URL for which the metrics were recorded."
+        tests:
+          - not_null
+      - name: path
+        description: "Path component of the URL."
+        tests:
+          - not_null
+      - name: search_type
+        description: "Search type reported by Search Console."
+        tests:
+          - not_null
+      - name: impressions
+        description: "Number of impressions."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+      - name: clicks
+        description: "Number of clicks."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+      - name: average_position
+        description: "Position for the URL in search results."
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "System or user that created the row."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this table."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row."
+        tests:
+          - not_null
+
+          
 
   - name: storefronts_curated__events_cart_product_add
     description: >
