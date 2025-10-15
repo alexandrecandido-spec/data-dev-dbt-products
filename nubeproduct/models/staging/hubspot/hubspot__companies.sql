@@ -8,8 +8,8 @@
 }}
 
 SELECT
-	company_id,
-    store_id,
+	cast(company_id as bigint) as company_id,
+    cast(store_id as integer) as store_id,
 	current_timestamp AS sys_audit_created_on,
 	'data-dev-dbt-products' AS sys_audit_created_by,
 	current_timestamp AS sys_audit_updated_on,

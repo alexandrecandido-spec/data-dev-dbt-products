@@ -8,9 +8,9 @@
 }}
 
 SELECT
-	dealbreaker_id, -- lo casteo porque estaba como string
+	cast(dealbreaker_id as bigint) as dealbreaker_id,
     type as association_type,
-    company_id, -- lo casteo porque estaba como string
+    cast(company_id as bigint) as company_id,
 	current_timestamp AS sys_audit_created_on,
 	'data-dev-dbt-products' AS sys_audit_created_by,
 	current_timestamp AS sys_audit_updated_on,
