@@ -112,26 +112,18 @@ sources:
       - name: issue_comment
         description: "Contains the list of every comment associated to an Issue/Problem"
 
-
   - name: bronze_risk_ecosystem
     database: bronze_risk
     schema: ecosystem
     tables:
       - name: apps
         description: "Apps table from bronze_risk.ecosystem"
+      - name: mwp_countries
+        description: "countries table from bronze_risk.ecosystem"
   
   - name: bronze_risk_new_admin
     database: bronze_risk
     schema: new_admin
-    tables:
-      - name: mwp_countries
-        description: "countries table from bronze_risk.ecosystem"
-
-
-  - name: stg_ga4
-    database: null
-    schema: ga4
-    description: "Raw GA4 source tables for events, trials, payments, sessions, and pageviews."
     tables:
       - name: auth_authentication_factors
         description: "Authentication factors per user (2FA) from bronze_risk.new_admin"
@@ -316,4 +308,21 @@ sources:
       - name: metafield_products
         description: "Contains all products metafields"
       
+  - name: stg_ecosystem
+    database: hive_metastore
+    schema: metafields
+    description: "Intermediate tables built from the multiple metafields tables"
+    tables:
+      - name: mwp_partner_partner_types
+        description: "Contains the type of the partner"
+      - name: apps_categories
+        description: "Contains the category of the partner"
+      - name: apps_countries
+        description: "Contains the countries of the apps"
+      - name: mwp_partners
+        description: "Contains the information of the partners"
+      - name: countries
+        description: "Contains the countries of the partners"
+      - name: apps
+        description: "Contains app information"
       

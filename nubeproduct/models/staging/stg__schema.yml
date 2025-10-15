@@ -1581,7 +1581,21 @@ models:
         description: "Timestamp of the last modification made to the deal in HubSpot."
       - name: sys_audit_created_on
         description: "Timestamp when the record was first loaded into the model. Preserved from previous loads for existing records."
-          
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model. Defaults to 'data-dev-dbt-products'."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
+        tests:
+          - not_null
+                    
   - name: ecosystem_tech_partners
     description: "Staging model that contains information about the tech partners in the ecosystem."
     config:
