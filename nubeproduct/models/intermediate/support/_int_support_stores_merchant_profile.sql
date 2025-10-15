@@ -80,13 +80,15 @@ select
     -- admin URL by country
     case
         when c.country_code = 'BR'
-        then b.domain || '.lojavirtualnuvem.com.br/admin'
-        else b.domain || '.mitiendanube.com/admin'
+        then 'https://' || b.domain || '.lojavirtualnuvem.com.br/admin'
+        else 'https://' || b.domain || '.mitiendanube.com/admin'
     end as url_admin,
     -- plan name
     p.plan as plan,
     -- segment name
-    s.segment_name as status_by_orders
+    case
+        when s.segment_name = 'Not Informed' then null else s.segment_name
+    end as status_by_orders
 from active a
 left join base b on b.store_id = a.store_id
 left join country c on c.country_id = b.country_id
