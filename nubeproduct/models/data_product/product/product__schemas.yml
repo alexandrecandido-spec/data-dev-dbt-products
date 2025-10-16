@@ -1326,3 +1326,25 @@ models:
         description: type of conversation (ai, store, both, other)
         tests:
           - not_null
+      - name: total_conversations
+        description: total number of conversations created
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+      - name: sys_audit_created_on
+        description: timestamp when the row was originally created in this model
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: system or user that created the row in this model
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: timestamp when the row was last updated in this model
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: system or user that last updated the row in this model
+        tests:
+          - not_null
