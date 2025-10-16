@@ -94,10 +94,10 @@ having total_apps > 0
 )
 select 
    p.*
-   ,current_timestamp as sys_audit_created_on
-   ,'data-dev-dbt-products' as sys_audit_created_by
-   ,current_timestamp as sys_audit_updated_on
-   ,'data-dev-dbt-products' as sys_audit_updated_by
+   ,current_timestamp as sys_admin_created_at
+   ,'data-dev-dbt-products' as sys_admin_creatd_by
+   ,current_timestamp as sys_audit_updated_at
+   ,'data-dev-dbt-products' as sys_admin_updated_by
 FROM partners p
 {% if is_incremental() %}
     WHERE NOT EXISTS (
