@@ -1,7 +1,7 @@
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'merge',
-    unique_key = ['app_id', 'country_code'],
+    unique_key = ['app_id', 'app_published_country'],
     on_schema_change = 'fail',
     tags = ['product','daily-8am']
 ) }}

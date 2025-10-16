@@ -54,7 +54,7 @@ referrals as (
 */
 partners as (
 select 
-    concat(p.partner_id, '_', p.country_code) as unique_partner_country_code
+   concat(p.registered_month, '_', p.partner_id, '_', p.country_code) as unique_partner_country_code
    ,p.registered_month
    ,p.partner_id
    ,p.partner_name
@@ -105,5 +105,6 @@ FROM partners p
     FROM {{ this }} existing 
     WHERE existing.partner_id = p.partner_id 
     AND existing.country_code = p.country_code
+    and existing.registered_month = p.registered_month
    )
 {% endif %}
