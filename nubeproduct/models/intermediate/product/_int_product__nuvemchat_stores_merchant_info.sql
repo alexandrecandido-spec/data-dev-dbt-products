@@ -60,6 +60,8 @@ msi.state,
   WHEN msi.state = 5 THEN '5 - store on partner prep'
 ELSE '9 - other' END AS tiendanube_state,
 msi.current_segment,
+gmv.avg_gmv_usd_last_3m,
+gmv.avg_orders_last_3m,
 GREATEST(
     max(nc_data.max_sys_audit_updated_on),
     max(msi.sys_audit_updated_on),
@@ -104,4 +106,6 @@ GROUP BY
     gp.grupo,
     msi.domain,
     msi.state,
-    msi.current_segment
+    msi.current_segment,
+    gmv.avg_gmv_usd_last_3m,
+    gmv.avg_orders_last_3m

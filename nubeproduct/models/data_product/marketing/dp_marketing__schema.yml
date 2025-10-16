@@ -1684,3 +1684,59 @@ models:
         description: "Timestamp when the record was last updated in the DWH."
       - name: sys_audit_updated_by
         description: "Process/system that last updated the record."
+
+
+  - name: marketing_gscgrowth_results
+    description: "Aggregated and classified Google Search Console results with audit fields."
+    config:
+      meta:
+        owner: "yan.santos@nuvemshop.com.br"
+        business_owner: "Giselle Galli"
+        domain: "marketing"
+    columns:
+      - name: date
+        description: "Date of the record."
+        tests: [not_null]
+      - name: full_url
+        description: "Canonical page URL."
+      - name: path
+        description: "URL path portion."
+      - name: search_type
+        description: "Google Search Console search type."
+        tests:
+          - not_null
+      - name: country_name
+        description: "Country reported by Google Search Console."
+      - name: device
+        description: "Device category reported by Google Search Console."
+      - name: impressions
+        description: "Total impressions for the URL, search type, country, and device."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+      - name: clicks
+        description: "Total clicks for the URL, search type, country, and device."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+      - name: average_position
+        description: "Average position in Google Search results."
+      - name: subteam
+        description: "Marketing subteam classification inferred from URL patterns."
+      - name: classified_country
+        description: "Country classification inferred from URL and context."
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created."
+        tests: [not_null]
+      - name: sys_audit_created_by
+        description: "System or user that created the row."
+        tests: [not_null]
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this table."
+        tests: [not_null]
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row."
+        tests: [not_null]
+
