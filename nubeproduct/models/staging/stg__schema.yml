@@ -2618,6 +2618,10 @@ models:
         description: "Date when the app was published."
       - name: app_deleted_date
         description: "Date when the app was deleted."
+      - name: month_creation_date
+        description: "Month when the app was created."
+      - name: is_app_published
+        description: "Flag indicating if the app is published."
       - name: app_published_country
         description: "Country code of the app."
       - name: sys_audit_created_on
