@@ -1216,7 +1216,7 @@ models:
         tests:
           - not_null
 
-- name: s__orders__merchants_auto_cancel_configs__link
+  - name: s__orders__merchants_auto_cancel_configs__link
     description: > 
       Contains a list of all merchants and their auto cancel configs (if any)
     config:
