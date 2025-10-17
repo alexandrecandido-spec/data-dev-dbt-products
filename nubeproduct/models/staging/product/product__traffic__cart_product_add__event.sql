@@ -1,6 +1,6 @@
 {{ config(
     materialized = 'incremental',
-    unique_key = ['event_id', 'unique_session_key'],
+    unique_key = 'event_id',
     partition_by = 'base_date',
     on_schema_change = 'fail',
     tags = ['product','daily-2am']
@@ -24,7 +24,7 @@ FROM
 WHERE 
 	-- event selection
     event = 'cart_product_add'
-    -- filters related to the layer/event
+    -- filters related to the layer/event 
     AND TRY_CAST(element_at(attributes, 'cart_id') AS BIGINT) > 0
     -- necessary code for historical incremental load and maintenance
     {% if not is_incremental() %}
