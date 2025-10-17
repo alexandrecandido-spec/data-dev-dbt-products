@@ -6,16 +6,20 @@
         tags=["product","daily-9am"]
     )
 }}
-with user_languages as (
+with apps as (
     SELECT 
     id,
-    store_id,
-    language,
-    name,
-    currency,
-    active,
-    flag
-    FROM {{ source('stg_moltres', 'mwp_user_languages') }} AS ul
+    partner_id,
+    official,
+    handle,
+    category,
+    visits,
+    installs,
+    created_at,
+    updated_at,
+    deleted_at,
+    published_at
+    FROM {{ source('stg_moltres', 'mwp_apps') }} AS a
     {% if is_incremental() %}
     -- this filter will only be applied on an incremental run
     -- (uses >= to include records whose timestamp occurred since the last run of this model)
@@ -28,16 +32,20 @@ existing_data AS (
 )
 
 SELECT 
-    user_languages.id,
-    store_id,
-    language,
-    name,
-    currency,
-    active,
-    flag,
+    apps.id,
+    partner_id,
+    official,
+    handle,
+    category,
+    visits,
+    installs,
+    created_at,
+    updated_at,
+    deleted_at,
+    published_at,
     COALESCE(e.sys_audit_created_on, current_timestamp) AS sys_audit_created_on,
     COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by,
     current_timestamp AS sys_audit_updated_on,
     'data-dev-dbt-products' AS sys_audit_updated_by
-FROM user_languages
-LEFT JOIN existing_data e ON user_languages.id = e.id
+FROM apps
+LEFT JOIN existing_data e ON apps.id =e.id
