@@ -1418,7 +1418,7 @@ models:
             - event_name
 
 
-  - name: storefronts_curated__sessions
+  - name: product__traffic__sessions__event
     description: >
       Staging model that standardizes raw storefront sessions.
       Includes normalization of UTM parameters, referrer, and creation of a
@@ -2434,7 +2434,7 @@ models:
 
           
 
-  - name: storefronts_curated__events_cart_product_add
+  - name: product__traffic__cart_product_add__event
     description: >
       Curated model that maps the relationship between sessions and carts based on the event 'cart_product_add'.
       It generates a deterministic technical session key and selects a single representative event per (session, cart) pair.
