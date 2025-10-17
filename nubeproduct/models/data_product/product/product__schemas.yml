@@ -1330,3 +1330,136 @@ models:
         description: "Timestamp when the row was last updated in this model."
       - name: sys_audit_updated_by
         description: "System or user that last updated the row in this model."
+
+  - name: g__chat_ai__conversations__agg_daily
+    description: >
+      Contains a summary by day and type of conversation (ai, store, both, other) for each store in Nuvemchat along with general store information.
+      Playground conversations are excluded, trial conversations are included.
+    config:
+      meta:
+        owner: "matias.scasso@tiendanube.com"
+        domain: "product"
+        business_owner: "Martin Palombo"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:   
+          - store_id
+          - conversation_created_at
+          - conversation_type
+    columns:
+      - name: store_id
+        description: merchant's store id for Tiendanube
+        tests:
+          - not_null
+      - name: cn_store_id
+        description: merchant's store id within Nuvemchat
+      - name: cn_merchant_name
+        description: merchant's name within Nuvemchat
+      - name: onboarding
+        description: whether the merchant is onboarding currently (true) or not (false)
+      - name: installed_at
+        description: date when the merchant installed the nuvemchat feature
+      - name: trial_start_date
+        description: date when the merchant started the trial
+      - name: trial_end_date
+        description: date when the merchant ended the trial
+      - name: cycle_start_date
+        description: date when the merchant started the billing cycle
+      - name: cycle_end_date
+        description: date when the merchant ended the billing cycle
+      - name: last_invoice_id
+        description: id of the last invoice
+      - name: invoice_created_at
+        description: date when the last invoice was created
+      - name: invoice_start_cycle_date
+        description: beggining of the latest invoice cycle
+      - name: invoice_end_cycle_date
+        description: end of the latest invoice cycle
+      - name: days_since_last_invoice
+        description: number of days since the last invoice was created
+      - name: last_invoice_count_conversation
+        description: number of conversations in the last invoice
+      - name: paid_invoices
+        description: number of paid invoices
+      - name: last_paid_date
+        description: date when the last paid invoice was paid
+      - name: first_paid_date
+        description: date when the first paid invoice was paid
+      - name: grace_until
+        description: date when the grace period ends (using the max extra grace days, not neccesarily the latest)
+      - name: current_invoice_state
+        description: state of the current invoice (paid, unpaid)
+      - name: total_invoices
+        description: total number of invoices
+      - name: unpaid_invoices_since_last_paid
+        description: number of unpaid invoices since the last paid invoice
+      - name: ai_conversations_after_invoice
+        description: number of ai conversations after the last invoice
+      - name: conversations_after_trial
+        description: number of conversations after the trial
+      - name: conversations_in_trial
+        description: number of conversations in the trial
+      - name: ai_conv_last_3d
+        description: number of ai conversations in the last 3 days
+      - name: last_conversation_date
+        description: date when the last conversation was started
+      - name: chatnube_state
+        description: state of the merchant in Chatnube
+      - name: chatnube_state_group
+        description: grouping state of the merchant in Chatnube
+      - name: churned_date
+        description: date when the merchant churned from Nuvemchat
+      - name: country
+        description: merchant's country
+      - name: plan_group
+        description: group of the merchant's plan
+      - name: domain
+        description: merchant's domain in Tiendanube
+      - name: state
+        description: the state of the merchant. State_Ok > 0 it is not a trial and we are receiving the payments as expected - awaiting_payment > 1 during the first 10 days after the contract expires - admin_down > 2 from day 10 to day 20 after the contract is expired, admin is blocked (but the store is still live) - store_down > 3 the store is blocked from day 20, we consider it as a churn - state_test > 4 a store created as a test by someone from our company, it is not a trial - state_in_development > 5 stores created via Partners Portal while they are being set up.
+      - name: tiendanube_state
+        description: the state of the merchant with detailed names
+      - name: current_segment
+        description: merchant's current segment
+      - name: avg_gmv_usd_last_3m
+        description: merchant's average USD GMV in the last 3 months
+      - name: avg_orders_last_3m
+        description: merchant's average orders in the last 3 months
+      - name: conversation_created_at
+        description: date when the conversation was created
+        tests:
+          - not_null
+      - name: is_in_trial
+        description: whether the conversation started in the trial period
+        tests:
+          - not_null
+      - name: has_ai_message
+        description: whether the conversation has an ai message
+        tests:
+          - not_null
+      - name: conversation_type
+        description: type of conversation (ai, store, both, other)
+        tests:
+          - not_null
+      - name: total_conversations
+        description: total number of conversations created
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+      - name: sys_audit_created_on
+        description: timestamp when the row was originally created in this model
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: system or user that created the row in this model
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: timestamp when the row was last updated in this model
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: system or user that last updated the row in this model
+        tests:
+          - not_null
