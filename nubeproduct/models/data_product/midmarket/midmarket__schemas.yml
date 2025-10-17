@@ -417,3 +417,228 @@ models:
         description: "User or process responsible for the current model run. Always 'data-dev-dbt-products' for this automated process."
         tests:
           - not_null
+
+  - name: data_midmarket.g__success__business_review_enriched__agg_snapshot_weekly
+    config:
+      meta:
+        tech_steward: "guillermo.defelice@tiendanube.com"
+        domain: "midmarket"
+        business_owner: "Franco Tiberti"
+    description: Enriched version of midmarket_weekly_business_review combining base metrics with additional data sources including store information, GMV metrics, sessions, interactions, and HubSpot deal properties for a comprehensive weekly view of Success stores.
+    columns:
+      - name: date_from
+        description: Start date of the reference week.
+        tests:
+          - not_null
+      - name: date_to
+        description: End date of the reference week (exclusive).
+        tests:
+          - not_null
+      - name: store_id
+        description: Unique identifier of the store.
+        tests:
+          - not_null
+      - name: rep
+        description: HubSpot owner (account manager) assigned to the store.
+      - name: level
+        description: Success priority labeled as Level 1, 2, 3, or No Level.
+        tests:
+          - accepted_values:
+              values: ["Level 1","Level 2","Level 3","No Level"]
+      - name: playbook
+        description: Current dealstage mapped to playbook name (e.g., Expansion, Maintenance).
+      - name: status
+        description: Status assigned to the store based on the interaction rules.
+      - name: country
+        description: Country of the store (AR, BR, MX).
+      - name: franchise_group
+        description: Name of the franchise group the store belongs to, if any.
+      - name: main
+        description: Whether the store is the main store in its group.
+      - name: last_relevant_interaction
+        description: Date of the last relevant interaction with the store.
+      - name: last_group_interaction
+        description: Date of the last interaction with the store's group.
+      - name: days_since_last_relevant_interaction
+        description: Number of days since the last relevant interaction.
+      - name: plan_id
+        description: Plan ID associated with the store.
+      - name: monthly
+        description: Monthly price of the store's current plan.
+      - name: context
+        description: Plan context or classification.
+      - name: nice_name
+        description: Human-readable name of the plan.
+      - name: transaction_fee
+        description: Transaction fee value configured for the store's plan.
+      - name: transaction_fee_type
+        description: Type of transaction fee applied (e.g., percentage or fixed).
+      - name: enterprise_plan
+        description: Whether the store belongs to an enterprise-level plan.
+      - name: type_change
+        description: Type of recent change applied to the store (e.g., downgrade or upgrade).
+      - name: not_unknown_reason
+        description: Reason the store is not marked as Unknown (if any).
+      - name: free_days
+        description: Number of free trial days granted to the store.
+      - name: store_name
+        description: Domain name of the store.
+      - name: churned_at
+        description: Date when the store churned.
+      - name: first_payment
+        description: Date of the first payment made by the store.
+      - name: lead_source
+        description: Original lead source for the store from HubSpot.
+      - name: deal_tags
+        description: Tags associated with the deal in HubSpot.
+      - name: gmv_potencial
+        description: Potential GMV estimate for the store.
+      - name: data_go_live
+        description: Date when the store went live.
+      - name: onboarding_type
+        description: Type of onboarding process applied to the store.
+      - name: createdate
+        description: Creation date of the deal in HubSpot.
+      - name: orders
+        description: Number of orders on the platform for the given week.
+      - name: gmv_local_currency
+        description: Gross Merchandise Value in local currency for the given week.
+      - name: gmv_usd
+        description: Gross Merchandise Value in USD for the given week.
+      - name: gmv_local_currency_90d
+        description: Gross Merchandise Value in local currency for the last 90 days.
+      - name: gmv_usd_90d
+        description: Gross Merchandise Value in USD for the last 90 days.
+      - name: gmv_tier
+        description: GMV tier classification for the store.
+      - name: sessions
+        description: Number of sessions for the given week.
+      - name: previous_sessions
+        description: Number of sessions in the previous week.
+      - name: calls
+        description: Number of calls made during the week.
+      - name: emails
+        description: Number of emails sent during the week.
+      - name: meetings
+        description: Number of meetings held during the week.
+      - name: tasks
+        description: Number of tasks completed during the week.
+      - name: whatsapp
+        description: Number of WhatsApp messages sent during the week.
+      - name: contract_end_date
+        description: End date of the store's contract.
+      - name: periodicity
+        description: Time period aggregation, set to 'weekly' for this model.
+
+
+  - name: data_midmarket.g__success__business_review_enriched__agg_snapshot_monthly
+    config:
+      meta:
+        tech_steward: "guillermo.defelice@tiendanube.com"
+        domain: "midmarket"
+        business_owner: "Franco Tiberti"
+    description: Enriched version of midmarket_monthly_business_review combining base metrics with additional data sources including store information, GMV metrics, sessions, interactions, and HubSpot deal properties for a comprehensive monthly view of Success stores.
+    columns:
+      - name: date_from
+        description: Start date of the reference month.
+        tests:
+          - not_null
+      - name: date_to
+        description: End date of the reference month.
+        tests:
+          - not_null
+      - name: store_id
+        description: Unique identifier of the store.
+        tests:
+          - not_null
+      - name: rep
+        description: HubSpot owner (account manager) assigned to the store.
+      - name: level
+        description: Success priority labeled as Level 1, 2, 3, or No Level.
+        tests:
+          - accepted_values:
+              values: ["Level 1","Level 2","Level 3","No Level"]
+      - name: playbook
+        description: Current dealstage mapped to playbook name (e.g., Expansion, Maintenance).
+      - name: status
+        description: Status assigned to the store based on the interaction rules.
+      - name: country
+        description: Country of the store (AR, BR, MX).
+      - name: franchise_group
+        description: Name of the franchise group the store belongs to, if any.
+      - name: main
+        description: Whether the store is the main store in its group.
+      - name: last_relevant_interaction
+        description: Date of the last relevant interaction with the store.
+      - name: last_group_interaction
+        description: Date of the last interaction with the store's group.
+      - name: days_since_last_relevant_interaction
+        description: Number of days since the last relevant interaction.
+      - name: plan_id
+        description: Plan ID associated with the store.
+      - name: monthly
+        description: Monthly price of the store's current plan.
+      - name: context
+        description: Plan context or classification.
+      - name: nice_name
+        description: Human-readable name of the plan.
+      - name: transaction_fee
+        description: Transaction fee value configured for the store's plan.
+      - name: transaction_fee_type
+        description: Type of transaction fee applied (e.g., percentage or fixed).
+      - name: enterprise_plan
+        description: Whether the store belongs to an enterprise-level plan.
+      - name: type_change
+        description: Type of recent change applied to the store (e.g., downgrade or upgrade).
+      - name: not_unknown_reason
+        description: Reason the store is not marked as Unknown (if any).
+      - name: free_days
+        description: Number of free trial days granted to the store.
+      - name: store_name
+        description: Domain name of the store.
+      - name: churned_at
+        description: Date when the store churned.
+      - name: first_payment
+        description: Date of the first payment made by the store.
+      - name: lead_source
+        description: Original lead source for the store from HubSpot.
+      - name: deal_tags
+        description: Tags associated with the deal in HubSpot.
+      - name: gmv_potencial
+        description: Potential GMV estimate for the store.
+      - name: data_go_live
+        description: Date when the store went live.
+      - name: onboarding_type
+        description: Type of onboarding process applied to the store.
+      - name: createdate
+        description: Creation date of the deal in HubSpot.
+      - name: orders
+        description: Number of orders on the platform for the given month.
+      - name: gmv_local_currency
+        description: Gross Merchandise Value in local currency for the given month.
+      - name: gmv_usd
+        description: Gross Merchandise Value in USD for the given month.
+      - name: gmv_local_currency_90d
+        description: Gross Merchandise Value in local currency for the last 90 days.
+      - name: gmv_usd_90d
+        description: Gross Merchandise Value in USD for the last 90 days.
+      - name: gmv_tier
+        description: GMV tier classification for the store.
+      - name: sessions
+        description: Number of sessions for the given month.
+      - name: previous_sessions
+        description: Number of sessions in the previous month.
+      - name: calls
+        description: Number of calls made during the month.
+      - name: emails
+        description: Number of emails sent during the month.
+      - name: meetings
+        description: Number of meetings held during the month.
+      - name: tasks
+        description: Number of tasks completed during the month.
+      - name: whatsapp
+        description: Number of WhatsApp messages sent during the month.
+      - name: contract_end_date
+        description: End date of the store's contract.
+      - name: periodicity
+        description: Time period aggregation, set to 'monthly' for this model.

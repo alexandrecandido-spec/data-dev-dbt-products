@@ -69,3 +69,11 @@ dag = create_dbt_dag(
     default_args=default_args,
     tags=['midmarket', 'monthly-1st-12pm']
 )
+
+# Crear el DAG frecuencia mensual
+dag = create_dbt_dag(
+    dag_id='dbt_midmarket_monthly-4th-12pm',
+    schedule_interval_tag='monthly-4th-12pm',
+    default_args=default_args,
+    tags=['midmarket', 'monthly-4th-12pm']
+)
