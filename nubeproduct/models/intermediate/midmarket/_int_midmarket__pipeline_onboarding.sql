@@ -40,7 +40,7 @@ select
       THEN DATEDIFF(current_date(), d.kickoff_date)
     END AS on_going_lead_time_days
 
-  FROM {{ ref('thirdparty__hubspot_deals') }} d
+  FROM {{ ref('midmarket__general__deals__link') }} d
   LEFT JOIN {{ ref('midmarket_hubspot_deleted_deals') }}  dd
     ON cast(dd.deal_id as bigint) = d.deal_id
   WHERE dd.deal_id IS NULL

@@ -2489,7 +2489,7 @@ models:
       - name: sys_audit_updated_by
         description: "User or process that performed the last update."
 
-  - name: thirdparty__hubspot_deals
+  - name: midmarket__general__deals__link
     description: >
       Staging model for HubSpot deals loaded from the third_party schema.
     config:
