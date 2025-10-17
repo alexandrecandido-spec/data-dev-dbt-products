@@ -17,15 +17,12 @@ with partners as (
          ,website
          ,description
          ,date(created_at) as partner_creation_date
-         ,LISTAGG(pt.type, ', ') within group (order by pt.type) as partner_type
-      from {{ source('stg_ecosystem', 'mwp_partners') }} p
-      left join {{ source('stg_ecosystem', 'mwp_partner_partner_types') }} pt
-         on p.id = pt.partner_id
+         ,cast(null as string) as partner_type
+      from {{ source('int_ecosystem', 'mwp_partners') }} p
       left join {{ source('stg_ecosystem', 'countries') }} mc 
          on p.country = mc.id
       where true 
       and p.id not in (83)
-      group by 1,2,3,4,5,6,7,8,9
 )
 SELECT 
     concat(p.partner_id, '_', p.country_code) as unique_partner_country_code
