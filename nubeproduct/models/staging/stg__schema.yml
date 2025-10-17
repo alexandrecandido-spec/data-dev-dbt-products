@@ -2585,3 +2585,46 @@ models:
         description: "Timestamp of the current model run when the record was processed."
       - name: sys_audit_updated_by
         description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
+
+
+  - name: moltres__mwp_apps
+    description: "Contains information about apps installed by merchants (both official and not official)"
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: id
+        description: "Unique identifier for the app"
+        tests:
+          - not_null
+          - unique
+      - name: partner_id
+        description: "Unique identifier for the partner who built the app"
+      - name: official
+        description: "If the app is an official Nuvemshop app or a third party app"
+      - name: handle
+        description: "Handle of the app"
+      - name: category
+        description: "Category of the app"
+      - name: visits
+        description: "Number of visits to the app"
+      - name: installs
+        description: "Number of installs of the app"
+      - name: created_at
+        description: "Timestamp when the app was created"
+      - name: updated_at
+        description: "Timestamp when the app was last updated"
+      - name: deleted_at
+        description: "Timestamp when the app was deleted"
+      - name: published_at
+        description: "Timestamp when the app was published"
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first inserted into this table."
+      - name: sys_audit_created_by
+        description: "User or process that first inserted the record."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the most recent update to the record."
+      - name: sys_audit_updated_by
+        description: "User or process that performed the last update."
