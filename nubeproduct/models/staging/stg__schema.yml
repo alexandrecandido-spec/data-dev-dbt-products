@@ -2540,7 +2540,7 @@ models:
       - name: sys_audit_updated_by
         description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
 
-  - name: product__ecosystem__apps__scd
+  - name: product__ecosystem__apps_scd
     description: "Staging model that contains information about the apps in the ecosystem."
     config:
       meta:
