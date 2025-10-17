@@ -29,7 +29,7 @@ apps as (
       where a.deleted_at is null
 )
 SELECT 
-    concat(a.app_id, '_', a.app_published_country) as unique_app_country_code
+    concat(a.app_id, '_', coalesce(a.app_published_country, 'UNKNOWN')) as unique_app_country_code
     ,a.*
     ,current_timestamp AS sys_audit_created_on
     ,'data-dev-dbt-products' AS sys_audit_created_by
