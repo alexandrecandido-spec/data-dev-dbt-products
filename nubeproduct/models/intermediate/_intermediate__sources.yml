@@ -210,7 +210,8 @@ sources:
         description: "Table with order fullfilment data"
       - name: order_saved_search
         description: "Table with orders saved searches"
-      
+      - name: orders_auto_cancel_configuration
+        description: "Table with merchant's auto cancel configurations"
   - name: int_storefronts_curated
     database: hive_metastore
     schema: storefronts_curated
