@@ -1215,3 +1215,59 @@ models:
         description: "System or user that last updated the row in this model."
         tests:
           - not_null
+  
+  - name: s__orders__orders_last_12_months__event
+    description: "Contains information about all orders in the last 12 months (paid, unpaid, cancelled, etc)"
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "product"
+        business_owner: "Martin Palombo"
+    columns:
+      - name: order_id
+        description: "Unique identifier for the order"
+        tests:
+          - not_null
+          - unique
+      - name: total
+        description: "Total amount of the order in local currency"
+      - name: gateway_method
+        description: "Method of payment used for the order"
+      - name: gateway
+        description: "Gateway used for the order"
+      - name: gateway_handle
+        description: "Handle of the gateway used for the order"
+      - name: status
+        description: "Status of the order"
+      - name: total_in_usd
+        description: "Total amount of the order in USD"
+      - name: order_completed_at
+        description: "Timestamp when the order was completed"
+      - name: order_cancelled_at
+        description: "Timestamp when the order was cancelled"
+      - name: payment_status
+        description: "Payment status of the order"
+      - name: plan
+        description: "Plan of the store"
+      - name: cancel_reason
+        description: "Reason for the order cancellation"
+      - name: store_id
+        description: "Store id of the order"
+      - name: domain
+        description: "Domain of the store"
+      - name: country
+        description: "Country of the store"
+      - name: state
+        description: the state of the merchant. State_Ok > 0 it is not a trial and we are receiving the payments as expected - awaiting_payment > 1 during the first 10 days after the contract expires - admin_down > 2 from day 10 to day 20 after the contract is expired, admin is blocked (but the store is still live) - store_down > 3 the store is blocked from day 20, we consider it as a churn - state_test > 4 a store created as a test by someone from our company, it is not a trial - state_in_development > 5 stores created via Partners Portal while they are being set up.
+      - name: current_segment
+        description: "Current segment of the store"
+      - name: year_month_day_code
+        description: "Year month day code of the order. Also the field used for partitioning"
+      - name: sys_audit_created_by
+        description: "System or user that created the row in this model."
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created in this model."
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this model."
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row in this model."
