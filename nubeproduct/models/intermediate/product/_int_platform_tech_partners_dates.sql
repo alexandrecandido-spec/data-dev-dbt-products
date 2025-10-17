@@ -15,7 +15,7 @@ partners as (
         ,description
         ,partner_creation_date
         ,partner_type
-    from {{ ref('ecosystem__tech_partners') }}
+    from {{ ref('product__ecosystem__tech_partner__countries') }}
 ),
 partner_dates as (
     select

@@ -2490,7 +2490,7 @@ models:
       - name: sys_audit_updated_by
         description: "User or process that performed the last update."
 
-  - name: ecosystem__tech_partners
+  - name: product__ecosystem__tech_partner__countries
     description: "Staging model that contains information about the tech partners in the ecosystem."
     config:
       meta:
@@ -2540,7 +2540,7 @@ models:
       - name: sys_audit_updated_by
         description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
 
-  - name: ecosystem__apps
+  - name: product__ecosystem__apps__countries
     description: "Staging model that contains information about the apps in the ecosystem."
     config:
       meta:
