@@ -58,7 +58,7 @@ msi.state,
   WHEN msi.state = 3 THEN '3 - store churned'
   WHEN msi.state = 4 THEN '4 - test store'
   WHEN msi.state = 5 THEN '5 - store on partner prep'
-ELSE '9 - other' END AS tiendanube_state,
+END AS tiendanube_state,
 msi.current_segment,
 gmv.avg_gmv_usd_last_3m,
 gmv.avg_orders_last_3m,
@@ -69,7 +69,7 @@ GREATEST(
     max(gp.sys_audit_updated_on)
 ) as max_combined_sys_audit_updated_on
 FROM {{ref('_int_product__nuvemchat_stores_trial_chats_invoices')}} nc_data
-LEFT JOIN {{ref('moltres__mwp_store_info')}} msi ON nc_data.store_id = msi.store_id
+JOIN {{ref('moltres__mwp_store_info')}} msi ON nc_data.store_id = msi.store_id
 LEFT JOIN {{ref('operations_grouping_plans')}} gp ON gp.plan = msi.plan
 LEFT JOIN gmv ON gmv.store_id = nc_data.store_id
 WHERE nc_data.store_id <> 1234
@@ -93,6 +93,7 @@ GROUP BY
     nc_data.last_paid_date,
     nc_data.first_paid_date,
     nc_data.grace_until,
+    nc_data.overall_grace_until,
     nc_data.current_invoice_state,
     nc_data.total_invoices,
     nc_data.unpaid_invoices_since_last_paid,
