@@ -6,7 +6,7 @@ installs as(
       ,e.partner_id
       ,app_install_date
       ,app_uninstall_date
-   from {{ ref('product_platform_mwp_apps_stores') }} a
+   from {{ ref('product__ecosystem__apps__scd') }} a
    left join {{ ref('product__ecosystem__apps__countries') }} e
       on a.app_id = e.app_id
 )

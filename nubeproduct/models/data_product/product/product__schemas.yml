@@ -1216,7 +1216,7 @@ models:
         tests:
           - not_null
 
-  - name: g__product__tech_partner_data__agg_monthly
+  - name: g__ecosystem__tech_partner_data__agg_monthly
     description: 
       This dataproduct contains all the information about the tech partners and their apps, installs, referrals, etc.
     config:
