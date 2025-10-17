@@ -1740,3 +1740,83 @@ models:
         description: "System or user that last updated the row."
         tests: [not_null]
 
+
+  - name: marketing_gmv_by_mkt_source
+    description: "Daily GMV metrics by marketing source combining store performance data with marketing attribution and segment information for comprehensive performance analysis"
+    config:
+      meta:
+        owner: "malen.correa@tiendanube.com"
+        domain: "marketing"
+        business_owner: "Giselle Galli"
+    columns:
+      - name: year_month_day_code
+        description: "Date in YYYYMMDD integer format used for partitioning"
+        tests: [not_null]
+      - name: completed_at
+        description: "Order completion date"
+        tests: [not_null]
+      - name: store_id
+        description: "Unique identifier of the store"
+        tests: [not_null]
+      - name: gateway
+        description: "Payment gateway used for the transaction"
+      - name: payment
+        description: "Payment method used for the transaction"
+      - name: shipping
+        description: "Shipping method used for the order"
+      - name: storefront
+        description: "Storefront channel where the order was placed"
+      - name: currency
+        description: "Currency used for the transaction"
+      - name: country_currency
+        description: "Local currency of the store's country"
+      - name: platform_type
+        description: "Platform type where the transaction occurred"
+      - name: gmv
+        description: "Gross merchandise value in local currency"
+      - name: product_quantity
+        description: "Total quantity of products in the order"
+      - name: orders_quantity
+        description: "Number of distinct orders"
+      - name: country
+        description: "Country code of the store"
+      - name: partner_code
+        description: "Partner code associated with the store"
+      - name: mkt_source_first_click
+        description: "Marketing source attributed to the first click in the customer journey"
+      - name: mkt_subteam_first_click
+        description: "Marketing subteam attributed to the first click in the customer journey"
+      - name: mkt_source_last_click
+        description: "Marketing source attributed to the last click in the customer journey"
+      - name: mkt_subteam_last_click
+        description: "Marketing subteam attributed to the last click in the customer journey"
+      - name: mkt_source_partner_click
+        description: "Marketing source attributed to partner click in the customer journey"
+      - name: mkt_subteam_partner_click
+        description: "Marketing subteam attributed to partner click in the customer journey"
+      - name: gmv_30d
+        description: "GMV in local currency over 30-day period"
+      - name: gmv_usd_30d
+        description: "GMV in USD over 30-day period"
+      - name: orders_30d
+        description: "Total orders over 30-day period"
+      - name: gmv_90d
+        description: "GMV in local currency over 90-day period"
+      - name: gmv_usd_90d
+        description: "GMV in USD over 90-day period"
+      - name: orders_90d
+        description: "Total orders over 90-day period"
+      - name: historical_segment
+        description: "Historical segment classification of the store"
+      - name: sys_audit_created_on
+        description: "Timestamp when this record was created in the DWH"
+        tests: [not_null]
+      - name: sys_audit_created_by
+        description: "System identifier of the process that created this record"
+        tests: [not_null]
+      - name: sys_audit_updated_on
+        description: "Timestamp when this record was last updated in the DWH"
+        tests: [not_null]
+      - name: sys_audit_updated_by
+        description: "System identifier of the process that last updated this record"
+        tests: [not_null]

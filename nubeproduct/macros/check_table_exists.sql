@@ -1,12 +1,17 @@
-{% macro get_existing_data(table_name, columns) %}
-    {% if is_incremental() %}
-        SELECT {{ columns | join(', ') }}
-        FROM {{ this }}
-    {% else %}
-        SELECT 
-            {% for col in columns %}
-                NULL AS {{ col }}{% if not loop.last %}, {% endif %}
-            {% endfor %}
-        WHERE FALSE
+{% macro check_table_exists(table_name) %}
+    {% set query %}
+        SELECT COUNT(*) as table_count
+        FROM information_schema.tables 
+        WHERE table_name = '{{ table_name }}'
+    {% endset %}
+    
+    {% set results = run_query(query) %}
+    {% if execute %}
+        {% set table_count = results.columns[0].values()[0] %}
+        {% if table_count > 0 %}
+            {{ return(true) }}
+        {% else %}
+            {{ return(false) }}
+        {% endif %}
     {% endif %}
 {% endmacro %}
