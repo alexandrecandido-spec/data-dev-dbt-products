@@ -312,6 +312,111 @@ models:
         tests:
           - not_null
 
+  - name: s__onboarding__pipeline__event
+    description: >
+      Midmarket Onboarding pipeline data product. Consolidates staging deals with business logic (status mapping, country derivation) and time metrics.
+    config:
+      meta:
+        owner: "m.blanco@tiendanube.com"
+        domain: "midmarket"
+        business_owner: "Franco Tiberti"
+    columns:
+      - name: deal_id
+        description: "Unique identifier for the HubSpot deal. Primary key."
+        tests:
+            - unique
+            - not_null
+      - name: store_id
+        description: "Internal store identifier linked to the deal."      
+      - name: country
+        description: "Country derived from Onboarding pipeline (AR/BR/MX)."
+        tests:
+          - accepted_values:
+              values: ["AR","BR","MX"]
+      - name: pipeline
+        description: "HubSpot pipeline in which the deal is/was located."
+        tests:
+          - accepted_values:
+              values: ["Onboarding | BR","Onboarding | AR","Onboarding | MX"]
+      - name: dealname
+        description: "Deal name/title in HubSpot."
+        tests:
+            - not_null
+      - name: gmv_potencial
+        description: "Potential GMV associated with the deal."
+      - name: deal_owner
+        description: "HubSpot owner (user) identifier assigned to the deal."
+      - name: stage
+        description: "Deal stage within the pipeline."
+        tests:
+            - not_null
+      - name: deal_status
+        description: "Business status based on stage and go-live dates."
+        tests:
+          - accepted_values:
+              values: ["completed","lost","paused","pre kick-off","on-going"]
+      - name: pipeline_creation_date
+        description: "Original deal creation date."
+        tests:
+            - not_null    
+      - name: kick_off_date
+        description: "Kick-off date of the onboarding process."
+      - name: go_live_forecast_date
+        description: "Expected go-live date (forecast)."
+      - name: go_live_real_date
+        description: "Actual go-live date."
+      - name: churn_date
+        description: "Derived churn date if the deal reached 'Churn'."
+      - name: effective_churn_at
+        description: "Effective churn date (raw field),if applicable."
+      - name: downgrade_date
+        description: "Derived downgrade date if the deal reached 'Downgrade'."
+      - name: effective_out_of_portfolio_at
+        description: "Effective out-of-portfolio date (raw field), if applicable."
+      - name: lead_time
+        description: "Days from kick-off to real go-live (from intermediate)."
+      - name: on_going_lead_time
+        description: "Days from kick-off to today when go-live is not yet reached (from intermediate)."
+      - name: deadline_goal
+        description: "Numeric deadline goal in days parsed from the label (original_deadline_goal)."
+      - name: original_deadline_goal
+        description: "Original onboarding deadline_goal as a label (e.g., '30 days')."
+      - name: delay_reason
+        description: "Reason for delay when applicable."
+      - name: need_professional_services
+        description: "Boolean flag for professional services needed (includes nulls)."
+      - name: type_of_onboarding
+        description: "Type/category of onboarding process (raw value)."
+      - name: payment_method_actual_operation
+        description: "Payment method currently used in operation (raw value)."
+      - name: shipping_method_actual_operation
+        description: "SShipping method currently used in operation (raw value)."
+      - name: erp
+        description: "ERP used by the merchant (raw value)."
+      - name: e_commerce
+        description: "E-commerce platform integration detail (raw value)."
+      - name: acquisition_channel
+        description: "Lead acquisition channel as recorded in HubSpot (raw value)."
+      - name: vertical
+        description: "Merchant vertical/category."
+      - name: city_state_sales
+        description: "City and state/territory label used by Sales."
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model. Preserved from staging models and maintains historical tracking of when each deal was first processed."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model. Inherited from staging models, typically 'data-dev-dbt-products'."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed. Updated on each incremental run for both archived and merged deals."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run. Always 'data-dev-dbt-products' for this automated process."
+        tests:
+          - not_null
 
   - name: data_midmarket.g__success__business_review_enriched__agg_snapshot_weekly
     config:
