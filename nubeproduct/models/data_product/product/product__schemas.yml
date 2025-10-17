@@ -1331,7 +1331,7 @@ models:
       - name: sys_audit_updated_by
         description: "System or user that last updated the row in this model."
 
-  - name: product_nuvemchat_chats_summary
+  - name: g__chat_ai__conversations__agg_daily
     description: >
       Contains a summary by day and type of conversation (ai, store, both, other) for each store in Nuvemchat along with general store information.
       Playground conversations are excluded, trial conversations are included.
