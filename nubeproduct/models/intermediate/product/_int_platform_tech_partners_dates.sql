@@ -2,7 +2,7 @@ WITH
 fechas as (
     select
         registered_month
-    from {{ ref('_int_platform_github_dates') }}
+    from {{ ref('_int_pd_github_dates') }}
 ),
 partners as (
     select
@@ -15,7 +15,7 @@ partners as (
         ,description
         ,partner_creation_date
         ,partner_type
-    from {{ ref('ecosystem__tech_partners') }}
+    from {{ ref('ecosystem_tech_partners') }}
 ),
 partner_dates as (
     select
