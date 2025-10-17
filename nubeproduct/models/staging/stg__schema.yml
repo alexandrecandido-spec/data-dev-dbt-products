@@ -1418,7 +1418,7 @@ models:
             - event_name
 
 
-  - name: storefronts_curated__sessions
+  - name: product__traffic__sessions__event
     description: >
       Staging model that standardizes raw storefront sessions.
       Includes normalization of UTM parameters, referrer, and creation of a
@@ -1879,6 +1879,14 @@ models:
         description: "Onboarding true if the store is currently onboarding and false if they already completed the onboarding process"
       - name: funnel_stage_id
         description: "Funnel stage identifier"
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first inserted into this table."
+      - name: sys_audit_created_by
+        description: "User or process that first inserted the record."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the most recent update to the record."
+      - name: sys_audit_updated_by
+        description: "User or process that performed the last update."
     
   - name: nuvem_chat__billing_plan
     description: "Staging model that contains information on billing and trials for merchants using Nuvemchat"
@@ -1895,7 +1903,7 @@ models:
         tests:
           - not_null
           - unique
-      - name: billing_plan_created_at
+      - name: created_at
         description: "billing plan timestamps"
       - name: plan_id
         description: "Plan identifier"
@@ -1911,6 +1919,14 @@ models:
         description: "Start date of the Tiendanube billing cycle"
       - name: billing_cycle_end_date
         description: "End date of the Tiendanube billing cycle"
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first inserted into this table."
+      - name: sys_audit_created_by
+        description: "User or process that first inserted the record."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the most recent update to the record."
+      - name: sys_audit_updated_by
+        description: "User or process that performed the last update."
 
   - name: nuvem_chat__conversation
     description: "Staging model that contains all conversations from Nuvemchat"
@@ -1935,6 +1951,14 @@ models:
         description: "Customer identifier"
       - name: conversation_created_at
         description: "Conversation timestamp"
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first inserted into this table."
+      - name: sys_audit_created_by
+        description: "User or process that first inserted the record."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the most recent update to the record."
+      - name: sys_audit_updated_by
+        description: "User or process that performed the last update."
 
   - name: metafields__metafield_product_variants
     description: "Contains all product variants metafields"
@@ -2001,6 +2025,14 @@ models:
         description: "Channel deleted timestamp"
       - name: channel_discr
         description: "Channel discriminator ('playground' when used during testing)"
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first inserted into this table."
+      - name: sys_audit_created_by
+        description: "User or process that first inserted the record."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the most recent update to the record."
+      - name: sys_audit_updated_by
+        description: "User or process that performed the last update."
     
   - name: metafields__metafield_products
     description: "Contains all products metafields"
@@ -2063,6 +2095,14 @@ models:
         description: "Message timestamp"
       - name: message_discr
         description: "Message discriminator ('bot' when message from AI)"
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first inserted into this table."
+      - name: sys_audit_created_by
+        description: "User or process that first inserted the record."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the most recent update to the record."
+      - name: sys_audit_updated_by
+        description: "User or process that performed the last update."
    
   - name: product__mwp_product_list
     description: "Contains all products"
@@ -2148,6 +2188,14 @@ models:
         description: "End date of the invoice cycle"
       - name: extra_grace_days
         description: "Extra grace days to pay. Default is 10."
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first inserted into this table."
+      - name: sys_audit_created_by
+        description: "User or process that first inserted the record."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the most recent update to the record."
+      - name: sys_audit_updated_by
+        description: "User or process that performed the last update."
 
   - name: product__mwp_product_variants
     description: "Contains all product variants"
@@ -2224,6 +2272,14 @@ models:
         description: "State identifier"
       - name: invoice_state
         description: "State string (paid, unpaid)"
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first inserted into this table."
+      - name: sys_audit_created_by
+        description: "User or process that first inserted the record."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the most recent update to the record."
+      - name: sys_audit_updated_by
+        description: "User or process that performed the last update."
   
   - name: product__mwp_product_videos
     description: "Contains all product videos uploaded to Tiendanube"
@@ -2435,7 +2491,7 @@ models:
 
           
 
-  - name: storefronts_curated__events_cart_product_add
+  - name: product__traffic__cart_product_add__event
     description: >
       Curated model that maps the relationship between sessions and carts based on the event 'cart_product_add'.
       It generates a deterministic technical session key and selects a single representative event per (session, cart) pair.

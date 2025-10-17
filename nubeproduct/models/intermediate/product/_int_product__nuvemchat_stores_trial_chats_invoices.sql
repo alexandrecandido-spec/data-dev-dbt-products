@@ -9,6 +9,7 @@ WITH rank_invoice AS (
         i.invoice_count_conversation,
         i.invoice_cost_total,
         i.invoice_cost_total / coalesce(i.invoice_count_conversation, 0) AS cost_per_conversation,
+        date_add(i.invoice_created_at,extra_grace_days) as grace_until,
         ist.state_id AS invoice_state_id,
         ist.invoice_state AS current_invoice_state,
         ist.paid_date,
@@ -17,7 +18,7 @@ WITH rank_invoice AS (
         MAX(ist.paid_date) OVER (PARTITION BY i.cn_store_id) last_paid_date,
         MAX(CASE when ist.state_id =1 THEN i.invoice_created_at END) OVER (PARTITION BY i.cn_store_id) last_paid_created_date,
         MIN(ist.paid_date) OVER (PARTITION BY i.cn_store_id) first_paid_date,
-        MAX(date_add(i.invoice_created_at,extra_grace_days)) OVER (PARTITION BY i.cn_store_id) grace_until,
+        MAX(date_add(i.invoice_created_at,extra_grace_days)) OVER (PARTITION BY i.cn_store_id) overall_grace_until,
         ROW_NUMBER() OVER (PARTITION BY i.cn_store_id ORDER BY i.invoice_created_at desc) AS rank_invoice,
         GREATEST(ist.sys_audit_updated_on, i.sys_audit_updated_on) AS sys_audit_updated_on
     FROM {{ref('nuvem_chat__invoice')}} i
@@ -48,6 +49,7 @@ invoices AS (
         ri.last_paid_date,
         ri.first_paid_date,
         ri.grace_until,
+        ri.overall_grace_until,
         ri.current_invoice_state,
         ri.total_invoices,
         MAX(ri.sys_audit_updated_on) AS sys_audit_updated_on,
@@ -57,7 +59,7 @@ invoices AS (
     LEFT JOIN {{ref('nuvem_chat__channel')}} ch ON ch.channel_id = c.channel_id AND ch.channel_discr <> 'playground'
     LEFT JOIN {{ref('nuvem_chat__message')}} m ON m.conversation_id = c.conversation_id AND m.message_discr = 'bot'
     WHERE ri.rank_invoice = 1
-    GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15),
+    GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16),
 unpaid_invoices_after_last_paid AS (
     SELECT
         ri.cn_store_id,
@@ -85,6 +87,7 @@ SELECT
     p.last_paid_date,
     p.first_paid_date,
     p.grace_until,
+    p.overall_grace_until,
     p.current_invoice_state,
     p.total_invoices,
     ui.unpaid_invoices_since_last_paid,
@@ -108,4 +111,4 @@ LEFT JOIN {{ref('nuvem_chat__channel')}} ch ON ch.channel_id = c.channel_id
 LEFT JOIN {{ref('nuvem_chat__message')}} m ON m.conversation_id = c.conversation_id
 LEFT JOIN invoices p on p.cn_store_id = s.cn_store_id
 LEFT JOIN unpaid_invoices_after_last_paid ui ON ui.cn_store_id = s.cn_store_id
-GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23
+GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24
