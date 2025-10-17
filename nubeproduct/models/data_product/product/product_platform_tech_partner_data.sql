@@ -23,7 +23,7 @@ apps as (
         ,app_published_date
         ,app_deleted_date
         ,month_creation_date
-        ,is_app_published
+        ,is_app_published as is_app_published
         ,LISTAGG(app_published_country , ', ') within group (order by app_published_country) as app_published_countries
    from {{ ref('ecosystem__apps') }}
    where app_deleted_date is null
