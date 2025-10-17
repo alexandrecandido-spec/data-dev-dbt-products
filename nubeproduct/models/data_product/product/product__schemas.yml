@@ -1100,6 +1100,8 @@ models:
       - name: first_paid_date
         description: date when the first paid invoice was paid
       - name: grace_until
+        description: date when the grace period from the latest invoice ends 
+      - name: overall_grace_until
         description: date when the grace period ends (using the max extra grace days, not neccesarily the latest)
       - name: current_invoice_state
         description: state of the current invoice (paid, unpaid)
@@ -1139,6 +1141,14 @@ models:
         description: merchant's average GMV in the last 3 months
       - name: avg_orders_last_3m
         description: merchant's average orders in the last 3 months
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first inserted into this table."
+      - name: sys_audit_created_by
+        description: "User or process that first inserted the record."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the most recent update to the record."
+      - name: sys_audit_updated_by
+        description: "User or process that performed the last update."
 
   - name: product__non_user_sessions
     description: >

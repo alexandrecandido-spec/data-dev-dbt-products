@@ -2,7 +2,7 @@
     materialized = 'incremental',
     unique_key = 'message_id',
     on_schema_change = 'fail',
-    tags = ['product', 'daily-10am']
+    tags = ['product', 'daily-9am']
 )}}
 
 with nuvem_chat_message as (
