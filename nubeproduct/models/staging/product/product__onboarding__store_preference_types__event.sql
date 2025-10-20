@@ -3,7 +3,7 @@
         materialized='incremental',
         unique_key= ['store_id', 'onboarding_type'],
         on_schema_change='fail',
-        tags=['onboarding', 'daily-8am']
+        tags=['product', 'daily-9am']
     )
 }}
 
