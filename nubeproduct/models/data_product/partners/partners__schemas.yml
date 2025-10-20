@@ -331,7 +331,7 @@ models:
       - name: sys_audit_updated_by
         description: "Source or user responsible for the latest update."
 
-          - name: partners_info
+  - name: s__partnerships__partners_info__event
     config:
       meta:
         owner: "yan.santos@nuvemshop.com.br"
