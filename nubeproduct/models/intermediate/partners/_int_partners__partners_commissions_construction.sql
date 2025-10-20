@@ -15,21 +15,22 @@ WITH commissions AS
       THEN 'apps'
       ELSE 'Withdrawal'
     END AS commission_type,
-    DATE(paid_at) AS commission_date,
+    DATE(paid_at) AS commission_paid_date,
+    DATE(created_at) AS commission_created_date,
     target_currency AS partner_currency,
     original_currency AS store_currency,
     currency_exchange_rate,
     CASE 
-      WHEN partner_ledger_entry_type_id = 2 
-      THEN credit_value
-      WHEN partner_ledger_entry_type_id = 5 
-      THEN IF(credit_value < 0, credit_value * -1, credit_value)
+      WHEN partner_ledger_entry_type_id IN(2,5) 
+      THEN ABS(credit_value)
       ELSE partner_commission_value
     END AS commission_amount,
     status AS commission_status,
     partner_commission_percentage,
     plan_id,
-    plan_value
+    plan_value,
+    sys_audit_updated_on
   FROM {{ source('int_ecosystem', 'partner_ledger') }}
+  WHERE DATE(created_at) >= '2024-01-01'
 )
 SELECT * FROM commissions
