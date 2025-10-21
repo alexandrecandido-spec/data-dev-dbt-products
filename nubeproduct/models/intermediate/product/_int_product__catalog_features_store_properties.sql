@@ -31,14 +31,22 @@ select
     mf.has_variants_metafields AS has_variants_metafields,
     mf.has_products_metafields AS has_products_metafields,
     mf.text_list_variants_metafield AS text_list_variants_metafield_count,
+    mf.text_list_variants_metafield_assigned AS text_list_variants_metafield_assigned_count,
     mf.text_variants_metafield AS text_variants_metafield_count,
+    mf.text_variants_metafield_assigned AS text_variants_metafield_assigned_count,
     mf.numeric_variants_metafield AS numeric_variants_metafield_count,
+    mf.numeric_variants_metafield_assigned AS numeric_variants_metafield_assigned_count,
     mf.date_variants_metafield AS date_variants_metafield_count,
+    mf.date_variants_metafield_assigned AS date_variants_metafield_assigned_count,
     mf.unknown_variants_metafield AS unknown_variants_metafield_count,
     mf.text_list_products_metafield AS text_list_products_metafield_count,
+    mf.text_list_products_metafield_assigned AS text_list_products_metafield_assigned_count,
     mf.text_products_metafield AS text_products_metafield_count,
+    mf.text_products_metafield_assigned AS text_products_metafield_assigned_count,
     mf.numeric_products_metafield AS numeric_products_metafield_count,
+    mf.numeric_products_metafield_assigned AS numeric_products_metafield_assigned_count,
     mf.date_products_metafield AS date_products_metafield_count,
+    mf.date_products_metafield_assigned AS date_products_metafield_assigned_count,
     mf.unknown_products_metafield AS unknown_products_metafield_count,
     CAST(msi.created_at AS DATE) AS created_at,
     CAST(msi.churned_at AS DATE) AS churned_at,
@@ -50,7 +58,6 @@ select
 FROM {{ ref('moltres__mwp_store_info') }} msi
 LEFT JOIN {{ ref('operations_grouping_plans') }} gp on gp.plan = msi.plan
 LEFT JOIN {{ source('int_moltres', 'mwp_options') }} o on o.store_id = msi.store_id AND o.option_name = 'twig_template'
-LEFT JOIN {{ source('int_moltres', 'mwp_store_settings') }} s on s.store_id = msi.store_id
 LEFT JOIN {{ ref('_int_product__catalog_features_stock_history_variants') }} spv on spv.store_id = msi.store_id
 LEFT JOIN {{ ref('_int_product__catalog_features_categories_lang_cd_gmv') }} combined on combined.store_id = msi.store_id
 LEFT JOIN {{ ref('_int_product__catalog_features_metafields_combined') }} mf on mf.store_id = msi.store_id
