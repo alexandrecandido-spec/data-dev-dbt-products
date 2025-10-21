@@ -311,3 +311,81 @@ models:
         description: "User or process responsible for the current model run. Always 'data-dev-dbt-products' for this automated process."
         tests:
           - not_null
+
+
+  - name: midmarket_closing_pack
+    config:
+      meta:
+        tech_steward: "pedro.fregonese@tiendanube.com"
+        domain: "midmarket"
+        business_owner: "Franco Tiberti"
+    description: >
+      Comprehensive data product that consolidates all Mid-Market closing pack metrics into a unified view.
+      This model combines data from multiple intermediate models to provide a complete picture of the Mid-Market
+      portfolio including successful merchants, churns, warnings, unknowns, and out-of-portfolio stores.
+      
+      The model unions the following components:
+      - Success Merchants: Active Mid-Market stores in the portfolio (from monthly business review)
+      - Success Warnings: Stores with warning status
+      - Success Unknowns: Stores with unknown status
+      - Success Out of Portfolio: Stores that have moved out of the Mid-Market portfolio
+      - Success Churns: Stores that have churned from the platform
+      
+      This model serves as the primary source for Mid-Market closing pack reporting and analysis.
+    columns:
+      - name: store_id
+        description: "Unique identifier of the Mid-Market store (null for Hubspot deals that for now aren't Mid-Market stores)"
+      - name: deal_id
+        description: "Deal identifier from HubSpot (null for current Mid-Market stores)"
+      - name: name
+        description: "Store name or HubSpot deal name"
+        tests:
+          - not_null
+      - name: country_code
+        description: "Country code where the store operates (AR for Argentina, BR for Brazil, MX for Mexico)."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["AR", "BR", "MX"]
+      - name: geo_region
+        description: "Geographic region of the store based on merchant information."
+        tests:
+          - not_null
+      - name: geo_state
+        description: "Geographic state/province of the store based on merchant information."
+        tests:
+          - not_null
+      - name: geo_city
+        description: "Geographic city of the store based on merchant information."
+        tests:
+          - not_null
+      - name: vertical
+        description: "Business vertical or industry category of the store. Defaults to 'Not Informed' when the vertical is not available."
+        tests:
+          - not_null
+      - name: metric_group
+        description: "High-level metric grouping category. Currently always 'Success' for all Mid-Market closing pack metrics."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["Success"]
+      - name: metric_type
+        description: "Specific type of metric being measured"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["Success Merchants", "Success Churns", "Success Warnings", "Success Unknowns", "Success Out of Portfolio"]
+      - name: date_month
+        description: "Reference month for the metric, truncated to the first day of the month. Represents the churn month for churns, out-of-portfolio month for portfolio exits, or the business review month for active stores."
+        tests:
+          - not_null
+      - name: potential_gmv
+        description: "Potential GMV value from HubSpot deal properties. Only populated for churns and out-of-portfolio stores. Null for active merchants, warnings, and unknowns."
+      - name: actual_gmv
+        description: "Actual GMV achieved by the store in the reference month, measured in local currency (BRL for Brazil, ARS for Argentina, MXN for Mexico)."
+      - name: actual_gmv_usd
+        description: "Actual GMV achieved by the store in the reference month, converted to USD for cross-country comparisons."
+      - name: total
+        description: "Count indicator for aggregation purposes. Always 1 for individual store/deal records, allowing easy summation for totals by metric type, country, or time period."
+        tests:
+          - not_null
