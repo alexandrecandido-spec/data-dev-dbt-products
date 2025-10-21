@@ -97,7 +97,7 @@ SELECT
         ELSE 'Long Tail'
     END AS affiliate_classification
 
-FROM {{ ref('s__partnerships__general__partners__event') }} AS MP
+FROM {{ ref('s__partnerships__general__partners__ref') }} AS MP
 LEFT JOIN (
     SELECT DISTINCT
         country_id,
