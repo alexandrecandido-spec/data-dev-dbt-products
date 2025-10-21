@@ -3008,7 +3008,7 @@ models:
         description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
         tests:
           - not_null
-  - name: s__partnerships__general__partners__event
+  - name: s__partnerships__general__partners__ref
     config:
       meta:
         owner: "yan.santos@nuvemshop.com.br"

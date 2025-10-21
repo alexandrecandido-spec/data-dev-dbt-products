@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: s__general__partners_info__event
+  - name: s__general__partners_info__ref
     config:
       meta:
         owner: "yan.santos@nuvemshop.com.br"
