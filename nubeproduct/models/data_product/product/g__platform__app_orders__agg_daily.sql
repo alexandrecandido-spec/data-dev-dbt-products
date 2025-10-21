@@ -1,7 +1,7 @@
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'merge',
-    unique_key = 'date_store_app_id',
+    unique_key = 'date_store_app_name',
     partition_by = 'registered_date',
     on_schema_change = 'fail',
     tags = ['daily-8am']
@@ -9,7 +9,12 @@
 
 WITH base AS (
     SELECT
-        concat(cast(registered_date as string), '_', cast(store_id as string), '_', cast(app_id as string)) as date_store_app_id
+        concat(cast(registered_date as string), '_'
+                , cast(store_id as string), '_'
+                , cast(app_id as string), '_'
+                , cast(app_category as string), '_'
+                , cast(app_name as string)
+            ) as date_store_app_name
         ,registered_date
         ,store_id
         ,app_name

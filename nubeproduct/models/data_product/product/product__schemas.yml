@@ -1483,7 +1483,7 @@ models:
         domain: "product"
         business_owner: "Nicolas Loreti"
     columns:
-      - name: date_store_app_id
+      - name: date_store_app_name
         description: unique key for the date, store and app
         tests:
           - not_null
