@@ -3,7 +3,7 @@
         materialized='incremental',
         unique_key=['store_id'],
         on_schema_change='fail',
-        tags=['dimensions', 'daily-5am']
+        tags=['dimensions', 'daily-4am']
     )
 }}
 
@@ -20,7 +20,7 @@ WHERE
     -- this filter will only be applied on an incremental run
     -- (uses >= to include records whose timestamp occurred since the last run of this model)
     -- (If event_time is NULL or the table is truncated, the condition will always be true and load all records)
-    A.sys_audit_updated_on >= (select coalesce(max(sys_audit_updated_on),'1900-01-01') from {{ this }} )
+    a.sys_audit_updated_on >= (select coalesce(max(sys_audit_updated_on),'1900-01-01') from {{ this }} )
     {% else %}
         1 = 1 -- this will always be true if not incremental
     {% endif %}

@@ -62,7 +62,6 @@ SELECT
     partnership_type, 
     disabled,
     custom_theme,
-    current_date() AS date_ref,
     COALESCE(e.sys_audit_created_on, current_timestamp) AS sys_audit_created_on,
     COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by,
     current_timestamp AS sys_audit_updated_on,

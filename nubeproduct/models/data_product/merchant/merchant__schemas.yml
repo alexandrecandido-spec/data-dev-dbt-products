@@ -1,0 +1,64 @@
+version: 2
+models:
+  - name: merchant__attributes__store_core__ref
+    description: "Data Product silver that contains the core attributes of each store."
+    config:
+      meta:
+        owner: "ronald.corcho@tiendanube.com"
+        domain: "merchant"
+        business_owner: "Analytics Engineering"
+    columns:
+      - name: store_id
+        description: "Store identifier."
+        tests: [not_null, unique]
+      - name: created_at
+        description: "Date when the store was created."
+        tests: [not_null]
+      - name: domain
+        description: "Domain of the store."
+        tests: [not_null]
+      - name: country_code
+        description: "Country code of the store."
+        tests: [not_null]
+      - name: country_name
+        description: "Country name of the store."
+        tests: [not_null]
+      - name: region_name
+        description: "Region name of the store."
+        tests: [not_null]
+      - name: state_name
+        description: "State name of the store."
+        tests: [not_null]
+      - name: city_name
+        description: "City name of the store."
+        tests: [not_null]
+      - name: currency
+        description: "Currency of the store."
+      - name: device
+        description: "Device type used by the user during the store creation process (e.g., desktop, app, mobile)."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['desktop', 'app', 'mobile', 'tablet', 'undefined']
+      - name: register_url
+        description: "Register URL of the store."
+      - name: partner_id
+        description: "Partner ID of the store."
+      - name: partnership_type
+        description: "Partnership type of the store."
+      - name: partner_code
+        description: "Partner code of the store."
+      - name: vertical_name
+        description: "Vertical name of the store."
+        tests: [not_null]
+      - name: business_size_name
+        description: "Business size name of the store."
+        tests: [not_null]
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model. Defaults to current_timestamp if not available."
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model. Defaults to 'data-dev-dbt-products'."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed."
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
