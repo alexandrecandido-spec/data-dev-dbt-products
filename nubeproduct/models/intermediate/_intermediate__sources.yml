@@ -212,11 +212,14 @@ sources:
         description: "Table with orders saved searches"
       - name: orders_auto_cancel_configuration
         description: "Table with merchant's auto cancel configurations"
+
   - name: int_storefronts_curated
     database: hive_metastore
     schema: storefronts_curated
     tables:
       - name: mwp_stores_logging
+      - name: events
+        description: "Events associated to Consumer journey on storefronts"
 
   - name: int_data_legacy
     database: raw
@@ -275,3 +278,4 @@ sources:
         description: "Table with each stock transfer process created by merchants. Including information regarding the distribution center, the type of transfer, status etc."
       - name: mwp_stock_transfer_detail
         description: "Table with details regarding each stock transfer. Contains each product id and variant id that is required to be transferred and the quantities finally transferred"
+

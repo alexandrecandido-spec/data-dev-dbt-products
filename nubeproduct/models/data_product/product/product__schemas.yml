@@ -1693,3 +1693,89 @@ models:
       - name: sys_audit_updated_by
         description: "System or user that last updated the row in this model."
 
+  - name: s__product_checkout__orders_events__event
+    description: >
+      Contains the relation between carts and its associated Checkout events.
+      Table consists on a single row by cart, and timestamps at which an event was triggered.
+      If an event was triggered more than once by cart, we consider the first one.
+    config:
+      meta:
+        owner: "fabrizio.crivella@tiendanube.com"
+        business_owner: "Rocio Diez"
+        openmetadata:
+          domain: "product"
+    columns:
+      - name: cart_id
+        description: Unique identifier of cart.
+        tests:
+          - not_null
+      - name: store_id
+        description: Unique identifier of store.
+        tests:
+          - not_null
+      - name: checkout_start_timestamp
+        description: If the cart iniciated Checkout, this field shows its timestamp.
+      - name: checkout_filled_email_timestamp
+        description: If the cart completed email field, this field shows its timestamp.
+      - name: checkout_filled_shipping_zipcode_timestamp
+        description: If the cart completed zipcode field, this field shows its timestamp.
+      - name: checkout_selected_shipping_method_timestamp
+        description: If the cart selected shipping method, this field shows its timestamp.
+      - name: checkout_filled_shipping_first_name_timestamp
+        description: If the cart completed first name field, this field shows its timestamp.
+      - name: checkout_filled_shipping_last_name_timestamp
+        description: If the cart completed last name field, this field shows its timestamp.
+      - name: checkout_filled_shipping_phone_timestamp
+        description: If the cart completed phone field, this field shows its timestamp.
+      - name: checkout_clicked_shipping_continue_timestamp
+        description: If the cart clicked shipping continue (A step that separates contact information from shipping information), this field shows its timestamp.
+      - name: checkout_clicked_shipping_continue_to_payment_timestamp
+        description: If the cart advanced to payment step, this field shows its timestamp.
+      - name: checkout_filled_billing_id_number_timestamp
+        description: If the cart completed billing id field, this field shows its timestamp.
+      - name: checkout_checked_billing_same_address_timestamp
+        description: If the cart checked that billing information is the same as shipping information, this field shows its timestamp.
+      - name: checkout_filled_billing_country_timestamp
+        description: If the cart completed billing country field, this field shows its timestamp.
+      - name: checkout_filled_billing_business_name_timestamp
+        description: If the cart completed billing business name field, this field shows its timestamp.
+      - name: checkout_filled_billing_trade_name_timestamp
+        description: If the cart completed billing trade name field, this field shows its timestamp.
+      - name: checkout_filled_billing_state_registration_timestamp
+        description: If the cart completed state registration field, this field shows its timestamp.
+      - name: checkout_filled_billing_business_activity_timestamp
+        description: If the cart completed business activity field, this field shows its timestamp.
+      - name: checkout_selected_payment_method_timestamp
+        description: If the cart selected payment method, this field shows its timestamp.
+      - name: checkout_clicked_payment_complete_order_timestamp
+        description: If the cart clicked on complete order, this field shows its timestamp.
+      - name: checkout_order_placed_timestamp
+        description: If the cart successfully generated an order, this field shows its timestamp.
+      - name: checkout_order_placed_timestamp
+        description: If the order was paid, this field shows its timestamp.
+      - name: wallet
+        description: Contains information about Wallet usage on the cart.
+      - name: payment_method_name
+        description: Payment method selected on checkout_selected_payment_method step.
+      - name: payment_method_type
+        description: Payment method type selected on checkout_selected_payment_method step.
+      - name: payment_method_integration_type
+        description: Payment method integration type selected on checkout_selected_payment_method step.
+      - name: shipping_method_type
+        description: Shipping method type selected on checkout_selected_shipping_method step.
+      - name: shipping_method_id
+        description: Unique identifier of shipping method selected on checkout_selected_shipping_method step.
+      - name: shipping_method_code
+        description: Code of the shipping method selected on checkout_selected_shipping_method step.
+      - name: payment_retry_feature
+        description: Contains information about Payment Retry feature usage on the cart.
+      - name: first_event
+        description: Identifies which event type was the first on the cart.
+      - name: first_event_timestamp
+        description: Identifies the timestamp of the first event.
+      - name: last_event
+        description: Identifies which event type was the last on the cart.
+      - name: last_event_timestamp
+        description: Identifies the timestamp of the last event.
+      - name: base_date
+        description: first_event_timestamp casted as date, for partitioning.
