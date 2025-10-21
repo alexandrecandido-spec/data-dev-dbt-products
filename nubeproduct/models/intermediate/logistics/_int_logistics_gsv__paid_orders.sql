@@ -1,11 +1,11 @@
--- Handles paid orders that are not already linked to shipments in Brazil.
--- Enriches records with store information and shipping details.
--- Maintains shipment_id granularity for consistency with shipments datasets.
+-- Ensures inclusion of paid orders that have no corresponding delivery order (i.e., not posted via Nuvem Envio or Envío Nube).
+-- This guarantees a complete GMV representation.
 
 WITH
 paid_orders_aux AS (
   SELECT
     fpo.order_id AS shipment_id,
+    fpo.order_id AS order_id,
     fpo.payment_status,
     fpo.store_id,
     CAST(fpo.completed_at AS DATE) AS completed_at,
@@ -23,6 +23,8 @@ FROM {{ ref('_int_logistics_gsv__filtered_paid_orders') }} fpo
 SELECT
   DISTINCT
     poa.shipment_id,
+    poa.order_id,
+    NULL AS delivery_order_id,
     poa.payment_status,
     poa.store_id,
     mi.domain,
@@ -32,8 +34,8 @@ SELECT
     mi.created_at AS store_creation_date,
     mi.base_state_name AS store_state_name,
     CAST(poa.completed_at AS DATE) AS completed_at,
-    NULL AS final_date,
-    NULL AS postage_label_creation_date,
+    NULL AS posted_at,
+    NULL AS postage_label_created_at,
     poa.shipment_type,
     NULL AS gsv,
     poa.gmv,
@@ -43,10 +45,12 @@ SELECT
     COALESCE(ff.flg_multicd, 0) AS flg_multicd,
     CASE
       WHEN spi.carrier_name = 'Nuvem Envio' THEN 1
+      WHEN spi.carrier_name = 'Envío Nube' THEN 1
       ELSE 0
       END AS flg_ne_selected,
     CASE
       WHEN spi.carrier_name = 'Nuvem Envio' THEN 1
+      WHEN spi.carrier_name = 'Envío Nube' THEN 1
       ELSE COALESCE(ns.flg_ne_enabled,0)
       END AS flg_ne_enabled,
     COALESCE(spi.selected_shipping_partner, 'Custom') AS selected_shipping_partner,

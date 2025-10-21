@@ -16,7 +16,7 @@ def create_profiles_yml():
         'nubeproduct': {
             'outputs': {
                 'prod': {
-                    'catalog': None,
+                    'catalog': 'data_products_prd',
                     'host': dbt_conn.host,
                     'http_path': '/sql/1.0/warehouses/2f8b52bf3d2088a2',
                     'schema': 'data',
@@ -53,7 +53,9 @@ def create_dbt_dag(
     """
     
     """Continuar sumando condiciones de acuerdo a los schedules/tags"""
-    if schedule_interval_tag == 'daily-4am':
+    if schedule_interval_tag == 'daily-2am':
+        schedule_interval='0 2 * * *'
+    elif schedule_interval_tag == 'daily-4am':
         schedule_interval='0 4 * * *'
     elif schedule_interval_tag == 'daily-4_30am':
         schedule_interval = '30 4 * * *'
@@ -95,6 +97,8 @@ def create_dbt_dag(
         schedule_interval='0 11 4 * *'
     elif schedule_interval_tag == 'monthly-4st-10AM':
         schedule_interval='0 10 4 * *'
+    elif schedule_interval_tag == 'monthly-4th-12pm':
+        schedule_interval = '0 12 4 * *'
     else:
         schedule_interval=None 
 

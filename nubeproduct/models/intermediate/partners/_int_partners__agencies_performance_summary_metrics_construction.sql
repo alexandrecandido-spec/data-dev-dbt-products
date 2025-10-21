@@ -25,7 +25,8 @@ WITH partners_metrics AS -- Create a table with the metrics for each partner con
         SUM(CASE WHEN 
             first_payment IS NOT NULL 
             AND first_payment <= snapshot_date 
-            AND (churned_at IS NULL OR churned_at > snapshot_date) 
+            AND (churned_at IS NULL OR churned_at > snapshot_date)
+            AND plan_group != 'freemium'  
         THEN 1 ELSE 0 END) AS active_paying_stores,
         SUM(CASE WHEN             
             (first_payment IS NULL OR first_payment > snapshot_date)

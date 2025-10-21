@@ -46,7 +46,15 @@ models:
         openmetadata:
           tier: 'Tier.Silver'
       +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/staging/"
-
+      +post-hook:
+       # testing_unity_staging
+        - "CREATE TABLE IF NOT EXISTS {{ var('mirror_catalog') }}.{{ this.schema }}.{{ this.identifier }} USING DELTA LOCATION '{{ 
+                ('s3://dn-lkh-dev01' if target.name == 'dev' else 's3://dn-lkh-products-prd01') 
+                ~ '/data-dev-dbt-products/' 
+                ~ (this.schema | replace('testing_', '') | replace('data_', '')) 
+                ~ '/' 
+                ~ this.identifier 
+              }}'"    
     intermediate:
       +materialized: ephemeral
       operations:
@@ -71,8 +79,6 @@ models:
         +tags: ["support"]
       dimensions:
         +tags: ["dimensions"]
-      onboarding:
-        +tags: ["onboarding"]
 
     data_product:
       +materialized: table
@@ -124,16 +130,23 @@ models:
         +schema: dimensions
         +tags: ["dimensions"]
         +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/data_product/dimensions/"
-      onboarding:
-        +schema: onboarding
-        +tags: ["onboarding"]
-        +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/data_product/onboarding/"
-
+      +post-hook:
+       # testing_unity_{domain}, donde {domain} = this.schema (marketing, finance, etc.)
+        - "CREATE TABLE IF NOT EXISTS {{ var('mirror_catalog') }}.{{ this.schema }}.{{ this.identifier }} USING DELTA LOCATION '{{ 
+            ('s3://dn-lkh-dev01' if target.name == 'dev' else 's3://dn-lkh-products-prd01') 
+            ~ '/data-dev-dbt-products/data_product/' 
+            ~ (this.schema | replace('testing_', '') | replace('data_', '')) 
+            ~ '/' 
+            ~ this.identifier 
+        }}'"
   dbt_artifacts:
     +materialized: table
     +schema: dbt_artifacts
     +file_format: delta
     +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/artifacts/"
+    +post-hook:
+      - "CREATE TABLE IF NOT EXISTS {{ var('mirror_catalog') }}.{{ this.schema }}.{{ this.identifier }} USING DELTA LOCATION '{{ ('s3://dn-lkh-dev01' if target.name == 'dev' else 's3://dn-lkh-products-prd01') ~ '/data-dev-dbt-products/artifacts/' ~ this.identifier }}'"
+
 
 on-run-end:
   - "{{ dbt_artifacts.upload_results(results) }}"
@@ -145,4 +158,8 @@ seeds:
     +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/data_manual/"
 
 vars:
+  mirror_hms_prefix: "{{ 'testing_unity_dev' if target.name == 'dev' else 'testing_unity_prd' }}"
+  mirror_catalog: "{{ 'hive_metastore' if target.name == 'dev' else 'hive_metastore' }}" #"{{ 'data_products_dev' if target.name == 'dev' else 'data_products_prd' }}"
   'dbt_date:time_zone': 'America/Argentina/Buenos_Aires'
+  required_docs_fail_on_error: true         
+  required_docs_skip_models: []             
