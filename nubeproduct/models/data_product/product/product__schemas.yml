@@ -1250,6 +1250,77 @@ models:
         tests:
           - not_null
 
+  - name: g__ecosystem__tech_partner_data__agg_monthly
+    description: 
+      This dataproduct contains all the information about the tech partners and their apps, installs, referrals, etc.
+    config:
+      meta:
+        owner: "fernando.martinez@tiendanube.com"
+        domain: "product"
+        business_owner: "Nicolas Loreti"
+    columns:
+      - name: unique_partner_country_code
+        description: "unique key for the dataproduct."
+        tests:
+          - not_null
+          - unique
+      - name: registered_month
+        description: "Unique identifier for the issue"
+        tests:
+          - not_null
+      - name: partner_id
+        description: "Unique identifier for the partner"
+        tests:
+          - not_null
+      - name: partner_name
+        description: "Name of the partner"
+        tests:
+          - not_null
+      - name: partner_type
+        description: "Type of the partner"
+      - name: country_code
+        description: "Country code of the partner"
+      - name: email
+        description: "Email of the partner"
+      - name: phone_number
+        description: "Phone number of the partner"
+      - name: website
+        description: "Website of the partner"
+      - name: description
+        description: "Description of the partner"
+      - name: partner_creation_date
+        description: "Date and time when the partner was created"
+        tests:
+          - not_null
+      - name: is_partner_active
+        description: "Flag indicating if the partner is active"
+        tests:
+          - not_null
+      - name: is_new_partner
+        description: "Flag indicating if the partner is new"
+        tests:
+          - not_null
+      - name: total_apps
+        description: "Total number of apps of the partner"
+        tests:
+          - not_null
+      - name: total_published_apps
+        description: "Total number of published apps of the partner"
+      - name: total_private_apps
+        description: "Total number of private apps of the partner"
+      - name: total_installs
+        description: "Total number of installs of the partner"
+      - name: total_installs_active
+        description: "Total number of active installs of the partner"
+      - name: sys_admin_created_at
+        description: "Timestamp when the record was first loaded into the model. Preserved from previous loads for existing records."
+      - name: sys_admin_creatd_by
+        description: "User or process that first loaded the record into the model. Defaults to 'data-dev-dbt-products'."
+      - name: sys_audit_updated_at
+        description: "Timestamp of the current model run when the record was processed."
+      - name: sys_admin_updated_by
+        description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
+        
   - name: s__nuvem_chat__users_and_invoices__link
     description: >
       Contains the list of every Nuvemchat invoice and their current state with merchant's information on its trial, invoices, conversations, etc.
