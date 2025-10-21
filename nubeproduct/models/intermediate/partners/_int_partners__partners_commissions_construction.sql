@@ -32,5 +32,6 @@ WITH commissions AS
     sys_audit_updated_on
   FROM {{ source('int_ecosystem', 'partner_ledger') }}
   WHERE DATE(created_at) >= '2024-01-01'
+  AND partner_ledger_entry_type_id IN(1,2,5,6)
 )
 SELECT * FROM commissions
