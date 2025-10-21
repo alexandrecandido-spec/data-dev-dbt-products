@@ -1226,6 +1226,127 @@ models:
         tests:
           - not_null
 
+  - name: s__nuvem_chat__users_and_invoices__link
+    description: >
+      Contains the list of every Nuvemchat invoice and their current state with merchant's information on its trial, invoices, conversations, etc.
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "product"
+        business_owner: "Martin Palombo"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: 
+            - store_id
+            - invoice_id
+            - invoice_created_at
+            - invoice_cost_total
+    columns:
+      - name: store_id
+        description: merchant's store id for Tiendanube
+      - name: cn_store_id
+        description: merchant's store id within Nuvemchat
+      - name: cn_merchant_name
+        description: merchant's name within Nuvemchat
+      - name: onboarding
+        description: whether the merchant is onboarding currently (true) or not (false)
+      - name: installed_at
+        description: date when the merchant installed the nuvemchat
+      - name: trial_start_date
+        description: date when the merchant started the trial
+      - name: trial_end_date
+        description: date when the merchant ended the trial
+      - name: cycle_start_date
+        description: date when the merchant started the billing cycle
+      - name: cycle_end_date
+        description: date when the merchant ended the billing cycle
+      - name: last_invoice_id
+        description: id of the last invoice
+      - name: latest_invoice_created_at
+        description: date when the last invoice was created
+      - name: latest_invoice_start_cycle_date
+        description: beggining of the latest invoice cycle
+      - name: latest_invoice_end_cycle_date
+        description: end of the latest invoice cycle
+      - name: days_since_last_invoice
+        description: number of days since the last invoice was created
+      - name: last_invoice_count_conversation
+        description: number of conversations in the last invoice
+      - name: paid_invoices
+        description: number of paid invoices
+      - name: last_paid_date
+        description: date when the last paid invoice was paid
+      - name: first_paid_date
+        description: date when the first paid invoice was paid
+      - name: grace_until
+        description: date when the grace period ends (using the max extra grace days, not neccesarily the latest)
+      - name: current_invoice_state
+        description: state of the current invoice (paid, unpaid)
+      - name: total_invoices
+        description: total number of invoices
+      - name: unpaid_invoices_since_last_paid
+        description: number of unpaid invoices since the last paid invoice
+      - name: ai_conversations_after_invoice
+        description: number of ai conversations after the last invoice
+      - name: conversations_after_trial
+        description: number of conversations after the trial
+      - name: conversations_in_trial
+        description: number of conversations in the trial
+      - name: ai_conv_last_3d
+        description: number of ai conversations in the last 3 days
+      - name: last_conversation_date
+        description: date when the last conversation was started
+      - name: chatnube_state
+        description: state of the merchant in Chatnube
+      - name: chatnube_state_group
+        description: Grouping state of the merchant in Chatnube
+      - name: churned_date
+        description: date when the merchant churned from Nuvemchat
+      - name: country
+        description: merchant's country
+      - name: plan_group
+        description: group of the merchant's plan
+      - name: domain
+        description: merchant's domain
+      - name: state
+        description: the state of the merchant. State_Ok > 0 it is not a trial and we are receiving the payments as expected - awaiting_payment > 1 during the first 10 days after the contract expires - admin_down > 2 from day 10 to day 20 after the contract is expired, admin is blocked (but the store is still live) - store_down > 3 the store is blocked from day 20, we consider it as a churn - state_test > 4 a store created as a test by someone from our company, it is not a trial - state_in_development > 5 stores created via Partners Portal while they are being set up.
+      - name: tiendanube_state
+        description: the state of the merchant with detailed names
+      - name: current_segment
+        description: merchant's current segment
+      - name: avg_gmv_usd_last_3m
+        description: merchant's average GMV in the last 3 months
+      - name: avg_orders_last_3m
+        description: merchant's average orders in the last 3 months
+      - name: direct_exchange_rate
+        description: exchange rate for the country
+      - name: invoice_id
+        description: id of the invoice
+        tests:
+          - not_null
+      - name: invoice_state
+        description: state of the invoice (paid, unpaid)
+      - name: invoice_start_cycle_date
+        description: beggining of the invoice cycle
+      - name: invoice_end_cycle_date
+        description: end of the invoice cycle
+      - name: invoice_created_at
+        description: date when the invoice was created
+      - name: invoice_count_conversation
+        description: number of conversations in the invoice
+      - name: invoice_cost_total
+        description: total cost of the invoice
+      - name: invoice_cost_per_conversation
+        description: cost per conversation in the invoice
+      - name: sys_audit_created_on
+        description: timestamp when the row was originally created in this model
+      - name: sys_audit_created_by
+        description: system or user that created the row in this model
+      - name: sys_audit_updated_on
+        description: timestamp when the row was last updated in this model
+      - name: sys_audit_updated_by
+        description: system or user that last updated the row in this model
+
   - name: s__orders__merchants_auto_cancel_configs__link
     description: > 
       Contains a list of all merchants and their auto cancel configs (if any)
@@ -1473,6 +1594,105 @@ models:
         description: system or user that last updated the row in this model
         tests:
           - not_null
+
+  - name: s__onboarding__preference_types__ref
+    description: Table containing the sales channel chosen by the merchant. 
+    config:
+      meta:
+        owner: "ynara.oliveira@nuvemshop.com.br"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: store_id
+        description: Merchant's unique identification code
+        tests:
+          - not_null
+          - unique
+      - name: created_at
+        description: Merchant's creation date
+        tests:
+          - not_null
+      - name: onboarding_type
+        description: Merchant's sales channel, as selected in the pre-onboarding questionnaire
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Online', 'PDV', 'Chat', 'PDV + Online', 'PDV + Chat']
+      - name: sys_audit_created_on
+        description: "Timestamp of when this record was created in our data warehouse"
+      - name: sys_audit_created_by
+        description: "System identifier of the process that created this record"
+      - name: sys_audit_updated_on
+        description: "Timestamp of when this record was last updated in our data warehouse"
+      - name: sys_audit_updated_by
+        description: "System identifier of the process that last updated this record"
+  
+  - name: s__catalog__stock_transfers__event
+    description: "Contains information about stock transfers for each store."
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: id
+        description: "Unique identifier for the stock transfer."
+        tests:
+          - not_null
+          - unique
+      - name: store_id
+        description: "Store id of the stock transfer."
+        tests:
+          - not_null
+      - name: domain
+        description: "Domain of the store."
+      - name: country
+        description: "Country of the store."
+      - name: current_segment
+        description: "Current segment of the store."
+      - name: state
+        description: the state of the merchant. State_Ok > 0 it is not a trial and we are receiving the payments as expected - awaiting_payment > 1 during the first 10 days after the contract expires - admin_down > 2 from day 10 to day 20 after the contract is expired, admin is blocked (but the store is still live) - store_down > 3 the store is blocked from day 20, we consider it as a churn - state_test > 4 a store created as a test by someone from our company, it is not a trial - state_in_development > 5 stores created via Partners Portal while they are being set up.
+      - name:  plan
+        description: "Group of the plan of the store."
+      - name: location_id
+        description: "Location id of the stock transfer."
+      - name: location_created_at
+        description: "Date when the location was created."
+      - name: location_deleted_at
+        description: "Date when the location was deleted."
+      - name: location_destination_id
+        description: "Location destination id of the stock transfer."
+      - name: location_destination_created_at
+        description: "Date when the location destination was created."
+      - name: location_destination_deleted_at
+        description: "Date when the location destination was deleted."
+      - name: transfer_mode
+        description: "Mode of the stock transfer. 'REMOVE' means the CD was getting deleted and the merchant chose to have the stock from that CD deleted as well, 'TRANSFER ALL' means that the complete stock from one CD should be moved to another CD (location_destination_id), 'TRANSFER SOME' means that parts of the stock from one CD should be moved to another CD (location_destination_id)"
+      - name: status
+        description: "Status of the stock transfer."
+      - name: extra_info
+        description: "Extra information of the stock transfer."
+      - name: created_at
+        description: "Date when the stock transfer was created."
+      - name: products_to_transfer
+        description: "Number of products to transfer."
+      - name: products_transferred
+        description: "Number of products transferred."
+      - name:  variants_to_transfer
+        description: "Number of variants to transfer."
+      - name: variants_transferred
+        description: "Number of variants transferred."
+      - name:  quantity_to_transfer
+        description: "Quantity to transfer."
+      - name:  tranferred_quantity_done
+        description: "Quantity done transferred."
+      - name: sys_audit_created_by
+        description: "System or user that created the row in this model."
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this model."
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row in this model."
+
   
   - name: g__platform__app_orders__agg_daily
     description: >
