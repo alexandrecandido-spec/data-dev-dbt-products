@@ -114,13 +114,14 @@ sources:
       - name: issue_comment
         description: "Contains the list of every comment associated to an Issue/Problem"
 
-
   - name: bronze_risk_ecosystem
     database: bronze_risk
     schema: ecosystem
     tables:
       - name: apps
         description: "Apps table from bronze_risk.ecosystem"
+      - name: mwp_countries
+        description: "countries table from bronze_risk.ecosystem"
   
   - name: bronze_risk_new_admin
     database: bronze_risk
@@ -328,4 +329,22 @@ sources:
         description: "Contains all assigned numeric type product variants metafields"
       - name: metafield_option_resource_product_variants
         description: "Contains all assigned option type product variants metafields"
+
+  - name: stg_ecosystem
+    database: hive_metastore
+    schema: ecosystem
+    description: "Intermediate tables built from the multiple metafields tables"
+    tables:
+      - name: mwp_partner_partner_types
+        description: "Contains the type of the partner"
+      - name: apps_categories
+        description: "Contains the category of the partner"
+      - name: apps_countries
+        description: "Contains the countries of the apps"
+      - name: mwp_partners
+        description: "Contains the information of the partners"
+      - name: countries
+        description: "Contains the countries of the partners"
+      - name: apps
+        description: "Contains app information"
       
