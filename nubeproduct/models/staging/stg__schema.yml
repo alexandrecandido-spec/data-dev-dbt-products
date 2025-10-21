@@ -3008,3 +3008,55 @@ models:
         description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
         tests:
           - not_null
+  - name: s__partnerships__general__partners__ref
+    config:
+      meta:
+        owner: "yan.santos@nuvemshop.com.br"
+        domain: "partnerships"
+        business_owner: "Giselle Galli"
+    description: >
+      Contains basic information about partners including identification, contact details, and audit metadata.
+    columns:
+      - name: partner_id
+        description: "Unique identifier of the partner."
+        tests:
+          - not_null
+          - unique
+      - name: partner_code
+        description: "Code assigned to the partner."
+        tests:
+          - not_null
+      - name: partner_name
+        description: "Name of the partner."
+        tests:
+          - not_null
+      - name: partner_country_id
+        description: "Country identifier where the partner operates."
+        tests:
+          - not_null
+      - name: partner_created_at
+        description: "Date and time when the partner was created."
+        tests:
+          - not_null
+      - name: partner_email
+        description: "Email address of the partner."
+        tests:
+          - not_null
+      - name: partner_phone_number
+        description: "Phone number of the partner."
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "System or user that created the row."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this table."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row."
+        tests:
+          - not_null

@@ -1,0 +1,95 @@
+version: 2
+models:
+  - name: s__general__partners_info__ref
+    config:
+      meta:
+        owner: "yan.santos@nuvemshop.com.br"
+        domain: "partnerships"
+        business_owner: "Giselle Galli"
+    description: >
+      Contains comprehensive information about partners, including classification, UTM parameters, fraud indicators, and partnership types.
+    columns:
+      - name: partner_id
+        description: "Unique identifier of the partner."
+        tests:
+          - not_null
+          - unique
+      - name: partner_code
+        description: "Code assigned to the partner."
+        tests:
+          - not_null
+      - name: partner_name
+        description: "Name of the partner."
+      - name: partner_country_code
+        description: "Country code where the partner operates."
+      - name: partner_created_at
+        description: "Date and time when the partner was created."
+        tests:
+          - not_null
+      - name: partner_email
+        description: "Email address of the partner."
+        tests:
+          - not_null
+      - name: partner_phone_number
+        description: "Phone number of the partner."
+      - name: partner_utm_campaign
+        description: "UTM campaign parameter associated with the partner."
+      - name: partner_utm_source
+        description: "UTM source parameter associated with the partner."
+      - name: partner_utm_medium
+        description: "UTM medium parameter associated with the partner."
+      - name: partner_utm_content
+        description: "UTM content parameter associated with the partner."
+      - name: mkt_exclusion
+        description: "Partners managed by other marketing areas, not part of the affiliates program."
+      - name: flag_partner_exception
+        description: "Binary flag indicating if the partner has an exception (1=yes, 0=no)."
+        tests:
+          - not_null
+          - accepted_values:
+              values: [0, 1]
+      - name: change_timestamp
+        description: "Timestamp of the most recent change across all partner input sources."
+      - name: input_sources_partners
+        description: "Comma-separated list of input sources that have data for this partner."
+      - name: partner_team
+        description: "Team responsible for managing the partner."
+      - name: partner_subteam
+        description: "Subteam responsible for managing the partner."
+      - name: fraude
+        description: "Fraud indicator flag for the partner."
+      - name: affiliate_tier
+        description: "Tier classification of the affiliate."
+      - name: affiliate_main_platform
+        description: "Main platform used by the affiliate."
+      - name: affiliate_classification
+        description: "Classification category of the affiliate."
+      - name: has_store_dev_trial
+        description: "Flag indicating if the partner has at least one store development partnership (1=yes, 0=no)."
+        tests:
+          - not_null
+          - accepted_values:
+              values: [0, 1]
+      - name: has_affiliates_trial
+        description: "Flag indicating if the partner has at least one affiliate partnership (1=yes, 0=no)."
+        tests:
+          - not_null
+          - accepted_values:
+              values: [0, 1]
+      - name: sys_audit_created_by
+        description: "System or user that created the row."
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this table."
+        tests:
+          - not_null
+
