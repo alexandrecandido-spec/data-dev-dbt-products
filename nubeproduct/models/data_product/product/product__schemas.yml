@@ -465,8 +465,9 @@ models:
       - name: sys_audit_updated_by
         description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
 
-  - name: product_catalog_features
-    description: This data product contains a list of all stores and information on their usage of catalog features and general properties related to products, variants and categories
+  - name: g__catalog__merchant_catalog_feature_usage__event
+    description:  >
+      This data product contains a list of all stores and information on their usage of catalog features and general properties related to products, variants and categories
     config:
       meta:
         owner: "sol.abelleyro@tiendanube.com"
@@ -540,28 +541,52 @@ models:
         description: 1 if the merchant has non deleted products metafields, 0 otherwise
       - name: text_list_variants_metafield_count
         description: the number of non deleted text list variants metafields in the merchant's store
+      - name: text_list_variants_metafield_assigned_count
+        description: the number of text list variants metafields assigned
       - name: text_variants_metafield_count
         description: the number of non deleted text variants metafields in the merchant's store
+      - name: text_variants_metafield_assigned_count
+        description: the number of text variants metafields assigned
       - name: numeric_variants_metafield_count
         description: the number of non deleted numeric variants metafields in the merchant's store
+      - name: numeric_variants_metafield_assigned_count
+        description: the number of numeric variants metafields assigned
       - name: date_variants_metafield_count
         description: the number of non deleted date variants metafields in the merchant's store
+      - name: date_variants_metafield_assigned_count
+        description: the number of date variants metafields assigned
       - name: unknown_variants_metafield_count
         description: the number of non deleted unknown variants metafields in the merchant's store
       - name: text_list_products_metafield_count
         description: the number of non deleted text list products metafields in the merchant's store
+      - name: text_list_products_metafield_assigned_count
+        description: the number of text list products metafields assigned
       - name: text_products_metafield_count
         description: the number of non deleted text products metafields in the merchant's store
+      - name: text_products_metafield_assigned_count
+        description: the number of text products metafields assigned
       - name: numeric_products_metafield_count
         description: the number of non deleted numeric products metafields in the merchant's store
+      - name: numeric_products_metafield_assigned_count
+        description: the number of numeric products metafields assigned
       - name: date_products_metafield_count
         description: the number of non deleted date pro  ducts metafields in the merchant's store
+      - name: date_products_metafield_assigned_count
+        description: the number of date products metafields assigned
       - name: unknown_products_metafield_count
         description: the number of non deleted unknown products metafields in the merchant's store
       - name: created_at
         description: the date when the merchant's store was created
       - name: churned_at
         description: the date when the merchant's store churned
+      - name: sys_audit_created_on
+        description: the date when the record was created
+      - name: sys_audit_updated_on
+        description: the date when the record was updated
+      - name: sys_audit_created_by
+        description: the user who created the record
+      - name: sys_audit_updated_by
+        description: the user who updated the record
     
   - name: product_platform_development_problems
     description: 
@@ -798,7 +823,6 @@ models:
           - not_null
 
 
-models:
   - name: product__offline_subscriptions
     description: >
       Contains the list of valid offline plan subscriptions per store, enriched with plan type, duration,
