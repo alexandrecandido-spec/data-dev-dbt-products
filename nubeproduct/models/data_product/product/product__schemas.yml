@@ -1174,6 +1174,66 @@ models:
       - name: sys_audit_updated_by
         description: "User or process that performed the last update."
 
+  - name: g__nuvem_chat__onboarding_funnel__agg_weekly
+    description: >
+      Weekly aggregated data product that provides counts of NuvemChat stores across different funnel stages (enabled, installed, started_trial, have_paid, churned) 
+      grouped by merchant characteristics (plan, state, segment, country). Creates one row per week per combination of these characteristics 
+      with aggregated counts for weekly new transitions and cumulative totals. Each week's data is a historical snapshot that never changes.
+    config:
+      meta:
+        owner: "data-dev-dbt-products"
+        domain: "product"
+        business_owner: "Martin Palombo"
+    columns:
+      - name: run_date
+        description: "Date when the data was run"
+        tests:
+          - not_null
+      - name: period_start_date
+        description: "Start date of the period"
+        tests:
+          - not_null
+      - name: period_end_date
+        description: "End date of the period"
+        tests:
+          - not_null
+      - name: plan_group
+        description: "Group of the merchant's plan"
+      - name: state
+        description: the state of the merchant. State_Ok > 0 it is not a trial and we are receiving the payments as expected - awaiting_payment > 1 during the first 10 days after the contract expires - admin_down > 2 from day 10 to day 20 after the contract is expired, admin is blocked (but the store is still live) - store_down > 3 the store is blocked from day 20, we consider it as a churn - state_test > 4 a store created as a test by someone from our company, it is not a trial - state_in_development > 5 stores created via Partners Portal while they are being set up.
+      - name: current_segment
+        description: "Merchant's current segment"
+      - name: country
+        description: "Merchant's country"
+      - name: enabled_stores_count
+        description: "Number of stores are enabled to use NuvemChat (active base from moltres.mwp_store_info)"
+      - name: period_installed_count
+        description: "Number of stores that installed NuvemChat during the period"
+      - name: period_started_trial_count
+        description: "Number of stores that started trial during the period"
+      - name: period_has_paid_count
+        description: "Number of stores that made their first payment during the period"
+      - name: period_churned_count
+        description: "Number of stores that churned during the period"
+      - name: cumulative_installed_count
+        description: "Total number of stores that have ever installed NuvemChat"
+      - name: cumulative_started_trial_count
+        description: "Total number of stores that have ever started Nuvemchat's trial"
+      - name: cumulative_has_paid_count
+        description: "Total number of stores that have ever made a payment"
+      - name: cumulative_churned_count
+        description: "Total number of stores that have ever churned"
+      - name: total_stores_count
+        description: "Total number of stores in the group"
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first inserted into this table."
+      - name: sys_audit_created_by
+        description: "User or process that first inserted the record."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the most recent update to the record."
+      - name: sys_audit_updated_by
+        description: "User or process that performed the last update."
+
   - name: product__non_user_sessions
     description: >
       Data product that contains sessions with high probability of not being user sessions, like merchant sessions or developer tests.
