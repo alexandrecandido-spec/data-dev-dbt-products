@@ -5,7 +5,7 @@
         unique_key=['cart_id'],
         partition_by = 'base_date', 
         on_schema_change='fail',
-        tags=["daily-10am"]
+        tags=["daily-1am"]
     )
 }}
 
