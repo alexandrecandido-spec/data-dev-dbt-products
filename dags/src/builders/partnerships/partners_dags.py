@@ -24,3 +24,10 @@ dag = create_dbt_dag(
     default_args=default_args,
     tags=['partnerships', 'daily-7am']
 )
+
+dag = create_dbt_dag(
+    dag_id='dbt_partnerships_daily-6am',
+    schedule_interval_tag='daily-6am',
+    default_args=default_args,
+    tags=['partnerships', 'daily-6am']
+)
