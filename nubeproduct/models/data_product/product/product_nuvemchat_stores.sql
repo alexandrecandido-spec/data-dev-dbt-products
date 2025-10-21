@@ -28,6 +28,7 @@ SELECT
     last_paid_date,
     first_paid_date,
     grace_until,
+    overall_grace_until,
     current_invoice_state,
     total_invoices,
     unpaid_invoices_since_last_paid,
