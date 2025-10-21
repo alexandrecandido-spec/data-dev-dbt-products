@@ -418,7 +418,7 @@ models:
         tests:
           - not_null
 
-  - name: data_midmarket.g__success__business_review_enriched__agg_snapshot_weekly
+  - name: g__success__business_review_enriched__agg_snapshot_weekly
     config:
       meta:
         tech_steward: "guillermo.defelice@tiendanube.com"
@@ -531,7 +531,7 @@ models:
         description: Time period aggregation, set to 'weekly' for this model.
 
 
-  - name: data_midmarket.g__success__business_review_enriched__agg_snapshot_monthly
+  - name: g__success__business_review_enriched__agg_snapshot_monthly
     config:
       meta:
         tech_steward: "guillermo.defelice@tiendanube.com"
