@@ -268,6 +268,10 @@ sources:
         description: "Contains all the dealbreakers and its association to a company in Hubspot" 
       - name: companies
         description: "Contains a record of all Hubspot companies, including their store_id"
+      - name: dealbreakers_base_archived
+        description: "Contains a record of Hubspot dealbreakers that were archived (only last 90 days)"
+      - name: dealbreakers_base_association
+        description: "Contains all the active dealbreakers and its association to a company in Hubspot"
 
 
   - name: stg_third_party

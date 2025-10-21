@@ -13,19 +13,19 @@ WITH existing_data AS (
 )
 
 SELECT
-    cast(dca.dealbreaker_id as bigint) as dealbreaker_id,
-    dca.type as association_type,
-    cast(dca.company_id as bigint) as company_id,
+    cast(dba.id as bigint) as dealbreaker_id, -- lo casteo porque viene como string
+    dba.archived as is_archived, -- este campo es estático en esta tabla porque en la tabla de origen son todos true, cuando deja de serlo desaparece, pero la estrategia de incrementalidad de airbyte es merge y no elimina registros
+    cast(dba.updatedAt as timestamp) as record_updated_at, -- lo casteo porque viene como string
     COALESCE(e.sys_audit_created_on, current_timestamp) AS sys_audit_created_on,
     COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by,
     current_timestamp AS sys_audit_updated_on,
     'data-dev-dbt-products' AS sys_audit_updated_by
 
-FROM {{ source('stg_hubspot', 'dealbreakers_companies_associations') }} dca
-LEFT JOIN existing_data e ON cast(dca.dealbreaker_id as bigint) = e.dealbreaker_id
+FROM {{ source('stg_hubspot', 'dealbreakers_base_archived') }} dba
+LEFT JOIN existing_data e ON cast(dba.id as bigint) = e.dealbreaker_id
 
 {% if is_incremental() %}
-WHERE dca._airbyte_extracted_at >= (
+WHERE dba._airbyte_extracted_at >= (
     SELECT COALESCE(MAX(sys_audit_updated_on), '1900-01-01') FROM {{ this }}
 )
 {% endif %}

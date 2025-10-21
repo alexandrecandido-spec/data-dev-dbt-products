@@ -31,8 +31,8 @@ SELECT
         COALESCE(dca.sys_audit_updated_on, CAST('1900-01-01' AS TIMESTAMP)),
         COALESCE(c.sys_audit_updated_on, CAST('1900-01-01' AS TIMESTAMP))
     ) AS sys_audit_updated_on
-FROM {{ ref('hubspot__dealbreakers') }} d
-LEFT JOIN {{ ref('hubspot__dealbreakers_companies_associations') }} dca
+FROM {{ ref('product__general__dealbreaker__scd') }} d
+LEFT JOIN {{ ref('product__general__dealbreaker_company__link') }} dca
     ON d.dealbreaker_id = dca.dealbreaker_id
-LEFT JOIN {{ ref('hubspot__companies') }} c
+LEFT JOIN {{ ref('product__general__company__scd') }} c
     ON dca.company_id = c.company_id
