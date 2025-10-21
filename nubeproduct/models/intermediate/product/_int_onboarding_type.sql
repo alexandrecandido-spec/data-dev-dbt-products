@@ -3,7 +3,7 @@ WITH onb_types AS (
         store_id,
         onboarding_type
     FROM
-        {{ ref('onboarding__preference_types') }}
+        {{ ref('product__onboarding__store_preference_types__event') }}
 )
 
 SELECT
