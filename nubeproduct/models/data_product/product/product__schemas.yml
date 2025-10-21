@@ -1892,7 +1892,9 @@ models:
       - name: sys_audit_updated_on
         description: timestamp when the row was last updated in this model
       - name: sys_audit_updated_by
-        description: system or user that last updated the row in this model  - name: s__product_checkout__orders_events__event
+        description: system or user that last updated the row in this model  
+
+  - name: s__product_checkout__orders_events__event
     description: >
       Contains the relation between carts and its associated Checkout events.
       Table consists on a single row by cart, and timestamps at which an event was triggered.
