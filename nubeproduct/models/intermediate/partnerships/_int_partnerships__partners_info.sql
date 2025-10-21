@@ -51,14 +51,13 @@ partner_fraud AS
 )
 
 SELECT 
-    MP.id AS partner_id,
-    MP.code AS partner_code,
-    MP.name AS partner_name, 
+    MP.partner_id,
+    MP.partner_code,
+    MP.partner_name, 
     MC.country_code AS partner_country_code,
-    MP.created_at AS partner_created_at,
-    MP.email AS partner_email,
-    MP.phone_number AS partner_phone_number,
-    MP.commission AS partner_commission,
+    MP.partner_created_at,
+    MP.partner_email,
+    MP.partner_phone_number,
 
     -- UTM info
     PU.partner_utm_campaign,
@@ -93,28 +92,28 @@ SELECT
     PS.affiliate_main_platform,
 
     CASE
-        WHEN MP.code IS NOT NULL AND PE.mkt_exclusion IS NOT NULL THEN 'Other Mkt Teams'
-        WHEN MP.code IS NOT NULL AND PE.mkt_exclusion IS NULL THEN COALESCE(PS.affiliate_classification, 'Long Tail')
+        WHEN MP.partner_code IS NOT NULL AND PE.mkt_exclusion IS NOT NULL THEN 'Other Mkt Teams'
+        WHEN MP.partner_code IS NOT NULL AND PE.mkt_exclusion IS NULL THEN COALESCE(PS.affiliate_classification, 'Long Tail')
         ELSE 'Long Tail'
     END AS affiliate_classification
 
-FROM {{ source('int_ecosystem', 'mwp_partners') }} AS MP
+FROM {{ ref('s__partnerships__general__partners__event') }} AS MP
 LEFT JOIN (
     SELECT DISTINCT
         country_id,
         country_code
     FROM {{ ref('dim_location_country') }}
 ) AS MC
-    ON MP.country = MC.country_id
+    ON MP.partner_country_id = MC.country_id
 
 LEFT JOIN partner_utm AS PU
-    ON MP.id = PU.partner_id
+    ON MP.partner_id = PU.partner_id
 
 LEFT JOIN partner_exception AS PE
-    ON PE.mkt_exclusion = MP.code
+    ON PE.mkt_exclusion = MP.partner_code
 
 LEFT JOIN partner_fraud AS PF 
-    ON PF.partner_code = MP.code 
+    ON PF.partner_code = MP.partner_code 
 
 LEFT JOIN partners_classification AS PS
-    ON PS.partner_code = MP.code
+    ON PS.partner_code = MP.partner_code
