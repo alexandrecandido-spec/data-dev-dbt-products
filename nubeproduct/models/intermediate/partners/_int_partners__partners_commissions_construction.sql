@@ -29,7 +29,7 @@ WITH commissions AS
     partner_commission_percentage,
     plan_id,
     plan_value,
-    sys_audit_updated_on
+    sys_audit_updated_on AS partner_ledger_change_timestamp
   FROM {{ source('int_ecosystem', 'partner_ledger') }}
   WHERE DATE(created_at) >= '2024-01-01'
   AND partner_ledger_entry_type_id IN(1,2,5,6)
