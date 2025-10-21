@@ -43,11 +43,10 @@ language_countries AS (
             MAX(l.sys_audit_updated_on),
             MAX(uc.sys_audit_updated_on)
         ) AS lc_max_sys_audit_updated_on,   
-        count(distinct l.id) store_enabled_languages,
-        count(distinct uc.id) store_enabled_countries
+        count(distinct CASE WHEN l.active = 1 THEN l.id END) store_enabled_languages,
+        count(distinct CASE WHEN l.active = 1 THEN uc.id END) store_enabled_countries
     FROM {{ ref('moltres__mwp_user_languages')}}  l
-    LEFT JOIN {{ ref('moltres__mwp_user_languages')}} uc ON l.store_id = uc.store_id
-    WHERE l.active=1
+    LEFT JOIN {{ ref('moltres__mwp_user_countries')}} uc ON l.store_id = uc.store_id
     GROUP BY 1
 )
 
@@ -71,4 +70,4 @@ SELECT
 FROM category_counts cc
 FULL OUTER JOIN cd_counts cd ON cc.store_id = cd.store_id
 FULL OUTER JOIN gmv_orders gm ON COALESCE(cc.store_id, cd.store_id) = gm.store_id
-FULL OUTER JOIN language_countries lc ON COALESCE(cc.store_id, cd.store_id) = lc.store_id
+FULL OUTER JOIN language_countries lc ON COALESCE(cc.store_id, cd.store_id, gm.store_id) = lc.store_id
