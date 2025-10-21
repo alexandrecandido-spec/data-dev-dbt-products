@@ -1211,12 +1211,12 @@ models:
         description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
         
 
-  - name: onboarding__preference_types
+  - name: product__onboarding__store_preference_types
     description: "Staging model that contains store id, the sales channels chosen during the pre onboarding questionnaire and the creation date of stores created in the past 12 months."
     config:
       meta:
         owner: "ynara.oliveira@nuvemshop.com.br"
-        domain: "growth"
+        domain: "product"
         business_owner: "Francisco Ramirez"
     columns:
       - name: store_id
@@ -1418,7 +1418,7 @@ models:
             - event_name
 
 
-  - name: storefronts_curated__sessions
+  - name: product__traffic__sessions__event
     description: >
       Staging model that standardizes raw storefront sessions.
       Includes normalization of UTM parameters, referrer, and creation of a
@@ -1878,6 +1878,14 @@ models:
         description: "Onboarding true if the store is currently onboarding and false if they already completed the onboarding process"
       - name: funnel_stage_id
         description: "Funnel stage identifier"
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first inserted into this table."
+      - name: sys_audit_created_by
+        description: "User or process that first inserted the record."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the most recent update to the record."
+      - name: sys_audit_updated_by
+        description: "User or process that performed the last update."
     
   - name: nuvem_chat__billing_plan
     description: "Staging model that contains information on billing and trials for merchants using Nuvemchat"
@@ -1894,7 +1902,7 @@ models:
         tests:
           - not_null
           - unique
-      - name: billing_plan_created_at
+      - name: created_at
         description: "billing plan timestamps"
       - name: plan_id
         description: "Plan identifier"
@@ -1910,6 +1918,14 @@ models:
         description: "Start date of the Tiendanube billing cycle"
       - name: billing_cycle_end_date
         description: "End date of the Tiendanube billing cycle"
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first inserted into this table."
+      - name: sys_audit_created_by
+        description: "User or process that first inserted the record."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the most recent update to the record."
+      - name: sys_audit_updated_by
+        description: "User or process that performed the last update."
 
   - name: nuvem_chat__conversation
     description: "Staging model that contains all conversations from Nuvemchat"
@@ -1934,6 +1950,14 @@ models:
         description: "Customer identifier"
       - name: conversation_created_at
         description: "Conversation timestamp"
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first inserted into this table."
+      - name: sys_audit_created_by
+        description: "User or process that first inserted the record."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the most recent update to the record."
+      - name: sys_audit_updated_by
+        description: "User or process that performed the last update."
 
   - name: metafields__metafield_product_variants
     description: "Contains all product variants metafields"
@@ -2000,6 +2024,14 @@ models:
         description: "Channel deleted timestamp"
       - name: channel_discr
         description: "Channel discriminator ('playground' when used during testing)"
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first inserted into this table."
+      - name: sys_audit_created_by
+        description: "User or process that first inserted the record."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the most recent update to the record."
+      - name: sys_audit_updated_by
+        description: "User or process that performed the last update."
     
   - name: metafields__metafield_products
     description: "Contains all products metafields"
@@ -2062,6 +2094,14 @@ models:
         description: "Message timestamp"
       - name: message_discr
         description: "Message discriminator ('bot' when message from AI)"
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first inserted into this table."
+      - name: sys_audit_created_by
+        description: "User or process that first inserted the record."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the most recent update to the record."
+      - name: sys_audit_updated_by
+        description: "User or process that performed the last update."
    
   - name: product__mwp_product_list
     description: "Contains all products"
@@ -2147,6 +2187,14 @@ models:
         description: "End date of the invoice cycle"
       - name: extra_grace_days
         description: "Extra grace days to pay. Default is 10."
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first inserted into this table."
+      - name: sys_audit_created_by
+        description: "User or process that first inserted the record."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the most recent update to the record."
+      - name: sys_audit_updated_by
+        description: "User or process that performed the last update."
 
   - name: product__mwp_product_variants
     description: "Contains all product variants"
@@ -2223,6 +2271,14 @@ models:
         description: "State identifier"
       - name: invoice_state
         description: "State string (paid, unpaid)"
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first inserted into this table."
+      - name: sys_audit_created_by
+        description: "User or process that first inserted the record."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the most recent update to the record."
+      - name: sys_audit_updated_by
+        description: "User or process that performed the last update."
   
   - name: product__mwp_product_videos
     description: "Contains all product videos uploaded to Tiendanube"
@@ -2434,7 +2490,7 @@ models:
 
           
 
-  - name: storefronts_curated__events_cart_product_add
+  - name: product__traffic__cart_product_add__event
     description: >
       Curated model that maps the relationship between sessions and carts based on the event 'cart_product_add'.
       It generates a deterministic technical session key and selects a single representative event per (session, cart) pair.
@@ -2488,3 +2544,138 @@ models:
         description: "Timestamp of the most recent update to the record."
       - name: sys_audit_updated_by
         description: "User or process that performed the last update."
+
+
+  - name: moltres__mwp_apps
+    description: "Contains information about apps installed by merchants (both official and not official)"
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: id
+        description: "Unique identifier for the app"
+        tests:
+          - not_null
+          - unique
+      - name: partner_id
+        description: "Unique identifier for the partner who built the app"
+      - name: official
+        description: "If the app is an official Nuvemshop app or a third party app"
+      - name: handle
+        description: "Handle of the app"
+      - name: category
+        description: "Category of the app"
+      - name: visits
+        description: "Number of visits to the app"
+      - name: installs
+        description: "Number of installs of the app"
+      - name: created_at
+        description: "Timestamp when the app was created"
+      - name: updated_at
+        description: "Timestamp when the app was last updated"
+      - name: deleted_at
+        description: "Timestamp when the app was deleted"
+      - name: published_at
+        description: "Timestamp when the app was published"
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first inserted into this table."
+      - name: sys_audit_created_by
+        description: "User or process that first inserted the record."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the most recent update to the record."
+      - name: sys_audit_updated_by
+        description: "User or process that performed the last update."
+
+
+  - name: midmarket__general__deals__link
+    description: >
+      Staging model for HubSpot deals loaded from the third_party schema.
+    config:
+      meta:
+        owner: "m.blanco@tiendanube.com"
+        domain: "midmarket"
+        business_owner: "Franco Tiberti"
+    columns:
+      - name: deal_id
+        description: "Unique identifier for the HubSpot deal. Primary key"
+        tests:
+          - unique
+          - not_null
+      - name: store_id
+        description: "Internal store identifier linked to the deal."
+      - name: pipeline
+        description: "HubSpot pipeline in which the deal is/was located."
+      - name: dealname
+        description: "Deal name/title in HubSpot."
+      - name: gmv_potencial
+        description: "Potential GMV associated with the deal."
+      - name: hubspot_owner_id
+        description: "HubSpot owner (user) identifier assigned to the deal."
+      - name: dealstage
+        description: "Deal stage within the pipeline."
+      - name: createdate
+        description: "Deal created date (cast to DATE)."
+      - name: kickoff_date
+        description: "Kick-off date for the onboarding process (cast to DATE)."
+      - name: go_live_forecast
+        description: "Expected go-live date (forecast) (cast to DATE)."
+      - name: data_go_live
+        description: "Actual go-live date (cast to DATE)."
+      - name: effective_churn_at
+        description: "Effective churn date, if applicable (cast to DATE)."
+      - name: effective_out_of_portfolio_at
+        description: "Effective out-of-portfolio date, if applicable (cast to DATE)."
+      - name: date_entered_churn_onboarding_ar
+        description: "Date when the deal entered 'Churn' in AR onboarding."
+      - name: date_entered_churn_onboarding_br
+        description: "Date when the deal entered 'Churn' in BR onboarding."
+      - name: date_entered_churn_onboarding_mx
+        description: "Date when the deal entered 'Churn' in MX onboarding."
+      - name: date_entered_downgrade_onboarding_ar
+        description: "Date when the deal entered 'Downgrade' in AR onboarding."
+      - name: date_entered_downgrade_onboarding_br
+        description: "Date when the deal entered 'Downgrade' in BR onboarding."
+      - name: date_entered_downgrade_onboarding_mx
+        description: "Date when the deal entered 'Downgrade' in MX onboarding."
+      - name: deadline_goal
+        description: "Target onboarding deadline value as a label (e.g., '30 days')."
+      - name: forecast
+        description: "HubSpot forecast category (e.g., Closed Won, Firm, Risk, Upside)."
+      - name: delay_reason
+        description: "Reason for delay when applicable."
+      - name: need_professional_services
+        description: "Whether professional services are required for onboarding (raw value)."
+      - name: type_of_onboarding
+        description: "Type/category of onboarding process (raw value)."
+      - name: payment_method_actual_operation
+        description: "Payment method currently used in operation (raw value)."
+      - name: shipping_method_actual_operation
+        description: "Shipping method currently used in operation (raw value)."
+      - name: erp
+        description: "ERP used by the merchant (raw value)."
+      - name: e_commerce
+        description: "E-commerce platform integration detail (raw value)."
+      - name: where_did_the_lead_came_from_
+        description: "Lead acquisition channel as recorded in HubSpot (raw value)."
+      - name: cidade_territorio_sales
+        description: "City and state/territory label used by Sales."
+      - name: vertical
+        description: "Business vertical/category of the merchant."
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model. Preserved from previous loads for existing records."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model. Defaults to 'data-dev-dbt-products'."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
+        tests:
+          - not_null
