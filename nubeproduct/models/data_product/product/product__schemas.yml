@@ -1594,3 +1594,70 @@ models:
         description: system or user that last updated the row in this model
         tests:
           - not_null
+  
+  - name: s__catalog__stock_transfers__event
+    description: "Contains information about stock transfers for each store."
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: id
+        description: "Unique identifier for the stock transfer."
+        tests:
+          - not_null
+          - unique
+      - name: store_id
+        description: "Store id of the stock transfer."
+        tests:
+          - not_null
+      - name: domain
+        description: "Domain of the store."
+      - name: country
+        description: "Country of the store."
+      - name: current_segment
+        description: "Current segment of the store."
+      - name: state
+        description: the state of the merchant. State_Ok > 0 it is not a trial and we are receiving the payments as expected - awaiting_payment > 1 during the first 10 days after the contract expires - admin_down > 2 from day 10 to day 20 after the contract is expired, admin is blocked (but the store is still live) - store_down > 3 the store is blocked from day 20, we consider it as a churn - state_test > 4 a store created as a test by someone from our company, it is not a trial - state_in_development > 5 stores created via Partners Portal while they are being set up.
+      - name:  plan
+        description: "Group of the plan of the store."
+      - name: location_id
+        description: "Location id of the stock transfer."
+      - name: location_created_at
+        description: "Date when the location was created."
+      - name: location_deleted_at
+        description: "Date when the location was deleted."
+      - name: location_destination_id
+        description: "Location destination id of the stock transfer."
+      - name: location_destination_created_at
+        description: "Date when the location destination was created."
+      - name: location_destination_deleted_at
+        description: "Date when the location destination was deleted."
+      - name: transfer_mode
+        description: "Mode of the stock transfer. 'REMOVE' means the CD was getting deleted and the merchant chose to have the stock from that CD deleted as well, 'TRANSFER ALL' means that the complete stock from one CD should be moved to another CD (location_destination_id), 'TRANSFER SOME' means that parts of the stock from one CD should be moved to another CD (location_destination_id)"
+      - name: status
+        description: "Status of the stock transfer."
+      - name: extra_info
+        description: "Extra information of the stock transfer."
+      - name: created_at
+        description: "Date when the stock transfer was created."
+      - name: products_to_transfer
+        description: "Number of products to transfer."
+      - name: products_transferred
+        description: "Number of products transferred."
+      - name:  variants_to_transfer
+        description: "Number of variants to transfer."
+      - name: variants_transferred
+        description: "Number of variants transferred."
+      - name:  quantity_to_transfer
+        description: "Quantity to transfer."
+      - name:  tranferred_quantity_done
+        description: "Quantity done transferred."
+      - name: sys_audit_created_by
+        description: "System or user that created the row in this model."
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this model."
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row in this model."
+
