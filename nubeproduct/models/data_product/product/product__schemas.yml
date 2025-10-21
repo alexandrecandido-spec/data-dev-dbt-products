@@ -1788,3 +1788,48 @@ models:
       - name: sys_audit_updated_by
         description: "System or user that last updated the row in this model."
 
+  
+  - name: g__platform__app_orders__agg_daily
+    description: >
+      Contains a summary by day, store and app of the orders placed only by payments and shipping apps.
+    config:
+      meta:
+        owner: "fernando.martinez@tiendanube.com"
+        domain: "product"
+        business_owner: "Nicolas Loreti"
+    columns:
+      - name: date_store_app_name
+        description: unique key for the date, store and app
+        tests:
+          - not_null
+          - unique
+      - name: registered_date
+        description: date when the order was registered
+        tests:
+          - not_null
+      - name: store_id
+        description: store id
+        tests:
+          - not_null
+      - name: app_name
+        description: name of the app
+      - name: app_category
+        description: category of the app
+      - name: app_id
+        description: id of the app
+        tests:
+          - not_null
+      - name: total_orders
+        description: total number of orders
+      - name: total_gmv_local_currency
+        description: total GMV in local currency
+      - name: total_gmv_usd
+        description: total GMV in USD
+      - name: sys_audit_created_on
+        description: timestamp when the row was originally created in this model
+      - name: sys_audit_created_by
+        description: system or user that created the row in this model
+      - name: sys_audit_updated_on
+        description: timestamp when the row was last updated in this model
+      - name: sys_audit_updated_by
+        description: system or user that last updated the row in this model
