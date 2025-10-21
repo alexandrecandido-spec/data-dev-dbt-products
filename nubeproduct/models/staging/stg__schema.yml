@@ -1211,12 +1211,12 @@ models:
         description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
         
 
-  - name: onboarding__preference_types
+  - name: product__onboarding__store_preference_types
     description: "Staging model that contains store id, the sales channels chosen during the pre onboarding questionnaire and the creation date of stores created in the past 12 months."
     config:
       meta:
         owner: "ynara.oliveira@nuvemshop.com.br"
-        domain: "growth"
+        domain: "product"
         business_owner: "Francisco Ramirez"
     columns:
       - name: store_id
