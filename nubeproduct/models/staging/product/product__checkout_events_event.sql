@@ -16,7 +16,11 @@ SELECT
     store_id,
     MIN(timestamp) AS new_first_event_timestamp,
     MAX(timestamp) AS new_last_event_timestamp,
-    CAST(MIN(timestamp) AS DATE) AS base_date
+    CAST(MIN(timestamp) AS DATE) AS base_date,
+    CURRENT_TIMESTAMP AS new_sys_audit_created_on,
+    'data-dev-dbt-products' AS new_sys_audit_created_by,
+    CURRENT_TIMESTAMP AS new_sys_audit_updated_on,
+    'data-dev-dbt-products' AS new_sys_audit_updated_by
 FROM 
     {{ source('stg_storefronts', 'events') }} ev 
 WHERE 
@@ -55,7 +59,11 @@ GROUP BY 1, 2, 3
         cart_id,
         event,
         first_event_timestamp,
-        last_event_timestamp
+        last_event_timestamp,
+        sys_audit_created_on,
+        sys_audit_created_by,
+        sys_audit_updated_on,
+        sys_audit_updated_by
     FROM
         {{ this }}
 )
@@ -74,11 +82,19 @@ SELECT
     {% if is_incremental() %}
         COALESCE(T2.first_event_timestamp, T1.new_first_event_timestamp) AS first_event_timestamp,
         coalesce(T1.new_last_event_timestamp, T2.last_event_timestamp) AS last_event_timestamp,
-        CAST(COALESCE(T2.first_event_timestamp, T1.new_first_event_timestamp) AS DATE) AS base_date
+        CAST(COALESCE(T2.first_event_timestamp, T1.new_first_event_timestamp) AS DATE) AS base_date,
+        T2.sys_audit_created_on,
+        T2.sys_audit_created_by,
+        T1.new_sys_audit_updated_on as sys_audit_updated_on,
+        T1.new_sys_audit_updated_by as sys_audit_updated_by
     {% else %}
         T1.new_first_event_timestamp AS first_event_timestamp,
         T1.new_last_event_timestamp AS last_event_timestamp,
-        cast(T1.new_first_event_timestamp as date) AS base_date
+        cast(T1.new_first_event_timestamp as date) AS base_date,
+        T1.new_sys_audit_created_on as sys_audit_created_on,
+        T1.new_sys_audit_created_by as sys_audit_created_by,
+        T1.new_sys_audit_updated_on as sys_audit_updated_on,
+        T1.new_sys_audit_updated_by as sys_audit_updated_by
     {% endif %}
 
 FROM 
