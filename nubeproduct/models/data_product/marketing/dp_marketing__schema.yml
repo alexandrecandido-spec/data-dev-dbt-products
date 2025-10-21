@@ -1741,7 +1741,7 @@ models:
         tests: [not_null]
 
 
-  - name: marketing_gmv_by_mkt_source
+  - name: g__general__gmv_by_mkt_source__agg_daily
     description: "Daily GMV metrics by marketing source combining store performance data with marketing attribution and segment information for comprehensive performance analysis"
     config:
       meta:
