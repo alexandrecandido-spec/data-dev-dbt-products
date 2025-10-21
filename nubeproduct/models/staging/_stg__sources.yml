@@ -45,6 +45,12 @@ sources:
       - name: wp_users
       - name: mwp_apps
         description: "Contains information about apps installed by merchants"
+      - name: mwp_zipcodes_ar
+        description: "Table with zipcodes from Argentina."
+      - name: mwp_zipcodes_mx
+        description: "Table with zipcodes from Mexico."
+      - name: ceps
+        description: "Table with zipcodes from Brazil."
 
 
   - name: stg_orders
@@ -312,3 +318,12 @@ sources:
         description: "Contains all product variants metafields"
       - name: metafield_products
         description: "Contains all products metafields"
+  
+  - name: stg_data_manual
+    database: hive_metastore
+    schema: "{{ 'testing_manual' if target.name == 'dev' else 'data_manual' }}"
+    tables:
+      - name: operations__grouping_plans_aux
+      - name: dimensions__segment_type
+      - name: dimensions__region
+      - name: logistics__shipping_classification
