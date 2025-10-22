@@ -61,21 +61,22 @@ SELECT
     , ss.created_at
     , ss.domain
     , ss.country_code
-    , li.country_name
-    , li.region_name
-    , li.state_name
-    , li.city_name
+    , dc.country_name
+    , COALESCE(li.region_name, 'not informed') as region_name
+    , COALESCE(li.state_name, 'not informed') as state_name
+    , COALESCE(li.city_name, 'not informed') as city_name
     , ss.currency
     , ss.device
     , ss.register_url
     , ss.partner_id
     , ss.partnership_type
     , pi.partner_code
-    , vi.vertical_name
-    , bs.business_size_name
+    , COALESCE(vi.vertical_name, 'not informed') as vertical_name
+    , COALESCE(bs.business_size_name, 'not informed') as business_size_name
     , greatest(ss.sys_audit_updated_on, li.sys_audit_updated_on, vi.sys_audit_updated_on, bs.sys_audit_updated_on, pi.sys_audit_updated_on) as change_timestamp
 FROM store_source ss 
 LEFT JOIN location_info li ON ss.store_id = li.store_id
 LEFT JOIN vertical_info vi ON ss.store_id = vi.store_id
 LEFT JOIN business_size_info bs ON ss.store_id = bs.store_id
 LEFT JOIN partner_info pi ON ss.partner_id = pi.partner_id
+LEFT JOIN {{ ref('dimension__attributes__location_country__ref') }} dc ON ss.country_code = dc.country_code

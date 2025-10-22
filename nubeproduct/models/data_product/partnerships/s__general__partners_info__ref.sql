@@ -22,8 +22,8 @@ trial_info as (
 source_data AS (
     SELECT 
     PI.*
-    ,TI.has_store_dev_trial
-    ,TI.has_affiliates_trial
+    ,COALESCE(TI.has_store_dev_trial, 0) as has_store_dev_trial
+    ,COALESCE(TI.has_affiliates_trial, 0) as has_affiliates_trial
     FROM {{ ref('_int_partnerships__partners_info') }} AS PI
     LEFT JOIN trial_info AS TI ON PI.partner_id = TI.partner_id
     WHERE

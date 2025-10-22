@@ -1,6 +1,6 @@
 version: 2
 models:
-  - name: merchant__attributes__store_core__ref
+  - name: s__attributes__store_core__ref
     description: "Data Product silver that contains the core attributes of each store."
     config:
       meta:

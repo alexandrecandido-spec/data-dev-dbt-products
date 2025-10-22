@@ -103,7 +103,7 @@ LEFT JOIN (
     SELECT DISTINCT
         country_id,
         country_code
-    FROM {{ ref('dim_location_country') }}
+    FROM {{ ref('dimension__attributes__location_country__ref') }}
 ) AS MC
     ON MP.partner_country_id = MC.country_id
 
