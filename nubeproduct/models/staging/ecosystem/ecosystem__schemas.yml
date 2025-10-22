@@ -1,0 +1,152 @@
+version: 2
+models:
+
+  - name: product__ecosystem__apps__scd
+    description: "Staging model that contains information about the apps in the ecosystem."
+    config:
+      meta:
+        owner: "fernando.martinez@tiendanube.com"
+        domain: "product"
+        business_owner: "Nicolas Loreti"
+    columns:
+      - name: unique_app_country_code
+        description: "Unique identifier of the app and country."
+        tests:
+          - not_null
+          - unique
+      - name: app_id
+        description: "Unique identifier of the app."
+        tests:
+          - not_null
+      - name: partner_id
+        description: "Unique identifier of the partner."
+      - name: app_name
+        description: "Name of the app."
+      - name: app_category
+        description: "Category of the app."
+      - name: app_creation_date
+        description: "Date when the app was created."
+        tests:
+          - not_null
+      - name: app_published_date
+        description: "Date when the app was published."
+      - name: app_deleted_date
+        description: "Date when the app was deleted."
+      - name: month_creation_date
+        description: "Month when the app was created."
+      - name: is_app_published
+        description: "Flag indicating if the app is published."
+      - name: app_published_country
+        description: "Country code of the app."
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model. Preserved from previous loads for existing records."
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model. Defaults to 'data-dev-dbt-products'."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed."
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
+
+
+  - name: product__ecosystem__tech_partner__scd
+    description: "Staging model that contains information about the tech partners in the ecosystem."
+    config:
+      meta:
+        owner: "fernando.martinez@tiendanube.com"
+        domain: "product"
+        business_owner: "Nicolas Loreti"
+    columns:
+      - name: unique_partner_country_code
+        description: "Unique identifier of the partner and country."
+        tests:
+          - not_null
+          - unique
+      - name: partner_id
+        description: "Unique identifier of the partner."
+        tests:
+          - not_null
+      - name: partner_name
+        description: "Name of the partner."
+        tests:
+          - not_null
+      - name: partner_type
+        description: "Type of the partner."
+      - name: email
+        description: "Email of the partner."
+      - name: country
+        description: "Country of the partner."
+      - name: country_code
+        description: "Country code of the partner."
+      - name: phone_number
+        description: "Phone number of the partner."
+      - name: website
+        description: "Website of the partner."
+      - name: description
+        description: "Description of the partner."
+      - name: partner_creation_date
+        description: "Date when the partner was created."
+        tests:
+          - not_null
+      - name: partner_type
+        description: "Type of the partner."
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model. Preserved from previous loads for existing records."
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model. Defaults to 'data-dev-dbt-products'."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed."
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
+
+
+  - name: partnerships__general__partners__ref
+    description: "Contains basic information about partners including identification, contact details, and audit metadata."
+    config:
+      meta:
+        owner: "yan.santos@nuvemshop.com.br"
+        domain: "partnerships"
+        business_owner: "Giselle Galli"
+    columns:
+      - name: partner_id
+        description: "Unique identifier of the partner."
+        tests:
+          - not_null
+          - unique
+      - name: partner_code
+        description: "Code assigned to the partner."
+        tests:
+          - not_null
+      - name: partner_name
+        description: "Name of the partner."
+        tests:
+          - not_null
+      - name: partner_country_id
+        description: "Country identifier where the partner operates."
+        tests:
+          - not_null
+      - name: partner_created_at
+        description: "Date and time when the partner was created."
+        tests:
+          - not_null
+      - name: partner_email
+        description: "Email address of the partner."
+        tests:
+          - not_null
+      - name: partner_phone_number
+        description: "Phone number of the partner."
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "System or user that created the row."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this table."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row."
+        tests:
+          - not_null
