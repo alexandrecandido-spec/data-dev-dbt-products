@@ -49,6 +49,16 @@ select
     date_variants_metafield_count,
     date_variants_metafield_assigned_count,
     unknown_variants_metafield_count,
+    variants_with_metafield_assigned_count,
+    (text_list_variants_metafield_count+
+    text_variants_metafield_count+
+    numeric_variants_metafield_count+
+    date_variants_metafield_count+
+    unknown_variants_metafield_count) as total_variants_metafields_count,
+    (text_list_variants_metafield_assigned_count+
+    text_variants_metafield_assigned_count+
+    numeric_variants_metafield_assigned_count+
+    date_variants_metafield_assigned_count) as total_variants_metafields_assigned_count,
     text_list_products_metafield_count,
     text_list_products_metafield_assigned_count,
     text_products_metafield_count,
@@ -58,6 +68,16 @@ select
     date_products_metafield_count,
     date_products_metafield_assigned_count,
     unknown_products_metafield_count,
+    products_with_metafield_assigned_count,
+    (text_list_products_metafield_count+
+    text_products_metafield_count+
+    numeric_products_metafield_count+
+    date_products_metafield_count+
+    unknown_products_metafield_count) as total_products_metafields_count,
+    (text_list_products_metafield_assigned_count+
+    text_products_metafield_assigned_count+
+    numeric_products_metafield_assigned_count+
+    date_products_metafield_assigned_count) as total_products_metafields_assigned_count,
     created_at,
     churned_at,
     current_timestamp AS sys_audit_created_on,

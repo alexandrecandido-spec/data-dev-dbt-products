@@ -64,3 +64,11 @@ dag = create_dbt_dag(
     default_args=default_args,
     tags=['product','daily-9am-9pm']
 )
+
+# Crear el DAG frecuencia semanal lunes 9am
+dag = create_dbt_dag(
+    dag_id='dbt_product_weekly-monday-9am',
+    schedule_interval_tag='weekly-monday-9am',
+    default_args=default_args,
+    tags=['product', 'weekly-monday-9am']
+)
