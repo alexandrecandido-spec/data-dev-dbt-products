@@ -93,3 +93,81 @@ models:
         tests:
           - not_null
 
+  - name: s__general__partners_commissions__event
+    config:
+      meta:
+        owner: "felipe.lorenzo@tiendanube.com.br"
+        domain: "partnerships"
+        business_owner: "Franco Tiberti"
+    description: >
+      Contains information about the commissions of the partners.
+    columns:
+      - name: commission_id
+        description: "Unique identifier of the commission."
+        tests:
+          - not_null
+          - unique
+      - name: partner_id
+        description: "Identifier of the partner who earned the commission."
+        tests:
+          - not_null
+      - name: store_id
+        description: "Identifier of the store associated with the commission."
+      - name: plan_id
+        description: "Identifier of the plan associated with the commission."
+      - name: partner_ledger_entry_type_id
+        description: "Type of partner ledger entry determining commission category."
+        tests:
+          - not_null
+      - name: transaction_type
+        description: "Type of transaction (Deposit or Withdrawal)."
+        tests:
+          - not_null
+      - name: commission_type
+        description: "Category of commission (affiliates, store_development, apps, or Withdrawal)."
+        tests:
+          - not_null
+      - name: commission_amount
+        description: "Amount of the commission in partner currency."
+        tests:
+          - not_null
+      - name: partner_commission_percentage
+        description: "Percentage rate applied to calculate the partner commission."
+      - name: plan_value
+        description: "Value of the plan associated with the commission."
+      - name: partner_currency
+        description: "Currency code for the partner payout."
+        tests:
+          - not_null
+      - name: store_currency
+        description: "Original currency code of the store transaction."
+        tests:
+          - not_null
+      - name: currency_exchange_rate
+        description: "Exchange rate used to convert from store to partner currency."
+      - name: commission_status
+        description: "Current status of the commission payment."
+        tests:
+          - not_null
+      - name: commission_created_date
+        description: "Date when the commission was created."
+        tests:
+          - not_null
+      - name: commission_paid_date
+        description: "Date when the commission was paid to the partner."
+      - name: sys_audit_created_by
+        description: "System or user that created the row."
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this table."
+        tests:
+          - not_null
