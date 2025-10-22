@@ -281,6 +281,31 @@ commands:
             cd << parameters.dp-dbt-project-location >>
             dbt deps
       - run:
+          name: Backup seeds/ (si existen)
+          command: |
+            set -euo pipefail
+            if [ -z "${NUBEPRODUCT_ARTIFACTS_BUCKET:-}" ]; then
+              echo "Error: NUBEPRODUCT_ARTIFACTS_BUCKET no está seteada"
+              exit 1
+            fi
+
+            BUCKET="$NUBEPRODUCT_ARTIFACTS_BUCKET"
+            SRC="s3://$BUCKET/dags/dbt/nubeproduct/seeds/"
+            # Usamos workflow id para un prefijo único por ejecución
+            BCK="s3://$BUCKET/_backups/seeds/${CIRCLE_WORKFLOW_ID:-manual}/"
+
+            # Guardamos el prefijo en el entorno para re-uso
+            echo "export SEEDS_BACKUP_PREFIX=\"$BCK\"" >> "$BASH_ENV"
+            source "$BASH_ENV"
+
+            # Solo si existen seeds en S3
+            if aws s3 ls "$SRC" >/dev/null 2>&1; then
+              echo "Backupeando seeds desde $SRC a $SEEDS_BACKUP_PREFIX ..."
+              aws s3 sync "$SRC" "$SEEDS_BACKUP_PREFIX" --delete
+            else
+              echo "No se encontraron seeds en $SRC; no se hace backup"
+            fi
+      - run:
           name: Deploy Data Product Project to Artifacts Bucket
           command: |
             # Ensure the bucket variable is set
@@ -294,6 +319,31 @@ commands:
             aws s3 sync \
                 << parameters.dp-dbt-project-location >> s3://$NUBEPRODUCT_ARTIFACTS_BUCKET/dags/dbt/nubeproduct \
                 --cache-control "max-age=86400"
+      - run:
+          name: Restore seeds/ (si hubo backup)
+          command: |
+            set -euo pipefail
+            source "$BASH_ENV"
+            BUCKET="$NUBEPRODUCT_ARTIFACTS_BUCKET"
+            DEST="s3://$BUCKET/dags/dbt/nubeproduct/seeds/"
+
+            if [ -n "${SEEDS_BACKUP_PREFIX:-}" ] && aws s3 ls "$SEEDS_BACKUP_PREFIX" >/dev/null 2>&1; then
+              echo "Restaurando seeds desde $SEEDS_BACKUP_PREFIX a $DEST ..."
+              aws s3 sync "$SEEDS_BACKUP_PREFIX" "$DEST"
+            else
+              echo "No hay backup de seeds para restaurar"
+            fi
+
+      - run:
+          name: Cleanup backup de seeds/ (opcional)
+          command: |
+            set -euo pipefail
+            source "$BASH_ENV"
+            if [ -n "${SEEDS_BACKUP_PREFIX:-}" ]; then
+              echo "Eliminando backup temporal en $SEEDS_BACKUP_PREFIX ..."
+              aws s3 rm "$SEEDS_BACKUP_PREFIX" --recursive || true
+            fi
+
   check_if_pr:
     steps:
       - run:
