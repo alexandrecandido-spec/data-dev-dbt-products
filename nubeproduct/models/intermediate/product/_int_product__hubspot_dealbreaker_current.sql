@@ -1,5 +1,6 @@
 SELECT
-	d.dealbreaker_id,
+
+    d.dealbreaker_id,
     d.is_archived,
     d.record_created_at,
     d.record_updated_at,
@@ -25,14 +26,17 @@ SELECT
     d.all_owners_ids,
     d.owner_assigned_at,
     d.brands,
-    d.record_closed_at,
     GREATEST(
         COALESCE(d.sys_audit_updated_on, CAST('1900-01-01' AS TIMESTAMP)),
-        COALESCE(dca.sys_audit_updated_on, CAST('1900-01-01' AS TIMESTAMP)),
+        COALESCE(da.sys_audit_updated_on, CAST('1900-01-01' AS TIMESTAMP)),
+        COALESCE(dc.sys_audit_updated_on, CAST('1900-01-01' AS TIMESTAMP)),
         COALESCE(c.sys_audit_updated_on, CAST('1900-01-01' AS TIMESTAMP))
     ) AS sys_audit_updated_on
-FROM {{ ref('product__general__dealbreaker__scd') }} d
-LEFT JOIN {{ ref('product__general__dealbreaker_company__link') }} dca
-    ON d.dealbreaker_id = dca.dealbreaker_id
-LEFT JOIN {{ ref('product__general__company__scd') }} c
-    ON dca.company_id = c.company_id
+
+FROM {{ ref('product__general__hubspot_dealbreaker__event') }} d
+JOIN {{ ref('product__general__hubspot_dealbreaker_current__snapshot_daily') }} da
+    ON d.dealbreaker_id = da.dealbreaker_id
+JOIN {{ ref('product__general__hubspot_dealbreaker_company__link') }} dc
+    ON d.dealbreaker_id = dc.dealbreaker_id
+JOIN {{ ref('product__general__hubspot_company__event') }} c
+    ON dc.company_id = c.company_id
