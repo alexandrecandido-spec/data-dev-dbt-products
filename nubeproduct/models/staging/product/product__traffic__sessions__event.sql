@@ -32,12 +32,12 @@ WHERE
     {% if not is_incremental() %}
     TO_DATE(date_id, 'yyyyMMdd') BETWEEN DATE('2024-01-01') AND DATE('2024-01-05')
     {% else %}
-    TO_DATE(date_id, 'yyyyMMdd') {{ get_max_date(this, 'base_date', 2, 'month') }}
+    TO_DATE(date_id, 'yyyyMMdd') {{ get_max_date(this, 'base_date', 1, 'month') }}
     {% endif %}
 )
 
 , existing_data AS (
-    {{ get_existing_data(this, ['unique_session_key', 'sys_audit_created_on', 'sys_audit_created_by'])}}
+    {{ get_existing_data(this, ['unique_session_key'])}}
 )
 
 SELECT
@@ -59,8 +59,8 @@ SELECT
     , raw_sessions.utm_content
     , raw_sessions.landing_page
     , raw_sessions.http_referral
-    , COALESCE(existing_data.sys_audit_created_on, CURRENT_TIMESTAMP) AS sys_audit_created_on
-    , COALESCE(existing_data.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by
+    , CURRENT_TIMESTAMP AS sys_audit_created_on
+    , 'data-dev-dbt-products' AS sys_audit_created_by
     , CURRENT_TIMESTAMP AS sys_audit_updated_on
     , 'data-dev-dbt-products' AS sys_audit_updated_by
 FROM
@@ -68,3 +68,5 @@ FROM
 LEFT JOIN
     existing_data
     ON raw_sessions.unique_session_key = existing_data.unique_session_key
+WHERE
+    existing_data.unique_session_key IS NULL
