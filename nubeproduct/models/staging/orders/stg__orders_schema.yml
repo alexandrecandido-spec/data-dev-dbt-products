@@ -4,7 +4,7 @@ models:
     description: "All the orders in their different statuses"
     config:
       meta:
-        owner: "rodrigo.torres@tiendanube.com"
+        owner: "gustavo.braga@nuvemshop.com.br"
         domain: "finance"
         business_owner: "Nico Loreti"
     columns:
@@ -104,7 +104,7 @@ models:
     description: "Products associated with the order"
     config:
       meta:
-        owner: "rodrigo.torres@tiendanube.com"
+        owner: "gustavo.braga@nuvemshop.com.br"
         domain: "finance"
         business_owner: "Giselle Galli"
     columns:
