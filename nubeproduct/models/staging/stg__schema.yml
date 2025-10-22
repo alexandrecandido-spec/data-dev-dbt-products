@@ -2688,3 +2688,63 @@ models:
         description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
         tests:
           - not_null
+
+  - name: product__orders__fulfillment_orders__event
+    description: "Contains information about fulfillment orders within each order"
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: year_month_code
+        description: "Reference year and month. Used for partitioning."
+      - name: id
+        description: "Fulfillment order id"
+        tests: 
+          - not_null
+          - unique
+      - name: store_id
+        description: "Store unique identifier"
+        tests:
+          - not_null
+      - name: order_id
+        description: "Order unique identifier"
+        tests:
+          - not_null
+      - name: fulfillment_order_id
+        tests:
+          - not_null
+        description: "Fulfillment order unique identifier"
+      - name: number
+        description: "Fulfillment order number within the order"
+      - name: location_id
+        description: "CDs id the fulfillment order extracts stock from"
+      - name: location_name
+        description: "CDs name"
+      - name: shippable
+        description: "Whether the products within the fulfillment order are shippable"
+      - name: carrier_name
+        description: "Carrier name"
+      - name: option_name
+        description: "Option name within the selected carrier"
+      - name: shipping_type
+        description: "The way the products will get to the customer. 'non-shippable' refers to digital products while 'pickup' can be in-store pickup or carrier pickup (depending on the shippable value). 'ship' would be for fully delivered products"
+      - name: status
+        description: "Status for the fulfillment order (unpacked, fulfilled, etc.)"
+      - name: tracking_code
+        description: "Tracking code"
+      - name: line_items
+        description: "Contains details on the variant ids and quantities included in the fulfillment order"
+      - name: created_at
+        description: "Fulfillment order created at"
+      - name: updated_at
+        description: "Fulfillment order updated at"
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first inserted into this table."
+      - name: sys_audit_created_by
+        description: "User or process that first inserted the record."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the most recent update to the record."
+      - name: sys_audit_updated_by
+        description: "User or process that performed the last update."

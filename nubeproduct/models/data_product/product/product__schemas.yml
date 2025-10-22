@@ -1762,6 +1762,54 @@ models:
         tests:
           - not_null
 
+  - name: s__orders__orders_broken_orders__event
+    description: "Contains information about broken orders"
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - store_id
+            - order_id
+            - issue_type
+    columns:
+      - name: store_id
+        description: "Store id of the order"
+        tests:
+          - not_null
+      - name: domain
+        description: "Domain of the merchant"
+      - name: order_id
+        description: "Order id of the order"
+      - name: contact_email
+        description: "Contact email of the order"
+      - name: created_at
+        description: "Timestamp when the order was created"
+      - name: completed_at
+        description: "Timestamp when the order was completed"
+      - name: payment_status
+        description: "Payment status of the order"
+      - name: order_status
+        description: "Status of the order"
+      - name: storefront
+        description: "Storefront of the order"
+      - name: country
+        description: "Country of the order"
+      - name: current_segment
+        description: "Current segment of the order"
+      - name: issue_type
+        description: "Issue type of the order"
+      - name: sys_audit_created_on
+        description: "Timestamp when the order was created"
+      - name: sys_audit_created_by
+        description: "User who created the order"
+      - name: sys_audit_updated_on
+        description: "Timestamp when the order was last updated"
+      - name: sys_audit_updated_by
+        description: "User who last updated the order"
 
   - name: s__traffic__session__event
     description: >
@@ -1859,7 +1907,6 @@ models:
       description: "System or user that last updated the row in this model."
       tests:
         - not_null
-
 
   - name: s__onboarding__preference_types__ref
     description: Table containing the sales channel chosen by the merchant. 
@@ -2005,4 +2052,3 @@ models:
         description: timestamp when the row was last updated in this model
       - name: sys_audit_updated_by
         description: system or user that last updated the row in this model
-

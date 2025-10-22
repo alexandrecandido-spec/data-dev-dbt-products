@@ -68,6 +68,8 @@ sources:
         description: "Deleted regs of products associated with an order."
       - name: mwp_orders_b2b
         description: "Orders generated through the B2B solution."
+      - name: mwp_orders_fulfillments
+        description: "Fulfillments associated with an order."
 
 
   - name: stg_nuvem_credito
