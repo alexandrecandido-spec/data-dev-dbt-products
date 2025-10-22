@@ -1772,12 +1772,6 @@ models:
         description: "Local currency of the store's country"
       - name: platform_type
         description: "Platform type where the transaction occurred"
-      - name: gmv
-        description: "Gross merchandise value in local currency"
-      - name: product_quantity
-        description: "Total quantity of products in the order"
-      - name: orders_quantity
-        description: "Number of distinct orders"
       - name: country
         description: "Country code of the store"
       - name: partner_code
@@ -1809,13 +1803,13 @@ models:
       - name: historical_segment
         description: "Historical segment classification of the store"
       - name: gmv
-        description: "Gross merchandise value in local currency by store and date"
+        description: "Daily Gross merchandise value in local currency"
       - name: gmv_usd
-        description: "Gross merchandise value in USD by store and date"
+        description: "Daily Gross merchandise value in USD"
       - name: product_quantity
-        description: "Total quantity of products in the order by store and date"
+        description: "Daily total quantity of products in the order"
       - name: orders_quantity
-        description: "Number of distinct orders by store and date"
+        description: "Daily Number of distinct orders"
       - name: sys_audit_created_on
         description: "Timestamp when this record was created in the DWH"
         tests: [not_null]
