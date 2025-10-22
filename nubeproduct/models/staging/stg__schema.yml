@@ -1268,6 +1268,8 @@ models:
       Includes normalization of UTM parameters, referrer, and creation of a
       technical unique key for incremental loading. Serves as the clean base
       for downstream traffic and attribution analysis.
+      Full documentation available at:
+      https://www.notion.so/Staging-product__traffic__sessions__event-28c85d24ee8f807c9a9ddf58ec72c299
     config:
       meta:
         owner: "barbara.marques@nuvemshop.com.br"
