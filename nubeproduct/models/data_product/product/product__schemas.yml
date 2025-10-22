@@ -2006,7 +2006,7 @@ models:
       - name: sys_audit_updated_by
         description: system or user that last updated the row in this model
 
-  - name: s__onboarding__store_preferences__event
+  - name: s__onboarding__store_preferences__ref
     description: "This table consolidates all responses provided by the merchant throughout the pre-onboarding phase. It includes the answers given in the questionnaire."
     config:
       meta:
