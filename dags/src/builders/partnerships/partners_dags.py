@@ -8,29 +8,26 @@ from functools import partial
 
 SLACK_IDS= ast.literal_eval(Variable.get('slack_ids_analytics_engineer_alert'))
 
-
-
 default_args = {
-    'owner': 'Ynara Oliveira de Sousa',
+    'owner': 'yan.santos@nuvemshop.com.br',
     'depends_on_past': False,
-    'start_date': datetime(2025, 9, 16),
+    'start_date': datetime(2025, 10, 20),
     'email_on_failure': False,
     'email_on_retry': False,
     'on_failure_callback': partial(task_fail_slack_alert_bi,slack_ids=SLACK_IDS)
-
 }
 
-# Crear el DAG frecuencia diaria
+# Crear el DAG frecuencia diaria 10am
 dag = create_dbt_dag(
-    dag_id='dbt_onboarding_daily-8am',
-    schedule_interval_tag='daily-8am',
+    dag_id='dbt_partnerships_daily-7am',
+    schedule_interval_tag='daily-7am',
     default_args=default_args,
-    tags=['onboarding','daily-8am']
+    tags=['partnerships', 'daily-7am']
 )
 
 dag = create_dbt_dag(
-    dag_id='dbt_onboarding_daily-8_30am',
-    schedule_interval_tag='daily-8_30am',
+    dag_id='dbt_partnerships_daily-6am',
+    schedule_interval_tag='daily-6am',
     default_args=default_args,
-    tags=['onboarding','daily-8_30am']
+    tags=['partnerships', 'daily-6am']
 )
