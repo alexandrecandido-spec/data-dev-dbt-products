@@ -575,6 +575,18 @@ models:
         description: the number of date products metafields assigned
       - name: unknown_products_metafield_count
         description: the number of non deleted unknown products metafields in the merchant's store
+      - name: products_with_metafield_assigned_count
+        description: the number of products with metafields assigned
+      - name: variants_with_metafield_assigned_count
+        description: the number of variants with metafields assigned
+      - name: total_products_metafields_count
+        description: the total number of products metafields in the merchant's store
+      - name: total_products_metafields_assigned_count
+        description: the total number of products metafields assigned in the merchant's store
+      - name: total_variants_metafields_count
+        description: the total number of variants metafields in the merchant's store
+      - name: total_variants_metafields_assigned_count
+        description: the total number of variants metafields assigned in the merchant's store
       - name: created_at
         description: the date when the merchant's store was created
       - name: churned_at
