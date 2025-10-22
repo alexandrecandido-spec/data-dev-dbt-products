@@ -79,6 +79,12 @@ models:
         +tags: ["support"]
       dimensions:
         +tags: ["dimensions"]
+      onboarding:
+        +tags: ["onboarding"]
+      merchant:
+        +tags: ["merchant"]
+      partnerships:
+        +tags: ["partnerships"]
 
     data_product:
       +materialized: table
@@ -130,6 +136,18 @@ models:
         +schema: dimensions
         +tags: ["dimensions"]
         +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/data_product/dimensions/"
+      onboarding:
+        +schema: onboarding
+        +tags: ["onboarding"]
+        +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/data_product/onboarding/"
+      merchant:
+        +schema: merchant
+        +tags: ["merchant"]
+        +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/data_product/merchant/"
+      partnerships:
+        +schema: partnerships
+        +tags: ["partnerships"]
+        +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/data_product/partnerships/"
       +post-hook:
        # testing_unity_{domain}, donde {domain} = this.schema (marketing, finance, etc.)
         - "CREATE TABLE IF NOT EXISTS {{ var('mirror_catalog') }}.{{ this.schema }}.{{ this.identifier }} USING DELTA LOCATION '{{ 

@@ -312,7 +312,7 @@ models:
         tests:
           - not_null
 
-  - name: s__onboarding__pipeline__event
+  - name: s__onboarding__pipeline__snapshot
     description: >
       Midmarket Onboarding pipeline data product. Consolidates staging deals with business logic (status mapping, country derivation) and time metrics.
     config:

@@ -48,6 +48,8 @@ select
     mf.date_products_metafield AS date_products_metafield_count,
     mf.date_products_metafield_assigned AS date_products_metafield_assigned_count,
     mf.unknown_products_metafield AS unknown_products_metafield_count,
+    mf.products_with_metafield_assigned_count,
+    mf.variants_with_metafield_assigned_count,
     CAST(msi.created_at AS DATE) AS created_at,
     CAST(msi.churned_at AS DATE) AS churned_at,
     GREATEST(
