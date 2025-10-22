@@ -1808,6 +1808,14 @@ models:
         description: "Total orders over 90-day period"
       - name: historical_segment
         description: "Historical segment classification of the store"
+      - name: gmv
+        description: "Gross merchandise value in local currency by store and date"
+      - name: gmv_usd
+        description: "Gross merchandise value in USD by store and date"
+      - name: product_quantity
+        description: "Total quantity of products in the order by store and date"
+      - name: orders_quantity
+        description: "Number of distinct orders by store and date"
       - name: sys_audit_created_on
         description: "Timestamp when this record was created in the DWH"
         tests: [not_null]
