@@ -2040,7 +2040,7 @@ models:
         tests:
           - not_null
           - accepted_values:
-            values: ['high', 'dealbreaker']
+              values: ['high', 'dealbreaker']
       - name: dealbreaker_start_date
         description: "Start date of the LAST dealbreaker period."
       - name: dealbreaker_close_date
