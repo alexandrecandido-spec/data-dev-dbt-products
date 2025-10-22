@@ -81,6 +81,8 @@ models:
         +tags: ["dimensions"]
       onboarding:
         +tags: ["onboarding"]
+      merchant:
+        +tags: ["merchant"]
       partnerships:
         +tags: ["partnerships"]
 
@@ -138,6 +140,10 @@ models:
         +schema: onboarding
         +tags: ["onboarding"]
         +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/data_product/onboarding/"
+      merchant:
+        +schema: merchant
+        +tags: ["merchant"]
+        +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/data_product/merchant/"
       partnerships:
         +schema: partnerships
         +tags: ["partnerships"]

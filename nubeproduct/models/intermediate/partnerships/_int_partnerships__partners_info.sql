@@ -74,7 +74,8 @@ SELECT
         PU.sys_audit_updated_on, 
         PE.sys_audit_updated_on, 
         PF.sys_audit_updated_on, 
-        PS.sys_audit_updated_on
+        PS.sys_audit_updated_on,
+        MP.sys_audit_updated_on
     ) AS change_timestamp,
 
     -- Fonte dos inputs
@@ -97,12 +98,12 @@ SELECT
         ELSE 'Long Tail'
     END AS affiliate_classification
 
-FROM {{ ref('s__partnerships__general__partners__ref') }} AS MP
+FROM {{ ref('partnerships__general__partners__ref') }} AS MP
 LEFT JOIN (
     SELECT DISTINCT
         country_id,
         country_code
-    FROM {{ ref('dim_location_country') }}
+    FROM {{ ref('dimension__attributes__location_country__ref') }}
 ) AS MC
     ON MP.partner_country_id = MC.country_id
 

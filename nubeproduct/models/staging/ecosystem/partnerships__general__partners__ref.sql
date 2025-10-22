@@ -7,7 +7,7 @@
 ) }}
 
 WITH existing_data AS (
-    {{ get_existing_data(this, ['id', 'sys_audit_created_on', 'sys_audit_created_by']) }}
+    {{ get_existing_data(this, ['partner_id', 'sys_audit_created_on', 'sys_audit_created_by']) }}
 )
 
 SELECT 
@@ -23,9 +23,9 @@ SELECT
     COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by,
     current_timestamp AS sys_audit_updated_on,
     'data-dev-dbt-products' AS sys_audit_updated_by
-FROM {{ source('int_ecosystem', 'mwp_partners') }} AS s
+FROM {{ source('stg_ecosystem', 'mwp_partners') }} AS s
 LEFT JOIN existing_data e
-    ON s.id = e.id
+    ON s.id = e.partner_id
     {% if is_incremental() %}
         AND s.sys_audit_updated_on >= (
             SELECT COALESCE(MAX(sys_audit_updated_on), TIMESTAMP '1900-01-01')

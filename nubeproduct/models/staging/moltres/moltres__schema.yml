@@ -1,0 +1,330 @@
+version: 2
+
+models:
+  - name: merchant__attributes__store_info__ref
+    description: "Staging model that contains data about each store, such as store ID, country, creation and churn dates and other attributes."
+    config:
+      meta:
+        owner: "ronald.corcho@tiendanube.com"
+        domain: "merchants"
+        business_owner: "Analytics Engineering"
+    columns:
+      - name: store_id
+        description: "Store identifier."
+        tests:
+          - unique
+          - not_null
+      - name: domain
+        description: "Custom store domain name created by the client."
+      - name: state
+        description: "Billing state of the store"
+        tests:
+          - not_null      
+      - name: country
+        description: "Country of the store."
+        tests:
+          - not_null
+      - name: currency
+        description: "Currency of the store."
+      - name: current_segment
+        description: "Current segment of the store."
+      - name: created_at
+        description: "Date when the store was created."
+        tests:
+          - not_null
+      - name: first_payment
+        description: "Date when the store made its first payment."
+      - name: churned_at
+        description: "Date when the store was churned."
+      - name: plan_id
+        description: "ID of the current plan associated with the store."
+      - name: paid_until
+        description: "Date when the store's paid subscription expires. Null if the store doesn't have a paid subscription."
+      - name: verified
+        description: "Code indicating the device used during store creation."
+      - name: register_url
+        description: "URL of the store's registration page."
+      - name: main_user_id
+        description: "Main user ID of the store."
+      - name: partner_id
+        description: "ID of the store's partner, if a partner was involved in the store's creation."
+      - name: partnership_type
+        description: "Type of partnership, if a partner was involved in the store's creation."
+      - name: disabled
+        description: "Timestamp when the store was disabled/cancelled."
+      - name: custom_theme
+        description: "Identifies the timestamp on which the store began using a custom theme (open FTP). If the field is blank, the store is using a default theme (closed FTP)."
+      - name: date_ref
+        description: "Date representing the end-of-day reference point for the snapshot record."
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model. Defaults to current_timestamp if not available."
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model. Defaults to 'data-dev-dbt-products'."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed."
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
+  
+
+  - name: moltres__contracts
+    description: "Staging model containing contracts created through plan subscription events."
+    config:
+      meta:
+        tech_steward: "renan.ferrari@nuvemshop.com.br"
+        domain: "finance"
+        business_owner: "Operations"
+    columns:
+      - name: id
+        description: "Unique contract identifier."
+        tests:
+          - not_null
+          - unique
+      - name: store_id
+        description: "Store identifier linked to the contract."
+        tests:
+          - not_null
+      - name: plan_id
+        description: "Plan identifier associated with the contract."
+      - name: created_at
+        description: "Timestamp when the contract entry was created."
+      - name: start_date
+        description: "Date when the contract started."
+      - name: end_date
+        description: "Date when the contract ended."
+      - name: type
+        description: "Type of contract event (e.g., freemium, change-plan)."
+      - name: total
+        description: "Total value of the contract."
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "System or user that created the row."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this table."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row."
+        tests:
+          - not_null
+  
+
+  - name: moltres__mwp_apps
+    description: "Contains information about apps installed by merchants (both official and not official)"
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: id
+        description: "Unique identifier for the app"
+        tests:
+          - not_null
+          - unique
+      - name: partner_id
+        description: "Unique identifier for the partner who built the app"
+      - name: official
+        description: "If the app is an official Nuvemshop app or a third party app"
+      - name: handle
+        description: "Handle of the app"
+      - name: category
+        description: "Category of the app"
+      - name: visits
+        description: "Number of visits to the app"
+      - name: installs
+        description: "Number of installs of the app"
+      - name: created_at
+        description: "Timestamp when the app was created"
+      - name: updated_at
+        description: "Timestamp when the app was last updated"
+      - name: deleted_at
+        description: "Timestamp when the app was deleted"
+      - name: published_at
+        description: "Timestamp when the app was published"
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first inserted into this table."
+      - name: sys_audit_created_by
+        description: "User or process that first inserted the record."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the most recent update to the record."
+      - name: sys_audit_updated_by
+        description: "User or process that performed the last update."
+  
+
+  - name: moltres__mwp_invoice_info
+    description: "Tax information for stores for invoice issuance."
+    config:
+      meta:
+        owner: "gustavo.oliveira@nuvemshop.com.br"
+        domain: "finance"
+        business_owner: "Mônica Orlando"
+    columns:
+      - name: store_id
+        description: "Store identifier"
+        tests: [not_null]
+      - name: id_type
+        description: "Identifier type (e.g., CPF, CNPJ)"
+      - name: id_number
+        description: "CPF/CNPJ number"
+      - name: business_name
+        description: "Company name or legal name"
+      - name: type
+        description: "Type of tax information"
+
+  
+  - name: moltres__mwp_store_info
+    description: "Staging model that contains data about each store, such as store ID, country, creation and churn dates and other attributes."
+    config:
+      meta:
+        owner: "rodrigo.torres@tiendanube.com"
+        domain: "finance"
+        business_owner: "Analytics Engineering"
+    columns:
+      - name: store_id
+        description: "Store identifier."
+        tests:
+          - unique
+          - not_null
+      - name: country
+        description: "Country of the store."
+      - name: current_segment
+        description: "Current segment of the store."
+      - name: churned_at
+        description: "Date when the store was churned."
+      - name: first_payment
+        description: "Date when the store made its first payment."
+      - name: state
+        description: "Billing state of the store"
+        tests:
+          - not_null
+      - name: created_at
+        description: "Date when the store was created."
+        tests:
+          - not_null
+      - name: currency
+        description: "Currency of the store."
+      - name: plan
+        description: "Current plan of the store."
+      - name: verified
+        description: "Code indicating the device used during store creation."
+      - name: register_url
+        description: "URL of the store's registration page."
+      - name: partner_id
+        description: "ID of the store's partner, if a partner was involved in the store's creation."
+      - name: partner_code
+        description: "Code of the store's partner, if a partner was involved in the store's creation."
+      - name: partnership_type
+        description: "Type of partnership, if a partner was involved in the store's creation."
+      - name: domain
+        description: "Custom store domain name created by the client."
+      - name: main_user_id
+        description: "Main user ID of the store."
+      - name: is_store_blocked
+        description: >
+          Boolean flag indicating whether the store has received either of the tags
+          'sre-block-store-404' or 'sre-block-store-429'.
+        tests:
+          - not_null
+        accepted_values:
+          values: [TRUE, FALSE]
+      - name: custom_theme
+        description: "Identifies the date on which the store began using a custom theme (open FTP). If the field is blank, the store is using a default theme (closed FTP)."
+      - name: disabled
+        description: "Boolean flag indicating if the store is disabled/cancelled."
+      - name: paid_until
+        description: "Date when the store's paid subscription expires. Null if the store doesn't have a paid subscription."
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model. Defaults to current_timestamp if not available."
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model. Defaults to 'data-dev-dbt-products'."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed."
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
+  
+
+  - name: moltres__mwp_user_countries
+    description: "Table with user countries (from 'Paises Habilitados')"
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: id
+        description: "Unique identifier for the user country"
+        tests:
+          - not_null
+          - unique
+      - name: store_id
+        description: "Unique identifier of the store linked to the user country."
+      - name: country_id
+        description: "Unique identifier of the country linked to the user country (mwp_countries table)"
+      - name: language_id
+        description: "Unique identifier of the language linked to the user country (mwp_user_languages table)"
+      - name: currency_id
+        description: "Unique identifier of the currency linked to the user country."
+      - name: created_at
+        description: "Timestamp when the user country was created"
+      - name: updated_at
+        description: "Timestamp when the user country was last updated"
+
+  
+  - name: moltres__mwp_user_languages
+    description: "Table with user languages (from 'Paises Habilitados')"
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: id
+        description: "Unique identifier for the user language"
+        tests:
+          - not_null
+          - unique
+      - name: store_id
+        description: "Unique identifier of the store linked to the user language."
+        tests:
+          - not_null
+      - name: language
+        description: "Language of the user (es_AR,pt_BR, etc.)"
+      - name: name
+        description: "Name of the user language (Español, Português, etc.)"
+      - name: currency
+        description: "Currency of the user language (ARS, BRL, etc.)"
+      - name: active
+        description: "If the user language is active (1 or 0)"
+      - name: flag
+        description: "Flag of the user language (US,BR,ES)"
+  
+
+  - name: moltres__platform_mwp_apps_stores
+    description: "Extracted data of apps installed and uninstalled by stores"
+    config:
+      meta:
+        owner: "fernando.martinez@tiendanube.com"
+        domain: "product"
+        business_owner: "Nicolas Loreti"
+    columns:
+      - name: app_id
+        description: "determines the app_id of the installation"
+      - name: store_id
+        description: "determines the store_id of the installation"
+      - name: installed_app_id
+        description: "determines the unique identifier of the installation"
+      - name: app_install_date
+        description: "determines the date when the app was installed"
+      - name: app_uninstall_date
+        description: "determines the date when the app was uninstalled"
+      - name: sys_admin_created_at
+        description: "determines the date when the installation was created"
+      - name: sys_audit_updated_at
+        description: "determines the date when the installation was updated"
