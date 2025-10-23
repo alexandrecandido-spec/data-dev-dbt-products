@@ -21,7 +21,7 @@ WITH commissions AS
       ELSE 'payout'
     END AS commission_type,
     DATE(paid_at) AS commission_paid_date,
-    DATE(created_at) AS commission_created_date,
+    DATE(PL.created_at) AS commission_created_date,
     target_currency AS partner_currency,
     original_currency AS store_currency,
     currency_exchange_rate,
