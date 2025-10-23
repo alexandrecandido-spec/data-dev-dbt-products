@@ -2348,3 +2348,59 @@ models:
         description: Identifies the timestamp of the last event.
       - name: base_date
         description: first_event_timestamp casted as date, for partitioning.
+
+  - name: g__metafields__metafields_assignments__event
+    description: >
+      This data product contains all assignments of metafields to products, categories, orders, customers and product variants.
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: store_id
+        description: "Store id associated with the metafield assignment."
+      - name: store_domain
+        description: "Store domain associated with the metafield assignment."
+      - name: state
+        description: the state of the merchant. State_Ok > 0 it is not a trial and we are receiving the payments as expected - awaiting_payment > 1 during the first 10 days after the contract expires - admin_down > 2 from day 10 to day 20 after the contract is expired, admin is blocked (but the store is still live) - store_down > 3 the store is blocked from day 20, we consider it as a churn - state_test > 4 a store created as a test by someone from our company, it is not a trial - state_in_development > 5 stores created via Partners Portal while they are being set up.
+      - name: country
+        description: "Merchant's country"
+      - name: current_segment
+        description: "Merchant's current segment"
+      - name: plan_name
+        description: "The group name of the merchant's plan (using operations__grouping_plans data product)"
+      - name: created_by_app
+        description: "Indicates if the metafield assignment was created by an app."
+      - name: avg_gmv_usd_last_3m
+        description: "Merchant's average GMV in USD of the last 3 months"
+      - name: name_mf
+        description: "Name of the metafield"
+      - name: uuid
+        description: "Unique identifier of the metafield"
+      - name: metafield_data_type
+        description: "Data type of the metafield"
+      - name: mf_is_active
+        description: "Indicates if the metafield is active."
+      - name: mf_is_assigned
+        description: "Indicates if the metafield assigned."
+      - name: metafield_created_at
+        description: "Timestamp of when the metafield was created."
+      - name: year_month_code
+        description: "Year and month of the metafield creation, in the format YYYYMM"
+      - name: domain
+        description: "Domain associated with the metafield (Products, Categories, Orders, Customers or Product variants)."
+      - name: assignment_id
+        description: "Unique identifier of the metafield assignment."
+      - name: owner_id
+        description: "Id of the specific item that was assigned the metafield (product_id, category_id, etc)"
+      - name: assignment_date
+        description: "Date of the metafield assignment."
+      - name: q_of_assignments
+        description: "Quantity of metafields assigned"
+      - name: sys_audit_created_by
+        description: "System or user that created the row in this model."
+      - name: sys_audit_updated_on
+        description: "System or user that last updated the row in this model."
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row in this model."
