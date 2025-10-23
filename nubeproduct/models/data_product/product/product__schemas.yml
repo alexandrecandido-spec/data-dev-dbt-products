@@ -2348,3 +2348,81 @@ models:
         description: Identifies the timestamp of the last event.
       - name: base_date
         description: first_event_timestamp casted as date, for partitioning.
+
+  - name: g__platform__monthly_active_users__agg_monthly
+    description: "This table contains the monthly active users by store and app."
+    config:
+      meta:
+        owner: "fernando.martinez@tiendanube.com"
+        domain: "product"
+        business_owner: "Nicolas Loreti"
+    columns:
+      - name: unique_id
+        description: "Unique identifier for the store and app."
+        tests: 
+          - not_null
+          - unique
+      - name: registered_month
+        description: "Unique identifier for the issue"
+        tests:
+          - not_null
+      - name: store_id
+        description: "Unique identifier for the store"
+        tests:
+          - not_null
+      - name: app_id
+        description: "Unique identifier for the app"
+      - name: app_name
+        description: "Name of the app"
+      - name: app_category
+        description: "Category of the app"
+      - name: is_app_published
+        description: "Flag indicating if the app is published"
+      - name: app_creation_date
+        description: "Date when the app was created."
+      - name: app_published_date
+        description: "Date when the app was published."
+      - name: app_deleted_date
+        description: "Date when the app was deleted."
+      - name: app_install_date
+        description: "Date when the app was installed."
+      - name: app_uninstall_date
+        description: "Date when the app was uninstalled."
+      - name: has_no_apps
+        description: "Flag indicating if the store has no apps installed."
+      - name: is_app_active
+        description: "Flag indicating if the app is active."
+      - name: is_new_app_install
+        description: "Flag indicating if the app was installed in the current month."
+      - name: is_app_churn
+        description: "Flag indicating if the app was uninstalled in the current month."
+      - name: script_creation_date
+        description: "Date when the script was created."
+      - name: script_deletion_date
+        description: "Date when the script was deleted."
+      - name: is_new_script
+        description: "Flag indicating if the script was installed in the current month."
+      - name: is_churn_script
+        description: "Flag indicating if the script was uninstalled in the current month."
+      - name: is_script_active
+        description: "Flag indicating if the script is active."
+      - name: shipping_carrier_creation_date
+        description: "Date when the shipping carrier was created."
+      - name: shipping_carrier_deletion_date
+        description: "Date when the shipping carrier was deleted."
+      - name: shipping_carrier_status
+        description: "Status of the shipping carrier."
+      - name: is_shipping_carrier_active
+        description: "Flag indicating if the shipping carrier is active."
+      - name: is_new_shipping_carrier_install
+        description: "Flag indicating if the shipping carrier was installed in the current month."
+      - name: is_shipping_carrier_churn
+        description: "Flag indicating if the shipping carrier was uninstalled in the current month."
+      - name: sys_audit_created_on
+        description: "Timestamp when this record was first created in the DBT model."
+      - name: sys_audit_created_by
+        description: "Identifier for the user or system that created this record."
+      - name: sys_audit_updated_on
+        description: "Timestamp when this record was last updated."
+      - name: sys_audit_updated_by
+        description: "Identifier for the user or system that last updated this record."
