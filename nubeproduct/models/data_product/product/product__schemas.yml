@@ -2370,6 +2370,22 @@ models:
         description: "Unique identifier for the store"
         tests:
           - not_null
+      - name: merchant_name
+        description: "Name of the merchant"
+      - name: country
+        description: "Country of the merchant"
+      - name: mail
+        description: "Email of the merchant"
+      - name: phone
+        description: "Phone of the merchant"
+      - name: store_vertical
+        description: "Vertical of the store"
+      - name: group_name
+        description: "Group of the store"
+      - name: creation_date
+        description: "Date when the store was created."
+      - name: first_payment
+        description: "Date when the store made its first payment."
       - name: app_id
         description: "Unique identifier for the app"
       - name: app_name
@@ -2418,6 +2434,28 @@ models:
         description: "Flag indicating if the shipping carrier was installed in the current month."
       - name: is_shipping_carrier_churn
         description: "Flag indicating if the shipping carrier was uninstalled in the current month."
+      - name: app_total_orders
+        description: "Total number of orders for the app."
+      - name: app_gmv_lc
+        description: "Total GMV in local currency for the app."
+      - name: app_gmv_usd
+        description: "Total GMV in USD for the app."
+      - name: total_orders
+        description: "Total number of orders for the store."
+      - name: total_gmv_local_currency
+        description: "Total GMV in local currency for the store."
+      - name: total_gmv_usd
+        description: "Total GMV in USD for the store."
+      - name: segment
+        description: "Segment of the store."
+      - name: has_orders
+        description: "Flag indicating if the store has orders."
+      - name: is_new_store
+        description: "Flag indicating if the store was created in the current month."
+      - name: is_new_script
+        description: "Flag indicating if the script was created in the current month."
+      - name: is_churn_script
+        description: "Flag indicating if the script was uninstalled in the current month."
       - name: sys_audit_created_on
         description: "Timestamp when this record was first created in the DBT model."
       - name: sys_audit_created_by

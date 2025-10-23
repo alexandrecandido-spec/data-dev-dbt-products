@@ -102,6 +102,9 @@ SELECT distinct
         ,app_name
         ,app_category
         ,is_app_published
+        ,app_creation_date
+        ,app_published_date
+        ,app_deleted_date
         ,app_install_date
         ,app_uninstall_date
         ,case when a.app_id is null then 1 else 0 end as has_no_apps
@@ -110,12 +113,14 @@ SELECT distinct
         ,case when s.registered_month = date_trunc('month', app_uninstall_date) then 1 else 0 end as is_app_churn
         ,sc.created_date as script_creation_date
         ,sc.deleted_date as script_deletion_date
-        ,case when s.registered_month = date_trunc('month', sc.created_date) then 1 else 0 end as is_new_scrtip
-        ,case when s.registered_month = date_trunc('month', sc.deleted_date) then 1 else 0 end as is_churn_scrtip
+        ,case when s.registered_month = date_trunc('month', sc.created_date) then 1 else 0 end as is_new_script
+        ,case when s.registered_month = date_trunc('month', sc.deleted_date) then 1 else 0 end as is_churn_script
         ,case when s.registered_month between date_trunc('month', sc.created_date) and coalesce('2100-01-01',sc.deleted_date) then 1 else 0 end as is_script_active
         ,sh.created_date as shipping_carrier_creation_date
         ,sh.deleted_date as shipping_carrier_deletion_date
         ,sh.status as shipping_carrier_status
+        ,case when s.registered_month = date_trunc('month', sh.created_date) then 1 else 0 end as is_new_shipping_carrier_install
+        ,case when s.registered_month = date_trunc('month', sh.deleted_date) then 1 else 0 end as is_shipping_carrier_churn
         ,case when sh.status = 1 and s.registered_month between date_trunc('month', sh.created_date) and coalesce('2100-01-01',sh.deleted_date) then 1 else 0 end as is_shipping_carrier_active
 from store_dates s
 left join installs a

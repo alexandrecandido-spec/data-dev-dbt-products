@@ -2862,6 +2862,8 @@ models:
           - not_null
       - name: deleted_date
         description: "Date when the script was deleted."
+      - name: script_rank
+        description: "Rank of the script."
       - name: sys_audit_created_on
         description: "Timestamp when this record was first created in the DBT model."
       - name: sys_audit_created_by
@@ -2892,13 +2894,17 @@ models:
         description: "Unique identifier for the app."
         tests: 
           - not_null
+      - name: shipping_carrier_id
+        description: "Unique identifier for the shipping carrier."
+      - name: carrier_rank
+        description: "Rank of the shipping carrier."
       - name: status
         description: "Status of the shipping carrier."
-      - name: created_date
+      - name: creation_date
         description: "Date when the shipping carrier was created."
         tests: 
           - not_null
-      - name: deleted_date
+      - name: deletion_date
         description: "Date when the shipping carrier was deleted."
       - name: sys_audit_created_on
         description: "Timestamp when this record was first created in the DBT model."

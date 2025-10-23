@@ -17,6 +17,7 @@ scripts as (
          ,date(deleted_at) as deleted_date
          ,rank() over(partition by app_id,store_id order by id desc) as script_rank
       from {{ source('bronze_risk_ecommerce', 'mwp_scripts') }} s
+      where created_at is not null
 ),
 scripts_final as (
 select *
