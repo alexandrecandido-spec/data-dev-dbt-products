@@ -68,6 +68,8 @@ sources:
         description: "Deleted regs of products associated with an order."
       - name: mwp_orders_b2b
         description: "Orders generated through the B2B solution."
+      - name: mwp_orders_fulfillments
+        description: "Fulfillments associated with an order."
 
 
   - name: stg_nuvem_credito
@@ -276,6 +278,16 @@ sources:
     tables:
       - name: deals_archived 
         description: "Contains a record of Hubspot deals that were archived (only last 90 days)"
+      - name: dealbreakers
+        description: "Contains a record of Hubspot dealbreakers objects"
+      - name: dealbreakers_companies_associations   
+        description: "Contains all the dealbreakers and its association to a company in Hubspot" 
+      - name: companies
+        description: "Contains a record of all Hubspot companies, including their store_id"
+      - name: dealbreakers_base_archived
+        description: "Contains a record of Hubspot dealbreakers that were archived (only last 90 days)"
+      - name: dealbreakers_base_association
+        description: "Contains all the active dealbreakers and its association to a company in Hubspot"
 
 
   - name: stg_third_party
