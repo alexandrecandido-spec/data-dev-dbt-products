@@ -113,8 +113,6 @@ models:
           - not_null
       - name: store_id
         description: "Identifier of the store associated with the commission."
-        tests:
-          - not_null
       - name: plan_id
         description: "Identifier of the plan associated with the commission."
       - name: partner_ledger_entry_type_id
