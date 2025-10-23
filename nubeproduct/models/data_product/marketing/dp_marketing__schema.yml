@@ -1774,6 +1774,8 @@ models:
         description: "Platform type where the transaction occurred"
       - name: country
         description: "Country code of the store"
+      - name: partner_id
+        description: "Partner ID associated with the store"
       - name: partner_code
         description: "Partner code associated with the store"
       - name: mkt_source_first_click

@@ -10,6 +10,7 @@ select
   , gmv.country_currency
   , gmv.platform_type
   , msi.country
+  , msi.partner_id
   , msi.partner_code
   , msi.mkt_source_first_click
   , msi.mkt_subteam_first_click
@@ -32,4 +33,4 @@ select
  left join {{ ref('marketing_merchant_info_refined') }} msi   on msi.store_id = gmv.store_id
  left join {{ ref('company_metrics_gmv_and_segments') }} seg  on seg.store_id=gmv.store_id 
                                                         and seg.year_month_code = substring(cast(gmv.year_month_day_code as string),1,6)
-group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25
+group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26
