@@ -190,6 +190,8 @@ sources:
         description: "Contains information about the tags and campaigns of the partners."
       - name: partner_ledger 
         description: "Contains information about the ledger (commissions deposits and withdrawals) of the partners."
+      - name: partner_ledger_entry_type
+        description: "Contains information about the type of entry in the partner ledger."
 
   - name: int_orders
     database: hive_metastore
