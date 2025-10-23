@@ -113,10 +113,16 @@ models:
         description: "Date when the first seller was made (first time achieving 7 sales in 90 days window)"
       - name: current_plan_id
         description: "ID of the current plan"
+        tests:
+          - not_null
       - name: current_plan_name
         description: "Name of the current plan"
+        tests:
+          - not_null
       - name: current_plan_type
         description: "Type of the current plan"
+        tests:
+          - not_null
       - name: current_segment
         description: "Current segment of the store"
         tests:
