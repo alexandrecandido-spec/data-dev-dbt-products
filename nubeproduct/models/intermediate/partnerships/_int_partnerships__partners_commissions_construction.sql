@@ -13,6 +13,14 @@ WITH commissions AS
       THEN 'store_development'
       WHEN partner_ledger_entry_type_id = 2 
       THEN 'apps'
+      WHEN partner_ledger_entry_type_id = 3 
+      THEN 'initial_balance'
+      WHEN partner_ledger_entry_type_id = 4 
+      THEN 'partner_bonus'
+      WHEN partner_ledger_entry_type_id = 7 
+      THEN 'core_payout'
+      WHEN partner_ledger_entry_type_id = 8 
+      THEN 'app_transaction'
       ELSE 'Withdrawal'
     END AS commission_type,
     DATE(paid_at) AS commission_paid_date,
@@ -21,7 +29,7 @@ WITH commissions AS
     original_currency AS store_currency,
     currency_exchange_rate,
     CASE 
-      WHEN partner_ledger_entry_type_id IN(2,5) 
+      WHEN partner_ledger_entry_type_id IN(2,3,4,5) 
       THEN ABS(credit_value)
       ELSE partner_commission_value
     END AS commission_amount,
@@ -32,6 +40,6 @@ WITH commissions AS
     sys_audit_updated_on AS partner_ledger_change_timestamp
   FROM {{ source('int_ecosystem', 'partner_ledger') }}
   WHERE DATE(created_at) >= '2024-01-01'
-  AND partner_ledger_entry_type_id IN(1,2,5,6)
+  --AND partner_ledger_entry_type_id IN(1,2,5,6)
 )
 SELECT * FROM commissions
