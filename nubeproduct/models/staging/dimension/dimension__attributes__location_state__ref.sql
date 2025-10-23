@@ -3,7 +3,7 @@
         materialized='incremental',
         unique_key=['state_id'],
         on_schema_change='fail',
-        tags=['dimensions','manual']
+        tags=['dimensions','daily-4am']
     )
 }}
 

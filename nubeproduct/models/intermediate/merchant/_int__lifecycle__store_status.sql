@@ -39,8 +39,8 @@ SELECT
     , ss.churned_at
     , fs.first_seller_at
     , ss.current_plan_id
-    , pl.namev2 AS current_plan_name
-    , pl.grupo AS current_plan_type
+    , coalesce(pl.namev2, 'not informed') AS current_plan_name
+    , coalesce(pl.grupo, 'not informed') AS current_plan_type
     , si.current_segment
     , si.is_seller
     , si.max_segment
