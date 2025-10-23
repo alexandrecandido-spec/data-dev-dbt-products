@@ -2260,8 +2260,67 @@ models:
       - name: sys_audit_updated_by
         description: "Identifier for the user or system that last updated this record."
 
-        description: system or user that last updated the row in this model  
-
+  - name: g__metafields__metafields_creations_and_assignments__agg
+    description: >
+      Contains a list of all metafields created by merchants and their first and last assignment dates. It also contains the type of metafield, creation dates, status and name..
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: store_id
+        description: "Store id that created the metafield."
+        tests:
+          - not_null
+      - name: store_domain
+        description: "Domain of the store that created the metafield."
+      - name: state
+        description: the state of the merchant. State_Ok > 0 it is not a trial and we are receiving the payments as expected - awaiting_payment > 1 during the first 10 days after the contract expires - admin_down > 2 from day 10 to day 20 after the contract is expired, admin is blocked (but the store is still live) - store_down > 3 the store is blocked from day 20, we consider it as a churn - state_test > 4 a store created as a test by someone from our company, it is not a trial - state_in_development > 5 stores created via Partners Portal while they are being set up.
+      - name: country
+        description: "Country of the store"
+      - name: current_segment
+        description: "Current segment of the store"
+      - name: plan_name
+        description: "Name of the plan of the store"
+      - name: created_by_app
+        description: "1 if the metafield was created by an app, 0 otherwise"
+      - name: avg_gmv_usd_last_3m
+        description: "Average GMV in USD of the store in the last 3 months"
+      - name: metafield_id
+        description: "ID of the metafield"
+        tests:
+          - not_null
+          - unique
+      - name: metafield_name
+        description: "Name of the metafield"
+      - name: metafield_data_type
+        description: "Data type of the metafield. 'Option list', 'Text', 'Number' or 'Date'"
+      - name: metafield_created_at
+        description: "Date when the metafield was created"
+      - name: year_month_code
+        description: "Year and month code in YYYYMM format. It is the month of the metafield creation and use for partition"
+      - name: metafield_deleted_at
+        description: "Date when the metafield was deleted"
+      - name: mf_is_active
+        description: "1 if the metafield is active, 0 otherwise"
+      - name: domain
+        description: "Domain of the metafield (Products, Product variants, Categories, Customers, Orders)"
+      - name: mf_is_assigned
+        description: "1 if the metafield is assigned to a resource, 0 otherwise"
+      - name: first_date_mf_was_assigned
+        description: "Date when the metafield was first assigned to a resource"
+      - name: last_date_mf_was_assigned
+        description: "Date when the metafield was last assigned to a resource"
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created in this model"
+      - name: sys_audit_created_by
+        description: "System or user that created the row in this model"
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this model"
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row in this model"
+        
   - name: s__product_checkout__orders_events__event
     description: >
       Contains the relation between carts and its associated Checkout events.
