@@ -11,14 +11,14 @@ stores as (
         ,date(created_at) as creation_date
         ,date(first_payment) as first_payment
 from {{ ref('company_metrics_merchant_info') }} s
-left join {{ ref('moltres__mwp_store_settings') }} ss
+left join {{ source('bronze_risk_ecommerce', 'mwp_store_settings') }} ss
   on s.store_id = ss.store_id
-)
+),
 store_dates as (
     select 
         d.registered_month
         ,p.*
-    from {{ ref('store_info') }} p
+    from stores p
     cross join {{ ref('_int_pd_github_dates') }} d
 ),
 orders as (
@@ -29,6 +29,7 @@ orders as (
         ,sum(total) as total_gmv_local_currency
         ,sum(total_in_usd) as total_gmv_usd
     from {{ ref('company_metrics_paid_orders') }}
+    group by 1,2
 ),
 app_orders as (
     select
@@ -41,15 +42,7 @@ app_orders as (
         ,sum(total_gmv_local_currency) as total_gmv_local_currency
         ,sum(total_gmv_usd) as total_gmv_usd
     from {{ ref('g__platform__app_orders__agg_daily') }}
-),
-installs as (
-    SELECT
-        store_id
-        ,app_id
-        ,min(app_install_date) as app_install_date
-        ,max(app_uninstall_date) as app_uninstall_date
-    from {{ ref('product_platform_mwp_apps_stores') }}
-    group by 1,2
+    group by 1,2,3,4,5
 ),
 apps as (
     SELECT
@@ -62,6 +55,23 @@ apps as (
         ,is_app_published
     from {{ ref('product__ecosystem__apps__scd') }}
 ),
+installs as (
+    SELECT
+        store_id
+        ,i.app_id
+        ,a.app_name
+        ,a.app_category
+        ,a.app_creation_date
+        ,a.app_published_date
+        ,a.app_deleted_date
+        ,a.is_app_published
+        ,min(app_install_date) as app_install_date
+        ,max(app_uninstall_date) as app_uninstall_date
+    from {{ ref('product_platform_mwp_apps_stores') }} I
+    left join apps a
+        on I.app_id = a.app_id
+    group by 1,2,3,4,5,6,7,8
+),
 segments as (
     SELECT
     date_trunc('month',datemonth) as registered_month
@@ -73,8 +83,8 @@ scripts as (
     SELECT
         store_id
         ,app_id
-        ,date(created_at) as created_date
-        ,date(deleted_at) as deleted_date
+        ,date(created_date) as created_date
+        ,date(deleted_date) as deleted_date
     from {{ ref('product__ecosystem__mwp_scripts__scd') }}
 ),
 shipping_carriers as (
@@ -82,8 +92,8 @@ shipping_carriers as (
         store_id
         ,app_id
         ,status
-        ,date(created_at) as created_date
-        ,date(deleted_at) as deleted_date
+        ,date(creation_date) as created_date
+        ,date(deletion_date) as deleted_date
     from {{ ref('product__ecosystem__mwp_shipping_carriers__scd') }}
 )
 SELECT distinct
@@ -91,7 +101,7 @@ SELECT distinct
         ,a.app_id
         ,app_name
         ,app_category
-        ,is_published
+        ,is_app_published
         ,app_install_date
         ,app_uninstall_date
         ,case when a.app_id is null then 1 else 0 end as has_no_apps
@@ -103,10 +113,10 @@ SELECT distinct
         ,case when s.registered_month = date_trunc('month', sc.created_date) then 1 else 0 end as is_new_scrtip
         ,case when s.registered_month = date_trunc('month', sc.deleted_date) then 1 else 0 end as is_churn_scrtip
         ,case when s.registered_month between date_trunc('month', sc.created_date) and coalesce('2100-01-01',sc.deleted_date) then 1 else 0 end as is_script_active
-        ,sh.creation_date as shipping_carrier_creation_date
-        ,sh.deletion_date as shipping_carrier_deletion_date
+        ,sh.created_date as shipping_carrier_creation_date
+        ,sh.deleted_date as shipping_carrier_deletion_date
         ,sh.status as shipping_carrier_status
-        ,case when sh.status = 1 and s.registered_month between date_trunc('month', sh.creation_date) and coalesce('2100-01-01',sh.deletion_date) then 1 else 0 end as is_shipping_carrier_active
+        ,case when sh.status = 1 and s.registered_month between date_trunc('month', sh.created_date) and coalesce('2100-01-01',sh.deleted_date) then 1 else 0 end as is_shipping_carrier_active
 from store_dates s
 left join installs a
     on s.store_id = a.store_id

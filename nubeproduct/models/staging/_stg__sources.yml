@@ -412,6 +412,7 @@ sources:
       - name: dimensions__segment_type
       - name: dimensions__region
       - name: logistics__shipping_classification
+
   - name: bronze_risk_ecommerce
     database: bronze_risk
     schema: ecommerce
@@ -421,3 +422,5 @@ sources:
         description: "Contains the scripts installed in the stores"
       - name: mwp_shipping_carriers
         description: "Contains the shipping carriers installed in the stores"
+      - name: mwp_store_settings
+        description: "Contains the store settings"

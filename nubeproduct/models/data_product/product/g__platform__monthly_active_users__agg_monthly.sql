@@ -24,7 +24,7 @@ orders as (
     from {{ ref('company_metrics_paid_orders') }}
     where 1=1
     {% if is_incremental() %}
-      and completed_at >= dateadd('month', -{{ months_lookback }}, date_trunc('month', current_date))
+      and completed_at >= dateadd(month, -{{ months_lookback }}, date_trunc('month', current_date))
     {% endif %}
     group by 1,2
 ),
@@ -41,7 +41,7 @@ app_orders as (
     from {{ ref('g__platform__app_orders__agg_daily') }}
     where 1=1
     {% if is_incremental() %}
-      and registered_date >= dateadd('month', -{{ months_lookback }}, date_trunc('month', current_date))
+      and registered_date >= dateadd(month, -{{ months_lookback }}, date_trunc('month', current_date))
     {% endif %}
     group by 1,2,3,4,5
 ),
@@ -53,32 +53,21 @@ segments as (
 from {{ ref('company_metrics_gmv_and_segments') }}
 where 1=1
 {% if is_incremental() %}
-  and datemonth >= dateadd('month', -{{ months_lookback }}, date_trunc('month', current_date))
+  and datemonth >= dateadd(month, -{{ months_lookback }}, date_trunc('month', current_date))
 {% endif %}
 ),
 aux as (
 select distinct
    s.*
-   ,case when churned_at is null then 1 else 0 end as is_current_active_store
+   --,case when churned_at is null then 1 else 0 end as is_current_active_store
    ,case when ao.total_orders > 0 and first_payment is null then 1 else 0 end as has_orders
-   ,case when s.first_payment is not null 
-         and monthly_fee > 0 
-         and s.churned_at is null 
-         then 1 else 0 end as is_merchant
-   ,case when (churned_at IS NULL OR churned_at >= s.registered_month) 
-                         AND creation_date <= last_day(s.registered_month) then 1 else 0 end as is_active_store_in_month
+   --,case when (churned_at IS NULL OR churned_at >= s.registered_month) AND creation_date <= last_day(s.registered_month) then 1 else 0 end as is_active_store_in_month
    ,case when s.registered_month = date_trunc('month', creation_date) then 1 else 0 end as is_new_store
-   ,case when s.registered_month = date_trunc('month', churned_at) then 1 else 0 end as is_churned_store
-   ,case when o.last_3_month_orders >= 6 and grupo != 'freemium' then 'Active Paying'
-         when o.last_3_month_orders >= 6 and grupo = 'freemium' then 'Freemium Active'
-         when coalesce(o.last_3_month_orders,0) < 6 and grupo != 'freemium' then 'No Active Paying'
-         when coalesce(o.last_3_month_orders,0) < 6 and grupo = 'freemium' then 'Freemium No Active'
-      end as active_store_tag
+   --,case when s.registered_month = date_trunc('month', churned_at) then 1 else 0 end as is_churned_store
    ,sg.segment
    ,o.total_orders
-   ,o.gmv_lc
-   ,o.gmv_usd
-   ,o.last_3_month_orders
+   ,o.total_gmv_local_currency
+   ,o.total_gmv_usd
    ,ao.total_orders as app_total_orders
    ,ao.total_gmv_local_currency as app_gmv_lc
    ,ao.total_gmv_usd as app_gmv_usd
@@ -93,9 +82,8 @@ left join app_orders ao
    on s.store_id = ao.store_id
    and s.registered_month = ao.registered_month
    and s.app_id = ao.app_id
-where s.registered_month >= dateadd('month', -{{ months_lookback }}, date_trunc('month', current_date))
-and ((ao.total_orders > 0 and first_payment is null) 
-or (s.first_payment is not null and monthly_fee > 0 and s.churned_at is null))
+where s.registered_month >= dateadd(month, -{{ months_lookback }}, date_trunc('month', current_date))
+and ((ao.total_orders > 0 and first_payment is null))
 )
 SELECT
     concat(a.registered_month, '_', a.store_id, '_', a.app_id) as unique_id
@@ -106,5 +94,5 @@ SELECT
     ,'data-dev-dbt-products' as sys_audit_updated_by
 from aux a
 {% if is_incremental() %}
-where a.registered_month >= dateadd('month', -{{ months_lookback }}, date_trunc('month', current_date))
+where a.registered_month >= dateadd(month, -{{ months_lookback }}, date_trunc('month', current_date))
 {% endif %}
