@@ -2689,6 +2689,93 @@ models:
         tests:
           - not_null
 
+  - name: product__onboarding__domain_mappings__ref
+    description: "Staging model that contains all possible questions and answers of the pre-onboarding questionnaire."
+    config:
+      meta:
+        owner: "ynara.oliveira@nuvemshop.com.br"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: id
+        description: "Register id. There is a unique id for each combination of group code and type code."
+        tests:
+          - not_null
+          - unique
+      - name: group_code
+        description: "Question group to which the answer belongs."
+        tests:
+          - not_null
+      - name: type_code 
+        description: "Single possible answer for the group code."
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: "Timestamp of when this record was created in our data warehouse."
+      - name: sys_audit_created_by
+        description: "System identifier of the process that created this record."
+      - name: sys_audit_updated_on
+        description: "Timestamp of when this record was last updated in our data warehouse."
+      - name: sys_audit_updated_by
+        description: "System identifier of the process that last updated this record."
+    
+  - name: product__onboarding__domain_types__ref
+    description: "Staging model that contains all possible answers of the pre-onboarding questionnaire as shown in the back and frontend."
+    config:
+      meta:
+        owner: "ynara.oliveira@nuvemshop.com.br"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: code
+        description: "Id. It is the unique possible answer as shown in the backend."
+        tests:
+          - not_null
+          - unique
+      - name: description
+        description: "It is the unique possible answer as shown for the user in the frontend."
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: "Timestamp of when this record was created in our data warehouse."
+      - name: sys_audit_created_by
+        description: "System identifier of the process that created this record."
+      - name: sys_audit_updated_on
+        description: "Timestamp of when this record was last updated in our data warehouse."
+      - name: sys_audit_updated_by
+        description: "System identifier of the process that last updated this record."
+
+  - name: product__onboarding__store_preferences__event
+    description: "Staging model that contains all answers given by the merchant on the pre-onboarding questionnaire."
+    config:
+      meta:
+        owner: "ynara.oliveira@nuvemshop.com.br"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: id
+        description: "Merchant answer id."
+        tests:
+          - not_null
+          - unique
+      - name: domain_mapping_id
+        description: "The unique id for each combination of group code (question) and type code (answer)."
+        tests:
+          - not_null
+      - name: store_id
+        description: "Merchant id."
+        tests:
+          - not_null
+      - name: free_text
+        description: "Optional, free-text field for questions with an 'other' option, where the merchant can type in the most suitable answer for the question."
+      - name: sys_audit_created_on
+        description: "Timestamp of when this record was created in our data warehouse."
+      - name: sys_audit_created_by
+        description: "System identifier of the process that created this record."
+      - name: sys_audit_updated_on
+        description: "Timestamp of when this record was last updated in our data warehouse."
+      - name: sys_audit_updated_by
+        description: "System identifier of the process that last updated this record."
 
   - name: product__general__hubspot_company__event
     description: >
