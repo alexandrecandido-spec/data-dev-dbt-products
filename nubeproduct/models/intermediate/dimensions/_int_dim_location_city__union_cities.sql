@@ -13,5 +13,5 @@ SELECT id AS city_id_nk, name AS city_name, province_id AS state_id, 'MX' AS cou
 SELECT id AS city_id_nk, name AS city_name, province_id AS state_id, 'BR' AS country_code, sys_audit_updated_on FROM {{ source('int_moltres','cidades') }}
 ) a
 LEFT JOIN {{ source('int_moltres','mwp_countries') }} b ON b.code = a.country_code
-LEFT JOIN {{ ref('dim_location_state') }} AS c ON c.state_id = a.state_id AND c.country_id = b.id
+LEFT JOIN {{ ref('dimension__attributes__location_state__ref') }} AS c ON c.state_id = a.state_id AND c.country_id = b.id
 ) x WHERE rnk = 1
