@@ -1340,6 +1340,118 @@ models:
         tests:
           - not_null
 
+  - name: product__checkout_events_event
+    description: >
+      Staging model that standardizes raw checkout events.
+      Filters checkout specific events, since they can be identified by cart_id, while other events cannot.
+      PK is cart_id + event. If an event appears more than once for a cart, it gets first and last timestamp.
+    config:
+      meta:
+        owner: "fabrizio.crivella@tiendanube.com"
+        domain: "product"
+        business_owner: "Rocio Diez"
+    columns:
+      - name: cart_id
+        description: "Unique identifier of cart."
+        tests:
+          - not_null
+      - name: event
+        description: "Name of the type of event. Identifies what action triggered a specific event."
+        tests:
+          - not_null
+      - name: store_id
+        description: "Store unique identifier associated to the event."
+        tests:
+          - not_null
+      - name: first_event_timestamp
+        description: "Timestamp of the first event by the combination of cart_id + event."
+        tests:
+          - not_null
+      - name: last_event_timestamp
+        description: "Timestamp of the first event by the combination of cart_id + event."
+        tests:
+          - not_null
+      - name: base_date
+        description: "first_event_timestamp casted as date, used for partitions."
+        tests:
+          - not_null
+    tests:
+      - unique:
+          column_names: ["cart_id", "event"]
+
+  - name: s__product_events_attributes__link
+    description: >
+      Staging model that standardizes specific attributes from events. Every event type has their own attributes,
+      so we cannot standarize them on the main table. This table persists the attrbiutes we need.
+    config:
+      meta:
+        owner: "fabrizio.crivella@tiendanube.com"
+        domain: "product"
+        business_owner: "Rocio Diez"
+    columns:
+      - name: cart_id
+        description: "Unique identifier of cart."
+        tests:
+          - not_null
+      - name: store_id
+        description: "Store unique identifier associated to the event."
+        tests:
+          - not_null
+      - name: event
+        description: "Name of the type of event. Identifies what action triggered a specific event."
+        tests:
+          - not_null
+      - name: payment_method_name
+        description: "Payment provider selected by the consumer, extracted from checkout_selected_payment_method event."
+      - name: payment_method_type
+        description: "Gateway method selected by the consumer, extracted from checkout_selected_payment_method event."  
+      - name: payment_method_integration_type
+        description: "Gateway integration type selected by the consumer, extracted from checkout_selected_payment_method event."  
+      - name: shipping_method_code
+        description: "Shipping method provider name selected by the consumer, extracted from checkout_selected_shipping_method event."  
+      - name: shipping_method_type
+        description: "Shipping method type selected by the consumer, extracted from checkout_selected_shipping_method event."  
+      - name: shipping_method_id
+        description: "Shipping method provider identifier selected by the consumer, extracted from checkout_selected_shipping_method event."  
+      - name: payment_retry_feature
+        description: "Identifies if the cart used payment retry feature, and which feature was used."  
+      - name: event_timestamp
+        description: "Timestamp of the last event."  
+      - name: base_date
+        description: "Timestamp casted as date, for partitioning."  
+    tests:
+      - unique:
+          column_names: ["cart_id", "event"]
+
+  - name: s__product_events_wallet__link
+    description: >
+      Staging model that standardizes Wallet events.
+    config:
+      meta:
+        owner: "fabrizio.crivella@tiendanube.com"
+        domain: "product"
+        business_owner: "Rocio Diez"
+    columns:
+      - name: cart_id
+        description: "Unique identifier of cart."
+        tests:
+          - not_null
+      - name: store_id
+        description: "Store unique identifier associated to the event."
+        tests:
+          - not_null
+      - name: event
+        description: "Name of the type of event. Identifies what action triggered a specific event."
+        tests:
+          - not_null
+      - name: first_event
+        description: "Timestamp of the first event."
+        tests:
+          - not_null
+      - name: base_date
+        description: "Timestamp casted as date, for partitioning."
+        tests:
+          - not_null
 
   - name: midmarket_hubspot_archived_deals
     description: >
