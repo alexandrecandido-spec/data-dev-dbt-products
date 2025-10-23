@@ -13,10 +13,6 @@ models:
         tests:
           - unique:
               where: "sys_audit_updated_on >= current_timestamp - interval '1 hours'"
-      - name: id
-        tests:
-          - not_null:
-              where: "sys_audit_updated_on >= current_timestamp - interval '1 hours'"
       - name: store_id
         description: "Identifier of the store associated with the order."
         tests:

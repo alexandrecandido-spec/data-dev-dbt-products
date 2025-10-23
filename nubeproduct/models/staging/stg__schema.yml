@@ -1760,48 +1760,6 @@ models:
       - name: sys_audit_updated_by
         description: "User or process that performed the last update."
 
-
-  - name: metafields__metafield_product_variants
-    description: "Contains all product variants metafields"
-    config:
-      meta:
-        owner: "sol.abelleyro@tiendanube.com"
-        domain: "product"
-        business_owner: "Francisco Ramirez"
-    columns:
-      - name: uuid
-        description: "Unique identifier for the metafield"
-        tests:
-          - not_null
-          - unique
-      - name: namespace
-        description: "Namespace of the metafield (admin vs api)"
-      - name: key
-        description: "URL key of the metafield"
-      - name: store_id
-        description: "Unique identifier of the store linked to the metafield."
-      - name: owner_resource
-        description: "Owner resource of the metafield"
-      - name: value_type
-        description: "Value type of the metafield (1 ='text_list', 2 'text',3 = 'numeric', 4 = 'date')"
-      - name: source
-        description: "Source of the metafield"
-      - name: name
-        description: "Name of the metafield"
-      - name: description
-        description: "Description of the metafield"
-      - name: created_at
-        description: "Timestamp when the metafield was created"
-      - name: updated_at
-        description: "Timestamp when the metafield was last updated"
-      - name: deleted_at
-        description: "Timestamp when the metafield was deleted"
-      - name: read_only
-        description: "If the metafield is read only (1 or 0)"
-      - name: app_id
-        description: "Unique identifier of the app linked to the metafield."
-
-
   - name: nuvem_chat__channel
     description: "Staging model that contains all channels from conversations in Nuvemchat"
     config:
@@ -1836,48 +1794,6 @@ models:
       - name: sys_audit_updated_by
         description: "User or process that performed the last update."
     
-
-  - name: metafields__metafield_products
-    description: "Contains all products metafields"
-    config:
-      meta:
-        owner: "sol.abelleyro@tiendanube.com"
-        domain: "product"
-        business_owner: "Francisco Ramirez"
-    columns:
-      - name: uuid
-        description: "Unique identifier for the metafield"
-        tests:
-          - not_null
-          - unique
-      - name: namespace
-        description: "Namespace of the metafield (admin vs api)"
-      - name: key
-        description: "URL key of the metafield"
-      - name: store_id
-        description: "Unique identifier of the store linked to the metafield."
-      - name: owner_resource
-        description: "Owner resource of the metafield"
-      - name: value_type
-        description: "Value type of the metafield (1 ='text_list', 2 'text',3 = 'numeric', 4 = 'date'"
-      - name: source
-        description: "Source of the metafield"
-      - name: name
-        description: "Name of the metafield"
-      - name: description
-        description: "Description of the metafield"
-      - name: read_only
-        description: "If the metafield is read only (1 or 0)"
-      - name: app_id
-        description: "Unique identifier of the app the metafield was created from"
-      - name: created_at
-        description: "Timestamp when the metafield was created"
-      - name: updated_at
-        description: "Timestamp when the metafield was last updated"
-      - name: deleted_at
-        description: "Timestamp when the metafield was deleted"
-
-
   - name: nuvem_chat__message
     description: "Staging model that contains all messages from conversations in Nuvemchat"
     config:
@@ -2358,247 +2274,6 @@ models:
       - name: sys_audit_updated_by
         description: "User or process that performed the last update."
 
-
-  - name: product__metafield__date_resource_products__event
-    description: "Contains all assigned date type products metafields"
-    config:
-      meta:
-        owner: "sol.abelleyro@tiendanube.com"
-        domain: "product"
-        business_owner: "Francisco Ramirez"
-    columns:
-      - name: id
-        description: "Unique identifier for the metafield"
-      - name: metafield_uuid
-        description: "Unique identifier for the metafield"
-      - name: value
-        description: "Value of the metafield"
-      - name: owner_id
-        description: "Unique identifier for the owner of the metafield"
-      - name: created_at
-        description: "Timestamp when the metafield was created"
-      - name: updated_at
-        description: "Timestamp when the metafield was last updated"
-      - name: sys_audit_created_on
-        description: "Timestamp when the record was first inserted into this table."
-      - name: sys_audit_created_by
-        description: "User or process that first inserted the record."
-      - name: sys_audit_updated_on
-        description: "Timestamp of the most recent update to the record."
-      - name: sys_audit_updated_by
-        description: "User or process that performed the last update."
-
-
-  - name: product__metafield__date_resource_product_variants__event
-    description: "Contains all assigned date type product variants metafields"
-    config:
-      meta:
-        owner: "sol.abelleyro@tiendanube.com"
-        domain: "product"
-        business_owner: "Francisco Ramirez"
-    columns:
-      - name: id
-        description: "Unique identifier for the metafield"
-      - name: metafield_uuid
-        description: "Unique identifier for the metafield"
-      - name: value
-        description: "Value of the metafield"
-      - name: owner_id
-        description: "Unique identifier for the owner of the metafield"
-      - name: created_at
-        description: "Timestamp when the metafield was created"
-      - name: updated_at
-        description: "Timestamp when the metafield was last updated"
-      - name: sys_audit_created_on
-        description: "Timestamp when the record was first inserted into this table."
-      - name: sys_audit_created_by
-        description: "User or process that first inserted the record."
-      - name: sys_audit_updated_on
-        description: "Timestamp of the most recent update to the record."
-      - name: sys_audit_updated_by
-        description: "User or process that performed the last update."
-
-
-  - name: product__metafield__numeric_resource_products__event
-    description: "Contains all assigned numeric type products metafields"
-    config:
-      meta:
-        owner: "sol.abelleyro@tiendanube.com"
-        domain: "product"
-        business_owner: "Francisco Ramirez"
-    columns:
-      - name: id
-        description: "Unique identifier for the metafield"
-      - name: metafield_uuid
-        description: "Unique identifier for the metafield"
-      - name: value
-        description: "Value of the metafield"
-      - name: owner_id
-        description: "Unique identifier for the owner of the metafield"
-      - name: created_at
-        description: "Timestamp when the metafield was created"
-      - name: updated_at
-        description: "Timestamp when the metafield was last updated"
-      - name: sys_audit_created_on
-        description: "Timestamp when the record was first inserted into this table."
-      - name: sys_audit_created_by
-        description: "User or process that first inserted the record."
-      - name: sys_audit_updated_on
-        description: "Timestamp of the most recent update to the record."
-      - name: sys_audit_updated_by
-        description: "User or process that performed the last update."
-
-
-  - name: product__metafield__numeric_resource_product_variants__event
-    description: "Contains all assigned numeric type product variants metafields"
-    config:
-      meta:
-        owner: "sol.abelleyro@tiendanube.com"
-        domain: "product"
-        business_owner: "Francisco Ramirez"
-    columns:
-      - name: id
-        description: "Unique identifier for the metafield"
-      - name: metafield_uuid
-        description: "Unique identifier for the metafield"
-      - name: value
-        description: "Value of the metafield"
-      - name: owner_id
-        description: "Unique identifier for the owner of the metafield"
-      - name: created_at
-        description: "Timestamp when the metafield was created"
-      - name: updated_at
-        description: "Timestamp when the metafield was last updated"
-      - name: sys_audit_created_on
-        description: "Timestamp when the record was first inserted into this table."
-      - name: sys_audit_created_by
-        description: "User or process that first inserted the record."
-      - name: sys_audit_updated_on
-        description: "Timestamp of the most recent update to the record."
-      - name: sys_audit_updated_by
-        description: "User or process that performed the last update."
-
-
-  - name: product__metafield__option_resource_products__event
-    description: "Contains all assigned option type products metafields"
-    config:
-      meta:
-        owner: "sol.abelleyro@tiendanube.com"
-        domain: "product"
-        business_owner: "Francisco Ramirez"
-    columns:
-      - name: id
-        description: "Unique identifier for the metafield"
-      - name: metafield_uuid
-        description: "Unique identifier for the metafield"
-      - name: metafield_value_id
-        description: "Value of the metafield"
-      - name: owner_id
-        description: "Unique identifier for the owner of the metafield"
-      - name: created_at
-        description: "Timestamp when the metafield was created"
-      - name: updated_at
-        description: "Timestamp when the metafield was last updated"
-      - name: sys_audit_created_on
-        description: "Timestamp when the record was first inserted into this table."
-      - name: sys_audit_created_by
-        description: "User or process that first inserted the record."
-      - name: sys_audit_updated_on
-        description: "Timestamp of the most recent update to the record."
-      - name: sys_audit_updated_by
-        description: "User or process that performed the last update."
-
-
-  - name: product__metafield__option_resource_product_variants__event
-    description: "Contains all assigned option type product variants metafields"
-    config:
-      meta:
-        owner: "sol.abelleyro@tiendanube.com"
-        domain: "product"
-        business_owner: "Francisco Ramirez"
-    columns:
-      - name: id
-        description: "Unique identifier for the metafield"
-      - name: metafield_uuid
-        description: "Unique identifier for the metafield"
-      - name: metafield_value_id
-        description: "Value of the metafield"
-      - name: owner_id
-        description: "Unique identifier for the owner of the metafield"
-      - name: created_at
-        description: "Timestamp when the metafield was created"
-      - name: updated_at
-        description: "Timestamp when the metafield was last updated"
-      - name: sys_audit_created_on
-        description: "Timestamp when the record was first inserted into this table."
-      - name: sys_audit_created_by
-        description: "User or process that first inserted the record."
-      - name: sys_audit_updated_on
-        description: "Timestamp of the most recent update to the record."
-      - name: sys_audit_updated_by
-        description: "User or process that performed the last update."
-
-
-  - name: product__metafield__text_resource_products__event
-    description: "Contains all assigned text type products metafields"
-    config:
-      meta:
-        owner: "sol.abelleyro@tiendanube.com"
-        domain: "product"
-        business_owner: "Francisco Ramirez"
-    columns:
-      - name: id
-        description: "Unique identifier for the metafield"
-      - name: metafield_uuid
-        description: "Unique identifier for the metafield"
-      - name: value
-        description: "Value of the metafield"
-      - name: owner_id
-        description: "Unique identifier for the owner of the metafield"
-      - name: created_at
-        description: "Timestamp when the metafield was created"
-      - name: updated_at
-        description: "Timestamp when the metafield was last updated"
-      - name: sys_audit_created_on
-        description: "Timestamp when the record was first inserted into this table."
-      - name: sys_audit_created_by
-        description: "User or process that first inserted the record."
-      - name: sys_audit_updated_on
-        description: "Timestamp of the most recent update to the record."
-      - name: sys_audit_updated_by
-        description: "User or process that performed the last update."
-
-
-  - name: product__metafield__text_resource_product_variants__event
-    description: "Contains all assigned text type product variants metafields"
-    config:
-      meta:
-        owner: "sol.abelleyro@tiendanube.com"
-        domain: "product"
-        business_owner: "Francisco Ramirez"
-    columns:
-      - name: id
-        description: "Unique identifier for the metafield"
-      - name: metafield_uuid
-        description: "Unique identifier for the metafield"
-      - name: value
-        description: "Value of the metafield"
-      - name: owner_id
-        description: "Unique identifier for the owner of the metafield"
-      - name: created_at
-        description: "Timestamp when the metafield was created"
-      - name: updated_at
-        description: "Timestamp when the metafield was last updated"
-      - name: sys_audit_created_on
-        description: "Timestamp when the record was first inserted into this table."
-      - name: sys_audit_created_by
-        description: "User or process that first inserted the record."
-      - name: sys_audit_updated_on
-        description: "Timestamp of the most recent update to the record."
-      - name: sys_audit_updated_by
-        description: "User or process that performed the last update."
-
-
   - name: midmarket__general__deals__link
     description: >
       Staging model for HubSpot deals loaded from the third_party schema.
@@ -2791,6 +2466,20 @@ models:
     columns:
       - name: company_id
         description: "Unique identifier for the company in HubSpot."
+        tests:
+          - not_null
+          - unique
+      - name: store_id
+        description: "Internal store identifier mapped to this HubSpot company."
+      - name: sys_audit_created_on
+        description: "Timestamp when this record was first created in the DBT model."
+      - name: sys_audit_created_by
+        description: "Identifier for the user or system that created this record."
+      - name: sys_audit_updated_on
+        description: "Timestamp when this record was last updated."
+      - name: sys_audit_updated_by
+        description: "Identifier for the user or system that last updated this record."
+
   - name: product__orders__fulfillment_orders__event
     description: "Contains information about fulfillment orders within each order"
     config:
@@ -2807,16 +2496,49 @@ models:
           - not_null
           - unique
       - name: store_id
-        description: "Internal store identifier mapped to this HubSpot company."
+        description: "Store unique identifier"
+        tests:
+          - not_null
+      - name: order_id
+        description: "Order unique identifier"
+        tests:
+          - not_null
+      - name: fulfillment_order_id
+        tests:
+          - not_null
+        description: "Fulfillment order unique identifier"
+      - name: number
+        description: "Fulfillment order number within the order"
+      - name: location_id
+        description: "CDs id the fulfillment order extracts stock from"
+      - name: location_name
+        description: "CDs name"
+      - name: shippable
+        description: "Whether the products within the fulfillment order are shippable"
+      - name: carrier_name
+        description: "Carrier name"
+      - name: option_name
+        description: "Option name within the selected carrier"
+      - name: shipping_type
+        description: "The way the products will get to the customer. 'non-shippable' refers to digital products while 'pickup' can be in-store pickup or carrier pickup (depending on the shippable value). 'ship' would be for fully delivered products"
+      - name: status
+        description: "Status for the fulfillment order (unpacked, fulfilled, etc.)"
+      - name: tracking_code
+        description: "Tracking code"
+      - name: line_items
+        description: "Contains details on the variant ids and quantities included in the fulfillment order"
+      - name: created_at
+        description: "Fulfillment order created at"
+      - name: updated_at
+        description: "Fulfillment order updated at"
       - name: sys_audit_created_on
-        description: "Timestamp when this record was first created in the DBT model."
+        description: "Timestamp when the record was first inserted into this table."
       - name: sys_audit_created_by
-        description: "Identifier for the user or system that created this record."
+        description: "User or process that first inserted the record."
       - name: sys_audit_updated_on
-        description: "Timestamp when this record was last updated."
+        description: "Timestamp of the most recent update to the record."
       - name: sys_audit_updated_by
-        description: "Identifier for the user or system that last updated this record."
-
+        description: "User or process that performed the last update."
 
   - name: product__general__hubspot_dealbreaker__event
     description: >
@@ -2996,46 +2718,3 @@ models:
         description: "Timestamp when this record was last updated."
       - name: sys_audit_updated_by
         description: "Identifier for the user or system that last updated this record."
-        description: "Store unique identifier"
-        tests:
-          - not_null
-      - name: order_id
-        description: "Order unique identifier"
-        tests:
-          - not_null
-      - name: fulfillment_order_id
-        tests:
-          - not_null
-        description: "Fulfillment order unique identifier"
-      - name: number
-        description: "Fulfillment order number within the order"
-      - name: location_id
-        description: "CDs id the fulfillment order extracts stock from"
-      - name: location_name
-        description: "CDs name"
-      - name: shippable
-        description: "Whether the products within the fulfillment order are shippable"
-      - name: carrier_name
-        description: "Carrier name"
-      - name: option_name
-        description: "Option name within the selected carrier"
-      - name: shipping_type
-        description: "The way the products will get to the customer. 'non-shippable' refers to digital products while 'pickup' can be in-store pickup or carrier pickup (depending on the shippable value). 'ship' would be for fully delivered products"
-      - name: status
-        description: "Status for the fulfillment order (unpacked, fulfilled, etc.)"
-      - name: tracking_code
-        description: "Tracking code"
-      - name: line_items
-        description: "Contains details on the variant ids and quantities included in the fulfillment order"
-      - name: created_at
-        description: "Fulfillment order created at"
-      - name: updated_at
-        description: "Fulfillment order updated at"
-      - name: sys_audit_created_on
-        description: "Timestamp when the record was first inserted into this table."
-      - name: sys_audit_created_by
-        description: "User or process that first inserted the record."
-      - name: sys_audit_updated_on
-        description: "Timestamp of the most recent update to the record."
-      - name: sys_audit_updated_by
-        description: "User or process that performed the last update."
