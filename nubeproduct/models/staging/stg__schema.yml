@@ -1977,6 +1977,7 @@ models:
       - name: invoice_id
         description: "Invoice identifier"
         tests:
+          - unique
           - not_null
       - name: cn_store_id
         description: "Unique identifier within Nuvemchat"
