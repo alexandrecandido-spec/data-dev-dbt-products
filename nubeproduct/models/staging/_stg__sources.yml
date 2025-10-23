@@ -348,3 +348,12 @@ sources:
       - name: apps
         description: "Contains app information"
       
+  - name: bronze_risk_ecommerce
+    database: bronze_risk
+    schema: ecommerce
+    description: "Bronze risk ecommerce tables"
+    tables:
+      - name: mwp_scripts
+        description: "Contains the scripts installed in the stores"
+      - name: mwp_shipping_carriers
+        description: "Contains the shipping carriers installed in the stores"
