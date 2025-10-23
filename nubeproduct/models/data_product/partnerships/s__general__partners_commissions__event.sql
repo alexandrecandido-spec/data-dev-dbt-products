@@ -31,7 +31,7 @@ commissions AS
         commission_created_date,
         commission_paid_date,
         partner_ledger_change_timestamp
-    FROM {{ ref('_int_partners__partners_commissions_construction') }} 
+    FROM {{ ref('_int_partnerships__partners_commissions__construction') }} 
 )
 SELECT 
     commissions.* EXCEPT(partner_ledger_change_timestamp), 

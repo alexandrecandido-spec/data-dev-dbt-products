@@ -119,6 +119,12 @@ models:
         description: "Type of partner ledger entry determining commission category."
         tests:
           - not_null
+          - accepted_values:
+              values: [1, 2, 3, 4, 5, 6, 7, 8]
+      - name: partner_ledger_entry_type_name
+        description: "Name of the partner ledger entry type."
+        tests:
+          - not_null
       - name: transaction_type
         description: "Type of transaction (Deposit or Withdrawal)."
         tests:
