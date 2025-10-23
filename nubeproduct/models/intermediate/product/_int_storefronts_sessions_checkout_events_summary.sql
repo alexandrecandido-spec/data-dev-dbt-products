@@ -3,7 +3,7 @@ select
 cart_id,
 store_id,
 min(base_date) as base_date
-from {{ ref('product__checkout_events_event') }}
+from {{ ref('product__traffic__cart_checkout_by_event_type__event') }}
 group by 1,2
 )
 select

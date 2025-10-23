@@ -41,7 +41,7 @@ WHERE
         timestamp {{ get_max_date(this, 'base_date', 1, 'month') }}
     {% else %}
         -- Lógica de primera carga (usando tu filtro original de 60 días)
-        timestamp BETWEEN DATE('2025-07-01') AND DATE('2025-07-31') 
+        timestamp BETWEEN DATE('2025-01-01') AND DATE('2025-01-31') 
     {% endif %}
     AND event IN (
         'checkout_selected_shipping_method', 

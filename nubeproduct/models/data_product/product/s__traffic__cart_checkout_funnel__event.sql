@@ -59,7 +59,7 @@ WHERE
          i.base_date {{ get_max_date(this, 'base_date', 1, 'month') }}
     {% else %}
         -- Lógica de primera carga (ajusta el rango según sea necesario)
-         i.base_date BETWEEN DATE('2025-07-01') AND DATE('2025-07-31') 
+         i.base_date BETWEEN DATE('2025-01-01') AND DATE('2025-01-31') 
     {% endif %}
     
     AND i.cart_id IS NOT NULL 

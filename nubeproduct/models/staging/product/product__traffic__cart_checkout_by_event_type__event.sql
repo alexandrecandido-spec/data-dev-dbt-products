@@ -34,7 +34,7 @@ WHERE
         -- Se recomienda usar una macro como get_max_date o el filtro de timestamp directo si es posible
         AND timestamp {{ get_max_date(this, 'base_date', 1, 'month') }}
     {% else %}
-        AND CAST(timestamp AS DATE) BETWEEN DATE('2025-07-01') AND DATE('2025-07-31') 
+        AND CAST(timestamp AS DATE) BETWEEN DATE('2025-01-01') AND DATE('2025-01-31') 
     {% endif %}
 
     -- Filtro de tipos de evento
