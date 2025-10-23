@@ -18,6 +18,7 @@ commissions AS
         store_id,
         plan_id,
         partner_ledger_entry_type_id,
+        partner_ledger_entry_type_name,
         transaction_type,
         commission_type,
         commission_amount,
