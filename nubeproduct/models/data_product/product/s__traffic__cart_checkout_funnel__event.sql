@@ -89,11 +89,11 @@ SELECT
 FROM 
     incremental_base i
 LEFT JOIN {{ ref('_int_product_storefronts_sessions_wallet_events') }} we ON i.cart_id = we.cart_id
-LEFT JOIN {{ ref('s__product_events_attributes__link') }} cesa_shipping 
+LEFT JOIN {{ ref('product__traffic__cart_attributes_by_event_type__event') }} cesa_shipping 
     ON i.cart_id = cesa_shipping.cart_id AND cesa_shipping.event = 'checkout_selected_shipping_method'
-LEFT JOIN {{ ref('s__product_events_attributes__link') }} cesa_payment 
+LEFT JOIN {{ ref('product__traffic__cart_attributes_by_event_type__event') }} cesa_payment 
     ON i.cart_id = cesa_payment.cart_id AND cesa_payment.event = 'checkout_selected_payment_method'
-LEFT JOIN {{ ref('s__product_events_attributes__link') }} cesa_retry 
+LEFT JOIN {{ ref('product__traffic__cart_attributes_by_event_type__event') }} cesa_retry 
     ON i.cart_id = cesa_retry.cart_id AND cesa_retry.event = 'checkout_payment_retry'
 LEFT JOIN {{ ref('_int_storefronts_sessions_checkout_first_and_last_event') }} sscfl 
     ON i.cart_id = sscfl.cart_id

@@ -7,7 +7,7 @@ first_event_timestamp,
 last_event_timestamp,
 ROW_NUMBER() OVER (PARTITION BY cart_id ORDER BY first_event_timestamp) AS rn_first,
 ROW_NUMBER() OVER (PARTITION BY cart_id ORDER BY last_event_timestamp desc) AS rn_last
-from {{ ref('product__checkout_events_event') }}
+from {{ ref('product__traffic__cart_checkout_by_event_type__event') }}
 )
 select
 first_event.cart_id,
