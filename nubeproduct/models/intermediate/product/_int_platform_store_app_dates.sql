@@ -16,7 +16,7 @@ left join {{ source('bronze_risk_ecommerce', 'mwp_store_settings') }} ss
 ),
 store_dates as (
     select 
-        d.registered_month
+        date(d.registered_month) as registered_month
         ,p.*
     from stores p
     cross join {{ ref('_int_pd_github_dates') }} d
