@@ -1,6 +1,6 @@
 {{config(
     materialized = 'incremental',
-    unique_key = 'invoice_id',
+    unique_key = ['invoice_id','invoice_created_at'],
     on_schema_change = 'fail',
     tags = ['product', 'daily-9am']
 )}}

@@ -7,7 +7,7 @@ SELECT
 ,COALESCE(b.segment_id,-1) AS segment_id
 ,a.sys_audit_updated_on
 FROM {{ ref('company_metrics_gmv_and_segments') }} a
-LEFT JOIN {{ ref('dim_segment_type') }} b on a.segment = b.segment_name
+LEFT JOIN {{ ref('dimension__attributes__segment_type__ref') }} b on a.segment = b.segment_name
 )
 ,latest_segment AS 
 (

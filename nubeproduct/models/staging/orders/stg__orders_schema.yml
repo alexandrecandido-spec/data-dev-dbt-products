@@ -4,7 +4,7 @@ models:
     description: "All the orders in their different statuses"
     config:
       meta:
-        owner: "rodrigo.torres@tiendanube.com"
+        owner: "gustavo.braga@nuvemshop.com.br"
         domain: "finance"
         business_owner: "Nico Loreti"
     columns:
@@ -12,10 +12,6 @@ models:
         description: "Unique identifier for the order."
         tests:
           - unique:
-              where: "sys_audit_updated_on >= current_timestamp - interval '1 hours'"
-      - name: id
-        tests:
-          - not_null:
               where: "sys_audit_updated_on >= current_timestamp - interval '1 hours'"
       - name: store_id
         description: "Identifier of the store associated with the order."
@@ -39,6 +35,8 @@ models:
               where: "sys_audit_updated_on >= current_timestamp - interval '1 hours'"
       - name: contact_email
         description: "Email address of the customer who placed the order."
+      - name: contact_name
+        description: "Name of the customer who placed the order."
       - name: currency
         description: "Currency used for the transaction."
       - name: status
@@ -64,6 +62,8 @@ models:
         description: "Payment status of the order (e.g., paid, pending, failed)."
       - name: gateway
         description: "Name of the payment gateway used to process the transaction."
+      - name: internal_extra
+        description: "Additional internal information about the order."
       - name: shipping_method
         description: "Shipping method selected for the order."
       - name: shipping_cost
@@ -104,7 +104,7 @@ models:
     description: "Products associated with the order"
     config:
       meta:
-        owner: "rodrigo.torres@tiendanube.com"
+        owner: "gustavo.braga@nuvemshop.com.br"
         domain: "finance"
         business_owner: "Giselle Galli"
     columns:

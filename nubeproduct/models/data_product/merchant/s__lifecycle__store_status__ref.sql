@@ -20,23 +20,23 @@ WITH existing_data AS (
 source_data AS (
 SELECT 
 main_source.store_id
-, main_source.created_at
-, main_source.domain
-, main_source.country_code
-, main_source.country_name
-, main_source.region_name
-, main_source.state_name
-, main_source.city_name
-, main_source.currency
-, main_source.device
-, main_source.register_url
-, main_source.partner_id
-, main_source.partnership_type
-, main_source.partner_code
-, main_source.vertical_name
-, main_source.business_size_name
+, main_source.first_payment
+, main_source.churned_at
+, main_source.first_seller_at
+, main_source.current_plan_id
+, main_source.current_plan_name
+, main_source.current_plan_type
+, main_source.current_segment
+, main_source.is_seller
+, main_source.max_segment
+, main_source.is_store_blocked
+, main_source.blocked_reason
+, main_source.blocked_at
+, main_source.state
+, main_source.disabled
+, main_source.custom_theme
 , main_source.change_timestamp
-FROM {{ ref('_int__attributes__store_core') }} main_source
+FROM {{ ref('_int__lifecycle__store_status') }} main_source
 WHERE
 main_source.state != 4
 {% if not is_incremental() %}
