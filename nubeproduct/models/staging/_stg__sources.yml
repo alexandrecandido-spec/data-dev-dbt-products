@@ -45,6 +45,12 @@ sources:
       - name: wp_users
       - name: mwp_apps
         description: "Contains information about apps installed by merchants"
+      - name: mwp_zipcodes_ar
+        description: "Table with zipcodes from Argentina."
+      - name: mwp_zipcodes_mx
+        description: "Table with zipcodes from Mexico."
+      - name: ceps
+        description: "Table with zipcodes from Brazil."
 
 
   - name: stg_orders
@@ -62,6 +68,8 @@ sources:
         description: "Deleted regs of products associated with an order."
       - name: mwp_orders_b2b
         description: "Orders generated through the B2B solution."
+      - name: mwp_orders_fulfillments
+        description: "Fulfillments associated with an order."
 
 
   - name: stg_nuvem_credito
@@ -192,8 +200,15 @@ sources:
     schema: onboarding
     tables:
       - name: onboarding_store_preference_types 
-        description: "Merchant sales channels. Responses are received when the merchant completes the pre-onboarding questionnaire. Merchants can choose multiple options and each selection is stored as a distinct entry in the table"
-
+        description: "Merchant sales channels. Responses are received when the merchant completes the pre-onboarding questionnaire. Merchants can choose multiple options and each selection is stored as a distinct entry in the table."
+      - name: domain_types
+        description: "It includes every possible answer choice for the pre-onboarding survey questions that the user will see in the frontend."
+      - name: domain_mappings
+        description: "It links the question groups of the questionnaires with the answer options from the domain types."
+      - name: store_preferences
+        description: "It records the preferences of each store based on the options selected in the questionnaire."
+      - name: store_questionnaire_statuses
+        description: "It records the status of the pre-onboarding questionnaire for each store. A row is created when a new store is generated, with the status 'pending'. The status only changes to 'completed' when the store finishes the pre-onboarding."
   
   - name: stg_offline
     database: hive_metastore
@@ -263,6 +278,16 @@ sources:
     tables:
       - name: deals_archived 
         description: "Contains a record of Hubspot deals that were archived (only last 90 days)"
+      - name: dealbreakers
+        description: "Contains a record of Hubspot dealbreakers objects"
+      - name: dealbreakers_companies_associations   
+        description: "Contains all the dealbreakers and its association to a company in Hubspot" 
+      - name: companies
+        description: "Contains a record of all Hubspot companies, including their store_id"
+      - name: dealbreakers_base_archived
+        description: "Contains a record of Hubspot dealbreakers that were archived (only last 90 days)"
+      - name: dealbreakers_base_association
+        description: "Contains all the active dealbreakers and its association to a company in Hubspot"
 
 
   - name: stg_third_party
@@ -313,14 +338,44 @@ sources:
         description: "Contains all product variants metafields"
       - name: metafield_products
         description: "Contains all products metafields"
+      - name: metafield_categories
+        description: "Contains all categories metafields"
+      - name: metafield_customers
+        description: "Contains all customers metafields"     
+      - name: metafield_orders
+        description: "Contains all orders metafields"    
       - name: metafield_date_resource_products
         description: "Contains all assigned date type products metafields"
+      - name: metafield_date_resource_categories
+        description: "Contains all assigned date type categories metafields"
+      - name: metafield_date_resource_customers
+        description: "Contains all assigned date type customers metafields"
+      - name: metafield_date_resource_orders
+        description: "Contains all assigned date type orders metafields"
       - name: metafield_numeric_resource_products
         description: "Contains all assigned numeric type products metafields"
+      - name: metafield_numeric_resource_categories
+        description: "Contains all assigned numeric type categories metafields"
+      - name: metafield_numeric_resource_customers
+        description: "Contains all assigned numeric type customers metafields"
+      - name: metafield_numeric_resource_orders
+        description: "Contains all assigned numeric type orders metafields"
       - name: metafield_option_resource_products
         description: "Contains all assigned option type products metafields"
+      - name: metafield_option_resource_categories
+        description: "Contains all assigned option type categories metafields"
+      - name: metafield_option_resource_customers
+        description: "Contains all assigned option type customers metafields"
+      - name: metafield_option_resource_orders
+        description: "Contains all assigned option type orders metafields"
       - name: metafield_text_resource_products
         description: "Contains all assigned text type products metafields"  
+      - name: metafield_text_resource_categories
+        description: "Contains all assigned text type categories metafields"
+      - name: metafield_text_resource_customers
+        description: "Contains all assigned text type customers metafields"
+      - name: metafield_text_resource_orders
+        description: "Contains all assigned text type orders metafields"
       - name: metafield_text_resource_product_variants
         description: "Contains all assigned text type product variants metafields"
       - name: metafield_date_resource_product_variants
@@ -348,6 +403,15 @@ sources:
       - name: apps
         description: "Contains app information"
       
+  
+  - name: stg_data_manual
+    database: hive_metastore
+    schema: "{{ 'testing_manual' if target.name == 'dev' else 'data_manual' }}"
+    tables:
+      - name: operations__grouping_plans_aux
+      - name: dimensions__segment_type
+      - name: dimensions__region
+      - name: logistics__shipping_classification
   - name: bronze_risk_ecommerce
     database: bronze_risk
     schema: ecommerce

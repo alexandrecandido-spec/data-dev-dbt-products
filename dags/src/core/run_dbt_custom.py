@@ -99,6 +99,8 @@ def create_dbt_dag(
         schedule_interval='0 10 4 * *'
     elif schedule_interval_tag == 'monthly-4th-12pm':
         schedule_interval = '0 12 4 * *'
+    elif schedule_interval_tag == 'daily-1am':
+        schedule_interval='0 1 * * *'
     else:
         schedule_interval=None 
 

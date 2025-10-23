@@ -571,3 +571,37 @@ models:
         description: Timestamp when the row was initially created in the summary table.
       - name: sys_audit_created_by
         description: Source or user responsible for the initial row creation.
+  
+
+  - name: s__general__grouping_plans__ref
+    config:
+      meta:
+        owner: "guillermo.defelice@tiendanube.com"
+        domain: "operations"
+        business_owner: "Fran Ramirez"
+    description: Contains information about plans (group, if it existed before freemium and nice name).
+    columns:
+      - name: plan
+        description: Unique identifier of plan (id from plan_countries).
+        tests:
+          - not_null
+          - unique
+      - name: grupo
+        description: Plan type.
+        tests:
+          - accepted_values:
+              values: ['enterprise', 'freemium', 'lojinha', 'no-stores', 'plan-a', 'plan-b', 'plan-c', 'plan-emprendedor', 'test_broken', 'zero-fee']
+      - name: before_freemium_launch
+        description: If the plan existed before freemium launch.
+      - name: namev2
+        description: Name of the plan as seen by the merchant.
+      - name: sys_audit_created_on
+        description: Timestamp when the row was initially created in the summary table.
+      - name: sys_audit_created_by
+        description: Source or user responsible for the initial row creation.
+      - name: sys_audit_updated_on
+        description: Timestamp of the latest update to the row.
+      - name: sys_audit_updated_by
+        description: Source or user responsible for the latest update.
+
+  

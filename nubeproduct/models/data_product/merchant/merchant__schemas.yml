@@ -1,0 +1,171 @@
+version: 2
+models:
+  - name: s__attributes__store_core__ref
+    description: "Data Product silver that contains the core attributes of each store."
+    config:
+      meta:
+        owner: "ronald.corcho@tiendanube.com"
+        domain: "merchant"
+        business_owner: "Analytics Engineering"
+    columns:
+      - name: store_id
+        description: "Store identifier."
+        tests: [not_null, unique]
+      - name: created_at
+        description: "Date when the store was created."
+        tests: [not_null]
+      - name: domain
+        description: "Domain of the store."
+        tests: [not_null]
+      - name: country_code
+        description: "Country code of the store."
+        tests: [not_null]
+      - name: country_name
+        description: "Country name of the store."
+        tests: [not_null]
+      - name: region_name
+        description: "Region name of the store."
+        tests: [not_null]
+      - name: state_name
+        description: "State name of the store."
+        tests: [not_null]
+      - name: city_name
+        description: "City name of the store."
+        tests: [not_null]
+      - name: currency
+        description: "Currency of the store."
+      - name: device
+        description: "Device type used by the user during the store creation process (e.g., desktop, app, mobile)."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['desktop', 'app', 'mobile', 'tablet', 'undefined']
+      - name: register_url
+        description: "Register URL of the store."
+      - name: partner_id
+        description: "Partner ID of the store."
+      - name: partnership_type
+        description: "Partnership type of the store."
+      - name: partner_code
+        description: "Partner code of the store."
+      - name: vertical_name
+        description: "Vertical name of the store."
+        tests: [not_null]
+      - name: business_size_name
+        description: "Business size name of the store."
+        tests: [not_null]
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model. Defaults to current_timestamp if not available."
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model. Defaults to 'data-dev-dbt-products'."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed."
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
+
+
+  - name: s__lifecycle__first_seller_date__ref
+    description: "This data product identifies the first date on which a store qualified as a “seller”, based on sales performance, and aligns it with the store’s presence in the moltres_store_info. The main goal is to determine when each store first achieved at least 7 sales in a rolling 90-day window, according to data from company_metrics_paid_orders."
+    config:
+      meta:
+        owner: "giselle.galli@tiendanube.com"
+        domain: "marketing"
+        business_owner: "Giselle Galli" 
+    columns:
+      - name: store_id
+        description: "Unique identifier for each store"
+        tests:
+          - not_null
+      - name: year_month_day_code
+        description: YYYYMMDD code used for partitioning the data. Partition Key
+        tests:
+          - not_null 
+      - name: first_seller_at
+        description: "Date when the first seller was made (first time achieving 7 sales in 90 days window)"
+      - name: sys_audit_created_on
+        description: "Timestamp of when this record was created in our data warehouse"
+      - name: sys_audit_updated_on
+        description: "Timestamp of when this record was last updated in our data warehouse"
+      - name: sys_audit_created_by
+        description: "System identifier of the process that created this record"
+      - name: sys_audit_updated_by
+        description: "System identifier of the process that last updated this record"
+  
+
+  - name: s__lifecycle__store_status__ref
+    description: "This data product contains the lifecycle status of each store, including its first payment date, churn date, first seller date, current plan, current segment, whether it is a seller or not, whether it is blocked or not, and the reason for blocking."
+    config:
+      meta:
+        owner: "ronald.corcho@tiendanube.com"
+        domain: "merchant"
+        business_owner: "Analytics Engineering" 
+    columns:
+      - name: store_id
+        description: "Unique identifier for each store"
+        tests:
+          - not_null
+          - unique
+      - name: first_payment
+        description: "Date when the first payment was made"
+      - name: churned_at
+        description: "Date when the store churned"
+      - name: first_seller_at
+        description: "Date when the first seller was made (first time achieving 7 sales in 90 days window)"
+      - name: current_plan_id
+        description: "ID of the current plan"
+        tests:
+          - not_null
+      - name: current_plan_name
+        description: "Name of the current plan"
+        tests:
+          - not_null
+      - name: current_plan_type
+        description: "Type of the current plan"
+        tests:
+          - not_null
+      - name: current_segment
+        description: "Current segment of the store"
+        tests:
+          - accepted_values:
+              values: ['no-seller', 'struggling-seller', 'tiny-seller', 'small-seller', 'medium-seller', 'large-seller', 'top-seller', 'not-informed', 'not_informed']
+      - name: is_seller
+        description: "Whether the store is a seller or not"
+        tests:
+          - accepted_values:
+              values: ['seller', 'no-seller']
+      - name: max_segment
+        description: "Maximum historical segment of the store"
+        tests:
+          - accepted_values:
+              values: ['no-seller', 'struggling-seller', 'tiny-seller', 'small-seller', 'medium-seller', 'large-seller', 'top-seller', 'not-informed', 'not_informed']
+      - name: is_store_blocked
+        description: "Whether the store is blocked or not"
+        tests:
+          - not_null
+      - name: blocked_reason
+        description: "Reason for blocking the store"
+        tests:
+          - dbt_expectations.expect_column_values_to_not_be_null:
+              row_condition: "is_store_blocked = true"
+      - name: blocked_at
+        description: "Date when the store was blocked"
+        tests:
+          - dbt_expectations.expect_column_values_to_not_be_null:
+              row_condition: "is_store_blocked = true"
+      - name: state
+        description: "Billing state of the store"
+        tests:
+          - dbt_expectations.expect_column_values_to_not_be_in_set:
+              value_set: [4]
+      - name: disabled
+        description: "Timestamp when the store was disabled"
+      - name: custom_theme
+        description: "Timestamp when the custom theme was used for the first time"
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model. Defaults to current_timestamp if not available."
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model. Defaults to 'data-dev-dbt-products'."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed."
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."

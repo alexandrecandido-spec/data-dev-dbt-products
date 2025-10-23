@@ -40,123 +40,6 @@ models:
           - not_null
 
 
-  - name: moltres__contracts
-    description: "Staging model containing contracts created through plan subscription events."
-    config:
-      meta:
-        tech_steward: "renan.ferrari@nuvemshop.com.br"
-        domain: "finance"
-        business_owner: "Operations"
-    columns:
-      - name: id
-        description: "Unique contract identifier."
-        tests:
-          - not_null
-          - unique
-      - name: store_id
-        description: "Store identifier linked to the contract."
-        tests:
-          - not_null
-      - name: plan_id
-        description: "Plan identifier associated with the contract."
-      - name: created_at
-        description: "Timestamp when the contract entry was created."
-      - name: start_date
-        description: "Date when the contract started."
-      - name: end_date
-        description: "Date when the contract ended."
-      - name: type
-        description: "Type of contract event (e.g., freemium, change-plan)."
-      - name: total
-        description: "Total value of the contract."
-      - name: sys_audit_created_on
-        description: "Timestamp when the row was originally created."
-        tests:
-          - not_null
-      - name: sys_audit_created_by
-        description: "System or user that created the row."
-        tests:
-          - not_null
-      - name: sys_audit_updated_on
-        description: "Timestamp when the row was last updated in this table."
-        tests:
-          - not_null
-      - name: sys_audit_updated_by
-        description: "System or user that last updated the row."
-        tests:
-          - not_null
-
-
-  - name: moltres__mwp_store_info
-    description: "Staging model that contains data about each store, such as store ID, country, creation and churn dates and other attributes."
-    config:
-      meta:
-        owner: "rodrigo.torres@tiendanube.com"
-        domain: "finance"
-        business_owner: "Analytics Engineering"
-    columns:
-      - name: store_id
-        description: "Store identifier."
-        tests:
-          - unique
-          - not_null
-      - name: country
-        description: "Country of the store."
-      - name: current_segment
-        description: "Current segment of the store."
-      - name: churned_at
-        description: "Date when the store was churned."
-      - name: first_payment
-        description: "Date when the store made its first payment."
-      - name: state
-        description: "Billing state of the store"
-        tests:
-          - not_null
-      - name: created_at
-        description: "Date when the store was created."
-        tests:
-          - not_null
-      - name: currency
-        description: "Currency of the store."
-      - name: plan
-        description: "Current plan of the store."
-      - name: verified
-        description: "Code indicating the device used during store creation."
-      - name: register_url
-        description: "URL of the store's registration page."
-      - name: partner_id
-        description: "ID of the store's partner, if a partner was involved in the store's creation."
-      - name: partner_code
-        description: "Code of the store's partner, if a partner was involved in the store's creation."
-      - name: partnership_type
-        description: "Type of partnership, if a partner was involved in the store's creation."
-      - name: domain
-        description: "Custom store domain name created by the client."
-      - name: main_user_id
-        description: "Main user ID of the store."
-      - name: is_store_blocked
-        description: >
-          Boolean flag indicating whether the store has received either of the tags
-          'sre-block-store-404' or 'sre-block-store-429'.
-        tests:
-          - not_null
-        accepted_values:
-          values: [TRUE, FALSE]
-      - name: custom_theme
-        description: "Identifies the date on which the store began using a custom theme (open FTP). If the field is blank, the store is using a default theme (closed FTP)."
-      - name: disabled
-        description: "Boolean flag indicating if the store is disabled/cancelled."
-      - name: paid_until
-        description: "Date when the store's paid subscription expires. Null if the store doesn't have a paid subscription."
-      - name: sys_audit_created_on
-        description: "Timestamp when the record was first loaded into the model. Defaults to current_timestamp if not available."
-      - name: sys_audit_created_by
-        description: "User or process that first loaded the record into the model. Defaults to 'data-dev-dbt-products'."
-      - name: sys_audit_updated_on
-        description: "Timestamp of the current model run when the record was processed."
-      - name: sys_audit_updated_by
-        description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
-
   - name: nuvem_credito__credit_proposals
     config:
       meta:
@@ -194,6 +77,7 @@ models:
       - name: sys_audit_updated_by
         description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
 
+
   - name: nuvem_credito__initial_installments
     config:
       meta:
@@ -221,6 +105,7 @@ models:
       - name: sys_audit_updated_by
         description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
 
+
   - name: nuvem_credito__last_credit_offer
     config:
       meta:
@@ -245,6 +130,7 @@ models:
         description: "Timestamp of the current model run when the record was processed."
       - name: sys_audit_updated_by
         description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
+
 
   - name: credito_dev__mova_installment_present_value
     config:
@@ -300,6 +186,7 @@ models:
         description: "Timestamp of the current model run when the record was processed."
       - name: sys_audit_updated_by
         description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
+
 
   - name: antifraud_service__vertifier_store_inferences
     description: "Staging model with vertifier of current store_id provided by antifraud inferences."
@@ -452,6 +339,7 @@ models:
       - name: year_month_day_code
         description: "YYYYMMDD  event_date."
 
+
   - name: ga4__session_info
     description: "Staging model for user sessions duration and engagement flags."
     config:
@@ -562,30 +450,6 @@ models:
         description: "Timestamp of the current model run when the record was processed."
       - name: sys_audit_updated_by
         description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
-
-
-  - name: moltres__platform_mwp_apps_stores
-    description: "Extracted data of apps installed and uninstalled by stores"
-    config:
-      meta:
-        owner: "fernando.martinez@tiendanube.com"
-        domain: "product"
-        business_owner: "Nicolas Loreti"
-    columns:
-      - name: app_id
-        description: "determines the app_id of the installation"
-      - name: store_id
-        description: "determines the store_id of the installation"
-      - name: installed_app_id
-        description: "determines the unique identifier of the installation"
-      - name: app_install_date
-        description: "determines the date when the app was installed"
-      - name: app_uninstall_date
-        description: "determines the date when the app was uninstalled"
-      - name: sys_admin_created_at
-        description: "determines the date when the installation was created"
-      - name: sys_audit_updated_at
-        description: "determines the date when the installation was updated"
 
 
   - name: billing__receipt
@@ -1029,27 +893,6 @@ models:
           - not_null
 
 
-  - name: moltres__mwp_invoice_info
-    description: "Tax information for stores for invoice issuance."
-    config:
-      meta:
-        owner: "gustavo.oliveira@nuvemshop.com.br"
-        domain: "finance"
-        business_owner: "Mônica Orlando"
-    columns:
-      - name: store_id
-        description: "Store identifier"
-        tests: [not_null]
-      - name: id_type
-        description: "Identifier type (e.g., CPF, CNPJ)"
-      - name: id_number
-        description: "CPF/CNPJ number"
-      - name: business_name
-        description: "Company name or legal name"
-      - name: type
-        description: "Type of tax information"
-
-
   - name: nuvem_envio__billing_cycle
     description: "Raw billing cycle information per store."
     config:
@@ -1295,6 +1138,7 @@ models:
         tests:
           - not_null
 
+
   - name: nuvem_envio__delivery_order
     description: "Delivery data about NE shipments"
     config:
@@ -1424,6 +1268,8 @@ models:
       Includes normalization of UTM parameters, referrer, and creation of a
       technical unique key for incremental loading. Serves as the clean base
       for downstream traffic and attribution analysis.
+      Full documentation available at:
+      https://www.notion.so/Staging-product__traffic__sessions__event-28c85d24ee8f807c9a9ddf58ec72c299
     config:
       meta:
         owner: "barbara.marques@nuvemshop.com.br"
@@ -1494,6 +1340,118 @@ models:
         tests:
           - not_null
 
+  - name: product__checkout_events_event
+    description: >
+      Staging model that standardizes raw checkout events.
+      Filters checkout specific events, since they can be identified by cart_id, while other events cannot.
+      PK is cart_id + event. If an event appears more than once for a cart, it gets first and last timestamp.
+    config:
+      meta:
+        owner: "fabrizio.crivella@tiendanube.com"
+        domain: "product"
+        business_owner: "Rocio Diez"
+    columns:
+      - name: cart_id
+        description: "Unique identifier of cart."
+        tests:
+          - not_null
+      - name: event
+        description: "Name of the type of event. Identifies what action triggered a specific event."
+        tests:
+          - not_null
+      - name: store_id
+        description: "Store unique identifier associated to the event."
+        tests:
+          - not_null
+      - name: first_event_timestamp
+        description: "Timestamp of the first event by the combination of cart_id + event."
+        tests:
+          - not_null
+      - name: last_event_timestamp
+        description: "Timestamp of the first event by the combination of cart_id + event."
+        tests:
+          - not_null
+      - name: base_date
+        description: "first_event_timestamp casted as date, used for partitions."
+        tests:
+          - not_null
+    tests:
+      - unique:
+          column_names: ["cart_id", "event"]
+
+  - name: s__product_events_attributes__link
+    description: >
+      Staging model that standardizes specific attributes from events. Every event type has their own attributes,
+      so we cannot standarize them on the main table. This table persists the attrbiutes we need.
+    config:
+      meta:
+        owner: "fabrizio.crivella@tiendanube.com"
+        domain: "product"
+        business_owner: "Rocio Diez"
+    columns:
+      - name: cart_id
+        description: "Unique identifier of cart."
+        tests:
+          - not_null
+      - name: store_id
+        description: "Store unique identifier associated to the event."
+        tests:
+          - not_null
+      - name: event
+        description: "Name of the type of event. Identifies what action triggered a specific event."
+        tests:
+          - not_null
+      - name: payment_method_name
+        description: "Payment provider selected by the consumer, extracted from checkout_selected_payment_method event."
+      - name: payment_method_type
+        description: "Gateway method selected by the consumer, extracted from checkout_selected_payment_method event."  
+      - name: payment_method_integration_type
+        description: "Gateway integration type selected by the consumer, extracted from checkout_selected_payment_method event."  
+      - name: shipping_method_code
+        description: "Shipping method provider name selected by the consumer, extracted from checkout_selected_shipping_method event."  
+      - name: shipping_method_type
+        description: "Shipping method type selected by the consumer, extracted from checkout_selected_shipping_method event."  
+      - name: shipping_method_id
+        description: "Shipping method provider identifier selected by the consumer, extracted from checkout_selected_shipping_method event."  
+      - name: payment_retry_feature
+        description: "Identifies if the cart used payment retry feature, and which feature was used."  
+      - name: event_timestamp
+        description: "Timestamp of the last event."  
+      - name: base_date
+        description: "Timestamp casted as date, for partitioning."  
+    tests:
+      - unique:
+          column_names: ["cart_id", "event"]
+
+  - name: s__product_events_wallet__link
+    description: >
+      Staging model that standardizes Wallet events.
+    config:
+      meta:
+        owner: "fabrizio.crivella@tiendanube.com"
+        domain: "product"
+        business_owner: "Rocio Diez"
+    columns:
+      - name: cart_id
+        description: "Unique identifier of cart."
+        tests:
+          - not_null
+      - name: store_id
+        description: "Store unique identifier associated to the event."
+        tests:
+          - not_null
+      - name: event
+        description: "Name of the type of event. Identifies what action triggered a specific event."
+        tests:
+          - not_null
+      - name: first_event
+        description: "Timestamp of the first event."
+        tests:
+          - not_null
+      - name: base_date
+        description: "Timestamp casted as date, for partitioning."
+        tests:
+          - not_null
 
   - name: midmarket_hubspot_archived_deals
     description: >
@@ -1538,6 +1496,7 @@ models:
         description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
         tests:
           - not_null
+
 
   - name: midmarket_hubspot_merged_deals
     description: >
@@ -1595,7 +1554,8 @@ models:
         description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
         tests:
           - not_null
-                    
+  
+                
   - name: github_data__issue_comment
     description: >
       Staging model that contains the list of every comment associated to an Issue/Problem.
@@ -1661,7 +1621,8 @@ models:
         description: "Comment identification number. Must be combined with repo_name and issue_number to get the unique key of the model"
       - name: impact
         description: "Only for Mid Market stores, determines the criticity of the comment"
-        
+
+
   - name: product__mwp_product_categories
     description: "Contains the list of every product category"
     config:
@@ -1697,6 +1658,7 @@ models:
         description: "The selected way of sorting the products in the category (best-selling, price-descending, etc)"
       - name: min_price
         description: "Minimum price for a product within the category in local currency"
+
 
   - name: product__shipping_locations
     description: "Contains information on all the distribution centers of the stores"
@@ -1734,6 +1696,7 @@ models:
       - name: year_month_code
         description: "Reference year and month. Also the field used to partition the table."
 
+
   - name: product__mwp_inventory_levels
     description: "Contains information stock on each CD for each variant"
     config:
@@ -1762,60 +1725,7 @@ models:
       - name: deleted_at
         description: "Timestamp when the inventory level was deleted"
 
-  - name: moltres__mwp_user_languages
-    description: "Table with user languages (from 'Paises Habilitados')"
-    config:
-      meta:
-        owner: "sol.abelleyro@tiendanube.com"
-        domain: "product"
-        business_owner: "Francisco Ramirez"
-    columns:
-      - name: id
-        description: "Unique identifier for the user language"
-        tests:
-          - not_null
-          - unique
-      - name: store_id
-        description: "Unique identifier of the store linked to the user language."
-        tests:
-          - not_null
-      - name: language
-        description: "Language of the user (es_AR,pt_BR, etc.)"
-      - name: name
-        description: "Name of the user language (Español, Português, etc.)"
-      - name: currency
-        description: "Currency of the user language (ARS, BRL, etc.)"
-      - name: active
-        description: "If the user language is active (1 or 0)"
-      - name: flag
-        description: "Flag of the user language (US,BR,ES)"
 
-  - name: moltres__mwp_user_countries
-    description: "Table with user countries (from 'Paises Habilitados')"
-    config:
-      meta:
-        owner: "sol.abelleyro@tiendanube.com"
-        domain: "product"
-        business_owner: "Francisco Ramirez"
-    columns:
-      - name: id
-        description: "Unique identifier for the user country"
-        tests:
-          - not_null
-          - unique
-      - name: store_id
-        description: "Unique identifier of the store linked to the user country."
-      - name: country_id
-        description: "Unique identifier of the country linked to the user country (mwp_countries table)"
-      - name: language_id
-        description: "Unique identifier of the language linked to the user country (mwp_user_languages table)"
-      - name: currency_id
-        description: "Unique identifier of the currency linked to the user country."
-      - name: created_at
-        description: "Timestamp when the user country was created"
-      - name: updated_at
-        description: "Timestamp when the user country was last updated"
-      
   - name: nuvem_chat__store
     description: "Staging model that contains the list of all merchants that have Nuvemchat installed"
     config:
@@ -1887,7 +1797,8 @@ models:
         description: "Timestamp of the most recent update to the record."
       - name: sys_audit_updated_by
         description: "User or process that performed the last update."
-    
+
+
   - name: nuvem_chat__billing_plan
     description: "Staging model that contains information on billing and trials for merchants using Nuvemchat"
     config:
@@ -1928,6 +1839,7 @@ models:
       - name: sys_audit_updated_by
         description: "User or process that performed the last update."
 
+
   - name: nuvem_chat__conversation
     description: "Staging model that contains all conversations from Nuvemchat"
     config:
@@ -1960,46 +1872,6 @@ models:
       - name: sys_audit_updated_by
         description: "User or process that performed the last update."
 
-  - name: metafields__metafield_product_variants
-    description: "Contains all product variants metafields"
-    config:
-      meta:
-        owner: "sol.abelleyro@tiendanube.com"
-        domain: "product"
-        business_owner: "Francisco Ramirez"
-    columns:
-      - name: uuid
-        description: "Unique identifier for the metafield"
-        tests:
-          - not_null
-          - unique
-      - name: namespace
-        description: "Namespace of the metafield (admin vs api)"
-      - name: key
-        description: "URL key of the metafield"
-      - name: store_id
-        description: "Unique identifier of the store linked to the metafield."
-      - name: owner_resource
-        description: "Owner resource of the metafield"
-      - name: value_type
-        description: "Value type of the metafield (1 ='text_list', 2 'text',3 = 'numeric', 4 = 'date')"
-      - name: source
-        description: "Source of the metafield"
-      - name: name
-        description: "Name of the metafield"
-      - name: description
-        description: "Description of the metafield"
-      - name: created_at
-        description: "Timestamp when the metafield was created"
-      - name: updated_at
-        description: "Timestamp when the metafield was last updated"
-      - name: deleted_at
-        description: "Timestamp when the metafield was deleted"
-      - name: read_only
-        description: "If the metafield is read only (1 or 0)"
-      - name: app_id
-        description: "Unique identifier of the app linked to the metafield."
-     
   - name: nuvem_chat__channel
     description: "Staging model that contains all channels from conversations in Nuvemchat"
     config:
@@ -2034,46 +1906,6 @@ models:
       - name: sys_audit_updated_by
         description: "User or process that performed the last update."
     
-  - name: metafields__metafield_products
-    description: "Contains all products metafields"
-    config:
-      meta:
-        owner: "sol.abelleyro@tiendanube.com"
-        domain: "product"
-        business_owner: "Francisco Ramirez"
-    columns:
-      - name: uuid
-        description: "Unique identifier for the metafield"
-        tests:
-          - not_null
-          - unique
-      - name: namespace
-        description: "Namespace of the metafield (admin vs api)"
-      - name: key
-        description: "URL key of the metafield"
-      - name: store_id
-        description: "Unique identifier of the store linked to the metafield."
-      - name: owner_resource
-        description: "Owner resource of the metafield"
-      - name: value_type
-        description: "Value type of the metafield (1 ='text_list', 2 'text',3 = 'numeric', 4 = 'date'"
-      - name: source
-        description: "Source of the metafield"
-      - name: name
-        description: "Name of the metafield"
-      - name: description
-        description: "Description of the metafield"
-      - name: read_only
-        description: "If the metafield is read only (1 or 0)"
-      - name: app_id
-        description: "Unique identifier of the app the metafield was created from"
-      - name: created_at
-        description: "Timestamp when the metafield was created"
-      - name: updated_at
-        description: "Timestamp when the metafield was last updated"
-      - name: deleted_at
-        description: "Timestamp when the metafield was deleted"
-
   - name: nuvem_chat__message
     description: "Staging model that contains all messages from conversations in Nuvemchat"
     config:
@@ -2104,6 +1936,7 @@ models:
       - name: sys_audit_updated_by
         description: "User or process that performed the last update."
    
+
   - name: product__mwp_product_list
     description: "Contains all products"
     config:
@@ -2157,7 +1990,8 @@ models:
         description: "If the product requires shipping - digital or physical (1 or 0)"
       - name: video_url
         description: "URL of a product video if available. This field is only populated with links to videos, not the videos directly uploaded to Tiendanube"
-      
+
+
   - name: nuvem_chat__invoice
     description: "Staging model that contains all invoices from Nuvemchat"
     config:
@@ -2171,6 +2005,7 @@ models:
       - name: invoice_id
         description: "Invoice identifier"
         tests:
+          - unique
           - not_null
       - name: cn_store_id
         description: "Unique identifier within Nuvemchat"
@@ -2196,6 +2031,7 @@ models:
         description: "Timestamp of the most recent update to the record."
       - name: sys_audit_updated_by
         description: "User or process that performed the last update."
+
 
   - name: product__mwp_product_variants
     description: "Contains all product variants"
@@ -2249,6 +2085,7 @@ models:
       - name: age_group
         description: "Age group of the variant"
 
+
   - name: nuvem_chat__invoice_state
     description: "Staging model that contains all invoice states from Nuvemchat"
     config:
@@ -2281,6 +2118,7 @@ models:
       - name: sys_audit_updated_by
         description: "User or process that performed the last update."
   
+
   - name: product__mwp_product_videos
     description: "Contains all product videos uploaded to Tiendanube"
     config:
@@ -2308,6 +2146,7 @@ models:
         description: "Timestamp when the video was last updated"
       - name: deleted_at
         description: "Timestamp when the video was deleted"
+
 
   - name: product__mwp_stock_history
     description: "Contains all the stock changes and variant creations with information on the source of the change"
@@ -2368,6 +2207,7 @@ models:
         description: "Timestamp when the stock change was created"
       - name: year_month_code
         description: "Reference year and month. Also the field used to partition the table."
+
 
   - name: gsc__url_results
     description: "Staging model with Google Search Console URL results by date, URL, search type, country and device."
@@ -2434,6 +2274,7 @@ models:
         tests:
           - not_null
 
+
   - name: gsc__url_unsplit_results
     description: "Staging model with Google Search Console URL unsplit results by date, URL, search type, country and device."
     config:
@@ -2490,7 +2331,6 @@ models:
           - not_null
 
           
-
   - name: product__traffic__cart_product_add__event
     description: >
       Curated model that maps the relationship between sessions and carts based on the event 'cart_product_add'.
@@ -2537,378 +2377,6 @@ models:
         description: "Identifier of the cart associated with the event, extracted from attributes."
         tests:
           - not_null
-      - name: sys_audit_created_on
-        description: "Timestamp when the record was first inserted into this table."
-      - name: sys_audit_created_by
-        description: "User or process that first inserted the record."
-      - name: sys_audit_updated_on
-        description: "Timestamp of the most recent update to the record."
-      - name: sys_audit_updated_by
-        description: "User or process that performed the last update."
-
-
-  - name: product__ecosystem__tech_partner__scd
-    description: "Staging model that contains information about the tech partners in the ecosystem."
-    config:
-      meta:
-        owner: "fernando.martinez@tiendanube.com"
-        domain: "product"
-        business_owner: "Nicolas Loreti"
-    columns:
-      - name: unique_partner_country_code
-        description: "Unique identifier of the partner and country."
-        tests:
-          - not_null
-          - unique
-      - name: partner_id
-        description: "Unique identifier of the partner."
-        tests:
-          - not_null
-      - name: partner_name
-        description: "Name of the partner."
-        tests:
-          - not_null
-      - name: partner_type
-        description: "Type of the partner."
-      - name: email
-        description: "Email of the partner."
-      - name: country
-        description: "Country of the partner."
-      - name: country_code
-        description: "Country code of the partner."
-      - name: phone_number
-        description: "Phone number of the partner."
-      - name: website
-        description: "Website of the partner."
-      - name: description
-        description: "Description of the partner."
-      - name: partner_creation_date
-        description: "Date when the partner was created."
-        tests:
-          - not_null
-      - name: partner_type
-        description: "Type of the partner."
-      - name: sys_audit_created_on
-        description: "Timestamp when the record was first loaded into the model. Preserved from previous loads for existing records."
-      - name: sys_audit_created_by
-        description: "User or process that first loaded the record into the model. Defaults to 'data-dev-dbt-products'."
-      - name: sys_audit_updated_on
-        description: "Timestamp of the current model run when the record was processed."
-      - name: sys_audit_updated_by
-        description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
-
-  - name: product__ecosystem__apps__scd
-    description: "Staging model that contains information about the apps in the ecosystem."
-    config:
-      meta:
-        owner: "fernando.martinez@tiendanube.com"
-        domain: "product"
-        business_owner: "Nicolas Loreti"
-    columns:
-      - name: unique_app_country_code
-        description: "Unique identifier of the app and country."
-        tests:
-          - not_null
-          - unique
-      - name: app_id
-        description: "Unique identifier of the app."
-        tests:
-          - not_null
-      - name: partner_id
-        description: "Unique identifier of the partner."
-      - name: app_name
-        description: "Name of the app."
-      - name: app_category
-        description: "Category of the app."
-      - name: app_creation_date
-        description: "Date when the app was created."
-        tests:
-          - not_null
-      - name: app_published_date
-        description: "Date when the app was published."
-      - name: app_deleted_date
-        description: "Date when the app was deleted."
-      - name: month_creation_date
-        description: "Month when the app was created."
-      - name: is_app_published
-        description: "Flag indicating if the app is published."
-      - name: app_published_country
-        description: "Country code of the app."
-      - name: sys_audit_created_on
-        description: "Timestamp when the record was first loaded into the model. Preserved from previous loads for existing records."
-      - name: sys_audit_created_by
-        description: "User or process that first loaded the record into the model. Defaults to 'data-dev-dbt-products'."
-      - name: sys_audit_updated_on
-        description: "Timestamp of the current model run when the record was processed."
-      - name: sys_audit_updated_by
-        description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
-
-
-  - name: moltres__mwp_apps
-    description: "Contains information about apps installed by merchants (both official and not official)"
-    config:
-      meta:
-        owner: "sol.abelleyro@tiendanube.com"
-        domain: "product"
-        business_owner: "Francisco Ramirez"
-    columns:
-      - name: id
-        description: "Unique identifier for the app"
-        tests:
-          - not_null
-          - unique
-      - name: partner_id
-        description: "Unique identifier for the partner who built the app"
-      - name: official
-        description: "If the app is an official Nuvemshop app or a third party app"
-      - name: handle
-        description: "Handle of the app"
-      - name: category
-        description: "Category of the app"
-      - name: visits
-        description: "Number of visits to the app"
-      - name: installs
-        description: "Number of installs of the app"
-      - name: created_at
-        description: "Timestamp when the app was created"
-      - name: updated_at
-        description: "Timestamp when the app was last updated"
-      - name: deleted_at
-        description: "Timestamp when the app was deleted"
-      - name: published_at
-        description: "Timestamp when the app was published"
-      - name: sys_audit_created_on
-        description: "Timestamp when the record was first inserted into this table."
-      - name: sys_audit_created_by
-        description: "User or process that first inserted the record."
-      - name: sys_audit_updated_on
-        description: "Timestamp of the most recent update to the record."
-      - name: sys_audit_updated_by
-        description: "User or process that performed the last update."
-
-  - name: product__metafield__date_resource_products__event
-    description: "Contains all assigned date type products metafields"
-    config:
-      meta:
-        owner: "sol.abelleyro@tiendanube.com"
-        domain: "product"
-        business_owner: "Francisco Ramirez"
-    columns:
-      - name: id
-        description: "Unique identifier for the metafield"
-      - name: metafield_uuid
-        description: "Unique identifier for the metafield"
-      - name: value
-        description: "Value of the metafield"
-      - name: owner_id
-        description: "Unique identifier for the owner of the metafield"
-      - name: created_at
-        description: "Timestamp when the metafield was created"
-      - name: updated_at
-        description: "Timestamp when the metafield was last updated"
-      - name: sys_audit_created_on
-        description: "Timestamp when the record was first inserted into this table."
-      - name: sys_audit_created_by
-        description: "User or process that first inserted the record."
-      - name: sys_audit_updated_on
-        description: "Timestamp of the most recent update to the record."
-      - name: sys_audit_updated_by
-        description: "User or process that performed the last update."
-
-  - name: product__metafield__date_resource_product_variants__event
-    description: "Contains all assigned date type product variants metafields"
-    config:
-      meta:
-        owner: "sol.abelleyro@tiendanube.com"
-        domain: "product"
-        business_owner: "Francisco Ramirez"
-    columns:
-      - name: id
-        description: "Unique identifier for the metafield"
-      - name: metafield_uuid
-        description: "Unique identifier for the metafield"
-      - name: value
-        description: "Value of the metafield"
-      - name: owner_id
-        description: "Unique identifier for the owner of the metafield"
-      - name: created_at
-        description: "Timestamp when the metafield was created"
-      - name: updated_at
-        description: "Timestamp when the metafield was last updated"
-      - name: sys_audit_created_on
-        description: "Timestamp when the record was first inserted into this table."
-      - name: sys_audit_created_by
-        description: "User or process that first inserted the record."
-      - name: sys_audit_updated_on
-        description: "Timestamp of the most recent update to the record."
-      - name: sys_audit_updated_by
-        description: "User or process that performed the last update."
-
-  - name: product__metafield__numeric_resource_products__event
-    description: "Contains all assigned numeric type products metafields"
-    config:
-      meta:
-        owner: "sol.abelleyro@tiendanube.com"
-        domain: "product"
-        business_owner: "Francisco Ramirez"
-    columns:
-      - name: id
-        description: "Unique identifier for the metafield"
-      - name: metafield_uuid
-        description: "Unique identifier for the metafield"
-      - name: value
-        description: "Value of the metafield"
-      - name: owner_id
-        description: "Unique identifier for the owner of the metafield"
-      - name: created_at
-        description: "Timestamp when the metafield was created"
-      - name: updated_at
-        description: "Timestamp when the metafield was last updated"
-      - name: sys_audit_created_on
-        description: "Timestamp when the record was first inserted into this table."
-      - name: sys_audit_created_by
-        description: "User or process that first inserted the record."
-      - name: sys_audit_updated_on
-        description: "Timestamp of the most recent update to the record."
-      - name: sys_audit_updated_by
-        description: "User or process that performed the last update."
-
-  - name: product__metafield__numeric_resource_product_variants__event
-    description: "Contains all assigned numeric type product variants metafields"
-    config:
-      meta:
-        owner: "sol.abelleyro@tiendanube.com"
-        domain: "product"
-        business_owner: "Francisco Ramirez"
-    columns:
-      - name: id
-        description: "Unique identifier for the metafield"
-      - name: metafield_uuid
-        description: "Unique identifier for the metafield"
-      - name: value
-        description: "Value of the metafield"
-      - name: owner_id
-        description: "Unique identifier for the owner of the metafield"
-      - name: created_at
-        description: "Timestamp when the metafield was created"
-      - name: updated_at
-        description: "Timestamp when the metafield was last updated"
-      - name: sys_audit_created_on
-        description: "Timestamp when the record was first inserted into this table."
-      - name: sys_audit_created_by
-        description: "User or process that first inserted the record."
-      - name: sys_audit_updated_on
-        description: "Timestamp of the most recent update to the record."
-      - name: sys_audit_updated_by
-        description: "User or process that performed the last update."
-
-  - name: product__metafield__option_resource_products__event
-    description: "Contains all assigned option type products metafields"
-    config:
-      meta:
-        owner: "sol.abelleyro@tiendanube.com"
-        domain: "product"
-        business_owner: "Francisco Ramirez"
-    columns:
-      - name: id
-        description: "Unique identifier for the metafield"
-      - name: metafield_uuid
-        description: "Unique identifier for the metafield"
-      - name: metafield_value_id
-        description: "Value of the metafield"
-      - name: owner_id
-        description: "Unique identifier for the owner of the metafield"
-      - name: created_at
-        description: "Timestamp when the metafield was created"
-      - name: updated_at
-        description: "Timestamp when the metafield was last updated"
-      - name: sys_audit_created_on
-        description: "Timestamp when the record was first inserted into this table."
-      - name: sys_audit_created_by
-        description: "User or process that first inserted the record."
-      - name: sys_audit_updated_on
-        description: "Timestamp of the most recent update to the record."
-      - name: sys_audit_updated_by
-        description: "User or process that performed the last update."
-
-  - name: product__metafield__option_resource_product_variants__event
-    description: "Contains all assigned option type product variants metafields"
-    config:
-      meta:
-        owner: "sol.abelleyro@tiendanube.com"
-        domain: "product"
-        business_owner: "Francisco Ramirez"
-    columns:
-      - name: id
-        description: "Unique identifier for the metafield"
-      - name: metafield_uuid
-        description: "Unique identifier for the metafield"
-      - name: metafield_value_id
-        description: "Value of the metafield"
-      - name: owner_id
-        description: "Unique identifier for the owner of the metafield"
-      - name: created_at
-        description: "Timestamp when the metafield was created"
-      - name: updated_at
-        description: "Timestamp when the metafield was last updated"
-      - name: sys_audit_created_on
-        description: "Timestamp when the record was first inserted into this table."
-      - name: sys_audit_created_by
-        description: "User or process that first inserted the record."
-      - name: sys_audit_updated_on
-        description: "Timestamp of the most recent update to the record."
-      - name: sys_audit_updated_by
-        description: "User or process that performed the last update."
-    
-  - name: product__metafield__text_resource_products__event
-    description: "Contains all assigned text type products metafields"
-    config:
-      meta:
-        owner: "sol.abelleyro@tiendanube.com"
-        domain: "product"
-        business_owner: "Francisco Ramirez"
-    columns:
-      - name: id
-        description: "Unique identifier for the metafield"
-      - name: metafield_uuid
-        description: "Unique identifier for the metafield"
-      - name: value
-        description: "Value of the metafield"
-      - name: owner_id
-        description: "Unique identifier for the owner of the metafield"
-      - name: created_at
-        description: "Timestamp when the metafield was created"
-      - name: updated_at
-        description: "Timestamp when the metafield was last updated"
-      - name: sys_audit_created_on
-        description: "Timestamp when the record was first inserted into this table."
-      - name: sys_audit_created_by
-        description: "User or process that first inserted the record."
-      - name: sys_audit_updated_on
-        description: "Timestamp of the most recent update to the record."
-      - name: sys_audit_updated_by
-        description: "User or process that performed the last update."
-
-  - name: product__metafield__text_resource_product_variants__event
-    description: "Contains all assigned text type product variants metafields"
-    config:
-      meta:
-        owner: "sol.abelleyro@tiendanube.com"
-        domain: "product"
-        business_owner: "Francisco Ramirez"
-    columns:
-      - name: id
-        description: "Unique identifier for the metafield"
-      - name: metafield_uuid
-        description: "Unique identifier for the metafield"
-      - name: value
-        description: "Value of the metafield"
-      - name: owner_id
-        description: "Unique identifier for the owner of the metafield"
-      - name: created_at
-        description: "Timestamp when the metafield was created"
-      - name: updated_at
-        description: "Timestamp when the metafield was last updated"
       - name: sys_audit_created_on
         description: "Timestamp when the record was first inserted into this table."
       - name: sys_audit_created_by
@@ -3008,55 +2476,357 @@ models:
         description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
         tests:
           - not_null
-  - name: s__partnerships__general__partners__ref
+
+  - name: product__onboarding__domain_mappings__ref
+    description: "Staging model that contains all possible questions and answers of the pre-onboarding questionnaire."
     config:
       meta:
-        owner: "yan.santos@nuvemshop.com.br"
-        domain: "partnerships"
-        business_owner: "Giselle Galli"
-    description: >
-      Contains basic information about partners including identification, contact details, and audit metadata.
+        owner: "ynara.oliveira@nuvemshop.com.br"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
     columns:
-      - name: partner_id
-        description: "Unique identifier of the partner."
+      - name: id
+        description: "Register id. There is a unique id for each combination of group code and type code."
         tests:
           - not_null
           - unique
-      - name: partner_code
-        description: "Code assigned to the partner."
+      - name: group_code
+        description: "Question group to which the answer belongs."
         tests:
           - not_null
-      - name: partner_name
-        description: "Name of the partner."
+      - name: type_code 
+        description: "Single possible answer for the group code."
         tests:
           - not_null
-      - name: partner_country_id
-        description: "Country identifier where the partner operates."
-        tests:
-          - not_null
-      - name: partner_created_at
-        description: "Date and time when the partner was created."
-        tests:
-          - not_null
-      - name: partner_email
-        description: "Email address of the partner."
-        tests:
-          - not_null
-      - name: partner_phone_number
-        description: "Phone number of the partner."
       - name: sys_audit_created_on
-        description: "Timestamp when the row was originally created."
-        tests:
-          - not_null
+        description: "Timestamp of when this record was created in our data warehouse."
       - name: sys_audit_created_by
-        description: "System or user that created the row."
-        tests:
-          - not_null
+        description: "System identifier of the process that created this record."
       - name: sys_audit_updated_on
-        description: "Timestamp when the row was last updated in this table."
-        tests:
-          - not_null
+        description: "Timestamp of when this record was last updated in our data warehouse."
       - name: sys_audit_updated_by
-        description: "System or user that last updated the row."
+        description: "System identifier of the process that last updated this record."
+    
+  - name: product__onboarding__domain_types__ref
+    description: "Staging model that contains all possible answers of the pre-onboarding questionnaire as shown in the back and frontend."
+    config:
+      meta:
+        owner: "ynara.oliveira@nuvemshop.com.br"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: code
+        description: "Id. It is the unique possible answer as shown in the backend."
         tests:
           - not_null
+          - unique
+      - name: description
+        description: "It is the unique possible answer as shown for the user in the frontend."
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: "Timestamp of when this record was created in our data warehouse."
+      - name: sys_audit_created_by
+        description: "System identifier of the process that created this record."
+      - name: sys_audit_updated_on
+        description: "Timestamp of when this record was last updated in our data warehouse."
+      - name: sys_audit_updated_by
+        description: "System identifier of the process that last updated this record."
+
+  - name: product__onboarding__store_preferences__event
+    description: "Staging model that contains all answers given by the merchant on the pre-onboarding questionnaire."
+    config:
+      meta:
+        owner: "ynara.oliveira@nuvemshop.com.br"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: id
+        description: "Merchant answer id."
+        tests:
+          - not_null
+          - unique
+      - name: domain_mapping_id
+        description: "The unique id for each combination of group code (question) and type code (answer)."
+        tests:
+          - not_null
+      - name: store_id
+        description: "Merchant id."
+        tests:
+          - not_null
+      - name: free_text
+        description: "Optional, free-text field for questions with an 'other' option, where the merchant can type in the most suitable answer for the question."
+      - name: sys_audit_created_on
+        description: "Timestamp of when this record was created in our data warehouse."
+      - name: sys_audit_created_by
+        description: "System identifier of the process that created this record."
+      - name: sys_audit_updated_on
+        description: "Timestamp of when this record was last updated in our data warehouse."
+      - name: sys_audit_updated_by
+        description: "System identifier of the process that last updated this record."
+
+  - name: product__general__hubspot_company__event
+    description: >
+      Staging model for company records extracted from HubSpot.
+      The origin table is ingested incrementally and daily from Airbyte.
+      In this iteration, we have only included the company_id and store_id.
+    config:
+      meta:
+        owner: "matias.scasso@tiendanube.com"
+        domain: "product"
+        business_owner: "Martin Palombo"
+    columns:
+      - name: company_id
+        description: "Unique identifier for the company in HubSpot."
+        tests:
+          - not_null
+          - unique
+      - name: store_id
+        description: "Internal store identifier mapped to this HubSpot company."
+      - name: sys_audit_created_on
+        description: "Timestamp when this record was first created in the DBT model."
+      - name: sys_audit_created_by
+        description: "Identifier for the user or system that created this record."
+      - name: sys_audit_updated_on
+        description: "Timestamp when this record was last updated."
+      - name: sys_audit_updated_by
+        description: "Identifier for the user or system that last updated this record."
+
+  - name: product__orders__fulfillment_orders__event
+    description: "Contains information about fulfillment orders within each order"
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: year_month_code
+        description: "Reference year and month. Used for partitioning."
+      - name: id
+        description: "Fulfillment order id"
+        tests: 
+          - not_null
+          - unique
+      - name: store_id
+        description: "Store unique identifier"
+        tests:
+          - not_null
+      - name: order_id
+        description: "Order unique identifier"
+        tests:
+          - not_null
+      - name: fulfillment_order_id
+        tests:
+          - not_null
+        description: "Fulfillment order unique identifier"
+      - name: number
+        description: "Fulfillment order number within the order"
+      - name: location_id
+        description: "CDs id the fulfillment order extracts stock from"
+      - name: location_name
+        description: "CDs name"
+      - name: shippable
+        description: "Whether the products within the fulfillment order are shippable"
+      - name: carrier_name
+        description: "Carrier name"
+      - name: option_name
+        description: "Option name within the selected carrier"
+      - name: shipping_type
+        description: "The way the products will get to the customer. 'non-shippable' refers to digital products while 'pickup' can be in-store pickup or carrier pickup (depending on the shippable value). 'ship' would be for fully delivered products"
+      - name: status
+        description: "Status for the fulfillment order (unpacked, fulfilled, etc.)"
+      - name: tracking_code
+        description: "Tracking code"
+      - name: line_items
+        description: "Contains details on the variant ids and quantities included in the fulfillment order"
+      - name: created_at
+        description: "Fulfillment order created at"
+      - name: updated_at
+        description: "Fulfillment order updated at"
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first inserted into this table."
+      - name: sys_audit_created_by
+        description: "User or process that first inserted the record."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the most recent update to the record."
+      - name: sys_audit_updated_by
+        description: "User or process that performed the last update."
+
+  - name: product__general__hubspot_dealbreaker__event
+    description: >
+      Staging model for HubSpot dealbreaker records, including the properties of the dealbreaker.
+      The origin table is ingested incrementally and daily from Airbyte.
+    config:
+      meta:
+        owner: "matias.scasso@tiendanube.com"
+        domain: "product"
+        business_owner: "Martin Palombo"
+    columns:
+      - name: dealbreaker_id
+        description: "Unique identifier for the dealbreaker record in HubSpot."
+        tests: 
+          - not_null
+          - unique
+      - name: is_archived
+        description: "Indicates whether the record is archived. Always false in this source as it consumed from the non-archived table."
+      - name: record_created_at
+        description: "Timestamp when the dealbreaker was created in HubSpot."
+      - name: record_updated_at
+        description: "Timestamp of the last update in HubSpot."
+      - name: repo_name
+        description: "Repository name (issues or problems) casted from HubSpot properties."
+        tests: 
+          - not_null
+          - accepted_values:
+              values: ['issues', 'problems']
+      - name: issue_number
+        description: "Issue number from GitHub, casted from HubSpot properties."
+        tests: 
+          - not_null
+      - name: impact
+        description: "Whether the record is a dealbreaker or high priority."
+        tests: 
+          - not_null
+          - accepted_values:
+              values: ['high', 'dealbreaker']
+      - name: dealbreaker_start_date
+        description: "Start date for the LAST dealbreaker status."
+      - name: dealbreaker_close_date
+        description: "Close date for the LAST dealbreaker status."
+      - name: high_start_date
+        description: "Start date for the LAST high priority status."
+      - name: high_close_date
+        description: "Close date for the LAST high priority status."
+      - name: pipeline
+        description: "HubSpot pipeline where the dealbreaker is tracked."
+      - name: pipeline_stage
+        description: "Current stage in the HubSpot pipeline."
+      - name: github_title
+        description: "Title of the GitHub issue associated with the dealbreaker."
+      - name: github_status
+        description: "Status of the associated GitHub issue."
+      - name: owner_team_id
+        description: "Team ID of the HubSpot owner."
+      - name: owner_id
+        description: "User ID of the HubSpot owner."
+      - name: source_id
+        description: "Source identifier in HubSpot (may contain non-numeric values)."
+      - name: created_by_user_id
+        description: "HubSpot user ID that created the dealbreaker record."
+      - name: updated_by_user_id
+        description: "HubSpot user ID that last updated the record."
+      - name: source_user_id
+        description: "User ID responsible for sourcing the record."
+      - name: all_owners_ids
+        description: "All owner user IDs associated with the record (raw string format)."
+      - name: owner_assigned_at
+        description: "Timestamp when the owner was assigned."
+      - name: brands
+        description: "Business unit identifiers linked to the record."
+      - name: sys_audit_created_on
+        description: "Timestamp when this record was first created in the DBT model."
+      - name: sys_audit_created_by
+        description: "Identifier for the user or system that created this record."
+      - name: sys_audit_updated_on
+        description: "Timestamp when this record was last updated."
+      - name: sys_audit_updated_by
+        description: "Identifier for the user or system that last updated this record."
+
+
+  - name: product__general__hubspot_dealbreaker_archived__event
+    description: >
+      Staging model for archived HubSpot dealbreaker records.
+      It includes all records that have ever been archived and ingested: archived, permanently deleted and restored (with exception of those who have been archived and deleted or restored in the same day before any ingestion of Airbyte).
+      The origin table is ingested incrementally and daily from Airbyte.
+    config:
+      meta:
+        owner: "matias.scasso@tiendanube.com"
+        domain: "product"
+        business_owner: "Martin Palombo"
+    columns:
+      - name: dealbreaker_id
+        description: "Unique identifier for the dealbreaker record in HubSpot."
+        tests: 
+          - not_null
+          - unique
+      - name: is_archived
+        description: "Indicates whether the record is archived. Always true in this dataset as it consumed from the archived table."
+      - name: record_updated_at
+        description: "Timestamp of the last update in the archived table in HubSpot."
+      - name: sys_audit_created_on
+        description: "Timestamp when this record was first created in the DBT model."
+      - name: sys_audit_created_by
+        description: "Identifier for the user or system that created this record."
+      - name: sys_audit_updated_on
+        description: "Timestamp when this record was last updated."
+      - name: sys_audit_updated_by
+        description: "Identifier for the user or system that last updated this record."
+
+
+  - name: product__general__hubspot_dealbreaker_company__link
+    description: >
+      Staging model for HubSpot dealbreaker-to-company associations.
+      Uses row hashing to detect changes in associations and support audit persistence.
+      The origin table is ingested daily as a full refresh from Airbyte.
+    config:
+      meta:
+        owner: "matias.scasso@tiendanube.com"
+        domain: "product"
+        business_owner: "Martin Palombo"
+    columns:
+      - name: dealbreaker_id
+        description: "Unique identifier for the dealbreaker record in HubSpot."
+        tests: 
+          - not_null
+          - unique
+      - name: association_type
+        description: "Type of relationship between the dealbreaker and the company (HubSpot-defined)."
+      - name: company_id
+        description: "Unique identifier for the associated company."
+        tests: 
+          - not_null
+      - name: row_hash
+        description: "MD5 hash of the dealbreaker_id, association_type and company_id used to detect changes in the association and persist audit fields."
+        tests: 
+          - not_null
+      - name: sys_audit_created_on
+        description: "Timestamp when this record was first created in the DBT model."
+      - name: sys_audit_created_by
+        description: "Identifier for the user or system that created this record."
+      - name: sys_audit_updated_on
+        description: "Timestamp when this record was last updated."
+      - name: sys_audit_updated_by
+        description: "Identifier for the user or system that last updated this record."
+
+
+  - name: product__general__hubspot_dealbreaker_current__snapshot_daily
+    description: >
+      Staging model for the current daily snapshot of current dealbreakers in HubSpot, both open and closed.
+      The only purpose of this model is to differentiate between current and archived dealbreakers.
+      It includes change detection via row_hash to support correct audit tracking.
+      The origin table is ingested daily as a full refresh from Airbyte.
+    config:
+      meta:
+        owner: "matias.scasso@tiendanube.com"
+        domain: "product"
+        business_owner: "Martin Palombo"
+    columns:
+      - name: dealbreaker_id
+        description: "Unique identifier for the dealbreaker record in HubSpot."
+        tests: 
+          - not_null
+          - unique
+      - name: record_updated_at
+        description: "Timestamp of the last update of the dealbreaker in the current table in Hubspot."
+      - name: row_hash
+        description: "MD5 hash of the dealbreaker_id and record_updated_at used to detect changes in the snapshot and persist audit fields."
+        tests: 
+          - not_null
+      - name: sys_audit_created_on
+        description: "Timestamp when this record was first created in the DBT model."
+      - name: sys_audit_created_by
+        description: "Identifier for the user or system that created this record."
+      - name: sys_audit_updated_on
+        description: "Timestamp when this record was last updated."
+      - name: sys_audit_updated_by
+        description: "Identifier for the user or system that last updated this record."
