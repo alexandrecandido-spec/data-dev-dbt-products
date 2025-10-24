@@ -5,7 +5,13 @@
     partition_by=['year_month_day_code'],
     on_schema_change='fail',
     tags=["fintech", "daily-4am"],
-    pre_hook=["DELETE FROM {{ this }} WHERE year_month_day_code >= (SELECT coalesce(MAX(CAST(date_format(DATE(data_ref), 'yyyyMMdd') AS INT)), 0) FROM {{ source('stg_credito_dev', 'mova_installments_present_value') }})"]
+    pre_hook=[
+      "{% if is_incremental() %}
+         DELETE FROM {{ this }} WHERE year_month_day_code >= 
+         (SELECT coalesce(MAX(CAST(date_format(DATE(data_ref), 'yyyyMMdd') AS INT)), 0) 
+         FROM {{ source('stg_credito_dev', 'mova_installments_present_value') }})
+         {% endif %}"
+    ]
   )
 }}
 
