@@ -132,7 +132,7 @@ models:
         description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
 
 
-  - name: credito_dev__mova_installment_present_value
+  - name: fintech__lending__installment_present_value__snapshot_daily
     config:
       meta:
         owner: "calvin.hetem@nuvemshop.com.br"
@@ -178,14 +178,16 @@ models:
         description: "Possible discount amount if installment is paid at data_ref."
       - name: installment_updated_amount
         description: "Total amount to be paid if installment is paid at data_ref."
-      - name: sys_audit_created_on
-        description: "Timestamp when the record was first loaded into the model. Defaults to current_timestamp if not available."
+      - name: year_month_day_code
+        description: "Year and month code in YYYYMMDD format used for partitioning or filtering."
       - name: sys_audit_created_by
         description: "User or process that first loaded the record into the model. Defaults to 'data-dev-dbt-products'."
-      - name: sys_audit_updated_on
-        description: "Timestamp of the current model run when the record was processed."
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model. Defaults to current_timestamp if not available."
       - name: sys_audit_updated_by
         description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed."
 
 
   - name: antifraud_service__vertifier_store_inferences
@@ -2336,6 +2338,8 @@ models:
       Curated model that maps the relationship between sessions and carts based on the event 'cart_product_add'.
       It generates a deterministic technical session key and selects a single representative event per (session, cart) pair.
       Used to identify which session originated or interacted with each cart. Valid data available since 2024-01-23.
+      Full documentation available at:
+      https://www.notion.so/Staging-product__traffic__cart_product_add__event-29485d24ee8f80e4b2e2c62d5cef1225
     config:
       meta:
         owner: "barbara.marques@nuvemshop.com.br"
