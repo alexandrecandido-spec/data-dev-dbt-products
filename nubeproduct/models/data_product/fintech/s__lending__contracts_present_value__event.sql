@@ -1,12 +1,10 @@
 {{
     config(
         materialized='table',
-        unique_key='id',
         on_schema_change='fail',
-        tags=["daily-4am"]
+        tags=["fintech", "daily-10am"],
     )
 }}
-
 
 SELECT
        data_ref,
@@ -27,5 +25,5 @@ SELECT
        CURRENT_TIMESTAMP AS sys_audit_created_on,
        'data-dev-dbt-products' AS sys_audit_updated_by,
        CURRENT_TIMESTAMP AS sys_audit_updated_on
-  FROM {{ ref('int_credit_mova_installment_present_value') }}
+  FROM {{ ref('_int_fintech__installment_present_value') }}
  GROUP BY 1, 2, 3, 4
