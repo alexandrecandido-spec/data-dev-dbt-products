@@ -21,7 +21,6 @@ WITH base AS (
     high_start_date,
     high_close_date,
     valid_from,
-    valid_to,
     is_valid,
     invalid_reason,
     sys_audit_created_on,

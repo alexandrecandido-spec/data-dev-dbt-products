@@ -2515,8 +2515,6 @@ models:
         description: "Start date when this version of the record became valid. It is set as the previous day of the processed_at timestamp."
         tests:
           - not_null
-      - name: valid_to
-        description: "In this model it is set as '9999-12-31' and will be updated in the final changelog data product. It is used to indicate the end of the validity period."
       - name: is_valid
         description: "Boolean flag indicating if the record passed validation checks associated to manual data from Hubspot."
       - name: invalid_reason
