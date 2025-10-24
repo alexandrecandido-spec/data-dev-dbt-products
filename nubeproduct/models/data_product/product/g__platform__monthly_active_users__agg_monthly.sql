@@ -62,7 +62,7 @@ segments as (
         true
     {% endif %}
     {% if is_incremental() %}
-        datemonth >= (SELECT MAX(DATE(datemonth)) FROM {{ this }})
+        datemonth >= dateadd(month, -{{ months_lookback }}, date_trunc('month', current_date))
     {% endif %}
 ),
 aux as (
@@ -112,5 +112,5 @@ from aux a
         true
     {% endif %}
     {% if is_incremental() %}
-        a.registered_month >= (SELECT MAX(DATE(registered_month)) FROM {{ this }})
+        a.registered_month >= dateadd(month, -{{ months_lookback }}, date_trunc('month', current_date))
     {% endif %}
