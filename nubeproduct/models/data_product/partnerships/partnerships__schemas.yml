@@ -96,7 +96,7 @@ models:
   - name: s__general__partners_commissions__event
     config:
       meta:
-        owner: "felipe.lorenzo@tiendanube.com.br"
+        owner: "felipe.lorenzo@tiendanube.com"
         domain: "partnerships"
         business_owner: "Franco Tiberti"
     description: >
