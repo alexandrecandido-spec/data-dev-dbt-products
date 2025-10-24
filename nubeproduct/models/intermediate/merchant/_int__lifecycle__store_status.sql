@@ -14,12 +14,15 @@ WITH store_source AS (
 segment_info AS (
   SELECT
     l.store_id
-    ,lower(ds.segment_name) as current_segment
-    ,CASE WHEN lower(ds.segment_name) IN ('no-seller', 'struggling-seller') THEN 'no-seller' ELSE 'seller' END AS is_seller
-    ,lower(ds.segment_name) as max_segment
+    ,lower(cs.segment_name) as current_segment
+    ,CASE WHEN lower(cs.segment_name) IN ('no-seller', 'struggling-seller') THEN 'no-seller' 
+      WHEN lower(cs.segment_name) IN ('tiny-seller', 'small-seller', 'medium-seller', 'large-seller', 'top-seller') THEN 'seller'
+      ELSE 'not informed' END AS is_seller
+    ,lower(ms.segment_name) as max_segment
     ,l.sys_audit_updated_on
   FROM {{ ref('_int_dim_merchant_info__segment') }} l
-  LEFT JOIN {{ ref('dimension__attributes__segment_type__ref') }} ds ON l.current_segment_id = ds.segment_id
+  LEFT JOIN {{ ref('dimension__attributes__segment_type__ref') }} cs ON l.current_segment_id = cs.segment_id
+  LEFT JOIN {{ ref('dimension__attributes__segment_type__ref') }} ms ON l.max_segment_id = ms.segment_id
 ),
 blocked_store__info AS (
   SELECT
@@ -38,6 +41,7 @@ SELECT
     , ss.first_payment
     , ss.churned_at
     , fs.first_seller_at
+    , CASE WHEN fs.first_seller_at IS NOT NULL AND ss.first_payment IS NOT NULL AND ss.first_payment <= fs.first_seller_at THEN TRUE ELSE FALSE END AS new_seller
     , ss.current_plan_id
     , coalesce(pl.namev2, 'not informed') AS current_plan_name
     , coalesce(pl.grupo, 'not informed') AS current_plan_type
@@ -50,6 +54,7 @@ SELECT
     , ss.state
     , ss.disabled
     , ss.custom_theme
+    , CASE WHEN ss.first_payment IS NOT NULL THEN 1 ELSE 0 END AS new_payment
     , greatest(ss.sys_audit_updated_on, si.sys_audit_updated_on, bl.blocked_last_updated_at, fs.sys_audit_updated_on) as change_timestamp
 FROM store_source ss 
 LEFT JOIN segment_info si ON ss.store_id = si.store_id
