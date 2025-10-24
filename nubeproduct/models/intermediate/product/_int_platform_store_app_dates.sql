@@ -1,48 +1,32 @@
 with 
 stores as (
     select
-        s.store_id
+        s.id as store_id
         ,domain as merchant_name
-        ,country_code as country
+        ,country
         ,mail
         ,phone
-        ,vertical_name as store_vertical
-        ,group_name
+        ,type as store_vertical
+        --,group_name
         ,date(created_at) as creation_date
         ,date(first_payment) as first_payment
-from {{ ref('company_metrics_merchant_info') }} s
-left join {{ source('bronze_risk_ecommerce', 'mwp_store_settings') }} ss
-  on s.store_id = ss.store_id
+        ,date(churned_at) as churned_at
+    from {{ source('stg_moltres', 'mwp_store_info') }} s
+    left join {{ source('bronze_risk_ecommerce', 'mwp_store_settings') }} ss
+    on s.id = ss.store_id
+    where true
+    and state <> 4
+    and first_payment is not null
+    and (churned_at is null or date_trunc('month',churned_at) >= date_add(month, -12, date_Trunc('month',current_date)))
 ),
 store_dates as (
     select 
         date(d.registered_month) as registered_month
         ,p.*
+        ,case when d.registered_month between date_trunc('month', creation_date) and churned_at
+               or churned_at is null then true else false end as is_active_store
     from stores p
     cross join {{ ref('_int_pd_github_dates') }} d
-),
-orders as (
-    SELECT
-        date(date_trunc('month', completed_at)) as registered_month
-        ,store_id
-        ,count(distinct id) as total_orders
-        ,sum(total) as total_gmv_local_currency
-        ,sum(total_in_usd) as total_gmv_usd
-    from {{ ref('company_metrics_paid_orders') }}
-    group by 1,2
-),
-app_orders as (
-    select
-        date_trunc('month',registered_date) as registered_month
-        ,store_id
-        ,app_id
-        ,app_name
-        ,app_category
-        ,sum(total_orders) as total_orders
-        ,sum(total_gmv_local_currency) as total_gmv_local_currency
-        ,sum(total_gmv_usd) as total_gmv_usd
-    from {{ ref('g__platform__app_orders__agg_daily') }}
-    group by 1,2,3,4,5
 ),
 apps as (
     SELECT
@@ -70,14 +54,8 @@ installs as (
     from {{ ref('product_platform_mwp_apps_stores') }} I
     left join apps a
         on I.app_id = a.app_id
+    where app_name not in ('sellbot', 'compra-rpida-pro')
     group by 1,2,3,4,5,6,7,8
-),
-segments as (
-    SELECT
-    date_trunc('month',datemonth) as registered_month
-    ,store_id
-    ,segment
-from {{ ref('company_metrics_gmv_and_segments') }}
 ),
 scripts as (
     SELECT
@@ -131,3 +109,4 @@ left join scripts sc
 left join shipping_carriers sh
     on s.store_id = sh.store_id
     and a.app_id = sh.app_id
+where is_active_store

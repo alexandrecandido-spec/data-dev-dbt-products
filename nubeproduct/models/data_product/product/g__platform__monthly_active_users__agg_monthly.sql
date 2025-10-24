@@ -22,9 +22,12 @@ orders as (
         ,sum(total) as total_gmv_local_currency
         ,sum(total_in_usd) as total_gmv_usd
     from {{ ref('company_metrics_paid_orders') }}
-    where 1=1
+    where 
+    {% if not is_incremental() %}
+    true
+    {% endif %}
     {% if is_incremental() %}
-      and completed_at >= dateadd(month, -{{ months_lookback }}, date_trunc('month', current_date))
+    completed_at >= dateadd(month, -{{ months_lookback }}, date_trunc('month', current_date))
     {% endif %}
     group by 1,2
 ),
@@ -39,31 +42,37 @@ app_orders as (
         ,sum(total_gmv_local_currency) as total_gmv_local_currency
         ,sum(total_gmv_usd) as total_gmv_usd
     from {{ ref('g__platform__app_orders__agg_daily') }}
-    where 1=1
+    where 
+    {% if not is_incremental() %}
+        true
+    {% endif %}
     {% if is_incremental() %}
-      and registered_date >= dateadd(month, -{{ months_lookback }}, date_trunc('month', current_date))
+        registered_date >= dateadd(month, -{{ months_lookback }}, date_trunc('month', current_date))
     {% endif %}
     group by 1,2,3,4,5
 ),
 segments as (
     SELECT
-    date_trunc('month',datemonth) as registered_month
-    ,store_id
-    ,segment
-from {{ ref('company_metrics_gmv_and_segments') }}
-where 1=1
-{% if is_incremental() %}
-  and datemonth >= dateadd(month, -{{ months_lookback }}, date_trunc('month', current_date))
-{% endif %}
+        date_trunc('month',datemonth) as registered_month
+        ,store_id
+        ,segment
+    from {{ ref('company_metrics_gmv_and_segments') }}
+    where 
+    {% if not is_incremental() %}
+        true
+    {% endif %}
+    {% if is_incremental() %}
+        datemonth >= (SELECT MAX(DATE(datemonth)) FROM {{ this }})
+    {% endif %}
 ),
 aux as (
 select distinct
    s.*
-   --,case when churned_at is null then 1 else 0 end as is_current_active_store
+   ,case when churned_at is null then 1 else 0 end as is_current_active_store
    ,case when ao.total_orders > 0 and first_payment is null then 1 else 0 end as has_orders
    --,case when (churned_at IS NULL OR churned_at >= s.registered_month) AND creation_date <= last_day(s.registered_month) then 1 else 0 end as is_active_store_in_month
    ,case when s.registered_month = date_trunc('month', creation_date) then 1 else 0 end as is_new_store
-   --,case when s.registered_month = date_trunc('month', churned_at) then 1 else 0 end as is_churned_store
+   ,case when s.registered_month = date_trunc('month', churned_at) then 1 else 0 end as is_churned_store
    ,sg.segment
    ,o.total_orders
    ,o.total_gmv_local_currency
@@ -82,17 +91,26 @@ left join app_orders ao
    on s.store_id = ao.store_id
    and s.registered_month = ao.registered_month
    and s.app_id = ao.app_id
-where s.registered_month >= dateadd(month, -{{ months_lookback }}, date_trunc('month', current_date))
-and ((ao.total_orders > 0 and first_payment is null))
+where true
+and s.registered_month >= date_trunc('month', current_date) - interval '12' month
+and ((ao.total_orders > 0 and first_payment is null) 
+or (s.first_payment is not null and s.churned_at is null))
+{% if is_incremental() %}
+    and s.registered_month >= dateadd(month, -{{ months_lookback }}, date_trunc('month', current_date))
+{% endif %}
 )
 SELECT
-    concat(a.registered_month, '_', a.store_id, '_', a.app_id) as unique_id
+    concat(a.registered_month, '_', a.store_id, '_', coalesce(a.app_id,999999)) as unique_id
     ,a.*
     ,current_timestamp as sys_audit_created_on
     ,'data-dev-dbt-products' as sys_audit_created_by
     ,current_timestamp as sys_audit_updated_on
     ,'data-dev-dbt-products' as sys_audit_updated_by
 from aux a
-{% if is_incremental() %}
-where a.registered_month >= dateadd(month, -{{ months_lookback }}, date_trunc('month', current_date))
-{% endif %}
+    where 
+    {% if not is_incremental() %}
+        true
+    {% endif %}
+    {% if is_incremental() %}
+        a.registered_month >= (SELECT MAX(DATE(registered_month)) FROM {{ this }})
+    {% endif %}
