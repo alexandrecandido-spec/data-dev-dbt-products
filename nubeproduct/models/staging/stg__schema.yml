@@ -2336,6 +2336,8 @@ models:
       Curated model that maps the relationship between sessions and carts based on the event 'cart_product_add'.
       It generates a deterministic technical session key and selects a single representative event per (session, cart) pair.
       Used to identify which session originated or interacted with each cart. Valid data available since 2024-01-23.
+      Full documentation available at:
+      https://www.notion.so/Staging-product__traffic__cart_product_add__event-29485d24ee8f80e4b2e2c62d5cef1225
     config:
       meta:
         owner: "barbara.marques@nuvemshop.com.br"
