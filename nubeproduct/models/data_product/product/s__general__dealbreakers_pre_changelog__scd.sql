@@ -1,7 +1,7 @@
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'merge',
-    unique_key = ['dealbreaker_id', 'processed_at'],
+    unique_key = ['dealbreaker_id', 'valid_from', 'row_hash'],
     on_schema_change = 'fail',
     tags = ['daily-9am']
 ) }}
@@ -19,8 +19,7 @@ WITH current AS (
         dealbreaker_start_date,
         dealbreaker_close_date,
         high_start_date,
-        high_close_date,
-        current_date AS snapshot_date
+        high_close_date
     FROM {{ ref('s__general__hubspot_dealbreaker_current__event') }}
 ),
 
@@ -36,8 +35,7 @@ deleted AS (
         dealbreaker_start_date,
         dealbreaker_close_date,
         high_start_date,
-        high_close_date,
-        current_date AS snapshot_date
+        high_close_date
     FROM {{ ref('s__general__hubspot_dealbreaker_deleted__event') }}
 ),
 
@@ -126,7 +124,9 @@ validated_data AS (
 
 -- STEP 4: Obtener versión actual de la tabla histórica
 {% if is_incremental() %}
+
   existing_current AS (
+
     SELECT
       dealbreaker_id,
       processed_at,
@@ -142,7 +142,6 @@ validated_data AS (
       high_close_date,
       valid_from,
       valid_to,
-      is_current,
       is_valid,
       invalid_reason,
       sys_audit_created_on,
@@ -150,10 +149,22 @@ validated_data AS (
       sys_audit_updated_on,
       sys_audit_updated_by,
       row_hash
-    FROM {{ this }}
-    WHERE is_current = TRUE
-  ),
+    FROM (
+
+      SELECT *,
+        ROW_NUMBER() OVER (
+          PARTITION BY dealbreaker_id
+          ORDER BY processed_at DESC
+        ) AS rn
+      FROM {{ this }}
+
+    ) latest
+    WHERE rn = 1
+
+  )
+
 {% else %}
+
   existing_current AS (
     SELECT
       CAST(NULL AS STRING) AS dealbreaker_id,
@@ -170,7 +181,6 @@ validated_data AS (
       CAST(NULL AS DATE) AS high_close_date,
       CAST(NULL AS DATE) AS valid_from,
       CAST(NULL AS DATE) AS valid_to,
-      CAST(NULL AS BOOLEAN) AS is_current,
       CAST(NULL AS BOOLEAN) AS is_valid,
       CAST(NULL AS STRING) AS invalid_reason,
       CAST(NULL AS TIMESTAMP) AS sys_audit_created_on,
@@ -179,11 +189,10 @@ validated_data AS (
       CAST(NULL AS STRING) AS sys_audit_updated_by,
       CAST(NULL AS STRING) AS row_hash
     WHERE FALSE
-  ),
+  )
+
 {% endif %}
 
--- STEP 5: Detectar cambios y preparar nuevas versiones
-new_versions AS (
   SELECT
     v.dealbreaker_id,
     current_timestamp AS processed_at,
@@ -199,7 +208,6 @@ new_versions AS (
     v.high_close_date,
     CAST(DATE_SUB(current_date, 1) AS DATE) AS valid_from,
     DATE('9999-12-31') AS valid_to,
-    TRUE AS is_current,
     v.is_valid,
     v.invalid_reason,
     current_timestamp AS sys_audit_created_on,
@@ -211,125 +219,3 @@ new_versions AS (
   LEFT JOIN existing_current e
     ON v.dealbreaker_id = e.dealbreaker_id
   WHERE e.row_hash IS NULL OR v.row_hash <> e.row_hash
-),
-
--- STEP 6: Cerrar versiones anteriores
-closed_versions AS (
-  SELECT
-    e.dealbreaker_id,
-    current_timestamp AS processed_at,
-    e.is_archived,
-    e.repo_name,
-    e.issue_number,
-    e.store_id,
-    e.company_id,
-    e.impact,
-    e.dealbreaker_start_date,
-    e.dealbreaker_close_date,
-    e.high_start_date,
-    e.high_close_date,
-    CAST(e.valid_from AS DATE) AS valid_from,
-    DATE_SUB(current_date, 2) AS valid_to,
-    FALSE AS is_current,
-    e.is_valid,
-    e.invalid_reason,
-    e.sys_audit_created_on,
-    e.sys_audit_created_by,
-    current_timestamp AS sys_audit_updated_on,
-    'data-dev-dbt-products' AS sys_audit_updated_by,
-    e.row_hash
-  FROM existing_current e
-  INNER JOIN validated_data v
-    ON e.dealbreaker_id = v.dealbreaker_id
-  WHERE e.row_hash <> v.row_hash
-),
-
--- STEP 7: Unión y deduplicación por entidad por día
-unioned_data AS (
-  SELECT
-    dealbreaker_id,
-    processed_at,
-    is_archived,
-    repo_name,
-    issue_number,
-    store_id,
-    company_id,
-    impact,
-    dealbreaker_start_date,
-    dealbreaker_close_date,
-    high_start_date,
-    high_close_date,
-    valid_from,
-    valid_to,
-    is_current,
-    is_valid,
-    invalid_reason,
-    sys_audit_created_on,
-    sys_audit_created_by,
-    sys_audit_updated_on,
-    sys_audit_updated_by,
-    row_hash
-  FROM new_versions
-
-  UNION ALL
-
-  SELECT
-    dealbreaker_id,
-    processed_at,
-    is_archived,
-    repo_name,
-    issue_number,
-    store_id,
-    company_id,
-    impact,
-    dealbreaker_start_date,
-    dealbreaker_close_date,
-    high_start_date,
-    high_close_date,
-    valid_from,
-    valid_to,
-    is_current,
-    is_valid,
-    invalid_reason,
-    sys_audit_created_on,
-    sys_audit_created_by,
-    sys_audit_updated_on,
-    sys_audit_updated_by,
-    row_hash
-  FROM closed_versions
-),
-
-ranked_data AS (
-  SELECT *,
-    ROW_NUMBER() OVER (
-      PARTITION BY dealbreaker_id, DATE(processed_at)
-      ORDER BY processed_at DESC
-    ) AS rn
-  FROM unioned_data
-)
-
-SELECT
-  dealbreaker_id,
-  processed_at,
-  is_archived,
-  repo_name,
-  issue_number,
-  store_id,
-  company_id,
-  impact,
-  dealbreaker_start_date,
-  dealbreaker_close_date,
-  high_start_date,
-  high_close_date,
-  valid_from,
-  valid_to,
-  is_current,
-  is_valid,
-  invalid_reason,
-  sys_audit_created_on,
-  sys_audit_created_by,
-  sys_audit_updated_on,
-  sys_audit_updated_by,
-  row_hash
-FROM ranked_data
-WHERE rn = 1
