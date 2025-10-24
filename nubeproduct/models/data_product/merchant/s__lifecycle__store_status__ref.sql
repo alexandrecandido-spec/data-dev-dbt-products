@@ -23,6 +23,7 @@ main_source.store_id
 , main_source.first_payment
 , main_source.churned_at
 , main_source.first_seller_at
+, main_source.new_seller
 , main_source.current_plan_id
 , main_source.current_plan_name
 , main_source.current_plan_type
@@ -35,6 +36,7 @@ main_source.store_id
 , main_source.state
 , main_source.disabled
 , main_source.custom_theme
+, main_source.new_payment
 , main_source.change_timestamp
 FROM {{ ref('_int__lifecycle__store_status') }} main_source
 WHERE

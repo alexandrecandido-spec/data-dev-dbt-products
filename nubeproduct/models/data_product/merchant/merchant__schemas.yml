@@ -111,6 +111,12 @@ models:
         description: "Date when the store churned"
       - name: first_seller_at
         description: "Date when the first seller was made (first time achieving 7 sales in 90 days window)"
+      - name: new_seller
+        description: "Whether the store is a new seller or not, TRUE if the store first payment date is before the first seller at date, FALSE otherwise"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_set:
+              value_set: [true, false]
       - name: current_plan_id
         description: "ID of the current plan"
         tests:
@@ -129,10 +135,10 @@ models:
           - accepted_values:
               values: ['no-seller', 'struggling-seller', 'tiny-seller', 'small-seller', 'medium-seller', 'large-seller', 'top-seller', 'not-informed', 'not_informed']
       - name: is_seller
-        description: "Whether the store is a seller or not"
+        description: "Whether the store is a seller or not, 'no-seller' if the store current segment is 'no-seller' or 'struggling-seller', 'seller' if the store current segment is 'tiny-seller' or higher, 'not informed' otherwise"
         tests:
           - accepted_values:
-              values: ['seller', 'no-seller']
+              values: ['seller', 'no-seller', 'not-informed']
       - name: max_segment
         description: "Maximum historical segment of the store"
         tests:
@@ -161,6 +167,12 @@ models:
         description: "Timestamp when the store was disabled"
       - name: custom_theme
         description: "Timestamp when the custom theme was used for the first time"
+      - name: new_payment
+        description: "Whether the store is a new payment or not, 1 if the store first payment date is not null, 0 otherwise"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [0, 1]
       - name: sys_audit_created_on
         description: "Timestamp when the record was first loaded into the model. Defaults to current_timestamp if not available."
       - name: sys_audit_created_by
