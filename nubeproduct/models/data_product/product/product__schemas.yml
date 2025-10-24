@@ -2380,8 +2380,6 @@ models:
         description: "Phone of the merchant"
       - name: store_vertical
         description: "Vertical of the store"
-      - name: group_name
-        description: "Group of the store"
       - name: creation_date
         description: "Date when the store was created."
       - name: first_payment
@@ -2456,6 +2454,14 @@ models:
         description: "Flag indicating if the script was created in the current month."
       - name: is_churn_script
         description: "Flag indicating if the script was uninstalled in the current month."
+      - name: churned_at
+        description: "Date when the store churned."
+      - name: is_current_active_store
+        description: "Flag indicating if the store is currently active."
+      - name: is_churned_store
+        description: "Flag indicating if the store has churned."
+      - name: is_active_store
+        description: "Flag indicating if the store is active."
       - name: sys_audit_created_on
         description: "Timestamp when this record was first created in the DBT model."
       - name: sys_audit_created_by
