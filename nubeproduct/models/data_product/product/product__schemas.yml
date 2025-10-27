@@ -2629,6 +2629,14 @@ models:
         description: "Flag indicating if the store has churned."
       - name: is_active_store
         description: "Flag indicating if the store is active."
+      - name: sys_audit_created_on
+        description: "Timestamp when this record was first created in the DBT model."
+      - name: sys_audit_created_by
+        description: "Identifier for the user or system that created this record."
+      - name: sys_audit_updated_on
+        description: "Timestamp when this record was last updated."
+      - name: sys_audit_updated_by
+        description: "Identifier for the user or system that last updated this record."
   
   
   - name: s__invoicing__invoice_and_request__event
