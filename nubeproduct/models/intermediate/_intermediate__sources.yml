@@ -279,3 +279,12 @@ sources:
       - name: mwp_stock_transfer_detail
         description: "Table with details regarding each stock transfer. Contains each product id and variant id that is required to be transferred and the quantities finally transferred"
 
+  - name: int_onboarding
+    database: hive_metastore
+    schema: onboarding
+    tables:
+      - name: domain_types
+        description: "It includes every possible answer choice for the pre-onboarding survey questions that the user will see in the frontend."
+      - name: domain_mappings
+        description: "It links the question groups of the questionnaires with the answer options from the domain types."
+

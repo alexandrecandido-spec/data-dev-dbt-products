@@ -7,16 +7,16 @@
     )
 }}
 
-WITH store_preferences AS (
+WITH store_preferences AS ( 
     SELECT
         CAST(id AS string) AS id,
         CAST(domain_mapping_id AS string) AS domain_mapping_id,
         CAST(store_id AS string) AS store_id,
         LOWER(TRIM(TRANSLATE(free_text, 'áàâãäéèêëíìîïóòôõöúùûüç', 'aaaaaeeeeiiiiooooouuuuc'))) AS free_text
-    FROM {{ source('stg_onboarding', 'store_preferences') }} AS sp
+    FROM {{ source('stg_onboarding', 'store_preferences') }} 
 
     {% if is_incremental() %}
-        WHERE dm.sys_audit_updated_on >= (select coalesce(max(sys_audit_updated_on),'1900-01-01') from {{ this }} )
+        WHERE sys_audit_updated_on >= (select coalesce(max(sys_audit_updated_on),'1900-01-01') from {{ this }} )
     {% endif %}
 ),
 

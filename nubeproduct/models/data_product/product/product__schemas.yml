@@ -1978,7 +1978,7 @@ models:
       - name: sys_audit_updated_by
         description: system or user that last updated the row in this model
 
-  - name: s__onboarding__store_preferences__ref
+  - name: s__onboarding__questionnaire__event
     description: "This table consolidates all responses provided by the merchant throughout the pre-onboarding phase. It includes the answers given in the questionnaire."
     config:
       meta:
@@ -1990,27 +1990,12 @@ models:
         description: "Merchant id."
         tests:
           - not_null
-          - unique
-      - name: created_at
-        description: "Merchant's creation date."
-        tests:
-          - not_null
-      - name: sales_status
-        description: "Answer to the sales status question that can be: already selling, starting, skip or null."
-      - name: sales_platform
-        description: "Answer to the sales platform question. There can be multiple answers."
-      - name: sales_platform_text
-        description: "Answer to the sales platform question when the user select other."
-      - name: sales_amount
-        description: "Answer to the question estimated avarege revenue in local currency."
-      - name: sales_channel
-        description: "Answer to the question sales channel that the merchant already sells."
-      - name: sales_products
-        description: "Answer to the sales product question. There can be multiple answers."
-      - name: sales_products_text
-        description: "Answer to the sales product question when the user select other."
-      - name: sales_product_kind
-        description: "Answer to the kind of product the merchant is selling. There can be multiple answers."
+      - name: group_code
+        description: "Group to each the question belong to. This is que question asked to the user."
+      - name: description
+        description: "Answer to the group code. This is the answer selected by the user as shown in the frontend."
+      - name: free_text
+        description: "Open answer."
       - name: sys_audit_created_on
         description: "Timestamp of when this record was created in our data warehouse"
       - name: sys_audit_created_by
