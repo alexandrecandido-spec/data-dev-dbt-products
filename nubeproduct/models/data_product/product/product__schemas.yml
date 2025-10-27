@@ -2390,6 +2390,130 @@ models:
         description: "System or user that last updated the row in this model."
 
 
+  - name: s__general__dealbreakers_changelog_input__scd
+    description: >
+      Silver data product that tracks raw historical changes of dealbreaker records, both current and deleted, 
+      as sourced from HubSpot. It performs row-level change detection and validation.
+      It includes 'row_hash', validity period tracking, and flags for invalid records.
+      This data products is used as input for the final changelog data product.
+      If the process is run more than once a day and some data changed during this runs, the data product will be updated incrementally.
+      It includes audit tracking and is updated incrementally.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:   
+          - dealbreaker_id
+          - valid_from
+          - row_hash
+    columns:
+      - name: dealbreaker_id
+        description: "Unique identifier for the dealbreaker."
+        tests: 
+          - not_null
+      - name: processed_at
+        description: "Timestamp when the record was processed by DBT."    
+      - name: is_archived
+        description: "Boolean flag indicating if the dealbreaker is archived in HubSpot."
+      - name: repo_name
+        description: "Name of the GitHub repository related to the issue/problem."
+      - name: issue_number
+        description: "GitHub issue number associated with the dealbreaker."
+      - name: store_id
+        description: "Internal store identifier mapped to the HubSpot company."
+      - name: company_id
+        description: "Unique identifier for the company associated with the dealbreaker."
+      - name: impact
+        description: "Impact level of the dealbreaker ('high' or 'dealbreaker')."
+      - name: dealbreaker_start_date
+        description: "Start date of the LAST dealbreaker period."
+      - name: dealbreaker_close_date
+        description: "End date of the LAST dealbreaker period."
+      - name: high_start_date
+        description: "Start date of the LAST high priority period."
+      - name: high_close_date
+        description: "End date of the LAST high priority period."
+      - name: valid_from
+        description: "Start date when this version of the record became valid. It is set as the previous day of the processed_at timestamp."
+        tests:
+          - not_null
+      - name: is_valid
+        description: "Boolean flag indicating if the record passed validation checks associated to manual data from Hubspot."
+      - name: invalid_reason
+        description: "Reason why the record was marked as invalid (if applicable)."
+      - name: sys_audit_created_on
+        description: "Timestamp when this record was first created in the DBT model."
+      - name: sys_audit_created_by
+        description: "Identifier for the user or system that created this record."
+      - name: sys_audit_updated_on
+        description: "Timestamp when this record was last updated."
+      - name: sys_audit_updated_by
+        description: "Identifier for the user or system that last updated this record."
+      - name: row_hash
+        description: "MD5 hash of the row content to detect changes."
+
+
+  - name: s__general__dealbreakers_changelog__scd
+    description: >
+      Silver data product that implements a clean Slowly Changing Dimension (SCD Type 2) changelog 
+      for dealbreaker records. It removes duplicates by 'valid_from', calculates 'valid_to', 
+      and flags the current active record.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:   
+          - dealbreaker_id
+          - valid_from
+    columns:
+      - name: dealbreaker_id
+        description: "Unique identifier for the dealbreaker."
+        tests: 
+          - not_null
+      - name: processed_at
+        description: "Timestamp when the record was processed by DBT."    
+      - name: is_archived
+        description: "Boolean flag indicating if the dealbreaker is archived in HubSpot."
+      - name: repo_name
+        description: "Name of the GitHub repository related to the issue/problem."
+      - name: issue_number
+        description: "GitHub issue number associated with the dealbreaker."
+      - name: store_id
+        description: "Internal store identifier mapped to the HubSpot company."
+      - name: company_id
+        description: "Unique identifier for the company associated with the dealbreaker."
+      - name: impact
+        description: "Impact level of the dealbreaker ('high' or 'dealbreaker')."
+      - name: dealbreaker_start_date
+        description: "Start date of the LAST dealbreaker period."
+      - name: dealbreaker_close_date
+        description: "End date of the LAST dealbreaker period."
+      - name: high_start_date
+        description: "Start date of the LAST high priority period."
+      - name: high_close_date
+        description: "End date of the LAST high priority period."
+      - name: valid_from
+        description: "Start date when this version of the record became valid. It is set as the previous day of the processed_at timestamp as this model runs daily."
+        tests:
+          - not_null
+      - name: valid_to
+        description: "End date for which this record version is valid."
+        tests:
+          - not_null
+      - name: is_current
+        description: "Flag indicating if this is the current version of the record."
+        tests:
+          - not_null
+      - name: is_valid
+        description: "Boolean flag indicating if the record passed validation checks associated to manual data from Hubspot."
+      - name: invalid_reason
+        description: "Reason why the record was marked as invalid (if applicable)."
+      - name: sys_audit_created_on
+        description: "Timestamp when this record was first created in the DBT model."
+      - name: sys_audit_created_by
+        description: "Identifier for the user or system that created this record."
+      - name: sys_audit_updated_on
+        description: "Timestamp when this record was last updated."
+      - name: sys_audit_updated_by
+        description: "Identifier for the user or system that last updated this record."
+        
+        
   - name: g__platform__monthly_active_users__agg_monthly
     description: "This table contains the monthly active users by store and app."
     config:
@@ -2503,15 +2627,8 @@ models:
         description: "Flag indicating if the store has churned."
       - name: is_active_store
         description: "Flag indicating if the store is active."
-      - name: sys_audit_created_on
-        description: "Timestamp when this record was first created in the DBT model."
-      - name: sys_audit_created_by
-        description: "Identifier for the user or system that created this record."
-      - name: sys_audit_updated_on
-        description: "Timestamp when this record was last updated."
-      - name: sys_audit_updated_by
-        description: "Identifier for the user or system that last updated this record."
-
+  
+  
   - name: s__invoicing__invoice_and_request__event
     description: >
       Silver data product combining invoice requests and their corresponding invoices, when applicable.
