@@ -678,6 +678,22 @@ models:
       - name: to_createdate
         description: Createdate of the to deal.
         tests: [not_null]
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model. Preserved from staging models and maintains historical tracking of when each deal was first processed."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model. Inherited from staging models, typically 'data-dev-dbt-products'."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed. Updated on each incremental run for both archived and merged deals."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run. Always 'data-dev-dbt-products' for this automated process."
+        tests:
+          - not_null
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: ['from_deal_id','to_deal_id']

@@ -7,7 +7,6 @@ with deals_all as (
     dealstage,
     store_id,
     createdate,
-    closedate,
     associated_deal_ids
   from {{ ref('midmarket__general__deals__link') }}
 ),
