@@ -4,7 +4,7 @@
         unique_key=['run_date', 'plan_group', 'state', 'current_segment', 'country'],
         incremental_strategy='append',
         on_schema_change='fail',
-        tags=['weekly-monday-9am']
+        tags=['weekly-monday-9am'] 
     )
 }}
 

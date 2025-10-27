@@ -35,6 +35,13 @@ dag = create_dbt_dag(
     tags=["fintech", "daily-9am-4pm"]
 )
 
+dag = create_dbt_dag(
+    dag_id='dbt_fintech_daily-10am',
+    schedule_interval_tag='daily-10am',
+    default_args=default_args,
+    tags=["fintech", "daily-10am"]
+)
+
 # Crear el DAG frecuencia diaria por la tarde
 dag = create_dbt_dag(
     dag_id='dbt_fintech_daily-4pm',
