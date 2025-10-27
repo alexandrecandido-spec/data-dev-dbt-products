@@ -1,5 +1,4 @@
 -- depends_on: {{ ref('_int_marketing__ga4_sessions_attribution') }}
--- depends_on: {{ ref('inputs_marketing_attribution') }}
 
 {{ config(
   materialized         = 'incremental',
@@ -12,7 +11,7 @@
   pre_hook = [
     "
     {% if is_incremental() %}
-      -- Borra SOLO las últimas 6 particiones (hoy + 5 previas) vía MERGE DELETE
+      -- Borra SOLO las últimas 6 particiones (hoy + 5 previas)
       MERGE INTO {{ this }} AS t
       USING (
         WITH maxdc AS (
@@ -36,33 +35,62 @@
   ]
 ) }}
 
+{# =========================
+   Cols existentes en target
+   ========================= #}
+{% set rel = adapter.get_relation(
+    database=this.database,
+    schema=this.schema,
+    identifier=this.identifier
+) %}
+{% if rel %}
+  {% set existing_cols = adapter.get_columns_in_relation(rel) | map(attribute='name') | map('lower') | list %}
+{% else %}
+  {% set existing_cols = [] %}
+{% endif %}
+
 WITH
--- 0) existing_data (para auditoría y detección de días impactados)
-existing_data_full AS (
+/* -----------------------------------------
+   0) Auditoría histórica mínima (created_on/by)
+   ----------------------------------------- */
+existing_data_audit AS (
   {{ get_existing_data(this, [
       'row_hash',
       'sys_audit_created_on',
       'sys_audit_created_by',
-      'dp_input_sources',     
       'year_month_day_code'
   ]) }}
 ),
-existing_data_audit AS (
-  SELECT
-    row_hash,
-    sys_audit_created_on,
-    sys_audit_created_by,
-    year_month_day_code
-  FROM existing_data_full
+
+/* -----------------------------------------
+   0.1) Insumos históricos para el macro input_changed
+        (normalizamos dp_input_sources -> string)
+   ----------------------------------------- */
+existing_inputs_for_macro AS (
+  {% if 'dp_input_sources' in existing_cols %}
+    SELECT
+      row_hash,
+      COALESCE(CONCAT_WS(',', dp_input_sources), '') AS input_sources
+    FROM {{ this }}
+  {% else %}
+    -- si es el primer run y no existe la col, dejamos vacío
+    SELECT CAST(NULL AS STRING) AS row_hash,
+           CAST(NULL AS STRING) AS input_sources
+    WHERE 1=0
+  {% endif %}
 )
 
 {% if is_incremental() %}
--- 1) Días a reconstruir (hoy + 5 previos) y detección de cambios
+, last_upd AS (
+  SELECT COALESCE(MAX(sys_audit_updated_on), TIMESTAMP '1900-01-01') AS max_upd
+  FROM {{ this }}
+)
 , last_dc AS (
   SELECT COALESCE(MAX(year_month_day_code), 19000101) AS max_dc
   FROM {{ this }}
 )
 , base_days AS (
+  -- hoy + 5 previos (6 días)
   SELECT CAST(date_format(d,'yyyyMMdd') AS INT) AS dc
   FROM (
     SELECT EXPLODE(SEQUENCE(
@@ -71,183 +99,115 @@ existing_data_audit AS (
     )) AS d
   )
 )
-, last_upd AS (
-  SELECT COALESCE(MAX(sys_audit_updated_on), TIMESTAMP '1900-01-01') AS max_upd
-  FROM {{ this }}
-)
-, inputs_newer AS (
-  SELECT
-    CASE WHEN
-      (SELECT COALESCE(MAX(updated_at), TIMESTAMP '1900-01-01') FROM {{ ref('inputs_marketing_attribution') }})
-      >
-      (SELECT max_upd FROM last_upd)
-    THEN 1 ELSE 0 END AS needs_reattrib
-)
-, impacted_days AS (
-  -- Construimos el STRING que espera el macro a partir de dp_input_sources del histórico
-  SELECT DISTINCT e.year_month_day_code AS dc
-  FROM (
-    SELECT
-      row_hash,
-      sys_audit_created_on,
-      sys_audit_created_by,
-      year_month_day_code,
-      -- si dp_input_sources es array<string>, lo aplanamos; si es null, devolvemos ''
-      COALESCE(CONCAT_WS(',', dp_input_sources), '') AS input_sources
-    FROM existing_data_full
-  ) e
-  LEFT JOIN (
-    SELECT
-      row_hash,
-      COALESCE(CONCAT_WS(',', dp_input_sources), '') AS input_sources
-    FROM existing_data_full
-  ) main_source
-    ON main_source.row_hash = e.row_hash
-  JOIN inputs_newer n ON n.needs_reattrib = 1
-  WHERE
-      {{ input_changed('utm') }}
-   OR {{ input_changed('subteam') }}
-   OR {{ input_changed('referrer') }}
-   OR {{ input_changed('url') }}
-   OR {{ input_changed('insti') }}
-   OR {{ input_changed('partner_exception') }}
-   OR {{ input_changed('affiliate_classification') }}
-   OR {{ input_changed('partner_code') }}
-)
-, days_by_change_ts AS (
-  -- Días donde el INTERMEDIATE trae cambios nuevos
-  SELECT DISTINCT CAST(date_format(date,'yyyyMMdd') AS INT) AS dc
-  FROM {{ ref('_int_marketing__ga4_sessions_attribution') }}
-  WHERE change_timestamp_incremental >= (SELECT max_upd FROM last_upd)
-)
-, selected_days AS (
-  SELECT dc FROM base_days
-  UNION SELECT dc FROM impacted_days
-  UNION SELECT dc FROM days_by_change_ts
-)
 {% endif %}
 
--- 2) Fuente (intermediate) acotada por selected_days en incremental
-, source_int AS (
+/* -----------------------------------------
+   1) Fuente INTERMEDIATE (ya dedupeada y con dp_row_hash)
+   alias = main_source (requerido por el macro)
+   ----------------------------------------- */
+, main_source AS (
   SELECT *
   FROM {{ ref('_int_marketing__ga4_sessions_attribution') }}
-  {% if is_incremental() %}
-  WHERE CAST(date_format(date,'yyyyMMdd') AS INT) IN (SELECT dc FROM selected_days)
-  {% else %}
-  WHERE date >= DATE '2024-01-01'
+  {% if not is_incremental() %}
+    WHERE date >= DATE '2024-01-01'
   {% endif %}
 )
 
--- 3) Hash (DP)
-, final_with_hash AS (
-  SELECT
-    s.*,
-    md5(CONCAT_WS('||',
-      CAST(s.year_month_day_code AS STRING),
-      CAST(s.date AS STRING),
-      COALESCE(s.source_ga4_classification,''),
-      COALESCE(s.original_user_country,''),
-      COALESCE(s.env,''),
-      COALESCE(s.landing_page,''),
-      COALESCE(s.landing_page_domain,''),
-      COALESCE(s.landing_page_path,''),
-      COALESCE(s.last_source,''),
-      COALESCE(s.last_medium,''),
-      COALESCE(s.last_campaign,''),
-      COALESCE(s.utm_ad_id,''),
-      COALESCE(s.utm_content,''),
-      COALESCE(s.utm_term,''),
-      COALESCE(s.first_event_device,''),
-      COALESCE(s.last_event_device,''),
-      COALESCE(CAST(s.only_login_session AS STRING),''),
-      COALESCE(CAST(s.login_in_session AS STRING),''),
-      COALESCE(s.landing_page_type,''),
-      COALESCE(s.user_type,''),
-      COALESCE(s.session_status,''),
-      COALESCE(s.partner_code,'')
-    )) AS dp_row_hash
-  FROM source_int s
-)
-
-, filtered AS (
-  SELECT f.*
-  FROM final_with_hash f
+/* -----------------------------------------
+   2) Filtro incremental:
+      - últimos 6 días
+      - o change_timestamp_incremental >= last_upd
+      - o cambios de inputs (macro input_changed)
+   ----------------------------------------- */
+, candidate_rows AS (
+  SELECT main_source.*
+  FROM main_source main_source
+  LEFT JOIN existing_inputs_for_macro e
+    ON e.row_hash = main_source.dp_row_hash
   {% if is_incremental() %}
-  WHERE f.year_month_day_code IN (SELECT dc FROM selected_days)
+  WHERE
+        CAST(date_format(main_source.date,'yyyyMMdd') AS INT) IN (SELECT dc FROM base_days)
+     OR main_source.change_timestamp_incremental >= (SELECT max_upd FROM last_upd)
+     OR {{ input_changed('utm') }}
+     OR {{ input_changed('subteam') }}
+     OR {{ input_changed('referrer') }}
+     OR {{ input_changed('url') }}
+     OR {{ input_changed('insti') }}
+     OR {{ input_changed('partner_exception') }}
+     OR {{ input_changed('affiliate_classification') }}
+     OR {{ input_changed('partner_code') }}
   {% else %}
-  WHERE f.date >= DATE '2024-01-01'
+  WHERE main_source.date >= DATE '2024-01-01'
   {% endif %}
 )
 
--- 4) SELECT final + auditoría
 SELECT
-  f.year_month_day_code,
-  f.date,
-  f.source_ga4_classification,
-  f.original_user_country,
-  f.classified_country,
-  f.env,
-  f.landing_page,
-  f.landing_page_domain,
-  f.landing_page_path,
-  f.last_source,
-  f.last_medium,
-  f.last_campaign,
-  f.first_event_device,
-  f.last_event_device,
-  f.only_login_session,
-  f.login_in_session,
-  f.landing_page_type,
-  f.user_type,
-  f.session_status,
-  f.utm_ad_id,
-  f.utm_content,
-  f.utm_term,
-
-  /* nuevo campo expuesto */
-  f.partner_code,
+  c.year_month_day_code,
+  c.date,
+  c.source_ga4_classification,
+  c.original_user_country,
+  c.classified_country,
+  c.env,
+  c.landing_page,
+  c.landing_page_domain,
+  c.landing_page_path,
+  c.last_source,
+  c.last_medium,
+  c.last_campaign,
+  c.first_event_device,
+  c.last_event_device,
+  c.only_login_session,
+  c.login_in_session,
+  c.landing_page_type,
+  c.user_type,
+  c.session_status,
+  c.utm_ad_id,
+  c.utm_content,
+  c.utm_term,
+  c.partner_code,
 
   /* atributos del intermediate */
-  f.url_owner,
-  f.url_content_type,
-  f.insti_pages,
-  f.insti_page_groups,
-  f.type_of_page,
-  f.organic_results,
+  c.url_owner,
+  c.url_content_type,
+  c.insti_pages,
+  c.insti_page_groups,
+  c.type_of_page,
+  c.organic_results,
 
   /* clasificación final */
-  f.mkt_source,
-  COALESCE(f.mkt_subteam, f.mkt_source) AS mkt_subteam,
+  c.mkt_source,
+  COALESCE(c.mkt_subteam, c.mkt_source) AS mkt_subteam,
 
   /* métricas */
-  f.distinct_user_count,
-  f.distinct_session_count,
-  f.total_trials,
-  f.total_payments,
-  f.total_engagements,
-  f.avg_session_duration,
-  f.median_session_duration,
-  f.avg_pageviews_per_session,
-  f.median_pageviews_per_session,
+  c.distinct_user_count,
+  c.distinct_session_count,
+  c.total_trials,
+  c.total_payments,
+  c.total_engagements,
+  c.avg_session_duration,
+  c.median_session_duration,
+  c.avg_pageviews_per_session,
+  c.median_pageviews_per_session,
 
-  /* compat: publicamos input_sources con nombre histórico */
-  f.input_sources AS dp_input_sources,
-  f.change_timestamp_incremental AS dp_change_timestamp_incremental,
+  /* compat: exponer insumos + ts */
+  c.input_sources                AS dp_input_sources,
+  c.change_timestamp_incremental AS dp_change_timestamp_incremental,
 
-  /* row_hash (DP) para el MERGE */
-  f.dp_row_hash AS row_hash,
+  /* merge key único = hash que viene del INT */
+  c.dp_row_hash                  AS row_hash,
 
   /* auditoría */
-  COALESCE(e.sys_audit_created_on, current_timestamp)       AS sys_audit_created_on,
-  COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by,
+  COALESCE(a.sys_audit_created_on, current_timestamp)       AS sys_audit_created_on,
+  COALESCE(a.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by,
   current_timestamp                                          AS sys_audit_updated_on,
   'data-dev-dbt-products'                                    AS sys_audit_updated_by
 
-FROM filtered f
-LEFT JOIN existing_data_audit e
-  ON e.row_hash = f.dp_row_hash
+FROM candidate_rows c
+LEFT JOIN existing_data_audit a
+  ON a.row_hash = c.dp_row_hash
 {% if is_incremental() %}
-  AND e.year_month_day_code IN (SELECT dc FROM selected_days)
+  AND a.year_month_day_code = c.year_month_day_code
 {% endif %}
+
 
 

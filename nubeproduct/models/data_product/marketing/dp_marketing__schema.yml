@@ -1065,10 +1065,10 @@ models:
         description: Average page-views per session.
       - name: median_pageviews_per_session
         description: Median page-views per session (approximate).
-      - name: input_sources
-        description: Input tags that influenced the row (utm, subteam, referrer, url, insti, partner_exception, affiliate_classification, partner_code).
-      - name: change_timestamp_incremental
-        description: Max sys_audit_updated_on across relevant inputs; used for selective incremental recalculation.
+      - name: dp_input_sources
+        description: Comma-separated STRING of input tags that influenced the row (utm, subteam, referrer, url, insti, partner_exception, affiliate_classification, partner_code).
+      - name: dp_change_timestamp_incremental
+        description: Max sys_audit_updated_on across relevant inputs; used to trigger selective incremental recalculation.
       - name: row_hash
         description: MD5 merge key for the DP (dp_row_hash exposed as row_hash).
         tests:

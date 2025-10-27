@@ -112,8 +112,6 @@ models:
         description: "Identifier of the order associated with the product."
         tests:
           - unique
-      - name: id
-        tests:
           - not_null
       - name: order_id
         description: "Identifier of the order associated with the product."
