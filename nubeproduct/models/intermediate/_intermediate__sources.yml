@@ -283,3 +283,4 @@ sources:
       - name: mwp_stock_transfer_detail
         description: "Table with details regarding each stock transfer. Contains each product id and variant id that is required to be transferred and the quantities finally transferred"
 
+
