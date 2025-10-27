@@ -2464,6 +2464,8 @@ models:
         description: "City and state/territory label used by Sales."
       - name: vertical
         description: "Business vertical/category of the merchant."
+      - name: associated_deal_ids
+        description: "Semicolon-separated list of related deal ids (string; may be NULL)."
       - name: sys_audit_created_on
         description: "Timestamp when the record was first loaded into the model. Preserved from previous loads for existing records."
         tests:
