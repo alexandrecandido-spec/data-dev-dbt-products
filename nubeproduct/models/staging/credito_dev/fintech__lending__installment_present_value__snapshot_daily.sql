@@ -4,7 +4,7 @@
     incremental_strategy='merge',
     partition_by=['year_month_day_code'],
     on_schema_change='fail',
-    tags=["fintech", "daily-4am"],
+    tags=["fintech", "daily-7am"],
     pre_hook=[
       "{% if is_incremental() %}
          DELETE FROM {{ this }} WHERE year_month_day_code >= 
