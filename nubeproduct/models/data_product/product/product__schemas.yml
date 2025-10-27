@@ -2555,6 +2555,8 @@ models:
         description: "Name of the app"
       - name: app_category
         description: "Category of the app"
+      - name: app_manager
+        description: "Manager of the app"
       - name: is_app_published
         description: "Flag indicating if the app is published"
       - name: app_creation_date
