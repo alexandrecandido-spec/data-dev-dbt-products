@@ -1,7 +1,7 @@
 {{ config(
-  materialized='table',          -- se sobreescribe a diario
-  on_schema_change='fail',
-  tags=['daily-6am']
+    materialized='table',          -- se sobreescribe a diario
+    on_schema_change='fail',
+    tags=['daily-6am']
 ) }}
 
 select distinct
