@@ -10,6 +10,7 @@
 WITH store_preferences AS ( 
     SELECT
         CAST(id AS string) AS id,
+        CAST(created_at AS timestamp) AS created_at,
         CAST(domain_mapping_id AS string) AS domain_mapping_id,
         CAST(store_id AS string) AS store_id,
         LOWER(TRIM(TRANSLATE(free_text, 'áàâãäéèêëíìîïóòôõöúùûüç', 'aaaaaeeeeiiiiooooouuuuc'))) AS free_text

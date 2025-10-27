@@ -1990,6 +1990,10 @@ models:
         description: "Merchant id."
         tests:
           - not_null
+      - name: created_at
+        description: "Merchant creation date."
+        tests:
+          - not_null
       - name: group_code
         description: "Group to each the question belong to. This is que question asked to the user."
       - name: description

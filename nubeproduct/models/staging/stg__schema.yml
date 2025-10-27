@@ -2494,6 +2494,10 @@ models:
         tests:
           - not_null
           - unique
+      - name: created_at
+        description: "Merchant creation date."
+        tests:
+          - not_null
       - name: domain_mapping_id
         description: "The unique id for each combination of group code (question) and type code (answer)."
         tests:
