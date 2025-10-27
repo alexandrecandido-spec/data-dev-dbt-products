@@ -132,7 +132,7 @@ models:
         description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
 
 
-  - name: credito_dev__mova_installment_present_value
+  - name: fintech__lending__installment_present_value__snapshot_daily
     config:
       meta:
         owner: "calvin.hetem@nuvemshop.com.br"
@@ -178,14 +178,16 @@ models:
         description: "Possible discount amount if installment is paid at data_ref."
       - name: installment_updated_amount
         description: "Total amount to be paid if installment is paid at data_ref."
-      - name: sys_audit_created_on
-        description: "Timestamp when the record was first loaded into the model. Defaults to current_timestamp if not available."
+      - name: year_month_day_code
+        description: "Year and month code in YYYYMMDD format used for partitioning or filtering."
       - name: sys_audit_created_by
         description: "User or process that first loaded the record into the model. Defaults to 'data-dev-dbt-products'."
-      - name: sys_audit_updated_on
-        description: "Timestamp of the current model run when the record was processed."
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model. Defaults to current_timestamp if not available."
       - name: sys_audit_updated_by
         description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed."
 
 
   - name: antifraud_service__vertifier_store_inferences
@@ -2832,3 +2834,380 @@ models:
         description: "Timestamp when this record was last updated."
       - name: sys_audit_updated_by
         description: "Identifier for the user or system that last updated this record."
+
+  - name: product__ecosystem__mwp_scripts__scd
+    description: "Staging model that contains information about the scripts installed in the merchant storefront"
+    config:
+      meta:
+        owner: "fernando.martinez@tiendanube.com"
+        domain: "product"
+        business_owner: "Nicolas Loreti"
+    columns:
+      - name: unique_store_app_id
+        description: "Unique identifier for the store and app."
+        tests: 
+          - not_null
+          - unique
+      - name: store_id
+        description: "Unique identifier for the store."
+        tests: 
+          - not_null
+      - name: app_id
+        description: "Unique identifier for the app."
+        tests: 
+          - not_null
+      - name: event
+        description: "Event of the script."
+      - name: source_event
+        description: "Source event of the script."
+      - name: created_date
+        description: "Date when the script was created."
+        tests: 
+          - not_null
+      - name: deleted_date
+        description: "Date when the script was deleted."
+      - name: script_rank
+        description: "Rank of the script."
+      - name: sys_audit_created_on
+        description: "Timestamp when this record was first created in the DBT model."
+      - name: sys_audit_created_by
+        description: "Identifier for the user or system that created this record."
+      - name: sys_audit_updated_on
+        description: "Timestamp when this record was last updated."
+      - name: sys_audit_updated_by
+        description: "Identifier for the user or system that last updated this record."
+    
+  - name: product__ecosystem__mwp_shipping_carriers__scd
+    description: "Staging model that contains information about the shipping carriers installed in the merchant storefront"
+    config:
+      meta:
+        owner: "fernando.martinez@tiendanube.com"
+        domain: "product"
+        business_owner: "Nicolas Loreti"
+    columns:
+      - name: unique_store_app_id
+        description: "Unique identifier for the store and app."
+        tests: 
+          - not_null
+          - unique
+      - name: store_id
+        description: "Unique identifier for the store."
+        tests: 
+          - not_null
+      - name: app_id
+        description: "Unique identifier for the app."
+        tests: 
+          - not_null
+      - name: shipping_carrier_id
+        description: "Unique identifier for the shipping carrier."
+      - name: carrier_rank
+        description: "Rank of the shipping carrier."
+      - name: status
+        description: "Status of the shipping carrier."
+      - name: creation_date
+        description: "Date when the shipping carrier was created."
+        tests: 
+          - not_null
+      - name: deletion_date
+        description: "Date when the shipping carrier was deleted."
+      - name: sys_audit_created_on
+        description: "Timestamp when this record was first created in the DBT model."
+      - name: sys_audit_created_by
+        description: "Identifier for the user or system that created this record."
+      - name: sys_audit_updated_on
+        description: "Timestamp when this record was last updated."
+      - name: sys_audit_updated_by
+        description: "Identifier for the user or system that last updated this record."
+
+  - name: product__invoicing__internal_invoice__event
+    description: >
+      Staging model for the internal invoices generated by Nuvemshop.
+      Each row represents an invoice event and includes cancellation and correction references.
+      Built incrementally with merge strategy.
+    config:
+      meta:
+        owner: "matias.scasso@tiendanube.com"
+        domain: "product"
+        business_owner: "Martin Palombo"
+    columns:
+      - name: invoice_id
+        description: "Unique invoice identifier for both internal and external invoices."
+        tests:
+          - not_null
+          - unique
+      - name: request_id
+        description: "Key to the invoice request that generated this invoice."
+        tests:
+          - not_null
+          - unique
+      - name: invoice_cancelled_at
+        description: "Timestamp when the invoice was cancelled, if applicable."
+      - name: cancellation_event_id
+        description: "Identifier of the cancellation event associated with the invoice, if applicable."
+      - name: last_correction_event_id
+        description: "Identifier of the last correction event associated with the invoice, if applicable."
+      - name: sys_audit_created_on
+        description: "Timestamp when this record was first created in the DBT model."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "Identifier for the user or system that created this record."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when this record was last updated."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "Identifier for the user or system that last updated this record."
+        tests:
+          - not_null
+
+
+  - name: product__invoicing__invoice__event
+    description: >
+      Staging model containing the canonical list of invoices generated internally and externally by Nuvemshop.
+      Each row represents one invoice event, including status, key, authorization protocol, and metadata related to its creation and authorization.
+      Built incrementally with merge strategy.
+    config:
+      meta:
+        owner: "matias.scasso@tiendanube.com"
+        domain: "product"
+        business_owner: "Martin Palombo"
+    columns:
+      - name: invoice_id
+        description: "Unique invoice identifier for both internal and external invoices."
+        tests:
+          - not_null
+          - unique
+      - name: store_id
+        description: "Store associated with the invoice."
+        tests:
+          - not_null    
+      - name: order_id
+        description: "Order ID associated with the invoice."
+      - name: fulfillment_order_id
+        description: "Fulfillment order ID linked to the invoice."
+      - name: invoice_type
+        description: "Type of invoice generated."
+      - name: invoice_status
+        description: "Current status of the invoice."
+      - name: invoice_key
+        description: "Unique invoice key used in electronic invoicing (NF-e)."
+      - name: authorization_protocol
+        description: "Protocol number returned by SEFAZ after authorization."  
+      - name: invoice_created_at
+        description: "Timestamp when the invoice was created."
+      - name: invoice_authorized_at
+        description: "Timestamp when the invoice was authorized by SEFAZ."
+      - name: invoice_series
+        description: "Series number of the invoice."
+      - name: invoice_number
+        description: "Number of the invoice issued."
+      - name: invoice_year_month_code
+        description: "Year-month code used for partitioning or indexing (e.g., 202310)."
+      - name: sys_audit_created_on
+        description: "Timestamp when this record was first created in the DBT model."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "Identifier for the user or system that created this record."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when this record was last updated."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "Identifier for the user or system that last updated this record."
+        tests:
+          - not_null
+
+
+  - name: product__invoicing__invoice_request__event
+    description: >
+      Staging model containing all invoice requests initiated by merchants.
+      Each row represents a single invoice request event, including timestamps for creation, enrichment, sending, and finalization,
+      as well as rejection reasons where applicable.
+      Built incrementally with merge strategy.
+    config:
+      meta:
+        owner: "matias.scasso@tiendanube.com"
+        domain: "product"
+        business_owner: "Martin Palombo"
+    columns:
+      - name: request_id
+        description: "Key to the invoice request that generated this invoice."
+        tests:
+          - not_null
+          - unique
+      - name: store_id
+        description: "Store associated with the invoice."
+        tests:
+          - not_null
+      - name: order_id
+        description: "Order ID associated with the invoice."
+      - name: fulfillment_order_id
+        description: "Fulfillment order ID linked to the invoice."        
+      - name: invoice_type
+        description: "Type of invoice generated."
+      - name: request_status
+        description: "Current status of the invoice request."
+      - name: request_created_at
+        description: "Timestamp when the invoice request was initially created."
+      - name: request_enriched_at
+        description: "Timestamp when enrichment of the request was completed." 
+      - name: request_sent_at
+        description: "Timestamp when the invoice request was sent."
+      - name: request_finished_at
+        description: "Timestamp when the invoice request process was finalized."
+      - name: rejected_request_reason
+        description: "Raw JSON string detailing rejection reasons, if the request failed."
+      - name: request_year_month_code
+        description: "Year-month code used for indexing or filtering (e.g., 202310)."
+      - name: sys_audit_created_on
+        description: "Timestamp when this record was first created in the DBT model."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "Identifier for the user or system that created this record."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when this record was last updated."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "Identifier for the user or system that last updated this record."
+        tests:
+          - not_null
+
+
+  - name: product__invoicing__store_feature_configuration__event
+    description: >
+      Staging model containing the configuration status of invoicing-related features per store.
+      Each row represents the activation or deactivation of a specific feature for a store.
+      Built incrementally using merge strategy.
+    config:
+      meta:
+        owner: "matias.scasso@tiendanube.com"
+        domain: "product"
+        business_owner: "Martin Palombo"
+    columns:
+      - name: sfc_id
+        description: "Unique identifier for the store feature configuration event."
+        tests:
+          - not_null
+          - unique
+      - name: store_id
+        description: "Store associated with the feature configuration."
+        tests:
+          - not_null
+      - name: feature_name
+        description: "Name of the invoicing-related feature being configured."
+        tests:
+          - not_null
+      - name: feature_enabled
+        description: "Boolean flag indicating if the feature is enabled (true) or disabled (false)."
+        tests:
+          - not_null
+      - name: sfc_created_at
+        description: "Timestamp when the feature configuration record was created."
+      - name: sfc_updated_at
+        description: "Timestamp when the feature configuration record was last updated."
+      - name: sfc_year_month_code
+        description: "Year-month code used for indexing or filtering (e.g., 202310)."
+      - name: sys_audit_created_on
+        description: "Timestamp when this record was first created in the DBT model."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "Identifier for the user or system that created this record."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when this record was last updated."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "Identifier for the user or system that last updated this record."
+        tests:
+          - not_null
+
+
+  - name: product__invoicing__store_invoice_registry__event
+    description: >
+      Staging model containing the configuration details of stores related to invoicing.
+      Each row represents the current version of the registry record for invoicing eligibility and metadata per store.
+      Built incrementally using merge strategy.
+    config:
+      meta:
+        owner: "matias.scasso@tiendanube.com"
+        domain: "product"
+        business_owner: "Martin Palombo"
+    columns:
+      - name: registry_id
+        description: "Unique identifier for the store invoice registry record."
+        tests:
+          - not_null
+          - unique
+      - name: store_id
+        description: "Store identifier for which this registry configuration applies."
+        tests:
+          - not_null
+      - name: document
+        description: "Tax identification number or business document of the store."
+      - name: legal_name
+        description: "Legal name of the business as registered."
+      - name: trade_name
+        description: "Trade name or commercial name used by the store."
+      - name: address_street
+        description: "Street part of the store address."
+      - name: address_number
+        description: "Number of the store's physical address."
+      - name: address_floor
+        description: "Floor or additional level information in the address."
+      - name: address_locality
+        description: "Locality or neighborhood of the store's address."
+      - name: city_code
+        description: "Numeric code representing the city."
+      - name: city_name
+        description: "City name where the store is located."
+      - name: state_code
+        description: "Two-letter code for the state or province."
+      - name: zipcode
+        description: "Postal code of the store's address."
+      - name: phone
+        description: "Phone number registered for the store."
+      - name: state_registration
+        description: "State-level registration identifier, if applicable."
+      - name: tax_regime_code
+        description: "Code representing the applicable tax regime for the store."
+      - name: registry_status
+        description: "Status of the registry."
+      - name: cert_validity_from
+        description: "Timestamp from which the digital certificate is valid."
+      - name: cert_validity_to
+        description: "Timestamp until which the digital certificate is valid."
+      - name: registry_created_at
+        description: "Timestamp when this registry record was created."
+      - name: registry_updated_at
+        description: "Timestamp when this registry record was last updated."
+      - name: registry_year_month_code
+        description: "Year-month code used for indexing or filtering (e.g., 202310)."
+      - name: sys_audit_created_on
+        description: "Timestamp when this record was first created in the DBT model."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "Identifier for the user or system that created this record."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when this record was last updated."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "Identifier for the user or system that last updated this record."
+        tests:
+          - not_null
