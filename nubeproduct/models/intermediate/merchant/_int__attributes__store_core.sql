@@ -1,6 +1,7 @@
 WITH store_source AS (
   SELECT
     si.store_id
+    , si.state
     , si.created_at
     , si.domain
     , si.country AS country_code
@@ -58,6 +59,7 @@ partner_info AS (
 
 SELECT 
     ss.store_id
+    , ss.state
     , ss.created_at
     , ss.domain
     , ss.country_code

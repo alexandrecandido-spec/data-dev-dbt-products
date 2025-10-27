@@ -53,7 +53,7 @@ SELECT
     created_at,
     first_payment,
     churned_at,
-    plan,
+    plan as plan_id,
     paid_until,
     verified, 
     register_url,

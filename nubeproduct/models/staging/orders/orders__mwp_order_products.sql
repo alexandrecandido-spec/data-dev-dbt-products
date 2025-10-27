@@ -30,8 +30,7 @@ with source as (
      created_at >= '2018-01-01'
     {% endif %}
     {% if is_incremental() %}
-     sys_audit_updated_on > (select max(sys_audit_updated_on) from {{ this }})
-    {% endif %}
+  WHERE sys_audit_updated_on >= (select coalesce(max(sys_audit_updated_on),'1900-01-01') - INTERVAL '1 hour' from {{ this }} )    {% endif %}
 ),
 existing_data AS (
     {{ get_existing_data(this, ['id', 'sys_audit_created_on', 'sys_audit_created_by']) }}

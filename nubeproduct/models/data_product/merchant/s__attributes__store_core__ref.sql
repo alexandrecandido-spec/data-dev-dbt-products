@@ -3,7 +3,15 @@
     incremental_strategy = 'merge',
     unique_key = ['store_id'],
     on_schema_change = 'fail',
-    tags = ['merchant', 'daily-8am-8pm']
+    tags = ['daily-8am-8pm'],
+    post_hook=[
+            "DELETE FROM {{ this }}
+                    WHERE store_id IN (
+                        SELECT store_id
+                        FROM {{ ref('merchant__attributes__store_info__ref') }}
+                        WHERE state = 4 
+            )"
+            ]
 ) }}
 
 WITH existing_data AS (
@@ -30,12 +38,13 @@ main_source.store_id
 , main_source.change_timestamp
 FROM {{ ref('_int__attributes__store_core') }} main_source
 WHERE
-    {% if not is_incremental() %}
-      main_source.created_at >= DATE '1900-01-01'
-    {% endif %}
-    {% if is_incremental() %}
-      main_source.change_timestamp > ( SELECT COALESCE(MAX(sys_audit_updated_on), DATE '1900-01-01') FROM {{ this }} )
-    {% endif %}
+main_source.state != 4
+{% if not is_incremental() %}
+  AND main_source.created_at >= DATE '1900-01-01'
+{% endif %}
+{% if is_incremental() %}
+  AND main_source.change_timestamp > ( SELECT COALESCE(MAX(sys_audit_updated_on), DATE '1900-01-01') FROM {{ this }} )
+{% endif %}
 )
 
 

@@ -5,7 +5,7 @@
    unique_key = 'unique_session_key',
    partition_by = 'base_date',
    on_schema_change = 'fail',
-   tags = ['product', 'daily-2am']
+   tags = ['product', 'daily-3am']
 ) }}
 
 WITH swd AS (
@@ -79,9 +79,11 @@ FROM
 LEFT JOIN
    stc
    ON swd.unique_session_key = stc.unique_session_key
+   AND swd.base_date = stc.base_date
 LEFT JOIN
    suc
    ON swd.unique_session_key = suc.unique_session_key
+   AND swd.base_date = suc.base_date
 )
 
 , existing_data AS (
