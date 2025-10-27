@@ -413,6 +413,17 @@ sources:
       - name: dimensions__region
       - name: logistics__shipping_classification
 
+  - name: bronze_risk_ecommerce
+    database: bronze_risk
+    schema: ecommerce
+    description: "Bronze risk ecommerce tables"
+    tables:
+      - name: mwp_scripts
+        description: "Contains the scripts installed in the stores"
+      - name: mwp_shipping_carriers
+        description: "Contains the shipping carriers installed in the stores"
+      - name: mwp_store_settings
+        description: "Contains the store settings"
 
   - name: stg_invoices_br
     database: hive_metastore

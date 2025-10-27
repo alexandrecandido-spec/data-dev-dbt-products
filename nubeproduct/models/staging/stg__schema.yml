@@ -2835,6 +2835,89 @@ models:
       - name: sys_audit_updated_by
         description: "Identifier for the user or system that last updated this record."
 
+  - name: product__ecosystem__mwp_scripts__scd
+    description: "Staging model that contains information about the scripts installed in the merchant storefront"
+    config:
+      meta:
+        owner: "fernando.martinez@tiendanube.com"
+        domain: "product"
+        business_owner: "Nicolas Loreti"
+    columns:
+      - name: unique_store_app_id
+        description: "Unique identifier for the store and app."
+        tests: 
+          - not_null
+          - unique
+      - name: store_id
+        description: "Unique identifier for the store."
+        tests: 
+          - not_null
+      - name: app_id
+        description: "Unique identifier for the app."
+        tests: 
+          - not_null
+      - name: event
+        description: "Event of the script."
+      - name: source_event
+        description: "Source event of the script."
+      - name: created_date
+        description: "Date when the script was created."
+        tests: 
+          - not_null
+      - name: deleted_date
+        description: "Date when the script was deleted."
+      - name: script_rank
+        description: "Rank of the script."
+      - name: sys_audit_created_on
+        description: "Timestamp when this record was first created in the DBT model."
+      - name: sys_audit_created_by
+        description: "Identifier for the user or system that created this record."
+      - name: sys_audit_updated_on
+        description: "Timestamp when this record was last updated."
+      - name: sys_audit_updated_by
+        description: "Identifier for the user or system that last updated this record."
+    
+  - name: product__ecosystem__mwp_shipping_carriers__scd
+    description: "Staging model that contains information about the shipping carriers installed in the merchant storefront"
+    config:
+      meta:
+        owner: "fernando.martinez@tiendanube.com"
+        domain: "product"
+        business_owner: "Nicolas Loreti"
+    columns:
+      - name: unique_store_app_id
+        description: "Unique identifier for the store and app."
+        tests: 
+          - not_null
+          - unique
+      - name: store_id
+        description: "Unique identifier for the store."
+        tests: 
+          - not_null
+      - name: app_id
+        description: "Unique identifier for the app."
+        tests: 
+          - not_null
+      - name: shipping_carrier_id
+        description: "Unique identifier for the shipping carrier."
+      - name: carrier_rank
+        description: "Rank of the shipping carrier."
+      - name: status
+        description: "Status of the shipping carrier."
+      - name: creation_date
+        description: "Date when the shipping carrier was created."
+        tests: 
+          - not_null
+      - name: deletion_date
+        description: "Date when the shipping carrier was deleted."
+      - name: sys_audit_created_on
+        description: "Timestamp when this record was first created in the DBT model."
+      - name: sys_audit_created_by
+        description: "Identifier for the user or system that created this record."
+      - name: sys_audit_updated_on
+        description: "Timestamp when this record was last updated."
+      - name: sys_audit_updated_by
+        description: "Identifier for the user or system that last updated this record."
 
   - name: product__invoicing__internal_invoice__event
     description: >
