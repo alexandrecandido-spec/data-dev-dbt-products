@@ -1901,7 +1901,7 @@ models:
         tests:
           - not_null
           
-  - name: g__general__ga4_all_pageviews__event
+  - name: s__general__ga4_all_pageviews__event
     description: "Daily page views data with acquisition information from GA4"
     columns:
       - name: user_pseudo_id
