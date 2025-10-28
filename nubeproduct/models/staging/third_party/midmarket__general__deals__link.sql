@@ -38,6 +38,8 @@ select
   cidade_territorio_sales,
   vertical,
 
+  nullif(associated_deal_ids, '')                   as associated_deal_ids,
+
   current_timestamp AS sys_audit_created_on,
   'data-dev-dbt-products' AS sys_audit_created_by,
   current_timestamp AS sys_audit_updated_on,

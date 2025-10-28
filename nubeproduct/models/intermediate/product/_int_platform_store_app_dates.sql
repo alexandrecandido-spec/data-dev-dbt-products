@@ -73,12 +73,22 @@ shipping_carriers as (
         ,date(creation_date) as created_date
         ,date(deletion_date) as deleted_date
     from {{ ref('product__ecosystem__mwp_shipping_carriers__scd') }}
+),
+partner_managers as (
+    select
+        country
+        ,partner_id
+        ,partner_manager
+        ,app_id
+        ,app_manager
+    from {{ source('stg_unity_data_manual', 'ext__partnerships__platform_development__app_managers') }}
 )
 SELECT distinct
         s.*
         ,a.app_id
         ,app_name
         ,app_category
+        ,app_manager
         ,is_app_published
         ,app_creation_date
         ,app_published_date
@@ -109,4 +119,7 @@ left join scripts sc
 left join shipping_carriers sh
     on s.store_id = sh.store_id
     and a.app_id = sh.app_id
+left join partner_managers pm
+    on s.country = pm.country
+    and a.app_id = pm.app_id
 where is_active_store
