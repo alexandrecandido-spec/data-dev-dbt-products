@@ -404,8 +404,14 @@ sources:
         description: "Contains the countries of the partners"
       - name: apps
         description: "Contains app information"
-      
-  
+
+  - name: stg_zendesk_support
+    database: raw
+    schema: zendesk_support_prod
+    tables:
+      - name: organizations
+        description: "Zendesk organizations with id and external_id (maps to store_id)"
+
   - name: stg_data_manual
     database: hive_metastore
     schema: "{{ 'testing_manual' if target.name == 'dev' else 'data_manual' }}"
