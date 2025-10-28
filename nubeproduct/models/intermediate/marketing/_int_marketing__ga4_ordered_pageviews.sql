@@ -24,7 +24,7 @@ WITH ranked AS (
         COUNT(*) OVER (
             PARTITION BY mpv.unique_session
         ) AS pageviews_per_session
-    FROM {{ ref('ga4__mod_pv_info') }} mpv
+    FROM {{ ref('marketing__acquisition__ga4_pageview_info__event') }} mpv
 )
 
 SELECT

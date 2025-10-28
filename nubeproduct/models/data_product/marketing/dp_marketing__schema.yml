@@ -806,7 +806,7 @@ models:
         description: "System identifier of the process that last updated this record"
   
 
-  - name: marketing_ga4_sessions_classified
+  - name: s__acquisition__ga4_sessions_by_country__event
     description: Session level view enriched with device information, GA4 source
       labels and a “classified_country” logic that maps each session
       to BR / AR / MX / CL / CO / Other.  
@@ -885,7 +885,7 @@ models:
         description: dbt job or service account that last updated the row.
 
 
-  - name: marketing_ga4_sessions_aggregated
+  - name: g__acquisition__ga4_sessions__agg_daily
     description: Daily aggregation of *marketing_ga4_sessions_classified* with
       engagement, trial and payment metrics.  
     config:
@@ -975,7 +975,7 @@ models:
         description: dbt job or service account that last updated the row.
 
 
-  - name: marketing_ga4_sessions_daily_attribution
+  - name: g__acquisition__ga4_sessions_attribution__agg_daily
     description: Extends the aggregated GA4 sessions table with marketing classification (mkt_source, mkt_subteam), URL ownership, partner_code and incremental logic.
     config:
       meta:

@@ -12,7 +12,7 @@ login_sessions AS (
                 PARTITION BY unique_session
                 ORDER BY event_date ASC
             ) AS rn
-        FROM {{ ref('ga4__event_info') }}
+        FROM {{ ref('marketing__acquisition__ga4_event_info__event') }}
         WHERE event_type = 'login'
           AND unique_session IS NOT NULL
     ) t
@@ -23,7 +23,7 @@ trials AS (
     SELECT
         t.unique_session,
         COUNT(*) AS trial
-    FROM {{ ref('ga4__tp_info') }} t
+    FROM {{ ref('marketing__acquisition__ga4_trial_payment_info__user_event') }} t
     WHERE t.trial_timestamp IS NOT NULL
     GROUP BY t.unique_session
 ),
@@ -32,7 +32,7 @@ payments AS (
     SELECT
         t.unique_session,
         COUNT(*) AS payment
-    FROM {{ ref('ga4__tp_info') }} t
+    FROM {{ ref('marketing__acquisition__ga4_trial_payment_info__user_event') }} t
     WHERE t.payment_timestamp IS NOT NULL
     GROUP BY t.unique_session
 ),
@@ -48,7 +48,7 @@ session_data AS (
                 PARTITION BY unique_session
                 ORDER BY session_duration_minutes DESC NULLS LAST
             ) AS rn
-        FROM {{ ref('ga4__session_info') }}
+        FROM {{ ref('marketing__acquisition__ga4_session_info__session') }}
     ) t
     WHERE rn = 1
 ),
@@ -67,7 +67,7 @@ event_devices AS (
             ROW_NUMBER() OVER (
                 PARTITION BY unique_session ORDER BY event_date ASC
             ) AS rn
-        FROM {{ ref('ga4__event_info') }}
+        FROM {{ ref('marketing__acquisition__ga4_event_info__event') }}
         WHERE unique_session IS NOT NULL
           AND event_device IS NOT NULL
     ) t
