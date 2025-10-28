@@ -51,6 +51,8 @@ sources:
         description: "Table with zipcodes from Mexico."
       - name: ceps
         description: "Table with zipcodes from Brazil."
+      - name: mwp_shipping_carriers
+        description: "Table with shipping carriers"
 
 
   - name: stg_orders
