@@ -108,7 +108,7 @@ def build_seed_yml(sheet_name: str, defs: Dict) -> str:
     lines: List[str] = []
     ap = lines.append
     ap("version: 2")
-    ap("models:")
+    ap("seeds:")
     ap("  - name: " + str(sheet_name))
     ap("    description: " + desc)
     ap("    config:")

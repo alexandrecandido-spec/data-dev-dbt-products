@@ -51,6 +51,8 @@ sources:
         description: "Table with zipcodes from Mexico."
       - name: ceps
         description: "Table with zipcodes from Brazil."
+      - name: mwp_shipping_carriers
+        description: "Table with shipping carriers"
 
 
   - name: stg_orders
@@ -201,10 +203,6 @@ sources:
     tables:
       - name: onboarding_store_preference_types 
         description: "Merchant sales channels. Responses are received when the merchant completes the pre-onboarding questionnaire. Merchants can choose multiple options and each selection is stored as a distinct entry in the table."
-      - name: domain_types
-        description: "It includes every possible answer choice for the pre-onboarding survey questions that the user will see in the frontend."
-      - name: domain_mappings
-        description: "It links the question groups of the questionnaires with the answer options from the domain types."
       - name: store_preferences
         description: "It records the preferences of each store based on the options selected in the questionnaire."
       - name: store_questionnaire_statuses
@@ -402,8 +400,14 @@ sources:
         description: "Contains the countries of the partners"
       - name: apps
         description: "Contains app information"
-      
-  
+
+  - name: stg_zendesk_support
+    database: raw
+    schema: zendesk_support_prod
+    tables:
+      - name: organizations
+        description: "Zendesk organizations with id and external_id (maps to store_id)"
+
   - name: stg_data_manual
     database: hive_metastore
     schema: "{{ 'testing_manual' if target.name == 'dev' else 'data_manual' }}"
@@ -440,3 +444,11 @@ sources:
         description: "Contains the information of the store configuration for the productive environment"
       - name: store_invoice_registry
         description: "Contains the configuration of the stores for the invoice feature"
+
+  - name: stg_unity_data_manual
+    database: data_products_prd
+    schema: data_manual
+    description: "Source containing tables related to the data manual"
+    tables:
+      - name: ext__partnerships__platform_development__app_managers
+        description: "Contains the information of the app and tech partner managers"

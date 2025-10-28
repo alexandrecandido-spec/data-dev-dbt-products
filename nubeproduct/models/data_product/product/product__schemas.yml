@@ -1519,6 +1519,8 @@ models:
         description: "Gateway used for the order"
       - name: gateway_handle
         description: "Handle of the gateway used for the order"
+      - name: gateway_integration_type
+        description: "Integration type used with the payment gateway"
       - name: status
         description: "Status of the order"
       - name: total_in_usd
@@ -1529,6 +1531,8 @@ models:
         description: "Timestamp when the order was cancelled"
       - name: payment_status
         description: "Payment status of the order"
+      - name: fulfillment_status
+        description: "Fulfillment status of the order"
       - name: plan
         description: "Plan of the store"
       - name: cancel_reason
@@ -1545,6 +1549,26 @@ models:
         description: "Current segment of the store"
       - name: year_month_day_code
         description: "Year month day code of the order. Also the field used for partitioning"
+      - name: storefront
+        description: "Storefront of the order"
+      - name: coupon_discount
+        description: "Coupon discount of the order"
+      - name: gateway_discount
+        description: "Discount on gateway of the order"
+      - name: promo_discount
+        description: "Promotional discount of the order"
+      - name: shipping_discount
+        description: "Shipping discount of the order"
+      - name: integration
+        description: "Shipping integration of the order"
+      - name: shipping_method
+        description: "Shipping method of the order"
+      - name: stock_issues
+        description: "Whether the order has a stock issue"
+      - name: order_type
+        description: "Type of the order (digital order, pickup order, shipping order, multiple shipping order, location_pickup_order, combined order)"
+      - name: total_ffoo
+        description: "Total number of fulfillment orders of the order"
       - name: sys_audit_created_by
         description: "System or user that created the row in this model."
       - name: sys_audit_created_on
@@ -1978,7 +2002,7 @@ models:
       - name: sys_audit_updated_by
         description: system or user that last updated the row in this model
 
-  - name: s__onboarding__store_preferences__ref
+  - name: s__onboarding__questionnaire__event
     description: "This table consolidates all responses provided by the merchant throughout the pre-onboarding phase. It includes the answers given in the questionnaire."
     config:
       meta:
@@ -1990,27 +2014,16 @@ models:
         description: "Merchant id."
         tests:
           - not_null
-          - unique
       - name: created_at
-        description: "Merchant's creation date."
+        description: "Merchant creation date."
         tests:
           - not_null
-      - name: sales_status
-        description: "Answer to the sales status question that can be: already selling, starting, skip or null."
-      - name: sales_platform
-        description: "Answer to the sales platform question. There can be multiple answers."
-      - name: sales_platform_text
-        description: "Answer to the sales platform question when the user select other."
-      - name: sales_amount
-        description: "Answer to the question estimated avarege revenue in local currency."
-      - name: sales_channel
-        description: "Answer to the question sales channel that the merchant already sells."
-      - name: sales_products
-        description: "Answer to the sales product question. There can be multiple answers."
-      - name: sales_products_text
-        description: "Answer to the sales product question when the user select other."
-      - name: sales_product_kind
-        description: "Answer to the kind of product the merchant is selling. There can be multiple answers."
+      - name: group_code
+        description: "Group to each the question belong to. This is que question asked to the user."
+      - name: description
+        description: "Answer to the group code. This is the answer selected by the user as shown in the frontend."
+      - name: free_text
+        description: "Open answer."
       - name: sys_audit_created_on
         description: "Timestamp of when this record was created in our data warehouse"
       - name: sys_audit_created_by
@@ -2341,6 +2354,12 @@ models:
         owner: "sol.abelleyro@tiendanube.com"
         domain: "product"
         business_owner: "Francisco Ramirez"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:   
+          - store_id
+          - uuid
+          - assignment_id
     columns:
       - name: store_id
         description: "Store id associated with the metafield assignment."
@@ -2380,8 +2399,6 @@ models:
         description: "Id of the specific item that was assigned the metafield (product_id, category_id, etc)"
       - name: assignment_date
         description: "Date of the metafield assignment."
-      - name: q_of_assignments
-        description: "Quantity of metafields assigned"
       - name: sys_audit_created_by
         description: "System or user that created the row in this model."
       - name: sys_audit_updated_on
@@ -2555,6 +2572,8 @@ models:
         description: "Name of the app"
       - name: app_category
         description: "Category of the app"
+      - name: app_manager
+        description: "Manager of the app"
       - name: is_app_published
         description: "Flag indicating if the app is published"
       - name: app_creation_date
@@ -2627,6 +2646,14 @@ models:
         description: "Flag indicating if the store has churned."
       - name: is_active_store
         description: "Flag indicating if the store is active."
+      - name: sys_audit_created_on
+        description: "Timestamp when this record was first created in the DBT model."
+      - name: sys_audit_created_by
+        description: "Identifier for the user or system that created this record."
+      - name: sys_audit_updated_on
+        description: "Timestamp when this record was last updated."
+      - name: sys_audit_updated_by
+        description: "Identifier for the user or system that last updated this record."
   
   
   - name: s__invoicing__invoice_and_request__event
@@ -2912,3 +2939,74 @@ models:
         description: "Identifier for the user or system that last updated this record."
         tests:
           - not_null
+
+  - name: g__ecosystem__app_daily_installs__agg_daily
+    description: >
+      This data product contains the daily installs of the apps by country, plan and segment.
+    config:
+      meta:
+        owner: "fernando.martinez@tiendanube.com"
+        domain: "product"
+        business_owner: "Nicolas Loreti"
+    columns:
+      - name: unique_id
+        description: "Unique identifier of the app daily installs."
+        tests:
+          - not_null
+          - unique
+      - name: registered_date
+        description: "Date when the app daily installs were registered."
+        tests:
+          - not_null
+      - name: app_id
+        description: "Unique identifier of the app."
+        tests:
+          - not_null
+      - name: partner_id
+        description: "Unique identifier of the partner."
+      - name: partner_name
+        description: "Name of the partner."
+      - name: app_name
+        description: "Name of the app."
+      - name: app_country
+        description: "Country of the app."
+      - name: store_country
+        description: "Country of the store."
+      - name: category
+        description: "Category of the app."
+      - name: creation_date
+        description: "Date when the app was created."
+      - name: deleted_date
+        description: "Date when the app was deleted."
+      - name: app_published_date
+        description: "Date when the app was published."
+      - name: is_app_published
+        description: "Flag indicating if the app is published."
+      - name: is_new_app
+        description: "Flag indicating if the app is new."
+      - name: is_new_published_app
+        description: "Flag indicating if the app is new and published."
+      - name: is_churned_app
+        description: "Flag indicating if the app is churned."
+      - name: is_active_app
+        description: "Flag indicating if the app is active."
+      - name: is_public_active_app
+        description: "Flag indicating if the app is public and active."
+      - name: plan_name
+        description: "Name of the plan."
+      - name: current_segment
+        description: "Current segment of the app."
+      - name: daily_installs
+        description: "Number of daily installs of the app."
+      - name: daily_uninstalls
+        description: "Number of daily uninstalls of the app."
+      - name: active_stores
+        description: "Number of active stores of the app."
+      - name: sys_audit_created_on
+        description: "Timestamp when this record was first created in the DBT model."
+      - name: sys_audit_created_by
+        description: "Identifier for the user or system that created this record."
+      - name: sys_audit_updated_on
+        description: "Timestamp when this record was last updated."
+      - name: sys_audit_updated_by
+        description: "Identifier for the user or system that last updated this record."

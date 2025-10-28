@@ -40,7 +40,12 @@ WITH source AS (
         gateway_method,
         app_id,
         CONCAT(CAST(DATE(completed_at) AS STRING),'-',CAST(store_id AS STRING)) order_date_store_id,
-        CAST(date_format(completed_at, 'yyyyMMdd') AS INT) AS year_month_day_code
+        CAST(date_format(completed_at, 'yyyyMMdd') AS INT) AS year_month_day_code,
+        discount,
+        discount_gateway,
+        promotional_discount_id,
+        shipping_cost_owner,
+        fulfillment_status
 
     FROM {{ source('stg_orders', 'mwp_orders') }}
     
@@ -88,6 +93,11 @@ SELECT
     order_date_store_id,
     app_id,
     year_month_day_code,
+    discount,
+    discount_gateway,
+    promotional_discount_id,
+    shipping_cost_owner,
+    fulfillment_status,
     CASE  
         WHEN status != 'cancelled' 
             AND payment_status = 'paid' 

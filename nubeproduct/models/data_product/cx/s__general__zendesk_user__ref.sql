@@ -18,8 +18,9 @@ with
             phone,
             has_store,
             user_is_partner,
-            partner_id
-        from {{ ref("_int_support_users_raw") }}
+            partner_id,
+            organization_id
+        from {{ ref("cx__general__zendesk_user_base__ref") }}
     )
 
 select
@@ -30,6 +31,7 @@ select
     info.has_store,
     info.user_is_partner,
     info.partner_id,
+    info.organization_id,
     {% if is_incremental() %}
         coalesce(
             existing_data.sys_audit_created_on, current_timestamp
@@ -55,6 +57,7 @@ from source_data as info
             "has_store",
             "user_is_partner",
             "partner_id",
+            "organization_id",
         ] %}
     where
         existing_data.user_id is null
