@@ -1,5 +1,68 @@
 version: 2
+
 models:
+  - name: s__general__zendesk_user__ref
+    meta:
+      owner: "santiago.gandolfo@tiendanube.com"
+      domain: "cx"
+      business_owner: "gabriela.silva@nuvemshop.com.br"
+    description: >
+      User attributes for Zendesk integration from active stores.
+      Deduplicated by email (priority: oldest user_id, then lowest store_id).
+      Names formatted from first_name/last_name with fallback to 'User-{id}'.
+      Phone numbers normalized to E.164 format with Argentine-specific handling.
+    columns:
+      - name: user_id
+        description: "Unique identifier of the user. Primary key."
+        tests:
+          - not_null
+          - unique
+      - name: email
+        description: "User email address. Unique. Deduplicated by oldest user_id, then lowest store_id. Non-null only."
+        tests:
+          - not_null
+          - unique
+      - name: name
+        description: "User name. Format: 'First Last', 'First', 'Last', or 'User-{user_id}' (fallback)."
+        tests:
+          - not_null
+      - name: phone
+        description: "Store owner phone number in E.164 format. Format: '+' followed by 8-15 digits (e.g., +5491150081400). Null if unavailable or invalid."
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: "is null or (startswith(phone, '+') and regexp_like(phone, '^[+][0-9]{8,15}$'))"
+      - name: has_store
+        description: "Indicates if user has a store. Always true (filtered by active stores)."
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "= true"
+      - name: user_is_partner
+        description: "Indicates if user is also a partner. Boolean."
+        tests:
+          - not_null
+      - name: partner_id
+        description: "Partner ID. Null if user is not a partner."
+      - name: organization_id
+        description: "Zendesk organization id matched by external_id = store_id. Null if no match."
+        tests:
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: bigint
+          - dbt_utils.expression_is_true:
+              expression: "is null or organization_id > 0"
+      - name: year_month_day_code
+        description: "Partition key. Format: YYYYMMDD (integer)."
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: "Row creation timestamp."
+      - name: sys_audit_created_by
+        description: "System/user that created the row."
+      - name: sys_audit_updated_on
+        description: "Row last update timestamp."
+      - name: sys_audit_updated_by
+        description: "System/user that last updated the row."
+
   - name: s__general__zendesk_groups__ref  
     meta:
       owner: "felipe.lorenzo@tiendanube.com"
@@ -34,4 +97,48 @@ models:
       - name: sys_audit_updated_by
         description: System or user that last updated the row.
 
-
+  - name: s__general__zendesk_macros__ref
+    meta:
+      owner: "felipe.lorenzo@tiendanube.com"
+      domain: "cx"
+      business_owner: "Carolina Leon"
+    description: >
+      Contains the list of Zendesk macros.
+    columns:
+      - name: macro_id
+        description: Unique identifier of the macro. Unique key.
+        tests:
+          - not_null
+          - unique
+      - name: macro_url
+        description: URL of the macro.
+      - name: macro_title
+        description: Title of the macro.
+      - name: macro_description
+        description: Description of the macro.
+      - name: is_active
+        description: Flag indicating if the macro is active.
+      - name: macro_created_at
+        description: Timestamp when the macro was created.
+      - name: comment_mode_is_public
+        description: Flag indicating if the comment mode is public.
+      - name: comment_value_html
+        description: HTML content of the comment.
+      - name: current_tags
+        description: Current tags of the macro.
+      - name: status
+        description: Status of the macro.
+      - name: restriction_type
+        description: Type of the restriction.
+      - name: restriction_id
+        description: ID of the restriction.
+      - name: restriction_ids
+        description: IDs of the restrictions.
+      - name: sys_audit_created_on
+        description: Timestamp when the row was originally created.
+      - name: sys_audit_created_by
+        description: System or user that created the row.
+      - name: sys_audit_updated_on
+        description: Timestamp when the row was last updated.
+      - name: sys_audit_updated_by
+        description: System or user that last updated the row.
