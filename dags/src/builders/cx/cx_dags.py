@@ -24,3 +24,10 @@ dag = create_dbt_dag(
     default_args=default_args,
     tags=['cx', 'daily-6am']
 )
+
+dag_4_30_am = create_dbt_dag(
+    dag_id='dbt_cx_daily-4_30am',
+    schedule_interval_tag='daily-4_30am',
+    default_args=default_args,
+    tags=['cx', 'daily-4_30am']
+)

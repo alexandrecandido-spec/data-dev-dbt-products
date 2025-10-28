@@ -81,7 +81,7 @@ partner_managers as (
         ,partner_manager
         ,app_id
         ,app_manager
-    from {{ source('stg_data_manual', 'ext__partnerships__platform_development__app_managers') }}
+    from {{ source('stg_unity_data_manual', 'ext__partnerships__platform_development__app_managers') }}
 )
 SELECT distinct
         s.*
