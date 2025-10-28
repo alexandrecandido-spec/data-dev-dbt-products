@@ -44,7 +44,7 @@ SELECT
   created_at AS macro_created_at,
   updated_at AS macro_updated_at,
   description AS macro_description,
-  IF(a.comment_mode_is_public IS NULL, FALSE, a.comment_mode_is_public) AS comment_mode_is_public,
+  CAST(COALESCE(a.comment_mode_is_public, 'false') AS BOOLEAN) AS comment_mode_is_public,
   a.comment_value_html,
   a.current_tags,
   a.status,
