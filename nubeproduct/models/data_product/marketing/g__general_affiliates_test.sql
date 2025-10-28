@@ -1,0 +1,1 @@
+SELECT * FROM {{ ref('_int__affiliates_general_metrcis') }}
