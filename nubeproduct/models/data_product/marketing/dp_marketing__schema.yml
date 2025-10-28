@@ -827,6 +827,8 @@ models:
           - unique
       - name: date
         description: Session start date (UTC, DATE type).
+      - name: user_pseudo_id
+        description: "GA4 user identifier taken from the first pageview of the session."
       - name: source_ga4_classification
         description: GA4 built-in traffic source label (e.g. *inst-br*).
       - name: original_user_country
