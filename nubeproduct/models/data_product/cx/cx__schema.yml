@@ -1,0 +1,66 @@
+version: 2
+
+models:
+  - name: s__general__zendesk_user__ref
+    meta:
+      owner: "santiago.gandolfo@tiendanube.com"
+      domain: "cx"
+      business_owner: "gabriela.silva@nuvemshop.com.br"
+    description: >
+      User attributes for Zendesk integration from active stores.
+      Deduplicated by email (priority: oldest user_id, then lowest store_id).
+      Names formatted from first_name/last_name with fallback to 'User-{id}'.
+      Phone numbers normalized to E.164 format with Argentine-specific handling.
+    columns:
+      - name: user_id
+        description: "Unique identifier of the user. Primary key."
+        tests:
+          - not_null
+          - unique
+      - name: email
+        description: "User email address. Unique. Deduplicated by oldest user_id, then lowest store_id. Non-null only."
+        tests:
+          - not_null
+          - unique
+      - name: name
+        description: "User name. Format: 'First Last', 'First', 'Last', or 'User-{user_id}' (fallback)."
+        tests:
+          - not_null
+      - name: phone
+        description: "Store owner phone number in E.164 format. Format: '+' followed by 8-15 digits (e.g., +5491150081400). Null if unavailable or invalid."
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: "is null or (startswith(phone, '+') and regexp_like(phone, '^[+][0-9]{8,15}$'))"
+      - name: has_store
+        description: "Indicates if user has a store. Always true (filtered by active stores)."
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "= true"
+      - name: user_is_partner
+        description: "Indicates if user is also a partner. Boolean."
+        tests:
+          - not_null
+      - name: partner_id
+        description: "Partner ID. Null if user is not a partner."
+      - name: organization_id
+        description: "Zendesk organization id matched by external_id = store_id. Null if no match."
+        tests:
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: bigint
+          - dbt_utils.expression_is_true:
+              expression: "is null or organization_id > 0"
+      - name: year_month_day_code
+        description: "Partition key. Format: YYYYMMDD (integer)."
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: "Row creation timestamp."
+      - name: sys_audit_created_by
+        description: "System/user that created the row."
+      - name: sys_audit_updated_on
+        description: "Row last update timestamp."
+      - name: sys_audit_updated_by
+        description: "System/user that last updated the row."
+
+

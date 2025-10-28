@@ -86,6 +86,16 @@ models:
         description: "Identifier of the app or plugin involved in the order, if applicable."
       - name: year_month_day_code
         description: "Date code in YYYYMMDD format used for partitioning or filtering."
+      - name: discount
+        description: "Coupon discount."
+      - name: discount_gateway
+        description: "Discount on gateway"
+      - name: promotional_discount_id
+        description: "Promotional discount"
+      - name: shipping_cost_owner
+        description: "Shipping cost on the owner side"
+      - name: fulfillment_status
+        description: "Fulfillment status of the order."
       - name: is_paid_order
         description: "Indicates whether the order was successfully completed and paid (not cancelled, status is 'paid', and completed_at is not null)."
       - name: device
