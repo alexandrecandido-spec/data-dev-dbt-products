@@ -1,5 +1,60 @@
 version: 2
 models:
+  - name: cx__general__zendesk_organization__ref
+    description: "Zendesk organizations mapped to store_id (external_id). One row per organization."
+    meta:
+      domain: "cx"
+      owner: "santiago.gandolfo@tiendanube.com"
+    columns:
+      - name: organization_id
+        description: "Zendesk organization id (bigint)."
+        tests:
+          - not_null
+      - name: store_id
+        description: "Store id mapped from Zendesk external_id (bigint)."
+  - name: cx__general__zendesk_user_base__ref
+    description: "Base user data for Zendesk integration joined to organization by store_id."
+    meta:
+      domain: "cx"
+      owner: "santiago.gandolfo@tiendanube.com"
+    columns:
+      - name: user_id
+        description: "Unique identifier of the user (int)."
+        tests:
+          - not_null
+      - name: email
+        description: "User email address."
+        tests:
+          - not_null
+      - name: name
+        description: "User name formatted from first_name/last_name with fallback to 'User-{user_id}'."
+        tests:
+          - not_null
+      - name: phone
+        description: "Store owner phone number in E.164 format. Null if unavailable or invalid."
+      - name: user_is_partner
+        description: "Boolean flag indicating if user is also a partner."
+        tests:
+          - not_null
+      - name: partner_id
+        description: "Partner ID. Null if user is not a partner."
+      - name: organization_id
+        description: "Zendesk organization id matched by external_id = store_id. Null if no match."
+        tests:
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: bigint
+          - dbt_utils.expression_is_true:
+              expression: "is null or organization_id > 0"
+      - name: store_id
+        description: "Store ID associated with the user."
+        tests:
+          - not_null
+      - name: has_store
+        description: "Boolean flag indicating if user has a store. Always true (filtered by active stores)."
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "= true"
   - name: stg_active_merchants
     description: "Staging model that contains the list of every active merchant monthly."
     config:
@@ -2483,62 +2538,6 @@ models:
         tests:
           - not_null
 
-  - name: product__onboarding__domain_mappings__ref
-    description: "Staging model that contains all possible questions and answers of the pre-onboarding questionnaire."
-    config:
-      meta:
-        owner: "ynara.oliveira@nuvemshop.com.br"
-        domain: "product"
-        business_owner: "Francisco Ramirez"
-    columns:
-      - name: id
-        description: "Register id. There is a unique id for each combination of group code and type code."
-        tests:
-          - not_null
-          - unique
-      - name: group_code
-        description: "Question group to which the answer belongs."
-        tests:
-          - not_null
-      - name: type_code 
-        description: "Single possible answer for the group code."
-        tests:
-          - not_null
-      - name: sys_audit_created_on
-        description: "Timestamp of when this record was created in our data warehouse."
-      - name: sys_audit_created_by
-        description: "System identifier of the process that created this record."
-      - name: sys_audit_updated_on
-        description: "Timestamp of when this record was last updated in our data warehouse."
-      - name: sys_audit_updated_by
-        description: "System identifier of the process that last updated this record."
-    
-  - name: product__onboarding__domain_types__ref
-    description: "Staging model that contains all possible answers of the pre-onboarding questionnaire as shown in the back and frontend."
-    config:
-      meta:
-        owner: "ynara.oliveira@nuvemshop.com.br"
-        domain: "product"
-        business_owner: "Francisco Ramirez"
-    columns:
-      - name: code
-        description: "Id. It is the unique possible answer as shown in the backend."
-        tests:
-          - not_null
-          - unique
-      - name: description
-        description: "It is the unique possible answer as shown for the user in the frontend."
-        tests:
-          - not_null
-      - name: sys_audit_created_on
-        description: "Timestamp of when this record was created in our data warehouse."
-      - name: sys_audit_created_by
-        description: "System identifier of the process that created this record."
-      - name: sys_audit_updated_on
-        description: "Timestamp of when this record was last updated in our data warehouse."
-      - name: sys_audit_updated_by
-        description: "System identifier of the process that last updated this record."
-
   - name: product__onboarding__store_preferences__event
     description: "Staging model that contains all answers given by the merchant on the pre-onboarding questionnaire."
     config:
@@ -2552,6 +2551,10 @@ models:
         tests:
           - not_null
           - unique
+      - name: created_at
+        description: "Merchant creation date."
+        tests:
+          - not_null
       - name: domain_mapping_id
         description: "The unique id for each combination of group code (question) and type code (answer)."
         tests:
