@@ -36,37 +36,49 @@ WHERE
     {% endif %}
 )
 
+, deduped_sessions AS (
+SELECT
+    *
+FROM (
+    SELECT
+        *
+        , ROW_NUMBER() OVER (PARTITION BY unique_session_key ORDER BY session_timestamp ASC) AS row_num
+    FROM raw_sessions
+) sub
+WHERE row_num = 1
+)
+
 , existing_data AS (
     {{ get_existing_data(this, ['unique_session_key'])}}
 )
 
 SELECT
-    raw_sessions.unique_session_key
-    , raw_sessions.session_timestamp
-    , raw_sessions.base_date
-    , raw_sessions.session_id
-    , raw_sessions.consumer_id
-    , raw_sessions.store_id
-    , raw_sessions.visitor_country
-    , raw_sessions.device
-    , raw_sessions.theme
-    , raw_sessions.user_agent
-    , raw_sessions.ip_address
-    , raw_sessions.utm_source
-    , raw_sessions.utm_medium
-    , raw_sessions.utm_campaign
-    , raw_sessions.utm_term
-    , raw_sessions.utm_content
-    , raw_sessions.landing_page
-    , raw_sessions.http_referral
+    dds.unique_session_key
+    , dds.session_timestamp
+    , dds.base_date
+    , dds.session_id
+    , dds.consumer_id
+    , dds.store_id
+    , dds.visitor_country
+    , dds.device
+    , dds.theme
+    , dds.user_agent
+    , dds.ip_address
+    , dds.utm_source
+    , dds.utm_medium
+    , dds.utm_campaign
+    , dds.utm_term
+    , dds.utm_content
+    , dds.landing_page
+    , dds.http_referral
     , CURRENT_TIMESTAMP AS sys_audit_created_on
     , 'data-dev-dbt-products' AS sys_audit_created_by
     , CURRENT_TIMESTAMP AS sys_audit_updated_on
     , 'data-dev-dbt-products' AS sys_audit_updated_by
 FROM
-    raw_sessions
+    deduped_sessions AS dds
 LEFT JOIN
     existing_data
-    ON raw_sessions.unique_session_key = existing_data.unique_session_key
+    ON dds.unique_session_key = existing_data.unique_session_key
 WHERE
     existing_data.unique_session_key IS NULL
