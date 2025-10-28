@@ -1,9 +1,8 @@
 
--- Agregado diário por store (e demais dimensões) --> deve ser um novo intermediate Assim com ou sem store usará orders_enriched
+-- Agregado diário (e demais dimensões) --> deve ser um novo intermediate Assim com ou sem store usará orders_enriched
 select
     -- Dimensões da loja
     o.country,
-    o.domain,
     o.vertical,
     o.province,
     o.city,
@@ -41,7 +40,7 @@ select
 
     from {{ ref('_int__orders__orders_enriched') }} o
     group by
-    o.country, o.domain, o.vertical, o.province, o.city, o.region,
+    o.country, o.vertical, o.province, o.city, o.region,
     o.business_size, o.segment, o.nice_9_name, o.plan_group, o.bu,
     o.date, o.year_month_day_code, o.mes, o.platform_type, o.storefront, o.device,
     o.payment_provider, o.payment_method, o.shipping_method, o.shipping_province,

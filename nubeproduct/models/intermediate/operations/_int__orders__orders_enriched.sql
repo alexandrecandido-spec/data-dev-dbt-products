@@ -29,8 +29,8 @@ with base_orders as (
       coalesce(o.shipping_province, 'Undefined Province')             as shipping_province,
       o.gateway_installments,
       -- métricas ao nível do pedido
-      o.total,
-      o.total_in_usd,
+      coalesce(o.total, 0) as total,
+      coalesce(o.total_in_usd, 0) as total_in_usd,
       o.shipping_cost,
       o.product_quantity,
       -- auditoria para incrementalidade no DP
@@ -43,8 +43,8 @@ orders_plus_source as (
       bo.*,
       coalesce(os.source, 'No Source')               as order_source,
       coalesce(os.source_name, 'Sin Source Details') as social_network,
-      os.source_details,
-      os.source_type
+      coalesce(os.source_details,'No Details') as source_details,
+      coalesce(os.source_type,'Without Type Information') as source_type
   from base_orders bo
   left join {{ ref('product_social_order_source') }} os
     on bo.id = os.order_id

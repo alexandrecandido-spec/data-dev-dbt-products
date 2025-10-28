@@ -14,7 +14,6 @@ with src as (
     select
         -- Dimensões da Loja
         o.country,
-        o.domain,
         o.vertical,
         o.province,
         o.city,
@@ -58,7 +57,6 @@ src_with_key as (
         lower(hex(md5(concat_ws(
             '|',
             cast(country as varchar(10)),
-            coalesce(domain, ''),
             coalesce(vertical, ''),
             coalesce(province, ''),
             coalesce(city, ''),
@@ -82,6 +80,7 @@ src_with_key as (
             coalesce(order_source, ''),
             coalesce(social_network, ''),
             coalesce(source_details, ''),
+            cast(orders_free_shipping as varchar(10)),
             coalesce(source_type, '')
         )))) as row_key,
         *
@@ -91,9 +90,7 @@ src_with_key as (
 final as (
     {% if is_incremental() %}
         select
-            s.row_key,
             s.country,
-            s.domain,
             s.vertical,
             s.province,
             s.city,
@@ -128,6 +125,7 @@ final as (
             s.stores,
 
             -- auditoria
+            s.row_key,
             coalesce(t.sys_audit_created_on, current_timestamp) as sys_audit_created_on,
             coalesce(t.sys_audit_created_by, 'data-dev-dbt-products') as sys_audit_created_by,
             current_timestamp as sys_audit_updated_on,
@@ -147,9 +145,7 @@ final as (
     {% else %}
         -- Primeira carga: insere tudo
         select
-            s.row_key,
             s.country,
-            s.domain,
             s.vertical,
             s.province,
             s.city,
@@ -184,6 +180,7 @@ final as (
             s.stores,
 
             -- auditoria
+            s.row_key,
             current_timestamp as sys_audit_created_on,
             'data-dev-dbt-products' as sys_audit_created_by,
             current_timestamp as sys_audit_updated_on,
