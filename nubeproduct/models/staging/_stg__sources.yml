@@ -445,7 +445,7 @@ sources:
       - name: store_invoice_registry
         description: "Contains the configuration of the stores for the invoice feature"
 
-  - name: stg_data_manual
+  - name: stg_unity_data_manual
     database: data_products_prd
     schema: data_manual
     description: "Source containing tables related to the data manual"
