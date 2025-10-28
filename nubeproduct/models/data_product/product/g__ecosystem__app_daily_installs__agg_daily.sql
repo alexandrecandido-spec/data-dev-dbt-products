@@ -36,7 +36,7 @@ with app_daily_installs as (
 SELECT distinct
     concat(cast(registered_date as string), '_'
             , cast(app_id as string), '_'
-            , cast(app_country as string), '_'
+            , cast(coalesce(app_country,'no_country') as string), '_'
             , cast(coalesce(store_country,'no_country') as string), '_'
             , cast(coalesce(plan_name,'no_plan') as string), '_'
             , cast(coalesce(current_segment,'no_segment') as string), '_'
