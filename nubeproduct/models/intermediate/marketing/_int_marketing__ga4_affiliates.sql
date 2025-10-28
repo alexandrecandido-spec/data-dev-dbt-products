@@ -13,5 +13,5 @@ SELECT
     event_content,
     event_term,
     sys_audit_updated_on
-FROM {{ ref('marketing__general__ga4_all_pageviews__event') }}
+FROM {{ ref('s__general__ga4_all_pageviews__event') }}
 WHERE page LIKE '%partners/%'
