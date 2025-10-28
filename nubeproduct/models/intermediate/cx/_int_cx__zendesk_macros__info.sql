@@ -31,6 +31,7 @@ WITH actions AS (
       ) ex AS pos, item
     )
   WHERE field IN('comment_mode_is_public','comment_value_html','current_tags','status','type','id','ids')
+  GROUP BY id
 )
 SELECT
   macros.id AS macro_id,
