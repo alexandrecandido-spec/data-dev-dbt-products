@@ -33,7 +33,7 @@ WITH actions AS (
   WHERE field IN('comment_mode_is_public','comment_value_html','current_tags','status','type','id','ids')
 )
 SELECT
-  id AS macro_id,
+  macros.id AS macro_id,
   url AS macro_url,
   title AS macro_title,
   active AS is_active,
