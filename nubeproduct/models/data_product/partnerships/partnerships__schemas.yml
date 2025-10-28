@@ -281,3 +281,194 @@ models:
         description: Flag indicating if the store has churned.
       - name: first_seller_flg
         description: Flag indicating if the store has made a first sale.
+
+  - name: g__agencies__stores_gmv_orders__agg_daily
+    config:
+      meta:
+        owner: "felipe.lorenzo@tiendanube.com"
+        domain: "partnerships"
+        business_owner: "Franco Tiberti"
+    description: >
+      Daily performance summary of stores associated with a partner.
+    columns:
+      - name: store_id
+        description: "Unique identifier of the store."
+        tests:
+          - not_null
+      - name: order_date
+        description: "Date of the order."
+        tests:
+          - not_null
+      - name: gmv_local_currency_daily
+        description: "GMV in local currency for the day."
+        tests:
+          - not_null
+      - name: gmv_usd_daily
+        description: "GMV in USD for the day."
+        tests:
+          - not_null
+      - name: orders_daily
+        description: "Number of orders for the day."
+        tests:
+          - not_null  
+      - name: sys_audit_created_on
+        description: "Date and time when the row was initially created in the summary table."
+      - name: sys_audit_created_by
+        description: "Source or user responsible for the initial row creation."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the latest update to the row."
+      - name: sys_audit_updated_by
+        description: "Source or user responsible for the latest update."
+
+  - name: g__agencies__performance_summary__agg_snapshot_weekly
+    config:
+      meta:
+        owner: "felipe.lorenzo@tiendanube.com"
+        domain: "partners"
+        business_owner: "Franco Tiberti"
+    description: >
+      Weekly historical performance summary of agencies with stores acquired by them (acquired_by = 'Partner'), 
+      providing point-in-time metrics for trials, payments, GMV, and lifecycle status. Each row represents 
+      the state of a partner's performance at a specific snapshot date (weekly snapshots starting from 2023).
+      Enables trend analysis and historical comparisons of partner performance over time.
+    columns:
+      - name: snapshot_date
+        description: "Monday of each week representing the snapshot date for historical metrics."
+        tests:
+          - not_null
+      - name: partner_id
+        description: "Unique identifier of the partner agency."
+        tests:
+          - not_null
+      - name: partner_code
+        description: "Code assigned to the partner agency."
+      - name: partner_created_at
+        description: "Date and time when the partner was created."
+      - name: partner_country_code
+        description: "Country code where the partner agency operates."
+      - name: all_time_stores
+        description: "Total number of stores created by this partner up to the snapshot date."
+        tests:
+          - not_null
+      - name: all_time_new_payments
+        description: "Total number of stores that made their first payment up to the snapshot date."
+        tests:
+          - not_null
+      - name: all_time_new_sellers
+        description: "Total number of stores that made their first sale up to the snapshot date."
+        tests:
+          - not_null
+      - name: first_trial_at
+        description: "Date of the first store trial created by this partner (up to snapshot date)."
+      - name: first_payment_at
+        description: "Date of the first payment received from partner's stores (up to snapshot date)."
+      - name: first_seller_at
+        description: "Date of the first sale made by partner's stores (up to snapshot date)."
+      - name: freemium_stores
+        description: "Number of stores in freemium status at the snapshot date."
+        tests:
+          - not_null
+      - name: active_trials
+        description: "Number of stores in active trial status at the snapshot date."
+        tests:
+          - not_null
+      - name: active_paying_stores
+        description: "Number of stores in paying status at the snapshot date."
+        tests:
+          - not_null
+      - name: freemium_stores_with_gmv_last_90_days
+        description: "Number of freemium stores with GMV in the 90 days prior to snapshot date."
+        tests:
+          - not_null
+      - name: churned_stores
+        description: "Number of stores that had churned by the snapshot date."
+        tests:
+          - not_null
+      - name: trials_current_month
+        description: "Number of trials created in the month of the snapshot date."
+      - name: new_payments_current_month
+        description: "Number of new payments received in the month of the snapshot date."
+      - name: new_sellers_current_month
+        description: "Number of new sellers activated in the month of the snapshot date."
+      - name: gmv_usd_current_month
+        description: "GMV in USD for the month of the snapshot date."
+      - name: gmv_local_currency_current_month
+        description: "GMV in local currency for the month of the snapshot date."
+      - name: trials_previous_month
+        description: "Number of trials created in the month prior to the snapshot date."
+      - name: new_payments_previous_month
+        description: "Number of new payments received in the month prior to the snapshot date."
+      - name: new_sellers_previous_month
+        description: "Number of new sellers activated in the month prior to the snapshot date."
+      - name: gmv_usd_previous_month
+        description: "GMV in USD for the month prior to the snapshot date."
+      - name: gmv_local_currency_previous_month
+        description: "GMV in local currency for the month prior to the snapshot date."
+      - name: trials_last_quarter
+        description: "Number of trials created in the quarter prior to the snapshot date."
+      - name: new_payments_last_quarter
+        description: "Number of new payments received in the quarter prior to the snapshot date."
+      - name: new_sellers_last_quarter
+        description: "Number of new sellers activated in the quarter prior to the snapshot date."
+      - name: gmv_usd_last_quarter
+        description: "GMV in USD for the quarter prior to the snapshot date."
+      - name: gmv_local_currency_last_quarter
+        description: "GMV in local currency for the quarter prior to the snapshot date."
+      - name: trials_last_year
+        description: "Number of trials created in the year prior to the snapshot date."
+      - name: new_payments_last_year
+        description: "Number of new payments received in the year prior to the snapshot date."
+      - name: new_sellers_last_year
+        description: "Number of new sellers activated in the year prior to the snapshot date."
+      - name: gmv_usd_last_year
+        description: "GMV in USD for the year prior to the snapshot date."
+      - name: gmv_local_currency_last_year
+        description: "GMV in local currency for the year prior to the snapshot date."
+      - name: trials_last_30d
+        description: "Number of trials created in the 30 days prior to the snapshot date."
+      - name: new_payments_last_30d
+        description: "Number of new payments received in the 30 days prior to the snapshot date."
+      - name: new_sellers_last_30d
+        description: "Number of new sellers activated in the 30 days prior to the snapshot date."
+      - name: gmv_usd_last_30d
+        description: "GMV in USD for the 30 days prior to the snapshot date."
+      - name: gmv_local_currency_last_30d
+        description: "GMV in local currency for the 30 days prior to the snapshot date."
+      - name: trials_last_90d
+        description: "Number of trials created in the 90 days prior to the snapshot date."
+      - name: new_payments_last_90d
+        description: "Number of new payments received in the 90 days prior to the snapshot date."
+      - name: new_sellers_last_90d
+        description: "Number of new sellers activated in the 90 days prior to the snapshot date."
+      - name: gmv_usd_last_90d
+        description: "GMV in USD for the 90 days prior to the snapshot date."
+      - name: gmv_local_currency_last_90d
+        description: "GMV in local currency for the 90 days prior to the snapshot date."
+      - name: trials_last_180d
+        description: "Number of trials created in the 180 days prior to the snapshot date."
+      - name: new_payments_last_180d
+        description: "Number of new payments received in the 180 days prior to the snapshot date."
+      - name: new_sellers_last_180d
+        description: "Number of new sellers activated in the 180 days prior to the snapshot date."
+      - name: gmv_usd_last_180d
+        description: "GMV in USD for the 180 days prior to the snapshot date."
+      - name: gmv_local_currency_last_180d
+        description: "GMV in local currency for the 180 days prior to the snapshot date."
+      - name: trials_last_365d
+        description: "Number of trials created in the 365 days prior to the snapshot date."
+      - name: new_payments_last_365d
+        description: "Number of new payments received in the 365 days prior to the snapshot date."
+      - name: new_sellers_last_365d
+        description: "Number of new sellers activated in the 365 days prior to the snapshot date."
+      - name: gmv_usd_last_365d
+        description: "GMV in USD for the 365 days prior to the snapshot date."
+      - name: gmv_local_currency_last_365d
+        description: "GMV in local currency for the 365 days prior to the snapshot date."   
+      - name: sys_audit_created_on
+        description: "Date and time when the row was initially created in the summary table."
+      - name: sys_audit_created_by
+        description: "Source or user responsible for the initial row creation."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the latest update to the row."
+      - name: sys_audit_updated_by
+        description: "Source or user responsible for the latest update."
