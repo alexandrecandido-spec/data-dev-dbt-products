@@ -2464,6 +2464,8 @@ models:
         description: "City and state/territory label used by Sales."
       - name: vertical
         description: "Business vertical/category of the merchant."
+      - name: associated_deal_ids
+        description: "Semicolon-separated list of related deal ids (string; may be NULL)."
       - name: sys_audit_created_on
         description: "Timestamp when the record was first loaded into the model. Preserved from previous loads for existing records."
         tests:
@@ -3159,3 +3161,46 @@ models:
         description: "Identifier for the user or system that last updated this record."
         tests:
           - not_null
+
+  - name: product__shipping__shipping_carriers__event
+    description: >
+      Staging model containing the information about the shipping carriers.
+      Each row represents a shipping carrier, including the carrier name, types, status, app id, created at, updated at, and deleted at.
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: shipping_carrier_id
+        description: "Unique identifier for the shipping carrier."
+        tests:
+          - not_null
+          - unique
+      - name: store_id
+        description: "Store associated with the shipping carrier."
+        tests:
+          - not_null
+      - name: shipping_carrier_name
+        description: "Name of the shipping carrier."
+      - name: types
+        description: "Types of the shipping carrier."
+      - name: status
+        description: "Status of the shipping carrier."
+      - name: app_id
+        description: "App associated with the shipping carrier."
+      - name: created_at
+        description: "Timestamp when the shipping carrier was created."
+      - name: updated_at
+        description: "Timestamp when the shipping carrier was last updated."
+      - name: deleted_at
+        description: "Timestamp when the shipping carrier was deleted."
+      - name: sys_audit_created_on
+        description: "Timestamp when this record was first created in the DBT model."
+      - name: sys_audit_created_by
+        description: "Identifier for the user or system that created this record."
+      - name: sys_audit_updated_on
+        description: "Timestamp when this record was last updated."
+      - name: sys_audit_updated_by
+        description: "Identifier for the user or system that last updated this record."
+  

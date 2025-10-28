@@ -642,3 +642,58 @@ models:
         description: End date of the store's contract.
       - name: periodicity
         description: Time period aggregation, set to 'monthly' for this model.
+
+
+  - name: s__general__deals_relation__ref
+    description: >
+      Current directed edges between HubSpot deals derived from associated_deal_ids.
+      Edges are oriented by creation time (older → newer; tie by id). Daily refresh, no history.
+    config:
+      meta:
+        owner: "m.blanco@tiendanube.com"
+        domain: "midmarket"
+        business_owner: "Franco Tiberti"
+    columns:
+      - name: from_deal_id
+        description: Older (or tie-broken) deal id.
+        tests: [not_null]
+      - name: from_pipeline
+        description: Pipeline of the from deal.
+        tests: [not_null]
+      - name: from_dealstage
+        description: Dealstage of the from deal.
+        tests: [not_null]
+      - name: from_createdate
+        description: Createdate of the from deal.
+        tests: [not_null]
+      - name: to_deal_id
+        description: Newer (or tie-broken) deal id.
+        tests: [not_null]
+      - name: to_pipeline
+        description: Pipeline of the to deal.
+        tests: [not_null]
+      - name: to_dealstage
+        description: Dealstage of the to deal.
+        tests: [not_null]
+      - name: to_createdate
+        description: Createdate of the to deal.
+        tests: [not_null]
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model. Preserved from staging models and maintains historical tracking of when each deal was first processed."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model. Inherited from staging models, typically 'data-dev-dbt-products'."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed. Updated on each incremental run for both archived and merged deals."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run. Always 'data-dev-dbt-products' for this automated process."
+        tests:
+          - not_null
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: ['from_deal_id','to_deal_id']

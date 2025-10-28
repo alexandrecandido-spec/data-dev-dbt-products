@@ -51,8 +51,7 @@ GREATEST(
     msi.sys_audit_updated_on,
     gp.sys_audit_updated_on,
     gmv.gmv_max_sys_audit_updated_on
-) AS max_sys_audit_updated_on,
-count(a.uuid) q_of_assignments
+) AS max_sys_audit_updated_on
 from {{ref('product__metafield__product_variants__event')}} a 
 left join {{ref('product__metafield__option_resource_product_variants__event')}} opt_l 
 on opt_l.metafield_uuid = a.uuid
@@ -80,7 +79,6 @@ where 1=1
 and a.deleted_at is null
 and msi.churned_at is null
 and msi.state not in (3,4)
-group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19
 
 UNION
 select 
@@ -136,8 +134,7 @@ GREATEST(
     msi.sys_audit_updated_on,
     gp.sys_audit_updated_on,
     gmv.gmv_max_sys_audit_updated_on
-) AS max_sys_audit_updated_on,
-count(a.uuid) q_of_assignments
+) AS max_sys_audit_updated_on
 from {{ref('product__metafield__orders__event')}} a 
 left join {{ref('product__metafield__option_resource_orders__event')}} opt_l 
 on opt_l.metafield_uuid = a.uuid
@@ -165,7 +162,6 @@ where 1=1
 and a.deleted_at is null
 and msi.churned_at is null
 and msi.state not in (3,4)
-group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19
 UNION
 select 
 a.store_id,
@@ -220,8 +216,7 @@ GREATEST(
     msi.sys_audit_updated_on,
     gp.sys_audit_updated_on,
     gmv.gmv_max_sys_audit_updated_on
-) AS max_sys_audit_updated_on,
-count(a.uuid) q_of_assignments
+) AS max_sys_audit_updated_on
 from {{ref('product__metafield__products__event')}} a 
 left join {{ref('product__metafield__option_resource_products__event')}} opt_l 
 on opt_l.metafield_uuid = a.uuid
@@ -249,7 +244,6 @@ where 1=1
 and a.deleted_at is null
 and msi.churned_at is null
 and msi.state not in (3,4)
-group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19
 UNION
 select 
 a.store_id,
@@ -304,8 +298,7 @@ GREATEST(
     msi.sys_audit_updated_on,
     gp.sys_audit_updated_on,
     gmv.gmv_max_sys_audit_updated_on
-) AS max_sys_audit_updated_on,
-count(a.uuid) q_of_assignments
+) AS max_sys_audit_updated_on
 from {{ref('product__metafield__categories__event')}} a 
 left join {{ref('product__metafield__option_resource_categories__event')}} opt_l 
 on opt_l.metafield_uuid = a.uuid
@@ -333,7 +326,6 @@ where 1=1
 and a.deleted_at is null
 and msi.churned_at is null
 and msi.state not in (3,4)
-group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19
 UNION
 select 
 a.store_id,
@@ -388,8 +380,7 @@ GREATEST(
     msi.sys_audit_updated_on,
     gp.sys_audit_updated_on,
     gmv.gmv_max_sys_audit_updated_on
-) AS max_sys_audit_updated_on,
-count(a.uuid) q_of_assignments
+) AS max_sys_audit_updated_on
 from {{ref('product__metafield__customers__event')}} a 
 left join {{ref('product__metafield__option_resource_customers__event')}} opt_l 
 on opt_l.metafield_uuid = a.uuid
@@ -417,4 +408,3 @@ where 1=1
 and a.deleted_at is null
 and msi.churned_at is null
 and msi.state not in (3,4)
-group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19
