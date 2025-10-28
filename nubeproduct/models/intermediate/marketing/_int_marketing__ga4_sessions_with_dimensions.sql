@@ -23,7 +23,7 @@ trials AS (
     SELECT
         t.unique_session,
         COUNT(*) AS trial
-    FROM {{ ref('marketing__acquisition__ga4_trial_payment_info__user_event') }} t
+    FROM {{ ref('marketing__acquisition__ga4_trial_payment_info__event') }} t
     WHERE t.trial_timestamp IS NOT NULL
     GROUP BY t.unique_session
 ),
@@ -32,7 +32,7 @@ payments AS (
     SELECT
         t.unique_session,
         COUNT(*) AS payment
-    FROM {{ ref('marketing__acquisition__ga4_trial_payment_info__user_event') }} t
+    FROM {{ ref('marketing__acquisition__ga4_trial_payment_info__event') }} t
     WHERE t.payment_timestamp IS NOT NULL
     GROUP BY t.unique_session
 ),

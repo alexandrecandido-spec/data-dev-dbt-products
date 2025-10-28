@@ -382,7 +382,7 @@ models:
         tests: [not_null]
 
 
-  - name: marketing__acquisition__ga4_trial_payment_info__user_event
+  - name: marketing__acquisition__ga4_trial_payment_info__event
     description: "Staging model for trials and payments information from GA4."
     config:
       meta:
