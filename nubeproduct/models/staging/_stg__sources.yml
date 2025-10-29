@@ -70,6 +70,8 @@ sources:
         description: "Orders generated through the B2B solution."
       - name: mwp_orders_fulfillments
         description: "Fulfillments associated with an order."
+      - name: mwp_orders_logging
+        description: "Logging information related to orders."
 
 
   - name: stg_nuvem_credito
