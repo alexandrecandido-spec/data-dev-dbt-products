@@ -2277,7 +2277,7 @@ models:
       - name: sys_audit_updated_by
         description: "System or user that last updated the row in this model"
         
-  - name: s__product_checkout__orders_events__event
+  - name: s__traffic__cart_checkout_funnel__event
     description: >
       Contains the relation between carts and its associated Checkout events.
       Table consists on a single row by cart, and timestamps at which an event was triggered.
@@ -3152,3 +3152,75 @@ models:
         description: "Identifier of the user or system that last updated this record."
         tests:
             - not_null
+
+  - name: g__checkout__funnel__agg_daily
+    description: >
+      Model that aggregates every dimanesion on the silver model s__traffic__cart_checkout_funnel__event
+    config:
+      meta:
+        owner: "fabrizio.crivella@tiendanube.com"
+        domain: "product"
+        business_owner: "Rocio Diez"
+    columns:
+      - name: base_date
+        description: "Date of the first event. Used for partitioning."
+        tests:
+            - not_null
+      - name: store_id
+        description: "Store id associated to the row. For performance reasons we only track store id if the store has large or top segment, 
+          or if it is on Mid Market portfolio."
+        tests:
+            - not_null
+      - name: checkout_start_timestamp
+        description: "Store id associated to the row. For performance reasons we only track store id if the store has large or top segment, 
+          or if it is on Mid Market portfolio."
+        tests:
+            - not_null
+      - name: checkout_start_timestamp
+        description: If the cart iniciated Checkout, this field shows its timestamp.
+      - name: checkout_filled_email_timestamp
+        description: If the cart completed email field, this field shows its timestamp.
+      - name: checkout_clicked_shipping_continue_to_payment_timestamp
+        description: If the cart advanced to payment step, this field shows its timestamp.
+      - name: checkout_selected_payment_method_timestamp
+        description: If the cart selected payment method, this field shows its timestamp.
+      - name: checkout_clicked_payment_complete_order_timestamp
+        description: If the cart clicked on complete order, this field shows its timestamp.
+      - name: checkout_order_placed_timestamp
+        description: If the cart successfully generated an order, this field shows its timestamp.
+      - name: checkout_order_paid_timestamp
+        description: If the order was paid, this field shows its timestamp.
+      - name: wallet
+        description: Contains information about Wallet usage on the cart.
+      - name: payment_method_name
+        description: Payment method selected on checkout_selected_payment_method step.
+      - name: payment_method_type
+        description: Payment method type selected on checkout_selected_payment_method step.
+      - name: payment_method_integration_type
+        description: Payment method integration type selected on checkout_selected_payment_method step.
+      - name: shipping_method_type
+        description: Shipping method type selected on checkout_selected_shipping_method step.
+      - name: shipping_method_id
+        description: Unique identifier of shipping method selected on checkout_selected_shipping_method step.
+      - name: shipping_method_code
+        description: Code of the shipping method selected on checkout_selected_shipping_method step.
+      - name: payment_retry_feature
+        description: Contains information about Payment Retry feature usage on the cart.
+      - name: theme
+        description: Theme currently active on the store.
+      - name: country_code
+        description: Country where the store is located.
+      - name: current_segment_code
+        description: Current segment of the store.
+      - name: group_name
+        description: Current plan of the store.
+      - name: mid_market
+        description: Boolean that indicates if a store was on Mid Market portfolio in a particular day.
+      - name: vartical_name
+        description: Vertical indicated by the store or inferred by Vertifier.
+      - name: payment_status
+        description: Status of the payment registered in mwp_orders.
+      - name: gateway
+        description: Payment method provider registered in mwp_orders.
+      - name: gateway_method
+        description: Payment method type registered in mwp_orders.
