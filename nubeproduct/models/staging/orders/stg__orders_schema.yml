@@ -227,3 +227,48 @@ models:
         description: "Timestamp of the current model run when the record was processed."
       - name: sys_audit_updated_by
         description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
+
+  - name: product__orders__order_logging__event
+    description: "Logs associated with orders (changes in fulfillment status, payment status etc)"
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: year_month_code
+        description: "Date code in YYYYMMDD format used for partitioning or filtering."
+      - name: id
+        description: "Unique identifier for the logged event"
+      - name: user_id
+        description: "Unique identifier for the user associated with the log."
+      - name: employee_id
+        description: "Unique identifier for the employee associated with the log."
+      - name: store_id
+        description: "Unique identifier for the store associated with the log."
+      - name: order_id
+        description: "Unique identifier for the order associated with the log."
+      - name: type
+        description: "Type of the log (order-fulfillment, order-payment, order-status)"
+      - name: data_2
+        description: "Additional data for the log (i.e specific new status)"
+      - name: data_3
+        description: "Additional data for the log."
+      - name: extra
+        description: "Additional data for the log."
+      - name: happened_at
+        description: "Timestamp when the log happened."
+      - name: created_at
+        description: "Timestamp when the log was created."
+      - name: updated_at
+        description: "Timestamp when the log was updated."
+      - name: app_id
+        description: "Unique identifier for the app associated with the log."
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model. Defaults to current_timestamp if not available."
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model. Defaults to 'data-dev-dbt-products'."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed."
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
