@@ -806,7 +806,7 @@ models:
         description: "System identifier of the process that last updated this record"
   
 
-  - name: marketing_ga4_sessions_classified
+  - name: s__acquisition__ga4_sessions_by_country__event
     description: Session level view enriched with device information, GA4 source
       labels and a “classified_country” logic that maps each session
       to BR / AR / MX / CL / CO / Other.  
@@ -827,6 +827,8 @@ models:
           - unique
       - name: date
         description: Session start date (UTC, DATE type).
+      - name: user_pseudo_id
+        description: "GA4 user identifier taken from the first pageview of the session."
       - name: source_ga4_classification
         description: GA4 built-in traffic source label (e.g. *inst-br*).
       - name: original_user_country
@@ -885,7 +887,7 @@ models:
         description: dbt job or service account that last updated the row.
 
 
-  - name: marketing_ga4_sessions_aggregated
+  - name: g__acquisition__ga4_sessions__agg_daily
     description: Daily aggregation of *marketing_ga4_sessions_classified* with
       engagement, trial and payment metrics.  
     config:
@@ -975,7 +977,7 @@ models:
         description: dbt job or service account that last updated the row.
 
 
-  - name: marketing_ga4_sessions_daily_attribution
+  - name: g__acquisition__ga4_sessions_attribution__agg_daily
     description: Extends the aggregated GA4 sessions table with marketing classification (mkt_source, mkt_subteam), URL ownership, partner_code and incremental logic.
     config:
       meta:
@@ -1824,3 +1826,141 @@ models:
       - name: sys_audit_updated_by
         description: "System identifier of the process that last updated this record"
         tests: [not_null]
+
+  - name: g__acquisition__affiliates_ga4_pageviews__agg_daily
+    description: "Daily aggregated performance metrics by partner, combining GA4 acquisition data and partner attributes for comprehensive performance analysis"
+    config:
+      meta:
+        owner: "yan.santos@nuvemshop.com.br"
+        business_owner: "Giselle Galli"
+        domain: "marketing"
+    columns:
+      - name: partner_event_hash_key
+        description: "Unique hash key generated from partner_code and event_date for deduplication."
+        tests:
+          - not_null
+          - unique
+      - name: partner_name
+        description: "Name of the partner or affiliate."
+        tests:
+          - not_null
+      - name: partner_code
+        description: "Unique identifier code for the partner."
+        tests:
+          - not_null
+      - name: partner_country_code
+        description: "Country code (ISO format) where the partner operates."
+        tests:
+          - not_null
+      - name: affiliate_classification
+        description: "Classification of the affiliate (e.g., influencer, content, coupon)."
+      - name: affiliate_tier
+        description: "Tier or level assigned to the affiliate."
+      - name: affiliate_main_platform
+        description: "Main platform used by the affiliate (e.g., Instagram, YouTube, TikTok)."
+      - name: event_date
+        description: "Date of the GA4 event in YYYY-MM-DD format."
+        tests:
+          - not_null
+      - name: country
+        description: "Country where the event occurred."
+      - name: source
+        description: "Source parameter from GA4 acquisition data (utm_source)."
+      - name: event_source
+        description: "UTM source associated with the page view event."
+      - name: event_medium
+        description: "UTM medium associated with the page view event."
+      - name: event_campaign
+        description: "UTM campaign associated with the page view event."
+      - name: event_content
+        description: "UTM content parameter from the page view event."
+      - name: landing_page
+        description: "Landing page URL associated with the GA4 event."
+      - name: page
+        description: "URL of the specific page associated with the event."
+      - name: total_users
+        description: "Number of distinct users (user_pseudo_id) for the given partner and date."
+        tests:
+          - not_null
+      - name: total_sessions
+        description: "Number of distinct sessions (unique_session) for the given partner and date."
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was created in this table."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "Identifier for the process or job that created the record."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when the record was last updated in this table."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "Identifier for the process or job that last updated the record."
+        tests:
+          - not_null
+          
+  - name: s__general__ga4_all_pageviews__event
+    description: "Daily page views data with acquisition information from GA4"
+    columns:
+      - name: user_pseudo_id
+        description: "Unique identifier for the user combining source and user_pseudo_id"
+      - name: unique_session
+        description: "Unique session identifier combining user_pseudo_id and ga_session_id"
+      - name: source
+        description: "Source of the page view event"
+        tests:
+          - not_null
+      - name: country
+        description: "Country where the page view originated"
+        tests:
+          - not_null
+      - name: region
+        description: "Region where the page view originated"
+        tests:
+          - not_null
+      - name: category
+        description: "Device category for the page view"
+        tests:
+          - not_null
+      - name: event_date
+        description: "Date of the page view event"
+        tests:
+          - not_null
+      - name: event_timestamp
+        description: "Timestamp of the page view event"
+        tests:
+          - not_null
+      - name: env
+        description: "Environment where the page view occurred"
+      - name: page
+        description: "URL of the page that was viewed"
+        tests:
+          - not_null
+      - name: landing_page
+        description: "First page viewed in the session"
+        tests:
+          - not_null
+      - name: event_source
+        description: "UTM source parameter from the page view"
+      - name: event_medium
+        description: "UTM medium parameter from the page view"
+      - name: event_campaign
+        description: "UTM campaign parameter from the page view"
+      - name: event_content
+        description: "UTM content parameter from the page view"
+      - name: event_term
+        description: "UTM term parameter from the page view"
+      - name: event_percent_scrolled
+        description: "Percentage of the page that was scrolled"
+      - name: year_month_code
+        description: "Year and month code in YYYYMM format"
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this table."
+        tests:
+          - not_null

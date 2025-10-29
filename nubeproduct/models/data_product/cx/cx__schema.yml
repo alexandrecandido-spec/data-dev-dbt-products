@@ -63,4 +63,36 @@ models:
       - name: sys_audit_updated_by
         description: "System/user that last updated the row."
 
-
+  - name: s__general__zendesk_groups__ref
+    meta:
+      owner: "felipe.lorenzo@tiendanube.com"
+      domain: "cx"
+      business_owner: "Carolina Leon"
+    description: >
+      Contains the list of Zendesk groups.
+    columns:
+      - name: group_id
+        description: Unique identifier of the group. Unique key.
+        tests:
+          - not_null
+          - unique
+      - name: group_url
+        description: URL of the group.
+      - name: group_name
+        description: Name of the group.
+      - name: group_description
+        description: Description of the group.
+      - name: is_default
+        description: Flag indicating if the group is the default group.
+      - name: is_deleted
+        description: Flag indicating if the group is deleted.
+      - name: group_created_at
+        description: Timestamp when the group was created.
+      - name: sys_audit_created_on
+        description: Timestamp when the row was originally created.
+      - name: sys_audit_created_by
+        description: System or user that created the row.
+      - name: sys_audit_updated_on
+        description: Timestamp when the row was last updated.
+      - name: sys_audit_updated_by
+        description: System or user that last updated the row.

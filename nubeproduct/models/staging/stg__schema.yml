@@ -343,7 +343,7 @@ models:
         description: "Monthly average GMV from the last 4 closed months in USD"
 
 
-  - name: ga4__event_info
+  - name: marketing__acquisition__ga4_event_info__event
     description: "Staging model for GA4 events information. Includes user sessions and event metadata."
     config:
       meta:
@@ -368,9 +368,21 @@ models:
         description: "Classifies the event as 'login' or 'other' based on event_name content."
       - name: year_month_day_code
         description: "YYYYMMDD code for daily partitioning."
+      - name: sys_audit_created_on
+        description: "ETL audit: first write timestamp."
+        tests: [not_null]
+      - name: sys_audit_created_by
+        description: "ETL audit: writer id."
+        tests: [not_null]
+      - name: sys_audit_updated_on
+        description: "ETL audit: last update timestamp."
+        tests: [not_null]
+      - name: sys_audit_updated_by
+        description: "ETL audit: last updater id."
+        tests: [not_null]
 
 
-  - name: ga4__tp_info
+  - name: marketing__acquisition__ga4_trial_payment_info__event
     description: "Staging model for trials and payments information from GA4."
     config:
       meta:
@@ -395,9 +407,21 @@ models:
         tests: [not_null]
       - name: year_month_day_code
         description: "YYYYMMDD  event_date."
+      - name: sys_audit_created_on
+        description: "ETL audit: first write timestamp."
+        tests: [not_null]
+      - name: sys_audit_created_by
+        description: "ETL audit: writer id."
+        tests: [not_null]
+      - name: sys_audit_updated_on
+        description: "ETL audit: last update timestamp."
+        tests: [not_null]
+      - name: sys_audit_updated_by
+        description: "ETL audit: last updater id."
+        tests: [not_null]
 
 
-  - name: ga4__session_info
+  - name: marketing__acquisition__ga4_session_info__session
     description: "Staging model for user sessions duration and engagement flags."
     config:
       meta:
@@ -421,10 +445,22 @@ models:
         description: "Date when the session started."
       - name: year_month_day_code
         description: "YYYYMMDD code for daily partitioning."
+      - name: sys_audit_created_on
+        description: "ETL audit: first write timestamp."
+        tests: [not_null]
+      - name: sys_audit_created_by
+        description: "ETL audit: writer id."
+        tests: [not_null]
+      - name: sys_audit_updated_on
+        description: "ETL audit: last update timestamp."
+        tests: [not_null]
+      - name: sys_audit_updated_by
+        description: "ETL audit: last updater id."
+        tests: [not_null]
 
 
-  - name: ga4__mod_pv_info
-    description: "Staging model for GA4 pageviews enriched with traffic source, landing page, and UTM parameters."
+  - name: marketing__acquisition__ga4_mod_pv_info__event
+    description: "Staging model for GA4 pageviews enriched with last traffic source, landing page, and UTM parameters."
     config:
       meta:
         owner: "sofia.torres@tiendanube.com"
@@ -469,6 +505,18 @@ models:
         description: "Last known traffic medium for the session."
       - name: last_campaign
         description: "Last recorded campaign parameter."
+      - name: sys_audit_created_on
+        description: "ETL audit: first write timestamp."
+        tests: [not_null]
+      - name: sys_audit_created_by
+        description: "ETL audit: writer id."
+        tests: [not_null]
+      - name: sys_audit_updated_on
+        description: "ETL audit: last update timestamp."
+        tests: [not_null]
+      - name: sys_audit_updated_by
+        description: "ETL audit: last updater id."
+        tests: [not_null]
   
 
   - name: data_predictors__quality_leads
@@ -3258,4 +3306,3 @@ models:
         description: "Timestamp when this record was last updated."
       - name: sys_audit_updated_by
         description: "Identifier for the user or system that last updated this record."
-  
