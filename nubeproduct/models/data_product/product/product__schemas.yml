@@ -1467,6 +1467,8 @@ models:
         description: 1 if the merchant has NuvemPago, 0 otherwise (based on if the merchant has nuvem-pago as a payment in at least one order in the past 12 months)
       - name: has_pagonube
         description: 1 if the merchant has Pagonube, 0 otherwise (based on if the merchant has pago-nube as a payment in at least one order in the past 12 months)
+      - name: pn_np_orders_since_rollout
+        description: 1 if the merchant has made at least one order with NuvemPago or Pagonube since the rollout of auto cancel (September 15, 2025)
       - name: has_configed_feature
         description: 1 if the merchant has configured the auto cancel feature, 0 otherwise. The presence in the orders_auto_cancel_configuration table is enough to consider it configured (can be deactivated since)
       - name: first_config_at

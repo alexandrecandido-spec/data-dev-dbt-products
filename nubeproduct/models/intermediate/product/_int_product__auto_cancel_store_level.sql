@@ -37,6 +37,7 @@ i.country,
 gp.grupo plan,
 apps.has_nuvempago,
 apps.has_pagonube,
+apps.pn_np_orders_since_rollout,
 case when c.store_id is not null then true else false end as has_configed_feature,
 c.first_config_at,
 c.overall_active,
@@ -64,6 +65,7 @@ left join
  store_id,
 case when payment='pago-nube' then true end as has_pagonube,
 case when payment='nuvem-pago' then true end as has_nuvempago,
+max(case when TO_DATE(cast(year_month_day_code as string), 'yyyyMMdd')>=date('2025-09-15') then true else false end) as pn_np_orders_since_rollout,
 max(sys_audit_updated_on) cmpo_sys_audit_updated_on
 from {{ ref('company_metrics_paid_orders') }} cmpo
 WHERE 
