@@ -373,3 +373,54 @@ models:
         description: "Timestamp of the current model run when the record was processed."
       - name: sys_audit_updated_by
         description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
+  
+
+  - name: product__billing__contracts__scd
+    description: "Staging model containing contracts created through contracts - plan subscription events, with a SCD type."
+    config:
+      meta:
+        owner: "ronald.corcho@tiendanube.com"
+        domain: "merchant"
+        business_owner: "Analytics Engineering"
+    columns:
+      - name: id
+        description: "Unique contract identifier."
+        tests:
+          - not_null
+          - unique
+      - name: store_id
+        description: "Store identifier linked to the contract."
+        tests:
+          - not_null
+      - name: plan_id
+        description: "Plan identifier associated with the contract."
+      - name: type
+        description: "Type of contract event (e.g., freemium, change-plan)."
+      - name: description_contract
+        description: "Description of the contract entry."
+      - name: start_date
+        description: "Date when the contract started."
+      - name: end_date
+        description: "Date when the contract ended."
+      - name: created_at
+        description: "Timestamp when the contract entry was created."
+      - name: deleted_at
+        description: "Timestamp when the contract entry was deleted."
+      - name: total
+        description: "Total value of the contract."
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "System or user that created the row."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this table."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row."
+        tests:
+          - not_null
