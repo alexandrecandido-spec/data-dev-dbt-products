@@ -72,7 +72,7 @@ FROM {{ref('_int_product__nuvemchat_stores_trial_chats_invoices')}} nc_data
 JOIN {{ref('moltres__mwp_store_info')}} msi ON nc_data.store_id = msi.store_id
 LEFT JOIN {{ref('operations_grouping_plans')}} gp ON gp.plan = msi.plan
 LEFT JOIN gmv ON gmv.store_id = nc_data.store_id
-WHERE nc_data.store_id <> 1234
+WHERE nc_data.store_id <> 1234 AND msi.state NOT IN (3,4)
 GROUP BY 
     nc_data.store_id,
     nc_data.cn_store_id,

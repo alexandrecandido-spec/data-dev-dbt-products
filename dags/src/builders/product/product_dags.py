@@ -20,6 +20,14 @@ default_args = {
 
 }
 
+# Daily frequencies
+dag = create_dbt_dag(
+    dag_id='dbt_product_daily_1am',
+    schedule_interval_tag='daily-1am',
+    default_args=default_args,
+    tags=['product','daily-1am']
+)
+
 dag = create_dbt_dag(
     dag_id='dbt_product_daily_2am',
     schedule_interval_tag='daily-2am',
@@ -27,7 +35,20 @@ dag = create_dbt_dag(
     tags=['product','daily-2am']
 )
 
-# Crear el DAG frecuencia diaria
+dag = create_dbt_dag(
+    dag_id='dbt_product_daily_3am',
+    schedule_interval_tag='daily-3am',
+    default_args=default_args,
+    tags=['product','daily-3am']
+)
+
+dag = create_dbt_dag(
+    dag_id='dbt_product_daily_4am',
+    schedule_interval_tag='daily-4am',
+    default_args=default_args,
+    tags=['product','daily-4am']
+)
+
 dag = create_dbt_dag(
     dag_id='dbt_product_daily_8am',
     schedule_interval_tag='daily-8am',
@@ -35,7 +56,13 @@ dag = create_dbt_dag(
     tags=['product','daily-8am']
 )
 
-# Crear el DAG frecuencia diaria
+dag = create_dbt_dag(
+    dag_id='dbt_product_daily-9am',
+    schedule_interval_tag='daily-9am',
+    default_args=default_args,
+    tags=['product', 'daily-9am']
+)
+
 dag = create_dbt_dag(
     dag_id='dbt_product_daily_10am',
     schedule_interval_tag='daily-10am',
@@ -43,14 +70,15 @@ dag = create_dbt_dag(
     tags=['product','daily-10am']
 )
 
-# Crear el DAG frecuencia diaria 
 dag = create_dbt_dag(
-    dag_id='dbt_product_daily-9am',
-    schedule_interval_tag='daily-9am',
+    dag_id='dbt_product_daily_11am',
+    schedule_interval_tag='daily-11am',
     default_args=default_args,
-    tags=['product', 'daily-9am']
+    tags=['product','daily-11am']
 )
-# Crear el DAG frecuencia diaria
+
+
+# Daily, twice a day
 dag = create_dbt_dag(
     dag_id='dbt_product_daily_9am',
     schedule_interval_tag='daily-9am',
@@ -63,4 +91,13 @@ dag = create_dbt_dag(
     schedule_interval_tag='daily-9pm',
     default_args=default_args,
     tags=['product','daily-9am-9pm']
+)
+
+
+# Weekly frequencies
+dag = create_dbt_dag(
+    dag_id='dbt_product_weekly-monday-9am',
+    schedule_interval_tag='weekly-monday-9am',
+    default_args=default_args,
+    tags=['product', 'weekly-monday-9am']
 )

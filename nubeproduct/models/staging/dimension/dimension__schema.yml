@@ -1,0 +1,337 @@
+
+version: 2
+models:
+  - name: dimension__attributes__location_country__ref
+    description: "A reference dimension table that defines the set of countries relevant to the business, used for geographical analysis and segmentation."
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "dimension"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: country_id
+        description: Unique identifier for each country (primary key).
+        tests:
+          - not_null
+          - unique
+      - name: country_code
+        description: Standardized ISO-like code for the country (e.g., BR, AR, MX).
+        tests:
+          - not_null
+          - unique
+      - name: country_name
+        description: Full country name in English (e.g., Brazil, Argentina, Mexico).
+        tests:
+          - not_null
+          - unique
+      - name: sys_audit_created_on
+        description: Timestamp when the row was initially created in the summary table.
+      - name: sys_audit_created_by
+        description: Source or user responsible for the initial row creation.
+      - name: sys_audit_updated_on
+        description: Timestamp of the latest update to the row.
+      - name: sys_audit_updated_by
+        description: Source or user responsible for the latest update.
+
+
+  - name: dimension__attributes__location_region__ref
+    description: "A reference dimension table that defines geographical regions, typically grouping states or countries into broader territories for analytical purposes."
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "dimension"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: region_id
+        description: Unique identifier for each region (primary key).
+        tests:
+          - not_null
+          - unique
+      - name: region_code
+        description: Short code used to represent the region (e.g., SUL, NEA, NOR).
+        tests:
+          - not_null
+      - name: region_name
+        description: Descriptive name of the region (e.g., Sul, Noroeste, Pampas).
+        tests:
+          - not_null
+      - name: country_id
+        description: Foreign key referencing the country the region belongs to.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_location_country')
+              field: country_id
+      - name: sys_audit_created_on
+        description: Timestamp when the row was initially created in the summary table.
+      - name: sys_audit_created_by
+        description: Source or user responsible for the initial row creation.
+      - name: sys_audit_updated_on
+        description: Timestamp of the latest update to the row.
+      - name: sys_audit_updated_by
+        description: Source or user responsible for the latest update.
+    tests:
+      - unique:
+          column_name: ['region_code', 'country_id']
+
+
+  - name: dimension__attributes__location_state__ref
+    description: "A reference dimension table that defines states or provinces, used to represent administrative divisions within countries for geographic segmentation."
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "dimensions"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: state_id
+        description: Unique identifier for each state (primary key).
+        tests:
+          - not_null
+          - unique
+      - name: state_code
+        description: Standardized short code for the state (e.g., SP, RJ, BA).
+        tests:
+          - not_null
+      - name: state_name
+        description: Full name of the state or province.
+        tests:
+          - not_null
+      - name: region_id
+        description: Foreign key referencing the region that state belongs to.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_location_region')
+              field: region_id
+      - name: country_id
+        description: Foreign key referencing the country that state belongs to.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_location_country')
+              field: country_id
+      - name: sys_audit_created_on
+        description: Timestamp when the row was initially created in the summary table.
+      - name: sys_audit_created_by
+        description: Source or user responsible for the initial row creation.
+      - name: sys_audit_updated_on
+        description: Timestamp of the latest update to the row.
+      - name: sys_audit_updated_by
+        description: Source or user responsible for the latest update.
+
+
+  - name: dimension__attributes__location_city__ref
+    description: "A reference dimension table that defines city-level information, typically used for fine-grained geographic analysis such as urban segmentation or localization."
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "dimensions"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: city_id
+        description: Unique identifier for each city (primary key).
+        tests:
+          - not_null
+          - unique
+      - name: city_id_nk
+        description: Natural key for the city, originating from the source system. Used to maintain referential consistency with upstream operational data sources.
+        tests:
+          - not_null
+      - name: city_name
+        description: Name of the city or municipality.
+        tests:
+          - not_null
+      - name: state_id
+        description: Foreign key referencing the state that city belongs to.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_location_state')
+              field: state_id
+      - name: region_id
+        description: Foreign key referencing the region that state belongs to.
+        tests:
+          - relationships:
+              to: ref('dim_location_region')
+              field: region_id
+      - name: country_id
+        description: Foreign key referencing the country that state belongs to.
+        tests:
+          - relationships:
+              to: ref('dim_location_country')
+              field: country_id
+      - name: sys_audit_created_on
+        description: Timestamp when the row was initially created in the summary table.
+      - name: sys_audit_created_by
+        description: Source or user responsible for the initial row creation.
+      - name: sys_audit_updated_on
+        description: Timestamp of the latest update to the row.
+      - name: sys_audit_updated_by
+        description: Source or user responsible for the latest update.
+
+
+  - name: dimension__attributes__location_by_zipcode__link
+    description: "A link table that relates stores to their geographical location based on zipcode information, used for geospatial analysis and segmentation."
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "dimension"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: store_id
+        description: Unique identifier for each store (primary key).
+        tests:
+          - not_null
+          - unique
+      - name: country_id
+        description: Foreign key referencing the country that store belongs to.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dimension__attributes__location_country__ref')
+              field: country_id
+      - name: state_id
+        description: Foreign key referencing the state that store belongs to.
+        tests:
+          - not_null 
+          - relationships:
+              to: ref('dimension__attributes__location_state__ref')
+              field: state_id
+      - name: region_id
+        description: Foreign key referencing the region that store belongs to.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dimension__attributes__location_region__ref')
+              field: region_id
+      - name: city_id
+        description: Foreign key referencing the city that store belongs to.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dimension__attributes__location_city__ref')
+              field: city_id
+      - name: sys_audit_created_on
+        description: Timestamp when the row was initially created in the summary table.
+      - name: sys_audit_created_by
+        description: Source or user responsible for the initial row creation.
+      - name: sys_audit_updated_on
+        description: Timestamp of the latest update to the row.
+      - name: sys_audit_updated_by
+        description: Source or user responsible for the latest update.
+  
+
+  - name: dimension__attributes__vertifier_and_vertical__ref
+    description: "A reference dimension table that defines the set of verticals related to the merchant, used for vertical analysis and segmentation."
+    config:
+      meta:
+        owner: "jhu.boggio@tiendanube.com"
+        domain: "dimension"
+        business_owner: "Giselle Galli"
+    columns:
+      - name: store_id
+        description: Unique identifier for each store (primary key).
+        tests:
+          - not_null
+          - unique
+      - name: vertical_name
+        description: Name of the vertical.
+      - name: sys_audit_created_on
+        description: Timestamp when the row was initially created in the summary table.
+      - name: sys_audit_created_by
+        description: Source or user responsible for the initial row creation.
+      - name: sys_audit_updated_on
+        description: Timestamp of the latest update to the row.
+      - name: sys_audit_updated_by
+        description: Source or user responsible for the latest update.
+  
+
+  - name: dimension__attributes__business_size__ref
+    description: "A reference dimension table that defines the set of business sizes relevant to the business, used for business size analysis and segmentation."
+    config:
+      meta:
+        owner: "gustavo.braga@nuvemshop.com.br"
+        domain: "dimension"
+        business_owner: "Giselle Galli"
+    columns:
+      - name: business_size_id
+        description: Unique identifier for each business size (primary key).
+        tests:
+          - not_null
+          - unique
+      - name: business_size_name
+        description: Name of the business size.
+        tests:
+          - not_null
+          - unique
+      - name: sys_audit_created_on
+        description: Timestamp when the row was initially created in the summary table.
+      - name: sys_audit_created_by
+        description: Source or user responsible for the initial row creation.
+      - name: sys_audit_updated_on
+        description: Timestamp of the latest update to the row.
+      - name: sys_audit_updated_by
+        description: Source or user responsible for the latest update.
+  
+  
+  - name: dimension__attributes__business_size__link
+    description: "A link table that relates stores to their business size, used for business size analysis and segmentation."
+    config:
+      meta:
+        owner: "gustavo.braga@nuvemshop.com.br"
+        domain: "dimension"
+        business_owner: "Giselle Galli"
+    columns:
+      - name: store_id
+        description: Unique identifier for each store (primary key).
+        tests:
+          - not_null
+          - unique
+      - name: business_size_id
+        description: Foreign key referencing the business size that store belongs to.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dimension__attributes__business_size__ref')
+              field: business_size_id
+      - name: sys_audit_created_on
+        description: Timestamp when the row was initially created in the summary table.
+      - name: sys_audit_created_by
+        description: Source or user responsible for the initial row creation.
+      - name: sys_audit_updated_on
+        description: Timestamp of the latest update to the row.
+      - name: sys_audit_updated_by
+        description: Source or user responsible for the latest update.
+  
+
+  - name: dimension__attributes__segment_type__ref
+    config:
+      meta:
+        owner: "gustavo.braga@nuvemshop.com.br"
+        domain: "dimensions"
+        business_owner: "Franco Tiberti"
+    description: "A reference dimension table that defines the available segment types, typically used to classify stores."
+    columns:
+      - name: segment_id
+        description: Unique identifier for the segment type (primary key).
+        tests:
+          - not_null
+          - unique
+      - name: segment_name
+        description: Descriptive name of the segment (e.g., no-seller, struggling-seller).
+        tests:
+          - not_null
+          - unique
+      - name: segment_order
+        description: Ordinal number used to define the display or logical order of segments (e.g., 1 = no-seller, 2 = struggling-seller).
+        tests:
+          - not_null
+          - unique
+      - name: sys_audit_created_on
+        description: Timestamp when the row was initially created in the summary table.
+      - name: sys_audit_created_by
+        description: Source or user responsible for the initial row creation.
+      - name: sys_audit_updated_on
+        description: Timestamp of the latest update to the row.
+      - name: sys_audit_updated_by
+        description: Source or user responsible for the latest update.

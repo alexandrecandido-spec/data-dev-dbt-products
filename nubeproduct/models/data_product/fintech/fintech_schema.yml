@@ -154,7 +154,7 @@ models:
         description: "System audit field indicating when the record was last updated."
         tests:
           - not_null
-  - name: credit_contracts_present_value
+  - name: s__lending__contracts_present_value__event
     description: >
       Contains all balance informations regarding each contract for each day since 2025-04-14
     config:

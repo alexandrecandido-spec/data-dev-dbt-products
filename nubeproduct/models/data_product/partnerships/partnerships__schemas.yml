@@ -1,0 +1,283 @@
+version: 2
+models:
+  - name: s__general__partners_info__ref
+    config:
+      meta:
+        owner: "yan.santos@nuvemshop.com.br"
+        domain: "partnerships"
+        business_owner: "Giselle Galli"
+    description: >
+      Contains comprehensive information about partners, including classification, UTM parameters, fraud indicators, and partnership types.
+    columns:
+      - name: partner_id
+        description: "Unique identifier of the partner."
+        tests:
+          - not_null
+          - unique
+      - name: partner_code
+        description: "Code assigned to the partner."
+        tests:
+          - not_null
+      - name: partner_name
+        description: "Name of the partner."
+      - name: partner_country_code
+        description: "Country code where the partner operates."
+      - name: partner_created_at
+        description: "Date and time when the partner was created."
+        tests:
+          - not_null
+      - name: partner_email
+        description: "Email address of the partner."
+        tests:
+          - not_null
+      - name: partner_phone_number
+        description: "Phone number of the partner."
+      - name: partner_utm_campaign
+        description: "UTM campaign parameter associated with the partner."
+      - name: partner_utm_source
+        description: "UTM source parameter associated with the partner."
+      - name: partner_utm_medium
+        description: "UTM medium parameter associated with the partner."
+      - name: partner_utm_content
+        description: "UTM content parameter associated with the partner."
+      - name: mkt_exclusion
+        description: "Partners managed by other marketing areas, not part of the affiliates program."
+      - name: flag_partner_exception
+        description: "Binary flag indicating if the partner has an exception (1=yes, 0=no)."
+        tests:
+          - not_null
+          - accepted_values:
+              values: [0, 1]
+      - name: change_timestamp
+        description: "Timestamp of the most recent change across all partner input sources."
+      - name: input_sources_partners
+        description: "Comma-separated list of input sources that have data for this partner."
+      - name: partner_team
+        description: "Team responsible for managing the partner."
+      - name: partner_subteam
+        description: "Subteam responsible for managing the partner."
+      - name: fraude
+        description: "Fraud indicator flag for the partner."
+      - name: affiliate_tier
+        description: "Tier classification of the affiliate."
+      - name: affiliate_main_platform
+        description: "Main platform used by the affiliate."
+      - name: affiliate_classification
+        description: "Classification category of the affiliate."
+      - name: has_store_dev_trial
+        description: "Flag indicating if the partner has at least one store development partnership (1=yes, 0=no)."
+        tests:
+          - not_null
+          - accepted_values:
+              values: [0, 1]
+      - name: has_affiliates_trial
+        description: "Flag indicating if the partner has at least one affiliate partnership (1=yes, 0=no)."
+        tests:
+          - not_null
+          - accepted_values:
+              values: [0, 1]
+      - name: sys_audit_created_by
+        description: "System or user that created the row."
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this table."
+        tests:
+          - not_null
+
+  - name: s__general__partners_commissions__event
+    config:
+      meta:
+        owner: "felipe.lorenzo@tiendanube.com"
+        domain: "partnerships"
+        business_owner: "Franco Tiberti"
+    description: >
+      Contains information about the commissions of the partners.
+    columns:
+      - name: commission_id
+        description: "Unique identifier of the commission."
+        tests:
+          - not_null
+          - unique
+      - name: partner_id
+        description: "Identifier of the partner who earned the commission."
+        tests:
+          - not_null
+      - name: store_id
+        description: "Identifier of the store associated with the commission."
+      - name: plan_id
+        description: "Identifier of the plan associated with the commission."
+      - name: partner_ledger_entry_type_id
+        description: "Type of partner ledger entry determining commission category."
+        tests:
+          - not_null
+          - accepted_values:
+              values: [1, 2, 3, 4, 5, 6, 7, 8]
+      - name: partner_ledger_entry_type_name
+        description: "Name of the partner ledger entry type."
+        tests:
+          - not_null
+      - name: transaction_type
+        description: "Type of transaction (Deposit or Withdrawal)."
+        tests:
+          - not_null
+      - name: commission_type
+        description: "Category of commission (affiliates, store_development, apps, or Withdrawal)."
+        tests:
+          - not_null
+      - name: commission_amount
+        description: "Amount of the commission in partner currency."
+        tests:
+          - not_null
+      - name: partner_commission_percentage
+        description: "Percentage rate applied to calculate the partner commission."
+      - name: plan_value
+        description: "Value of the plan associated with the commission."
+      - name: partner_currency
+        description: "Currency code for the partner payout."
+      - name: store_currency
+        description: "Original currency code of the store transaction."
+      - name: currency_exchange_rate
+        description: "Exchange rate used to convert from store to partner currency."
+      - name: commission_status
+        description: "Current status of the commission payment."
+      - name: commission_created_date
+        description: "Date when the commission was created."
+      - name: commission_paid_date
+        description: "Date when the commission was paid to the partner."
+      - name: sys_audit_created_by
+        description: "System or user that created the row."
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this table."
+        tests:
+          - not_null
+
+  - name: s__general__partners_stores__ref
+    config:
+      meta:
+        owner: "felipe.lorenzo@tiendanube.com"
+        domain: "partnerships"
+        business_owner: "Franco Tiberti"
+    description: >
+      Contains the list of stores associated with a partner, along with calculated fields 
+      and dimensions for future use in KPI construction.
+    columns:
+      - name: store_id
+        description: Unique identifier of the store. Unique key.
+        tests:
+          - not_null
+          - unique
+      - name: main_user_id
+        description: Unique identifier of the main user associated with the store.
+        tests:
+          - not_null
+      - name: domain
+        description: Domain of the store.
+      - name: country_code
+        description: Country code of the store.
+        tests:
+          - not_null
+      - name: state
+        description: State of the store.
+      - name: block_flg
+        description: Flag indicating if the store/partner is blocked.
+      - name: current_segment
+        description: Current segment of the store.
+      - name: merchant_type
+        description: Type of merchant (active, non-active, other).
+      - name: active_merchant_flg
+        description: Flag indicating if the store is active.
+      - name: device
+        description: Device of the store.
+      - name: predicted_prob
+        description: New payment probability of the store.
+      - name: prod_cutoff
+        description: Probability cutoff for the store to be quality lead.
+      - name: quality_lead_flg
+        description: Flag indicating if the store is a quality lead.
+      - name: first_payment_flg
+        description: Flag indicating if the store has made a first payment.
+        tests:
+          - not_null
+      - name: acquired_by
+        description: Acquired by partner or nuvemshop, not evaluated for affiliates.
+        tests:
+          - not_null
+      - name: created_at
+        description: Date and time when the store was created.
+        tests:
+          - not_null
+      - name: first_payment
+        description: Date and time when the store made its first payment.
+      - name: churned_at
+        description: Date and time when the store churned.
+      - name: plan_id
+        description: ID of the plan associated with the store.
+      - name: plan_group
+        description: Group of the plan associated with the store.
+      - name: plan_name
+        description: Name of the plan associated with the store.
+      - name: partner_id
+        description: ID of the partner associated with the store.
+        tests:
+          - not_null
+      - name: partnership_type
+        description: Type of partnership associated with the store (store_development, affiliate).
+        tests:
+          - not_null  
+          - accepted_values:
+              values: ['store_development', 'affiliate']
+      - name: first_seller_at
+        description: Date and time when the store first became a seller.
+      - name: sys_audit_created_on
+        description: Date and time when the row was initially created in the summary table.
+      - name: sys_audit_created_by
+        description: Source or user responsible for the initial row creation.
+      - name: sys_audit_updated_on
+        description: Timestamp of the latest update to the row.
+      - name: sys_audit_updated_by
+        description: Source or user responsible for the latest update.
+      - name: business_unit
+        description: Business unit of the store (MM - SMB).
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['MM', 'SMB']
+      - name: payment_lifecycle_status
+        description: Payment lifecycle status of the store.
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Paying', 'Churned', 'Freemium', 'Trial']
+      - name: started_as
+        description: How the store started (freemium, trial).
+        tests:
+          - not_null
+      - name: first_plan_id
+        description: ID of the first plan associated with the store.
+      - name: first_plan_group
+        description: Group of the first plan associated with the store.
+      - name: first_plan_name
+        description: Name of the first plan associated with the store.
+      - name: churned_flg
+        description: Flag indicating if the store has churned.
+      - name: first_seller_flg
+        description: Flag indicating if the store has made a first sale.

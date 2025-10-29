@@ -4,7 +4,7 @@ models:
     description: "All the orders in their different statuses"
     config:
       meta:
-        owner: "rodrigo.torres@tiendanube.com"
+        owner: "gustavo.braga@nuvemshop.com.br"
         domain: "finance"
         business_owner: "Nico Loreti"
     columns:
@@ -12,10 +12,6 @@ models:
         description: "Unique identifier for the order."
         tests:
           - unique:
-              where: "sys_audit_updated_on >= current_timestamp - interval '1 hours'"
-      - name: id
-        tests:
-          - not_null:
               where: "sys_audit_updated_on >= current_timestamp - interval '1 hours'"
       - name: store_id
         description: "Identifier of the store associated with the order."
@@ -39,6 +35,8 @@ models:
               where: "sys_audit_updated_on >= current_timestamp - interval '1 hours'"
       - name: contact_email
         description: "Email address of the customer who placed the order."
+      - name: contact_name
+        description: "Name of the customer who placed the order."
       - name: currency
         description: "Currency used for the transaction."
       - name: status
@@ -64,6 +62,8 @@ models:
         description: "Payment status of the order (e.g., paid, pending, failed)."
       - name: gateway
         description: "Name of the payment gateway used to process the transaction."
+      - name: internal_extra
+        description: "Additional internal information about the order."
       - name: shipping_method
         description: "Shipping method selected for the order."
       - name: shipping_cost
@@ -86,6 +86,16 @@ models:
         description: "Identifier of the app or plugin involved in the order, if applicable."
       - name: year_month_day_code
         description: "Date code in YYYYMMDD format used for partitioning or filtering."
+      - name: discount
+        description: "Coupon discount."
+      - name: discount_gateway
+        description: "Discount on gateway"
+      - name: promotional_discount_id
+        description: "Promotional discount"
+      - name: shipping_cost_owner
+        description: "Shipping cost on the owner side"
+      - name: fulfillment_status
+        description: "Fulfillment status of the order."
       - name: is_paid_order
         description: "Indicates whether the order was successfully completed and paid (not cancelled, status is 'paid', and completed_at is not null)."
       - name: device
@@ -104,7 +114,7 @@ models:
     description: "Products associated with the order"
     config:
       meta:
-        owner: "rodrigo.torres@tiendanube.com"
+        owner: "gustavo.braga@nuvemshop.com.br"
         domain: "finance"
         business_owner: "Giselle Galli"
     columns:
@@ -112,8 +122,6 @@ models:
         description: "Identifier of the order associated with the product."
         tests:
           - unique
-      - name: id
-        tests:
           - not_null
       - name: order_id
         description: "Identifier of the order associated with the product."
@@ -211,6 +219,51 @@ models:
         description: "Wholesale pricetable id associated with the order"
       - name: percentage_applied
         description: "Percentage of discount applied to the order for being a wholesale order"
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model. Defaults to current_timestamp if not available."
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model. Defaults to 'data-dev-dbt-products'."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed."
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
+
+  - name: product__orders__order_logging__event
+    description: "Logs associated with orders (changes in fulfillment status, payment status etc)"
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: year_month_code
+        description: "Date code in YYYYMMDD format used for partitioning or filtering."
+      - name: id
+        description: "Unique identifier for the logged event"
+      - name: user_id
+        description: "Unique identifier for the user associated with the log."
+      - name: employee_id
+        description: "Unique identifier for the employee associated with the log."
+      - name: store_id
+        description: "Unique identifier for the store associated with the log."
+      - name: order_id
+        description: "Unique identifier for the order associated with the log."
+      - name: type
+        description: "Type of the log (order-fulfillment, order-payment, order-status)"
+      - name: data_2
+        description: "Additional data for the log (i.e specific new status)"
+      - name: data_3
+        description: "Additional data for the log."
+      - name: extra
+        description: "Additional data for the log."
+      - name: happened_at
+        description: "Timestamp when the log happened."
+      - name: created_at
+        description: "Timestamp when the log was created."
+      - name: updated_at
+        description: "Timestamp when the log was updated."
+      - name: app_id
+        description: "Unique identifier for the app associated with the log."
       - name: sys_audit_created_on
         description: "Timestamp when the record was first loaded into the model. Defaults to current_timestamp if not available."
       - name: sys_audit_created_by

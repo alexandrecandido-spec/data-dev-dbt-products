@@ -20,6 +20,7 @@ WITH source AS (
         cancel_reason as cancel_reason,
         store_id, 
         LOWER(contact_email) AS contact_email,
+        contact_name,
         currency,
         total, 
         total_in_usd, 
@@ -28,6 +29,7 @@ WITH source AS (
         device_type,
         payment_status,
         gateway,
+        internal_extra,
         shipping_method,
         shipping_cost,
         shipping_option,
@@ -38,7 +40,12 @@ WITH source AS (
         gateway_method,
         app_id,
         CONCAT(CAST(DATE(completed_at) AS STRING),'-',CAST(store_id AS STRING)) order_date_store_id,
-        CAST(date_format(completed_at, 'yyyyMMdd') AS INT) AS year_month_day_code
+        CAST(date_format(completed_at, 'yyyyMMdd') AS INT) AS year_month_day_code,
+        discount,
+        discount_gateway,
+        promotional_discount_id,
+        shipping_cost_owner,
+        fulfillment_status
 
     FROM {{ source('stg_orders', 'mwp_orders') }}
     
@@ -65,6 +72,7 @@ SELECT
     cancel_reason,
     store_id, 
     contact_email, 
+    contact_name,
     currency,
     total,
     total_in_usd, 
@@ -73,6 +81,7 @@ SELECT
     device_type,
     payment_status,
     gateway,
+    internal_extra,
     shipping_method,
     shipping_cost,
     shipping_option,
@@ -84,6 +93,11 @@ SELECT
     order_date_store_id,
     app_id,
     year_month_day_code,
+    discount,
+    discount_gateway,
+    promotional_discount_id,
+    shipping_cost_owner,
+    fulfillment_status,
     CASE  
         WHEN status != 'cancelled' 
             AND payment_status = 'paid' 
