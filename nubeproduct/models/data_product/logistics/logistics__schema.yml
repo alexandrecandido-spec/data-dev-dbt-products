@@ -219,7 +219,7 @@ models:
       - name: orders_qty
         description: "Total number of orders contributing to GMV on the given day."
 
-  - name: logistics_funnel__merchants
+  - name: g__operations__funnel_merchants__agg_daily
     description: "Merchant-level funnel tracking for Nuvem Envio adoption and engagement."
     columns:
       - name: granularity
@@ -265,7 +265,7 @@ models:
       - name: sys_audit_updated_by
         description: Identifier of the system or job that last updated the record.
 
-  - name: logistics_funnel__orders
+  - name: g__operations__funnel_orders__agg_daily
     description: "Order-level funnel analysis for tracking operational funnel conversion."
     columns:
       - name: tier
