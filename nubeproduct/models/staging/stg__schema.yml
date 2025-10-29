@@ -3258,4 +3258,3 @@ models:
         description: "Timestamp when this record was last updated."
       - name: sys_audit_updated_by
         description: "Identifier for the user or system that last updated this record."
-  
