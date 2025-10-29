@@ -93,6 +93,7 @@ models:
         description: "Timestamp when the row was last updated."
       - name: sys_audit_updated_by
         description: "System or user that last updated the row."
+      - name: success_priority
 
   - name: support_zendesk_partners_sync
     meta:
