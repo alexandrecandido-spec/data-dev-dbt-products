@@ -98,6 +98,14 @@ or (s.first_payment is not null and s.churned_at is null))
 {% if is_incremental() %}
     and s.registered_month >= dateadd(month, -{{ months_lookback }}, date_trunc('month', current_date))
 {% endif %}
+),
+dedup as (
+    select *,
+        row_number() over (
+            partition by registered_month, store_id, coalesce(app_id,999999)
+            order by sys_audit_updated_on desc nulls last
+        ) as rn
+    from aux
 )
 SELECT
     concat(a.registered_month, '_', a.store_id, '_', coalesce(a.app_id,999999)) as unique_id
@@ -106,11 +114,5 @@ SELECT
     ,'data-dev-dbt-products' as sys_audit_created_by
     ,current_timestamp as sys_audit_updated_on
     ,'data-dev-dbt-products' as sys_audit_updated_by
-from aux a
-    where 
-    {% if not is_incremental() %}
-        true
-    {% endif %}
-    {% if is_incremental() %}
-        a.registered_month >= dateadd(month, -{{ months_lookback }}, date_trunc('month', current_date))
-    {% endif %}
+from dedup a
+    where rn = 1
