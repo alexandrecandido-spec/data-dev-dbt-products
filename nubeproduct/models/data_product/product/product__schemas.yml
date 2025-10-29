@@ -1523,12 +1523,28 @@ models:
         description: "Integration type used with the payment gateway"
       - name: status
         description: "Status of the order"
+      - name: has_open
+        description: "Whether the order has an 'open' log, indicating that it was re-opened"
       - name: total_in_usd
         description: "Total amount of the order in USD"
       - name: order_completed_at
         description: "Timestamp when the order was completed"
       - name: order_cancelled_at
         description: "Timestamp when the order was cancelled"
+      - name: order_paid_at
+        description: "Timestamp when the order was paid (using order logging data)"
+      - name: order_unpacked_at
+        description: "Timestamp when the order was unpacked (using order logging data)"
+      - name: order_partially_packed_at
+        description: "Timestamp when the order was partially packed (using order logging data)"
+      - name: order_unfulfilled_at
+        description: "Timestamp when the order was unfulfilled (using order logging data)"
+      - name: order_partially_fulfilled_at
+        description: "Timestamp when the order was partially fulfilled (using order logging data)"
+      - name: order_fulfilled_at
+        description: "Timestamp when the order was fulfilled (using order logging data)"
+      - name: order_delivered_at
+        description: "Timestamp when the order was delivered (using order logging data)"
       - name: payment_status
         description: "Payment status of the order"
       - name: fulfillment_status
@@ -1569,6 +1585,8 @@ models:
         description: "Type of the order (digital order, pickup order, shipping order, multiple shipping order, location_pickup_order, combined order)"
       - name: total_ffoo
         description: "Total number of fulfillment orders of the order"
+      - name: has_ready_for_pickup_ffoo
+        description: "Whether the order has a ready for pickup fulfillment order (for funnel states)"
       - name: sys_audit_created_by
         description: "System or user that created the row in this model."
       - name: sys_audit_created_on
