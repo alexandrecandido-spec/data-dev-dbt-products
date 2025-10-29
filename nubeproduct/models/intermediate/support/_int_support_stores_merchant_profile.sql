@@ -21,7 +21,7 @@ where s.in_portfolio = true
             merchant.country_id,
             merchant.group_id,
             merchant.current_segment_id,
-            merchant.success_priority
+            sp.success_priority
         from {{ ref("dim_merchant_info") }} merchant
         left join scs_priority sp on sp.store_id = merchant.store_id
     ),
