@@ -34,7 +34,8 @@ with
             aux.paid_until_at,
             aux.has_associated_partner,
             aux.has_instagram,
-            store_status.status
+            store_status.status,
+            mp.success_priority
         from {{ ref("hubspot_active_stores") }} active_stores
         left join
             {{ ref("_int_support_stores_merchant_profile") }} mp
@@ -81,6 +82,7 @@ select
     info.has_associated_partner,
     info.has_instagram,
     info.status,
+    info.success_priority,
     {% if is_incremental() %}
         coalesce(
             existing_data.sys_audit_created_on, current_timestamp

@@ -28,16 +28,6 @@ case
     else 0
 end mf_is_active,
 'Product variants' as domain,
-GREATEST(
-    a.sys_audit_updated_on,
-    opt_l.sys_audit_updated_on,
-    dt.sys_audit_updated_on,
-    num.sys_audit_updated_on,
-    txt.sys_audit_updated_on,
-    msi.sys_audit_updated_on,
-    gp.sys_audit_updated_on,
-    gmv.gmv_max_sys_audit_updated_on
-) AS max_sys_audit_updated_on,
 case
     when a.value_type = 1 and opt_l.metafield_uuid is null then 0
     when a.value_type = 1 and opt_l.metafield_uuid is not null then 1
@@ -48,6 +38,16 @@ case
     when a.value_type = 4 and dt.metafield_uuid is null then 0
     when a.value_type = 4 and dt.metafield_uuid is not null then 1
 end mf_is_assigned,
+MAX(GREATEST(
+    a.sys_audit_updated_on,
+    opt_l.sys_audit_updated_on,
+    dt.sys_audit_updated_on,
+    num.sys_audit_updated_on,
+    txt.sys_audit_updated_on,
+    msi.sys_audit_updated_on,
+    gp.sys_audit_updated_on,
+    gmv.gmv_max_sys_audit_updated_on
+)) AS max_sys_audit_updated_on,
 min(case
     when a.value_type = 1 and date(opt_l.created_at) <> date('1970-01-01') then date(opt_l.created_at)
     when a.value_type = 2 and date(txt.created_at) <> date('1970-01-01') then date(txt.created_at)
@@ -87,7 +87,7 @@ on a.store_id = gmv.store_id
 where 1=1
 and msi.churned_at is null 
 and state NOT IN (3,4)
-group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17
+group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16
 UNION
 select
 a.store_id,
@@ -119,16 +119,6 @@ case
     else 0
 end mf_is_active,
 'Orders' as domain,
-GREATEST(
-    a.sys_audit_updated_on,
-    opt_l.sys_audit_updated_on,
-    dt.sys_audit_updated_on,
-    num.sys_audit_updated_on,
-    txt.sys_audit_updated_on,
-    msi.sys_audit_updated_on,
-    gp.sys_audit_updated_on,
-    gmv.gmv_max_sys_audit_updated_on
-) AS max_sys_audit_updated_on,
 case
     when a.value_type = 1 and opt_l.metafield_uuid is null then 0
     when a.value_type = 1 and opt_l.metafield_uuid is not null then 1
@@ -139,6 +129,16 @@ case
     when a.value_type = 4 and dt.metafield_uuid is null then 0
     when a.value_type = 4 and dt.metafield_uuid is not null then 1
 end mf_is_assigned,
+MAX(GREATEST(
+    a.sys_audit_updated_on,
+    opt_l.sys_audit_updated_on,
+    dt.sys_audit_updated_on,
+    num.sys_audit_updated_on,
+    txt.sys_audit_updated_on,
+    msi.sys_audit_updated_on,
+    gp.sys_audit_updated_on,
+    gmv.gmv_max_sys_audit_updated_on
+)) AS max_sys_audit_updated_on,
 min(case
     when a.value_type = 1 and date(opt_l.created_at) <> date('1970-01-01') then date(opt_l.created_at)
     when a.value_type = 2 and date(txt.created_at) <> date('1970-01-01') then date(txt.created_at)
@@ -178,7 +178,7 @@ on a.store_id = gmv.store_id
 where 1=1
 and msi.churned_at is null
 and state NOT IN (3,4)
-group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17
+group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16
 UNION
 select
 a.store_id,
@@ -210,16 +210,6 @@ case
     else 0
 end mf_is_active,
 'Products' as domain,
-GREATEST(
-    a.sys_audit_updated_on,
-    opt_l.sys_audit_updated_on,
-    dt.sys_audit_updated_on,
-    num.sys_audit_updated_on,
-    txt.sys_audit_updated_on,
-    msi.sys_audit_updated_on,
-    gp.sys_audit_updated_on,
-    gmv.gmv_max_sys_audit_updated_on
-) AS max_sys_audit_updated_on,
 case
     when a.value_type = 1 and opt_l.metafield_uuid is null then 0
     when a.value_type = 1 and opt_l.metafield_uuid is not null then 1
@@ -230,6 +220,16 @@ case
     when a.value_type = 4 and dt.metafield_uuid is null then 0
     when a.value_type = 4 and dt.metafield_uuid is not null then 1
 end mf_is_assigned,
+MAX(GREATEST(
+    a.sys_audit_updated_on,
+    opt_l.sys_audit_updated_on,
+    dt.sys_audit_updated_on,
+    num.sys_audit_updated_on,
+    txt.sys_audit_updated_on,
+    msi.sys_audit_updated_on,
+    gp.sys_audit_updated_on,
+    gmv.gmv_max_sys_audit_updated_on
+)) AS max_sys_audit_updated_on,
 min(case
     when a.value_type = 1 and date(opt_l.created_at) <> date('1970-01-01') then date(opt_l.created_at)
     when a.value_type = 2 and date(txt.created_at) <> date('1970-01-01') then date(txt.created_at)
@@ -268,7 +268,7 @@ on a.store_id = gmv.store_id
 where 1=1
 and msi.churned_at is null
 and state NOT IN (3,4)
-group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17
+group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16
 UNION
 select
 a.store_id,
@@ -300,16 +300,6 @@ case
     else 0
 end mf_is_active,
 'Categories' as domain,
-GREATEST(
-    a.sys_audit_updated_on,
-    opt_l.sys_audit_updated_on,
-    dt.sys_audit_updated_on,
-    num.sys_audit_updated_on,
-    txt.sys_audit_updated_on,
-    msi.sys_audit_updated_on,
-    gp.sys_audit_updated_on,
-    gmv.gmv_max_sys_audit_updated_on
-) AS max_sys_audit_updated_on,
 case
     when a.value_type = 1 and opt_l.metafield_uuid is null then 0
     when a.value_type = 1 and opt_l.metafield_uuid is not null then 1
@@ -320,6 +310,16 @@ case
     when a.value_type = 4 and dt.metafield_uuid is null then 0
     when a.value_type = 4 and dt.metafield_uuid is not null then 1
 end mf_is_assigned,
+MAX(GREATEST(
+    a.sys_audit_updated_on,
+    opt_l.sys_audit_updated_on,
+    dt.sys_audit_updated_on,
+    num.sys_audit_updated_on,
+    txt.sys_audit_updated_on,
+    msi.sys_audit_updated_on,
+    gp.sys_audit_updated_on,
+    gmv.gmv_max_sys_audit_updated_on
+)) AS max_sys_audit_updated_on,
 min(case
     when a.value_type = 1 and date(opt_l.created_at) <> date('1970-01-01') then date(opt_l.created_at)
     when a.value_type = 2 and date(txt.created_at) <> date('1970-01-01') then date(txt.created_at)
@@ -358,7 +358,7 @@ on a.store_id = gmv.store_id
 where 1=1
 and msi.churned_at is null
 and state NOT IN (3,4)
-group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17
+group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16
 UNION
 select
 a.store_id,
@@ -390,16 +390,6 @@ case
     else 0
 end mf_is_active,
 'Customers' as domain,
-GREATEST(
-    a.sys_audit_updated_on,
-    opt_l.sys_audit_updated_on,
-    dt.sys_audit_updated_on,
-    num.sys_audit_updated_on,
-    txt.sys_audit_updated_on,
-    msi.sys_audit_updated_on,
-    gp.sys_audit_updated_on,
-    gmv.gmv_max_sys_audit_updated_on
-) AS max_sys_audit_updated_on,
 case
     when a.value_type = 1 and opt_l.metafield_uuid is null then 0
     when a.value_type = 1 and opt_l.metafield_uuid is not null then 1
@@ -410,6 +400,16 @@ case
     when a.value_type = 4 and dt.metafield_uuid is null then 0
     when a.value_type = 4 and dt.metafield_uuid is not null then 1
 end mf_is_assigned,
+MAX(GREATEST(
+    a.sys_audit_updated_on,
+    opt_l.sys_audit_updated_on,
+    dt.sys_audit_updated_on,
+    num.sys_audit_updated_on,
+    txt.sys_audit_updated_on,
+    msi.sys_audit_updated_on,
+    gp.sys_audit_updated_on,
+    gmv.gmv_max_sys_audit_updated_on
+)) AS max_sys_audit_updated_on,
 min(case
     when a.value_type = 1 and date(opt_l.created_at) <> date('1970-01-01') then date(opt_l.created_at)
     when a.value_type = 2 and date(txt.created_at) <> date('1970-01-01') then date(txt.created_at)
@@ -448,4 +448,4 @@ on a.store_id = gmv.store_id
 where 1=1
 and msi.churned_at is null
 and state NOT IN (3,4)
-group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17
+group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16

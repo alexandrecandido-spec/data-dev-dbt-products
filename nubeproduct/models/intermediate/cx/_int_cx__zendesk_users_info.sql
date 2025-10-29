@@ -31,6 +31,13 @@ with
         select id as partner_id, email
         from {{ source("int_ecosystem", "mwp_partners") }}
         where email is not null
+    ),
+
+    organizations as (
+        select
+            cast(id as bigint) as organization_id,
+            cast(external_id as bigint) as store_id
+        from {{ source("int_zendesk_support_prod", "organizations") }}
     )
 
 select
@@ -50,7 +57,4 @@ select
 from users u
 left join store_settings ss on u.store_id = ss.store_id
 left join partners p on u.email = p.email
-left join
-    {{ ref("cx__general__zendesk_organization__ref") }} org on u.store_id = org.store_id
-
-
+left join organizations org on u.store_id = org.store_id

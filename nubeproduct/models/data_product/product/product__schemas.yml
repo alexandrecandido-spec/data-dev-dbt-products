@@ -2547,131 +2547,6 @@ models:
         description: "Timestamp when this record was last updated."
       - name: sys_audit_updated_by
         description: "Identifier for the user or system that last updated this record."
-        
-        
-  - name: g__platform__monthly_active_users__agg_monthly
-    description: "This table contains the monthly active users by store and app."
-    config:
-      meta:
-        owner: "fernando.martinez@tiendanube.com"
-        domain: "product"
-        business_owner: "Nicolas Loreti"
-    columns:
-      - name: unique_id
-        description: "Unique identifier for the store and app."
-        tests: 
-          - not_null
-          - unique
-      - name: registered_month
-        description: "Unique identifier for the issue"
-        tests:
-          - not_null
-      - name: store_id
-        description: "Unique identifier for the store"
-        tests:
-          - not_null
-      - name: merchant_name
-        description: "Name of the merchant"
-      - name: country
-        description: "Country of the merchant"
-      - name: mail
-        description: "Email of the merchant"
-      - name: phone
-        description: "Phone of the merchant"
-      - name: store_vertical
-        description: "Vertical of the store"
-      - name: creation_date
-        description: "Date when the store was created."
-      - name: first_payment
-        description: "Date when the store made its first payment."
-      - name: app_id
-        description: "Unique identifier for the app"
-      - name: app_name
-        description: "Name of the app"
-      - name: app_category
-        description: "Category of the app"
-      - name: app_manager
-        description: "Manager of the app"
-      - name: is_app_published
-        description: "Flag indicating if the app is published"
-      - name: app_creation_date
-        description: "Date when the app was created."
-      - name: app_published_date
-        description: "Date when the app was published."
-      - name: app_deleted_date
-        description: "Date when the app was deleted."
-      - name: app_install_date
-        description: "Date when the app was installed."
-      - name: app_uninstall_date
-        description: "Date when the app was uninstalled."
-      - name: has_no_apps
-        description: "Flag indicating if the store has no apps installed."
-      - name: is_app_active
-        description: "Flag indicating if the app is active."
-      - name: is_new_app_install
-        description: "Flag indicating if the app was installed in the current month."
-      - name: is_app_churn
-        description: "Flag indicating if the app was uninstalled in the current month."
-      - name: script_creation_date
-        description: "Date when the script was created."
-      - name: script_deletion_date
-        description: "Date when the script was deleted."
-      - name: is_new_script
-        description: "Flag indicating if the script was installed in the current month."
-      - name: is_churn_script
-        description: "Flag indicating if the script was uninstalled in the current month."
-      - name: is_script_active
-        description: "Flag indicating if the script is active."
-      - name: shipping_carrier_creation_date
-        description: "Date when the shipping carrier was created."
-      - name: shipping_carrier_deletion_date
-        description: "Date when the shipping carrier was deleted."
-      - name: shipping_carrier_status
-        description: "Status of the shipping carrier."
-      - name: is_shipping_carrier_active
-        description: "Flag indicating if the shipping carrier is active."
-      - name: is_new_shipping_carrier_install
-        description: "Flag indicating if the shipping carrier was installed in the current month."
-      - name: is_shipping_carrier_churn
-        description: "Flag indicating if the shipping carrier was uninstalled in the current month."
-      - name: app_total_orders
-        description: "Total number of orders for the app."
-      - name: app_gmv_lc
-        description: "Total GMV in local currency for the app."
-      - name: app_gmv_usd
-        description: "Total GMV in USD for the app."
-      - name: total_orders
-        description: "Total number of orders for the store."
-      - name: total_gmv_local_currency
-        description: "Total GMV in local currency for the store."
-      - name: total_gmv_usd
-        description: "Total GMV in USD for the store."
-      - name: segment
-        description: "Segment of the store."
-      - name: has_orders
-        description: "Flag indicating if the store has orders."
-      - name: is_new_store
-        description: "Flag indicating if the store was created in the current month."
-      - name: is_new_script
-        description: "Flag indicating if the script was created in the current month."
-      - name: is_churn_script
-        description: "Flag indicating if the script was uninstalled in the current month."
-      - name: churned_at
-        description: "Date when the store churned."
-      - name: is_current_active_store
-        description: "Flag indicating if the store is currently active."
-      - name: is_churned_store
-        description: "Flag indicating if the store has churned."
-      - name: is_active_store
-        description: "Flag indicating if the store is active."
-      - name: sys_audit_created_on
-        description: "Timestamp when this record was first created in the DBT model."
-      - name: sys_audit_created_by
-        description: "Identifier for the user or system that created this record."
-      - name: sys_audit_updated_on
-        description: "Timestamp when this record was last updated."
-      - name: sys_audit_updated_by
-        description: "Identifier for the user or system that last updated this record."
   
   
   - name: s__invoicing__invoice_and_request__event
@@ -3028,3 +2903,244 @@ models:
         description: "Timestamp when this record was last updated."
       - name: sys_audit_updated_by
         description: "Identifier for the user or system that last updated this record."
+        
+  - name: g__platform__monthly_active_users__agg_monthly
+    description: "Monthly active users per store and app with store/app and ecosystem metadata."
+    config:
+      meta:
+        owner: "fernando.martinez@tiendanube.com"
+        domain: "product"
+        business_owner: "Nicolas Loreti"
+    columns:
+      - name: unique_id
+        description: "Unique identifier for the store-app-month row."
+        tests: [not_null, unique]
+      - name: registered_month
+        description: "Month of activity."
+        tests: [not_null]
+      - name: store_id
+        description: "Unique identifier for the store."
+      - name: merchant_name
+        description: "Store domain or merchant name."
+      - name: country
+        description: "Store country code."
+      - name: mail
+        description: "Merchant email."
+      - name: phone
+        description: "Merchant phone."
+      - name: store_vertical
+        description: "Store vertical."
+      - name: group_name
+        description: "Store group name."
+      - name: creation_date
+        description: "Store creation date."
+      - name: first_payment
+        description: "Store first payment date."
+      - name: churned_at
+        description: "Store churn date, if any."
+      - name: app_id
+        description: "App identifier."
+      - name: app_name
+        description: "App name."
+      - name: app_category
+        description: "App category."
+      - name: is_app_published
+        description: "Whether the app is published."
+      - name: app_creation_date
+        description: "App creation date."
+      - name: app_published_date
+        description: "App published date."
+      - name: app_deleted_date
+        description: "App deleted date."
+      - name: app_install_date
+        description: "Earliest install date for the app in the store."
+      - name: app_uninstall_date
+        description: "Latest uninstall date for the app in the store."
+      - name: has_no_apps
+        description: "Flag indicating no apps in the store."
+      - name: is_app_active
+        description: "App active flag for the month."
+      - name: is_active_store
+        description: "Store active flag for the month."
+      - name: app_manager
+        description: "Nuvemshop app manager for the specific app"
+      - name: is_new_app_install
+        description: "App was installed in the month."
+      - name: is_app_churn
+        description: "App was uninstalled in the month."
+      - name: script_creation_date
+        description: "Script creation date."
+      - name: script_deletion_date
+        description: "Script deletion date."
+      - name: is_new_script
+        description: "Script created in the month."
+      - name: is_churn_script
+        description: "Script deleted in the month."
+      - name: is_script_active
+        description: "Script active flag for the month."
+      - name: shipping_carrier_creation_date
+        description: "Shipping carrier creation date."
+      - name: shipping_carrier_deletion_date
+        description: "Shipping carrier deletion date."
+      - name: shipping_carrier_status
+        description: "Shipping carrier status."
+      - name: is_new_shipping_carrier_install
+        description: "Shipping carrier installed in the month."
+      - name: is_shipping_carrier_churn
+        description: "Shipping carrier uninstalled in the month."
+      - name: is_shipping_carrier_active
+        description: "Shipping carrier active flag for the month."
+      - name: segment
+        description: "Store segment."
+      - name: is_current_active_store
+        description: "Store is currently active this month."
+      - name: has_orders
+        description: "Store has orders this month."
+      - name: is_new_store
+        description: "Store created this month."
+      - name: is_churned_store
+        description: "Store churned this month."
+      - name: total_orders
+        description: "Total store orders in the month."
+      - name: total_gmv_local_currency
+        description: "Store GMV in local currency in the month."
+      - name: total_gmv_usd
+        description: "Store GMV in USD in the month."
+      - name: app_total_orders
+        description: "App orders in the store in the month."
+      - name: app_gmv_lc
+        description: "App GMV in local currency in the store in the month."
+      - name: app_gmv_usd
+        description: "App GMV in USD in the store in the month."
+      - name: sys_audit_created_on
+        description: "Audit: created timestamp."
+      - name: sys_audit_created_by
+        description: "Audit: created by."
+      - name: sys_audit_updated_on
+        description: "Audit: updated timestamp."
+      - name: sys_audit_updated_by
+        description: "Audit: updated by."
+
+
+  - name: s__general__dealbreakers_valid__event
+    description: >
+      Model representing the consolidated and deduplicated state of dealbreakers,
+      both open and closed, filtering archived records and removing duplicates.
+      It contains business logic to maintain the health of the processes involved.
+      Built from the historical changelog and current HubSpot events.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: 
+            - dealbreaker_id
+            - valid_from
+    config:
+      meta:
+        owner: "matias.scasso@tiendanube.com"
+        domain: "product"
+        business_owner: "Martin Palombo"
+    columns:
+      - name: repo_name
+        description: "Determines if row is related to an Issue or Problem."
+        tests:
+            - not_null
+      - name: issue_number
+        description: "Issue/problem identification number. Must be combined with repo_name to correctly identify the issue/problem."
+        tests:
+            - not_null
+      - name: dealbreaker_source
+        description: "Source of the dealbreaker (e.g., HubSpot)."
+      - name: dealbreaker_id
+        description: "Unique identifier for the dealbreaker."
+        tests:
+            - not_null
+      - name: author
+        description: "Author of the dealbreaker (created/updated user with 'h' prefix for Hubspot users)."
+      - name: is_relevant
+        description: "Boolean indicating whether the record is relevant."
+        tests:
+            - not_null
+      - name: valid_from
+        description: "Date from which the data associated with the record is valid."
+        tests:
+            - not_null
+      - name: store_id
+        description: "ID of the store affected by the dealbreaker."
+        tests:
+            - not_null
+      - name: impact
+        description: "Impact of the comment. It is only included for Mid Market stores."
+      - name: sys_audit_created_on
+        description: "Timestamp when this record was first created in the DBT model."
+        tests:
+            - not_null
+      - name: sys_audit_created_by
+        description: "Identifier of the user or system that created this record."
+        tests:
+            - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when this record was last updated."
+        tests:
+            - not_null
+      - name: sys_audit_updated_by
+        description: "Identifier of the user or system that last updated this record."
+        tests:
+            - not_null
+
+
+  - name: s__general__dealbreakers_comment_like__event
+    description: >
+      Model representing the consolidated and deduplicated state of dealbreakers,
+      both open and closed, filtering archived records and removing duplicates.
+      It contains business logic to maintain the health of the processes involved.
+      This model is similar to the s__general__dealbreakers_valid__event model, but it is formatted to match Github comments.
+    config:
+      meta:
+        owner: "matias.scasso@tiendanube.com"
+        domain: "product"
+        business_owner: "Martin Palombo"
+    columns:
+      - name: repo_name
+        description: "Determines if row is related to an Issue or Problem."
+        tests:
+            - not_null
+      - name: issue_number
+        description: "Issue/problem identification number. Must be combined with repo_name to correctly identify the issue/problem."
+        tests:
+            - not_null
+      - name: comment_id
+        description: "Unique key created from the combination of the dealbreaker_id and the valid_from date."
+        tests:
+            - not_null
+            - unique
+      - name: author
+        description: "Author of the dealbreaker (created/updated user with 'h' prefix for Hubspot users)."
+      - name: is_relevant
+        description: "Boolean indicating whether the record is relevant."
+        tests:
+            - not_null
+      - name: comment_date
+        description: "Date from which the data associated with the record is valid."
+        tests:
+            - not_null
+      - name: store_id
+        description: "ID of the store affected by the dealbreaker."
+        tests:
+            - not_null
+      - name: impact
+        description: "Impact of the comment. It is only included for Mid Market stores."
+      - name: sys_audit_created_on
+        description: "Timestamp when this record was first created in the DBT model."
+        tests:
+            - not_null
+      - name: sys_audit_created_by
+        description: "Identifier of the user or system that created this record."
+        tests:
+            - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when this record was last updated."
+        tests:
+            - not_null
+      - name: sys_audit_updated_by
+        description: "Identifier of the user or system that last updated this record."
+        tests:
+            - not_nul
