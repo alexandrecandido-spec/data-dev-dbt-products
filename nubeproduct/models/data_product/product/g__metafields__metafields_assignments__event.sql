@@ -3,7 +3,7 @@
         materialized='incremental',
         incremental_strategy='merge',
         partition_by=['year_month_code'],
-        unique_key=['assignment_id'],
+        unique_key=['store_id','uuid','assignment_id'],
         on_schema_change='fail',
         tags=["daily-9am"]
     )
@@ -29,7 +29,6 @@ SELECT
     assignment_id,
     assignment_date,
     owner_id,
-    q_of_assignments,
     'data-dev-dbt-products' AS sys_audit_created_by,
     current_timestamp AS sys_audit_updated_on,
     'data-dev-dbt-products' AS sys_audit_updated_by

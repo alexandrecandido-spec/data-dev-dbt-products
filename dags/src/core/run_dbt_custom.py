@@ -55,12 +55,16 @@ def create_dbt_dag(
     """Continuar sumando condiciones de acuerdo a los schedules/tags"""
     if schedule_interval_tag == 'daily-2am':
         schedule_interval='0 2 * * *'
+    elif schedule_interval_tag == 'daily-3am':
+        schedule_interval='0 3 * * *'
     elif schedule_interval_tag == 'daily-4am':
         schedule_interval='0 4 * * *'
     elif schedule_interval_tag == 'daily-4_30am':
         schedule_interval = '30 4 * * *'
     elif schedule_interval_tag == 'daily-6am':
         schedule_interval='0 6 * * *'
+    elif schedule_interval_tag == 'daily-7am':
+        schedule_interval='0 7 * * *'
     elif schedule_interval_tag == 'daily-10am':
         schedule_interval='0 10 * * *'
     elif schedule_interval_tag == 'daily-8am':

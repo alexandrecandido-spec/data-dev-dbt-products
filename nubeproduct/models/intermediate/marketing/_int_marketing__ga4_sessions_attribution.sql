@@ -1,18 +1,16 @@
 WITH base AS (
     SELECT
         agg.*,
-
-        /* Normalizaciones (coinciden con Stores donde aplica) */
+        agg.row_hash AS dp_row_hash,  
         LOWER(REGEXP_REPLACE(agg.landing_page_domain, '^(?:https?://)?(?:www\\.)?', '')) AS domain_clean,
         LOWER(COALESCE(agg.landing_page_path, ''))                                       AS path_clean,
         LOWER(COALESCE(agg.landing_page, ''))                                            AS landing_page_lc,
         LOWER(COALESCE(agg.env, ''))                                                     AS env_lc,
 
-        /* GA4: (none)/(not set) -> '' */
         CASE WHEN LOWER(COALESCE(agg.last_source,''))   IN ('(none)','(not set)') THEN '' ELSE LOWER(COALESCE(agg.last_source,''))   END AS last_source_lc,
         CASE WHEN LOWER(COALESCE(agg.last_medium,''))   IN ('(none)','(not set)') THEN '' ELSE LOWER(COALESCE(agg.last_medium,''))   END AS last_medium_lc,
         CASE WHEN LOWER(COALESCE(agg.last_campaign,'')) IN ('(none)','(not set)') THEN '' ELSE LOWER(COALESCE(agg.last_campaign,'')) END AS last_campaign_lc
-    FROM {{ ref('marketing_ga4_sessions_aggregated') }} agg
+    FROM {{ ref('g__acquisition__ga4_sessions__agg_daily') }} agg
 ),
 
 /* partner_code desde /partners/<code>… */
@@ -94,7 +92,7 @@ subcam_enriched AS (
     ) sc ON TRUE
 ),
 
-/* Referrer (tag/fallback como en Stores) */
+/* Referrer (fallback) */
 referrer_enriched AS (
     SELECT
         s.*,
@@ -106,14 +104,13 @@ referrer_enriched AS (
     LEFT JOIN LATERAL (
         SELECT referrer, team, subteam, sys_audit_updated_on
         FROM {{ ref('marketing_inputs_attribution__referrer') }} r
-        /* en GA4 no hay referrer_domain/path estándar → matcheamos contra URL completa */
         WHERE POSITION(r.referrer IN s.path_clean) > 0
            OR POSITION(r.referrer IN s.landing_page_lc) > 0
         LIMIT 1
     ) r ON TRUE
 ),
 
-/* Partner exception + affiliate classification por partner_code (como Stores) */
+/* Partner exception + affiliate classification por partner_code */
 partners_enriched AS (
     SELECT
         r.*,
@@ -137,7 +134,7 @@ content_type_enriched AS (
     FROM partners_enriched p
 ),
 
-/* Type of page (mantener) */
+/* Type of page */
 page_type_enriched AS (
     SELECT
         s.*,
@@ -148,7 +145,7 @@ page_type_enriched AS (
     FROM content_type_enriched s
 ),
 
-/* Insti pages (mantener) */
+/* Insti pages */
 insti_pages_enriched AS (
     SELECT
         s.*,
@@ -169,7 +166,7 @@ insti_pages_enriched AS (
                       )
                       OR REGEXP_LIKE(
                            s.path_clean,
-                           '^/(site|loja-virtual|compare|plano-gratis|planos-e-precos|planes-y-precios|compara|tienda-gratis|vender/online|crear-mi-tienda-online|login|recuperar-contrasena|nuvem-envio|nuvem-pago|nuvem-pay|solucoes|soluciones|next|ecossistema|parceiros|ecosistema|socios|asociados|loja-layouts-nuvem|tienda-disenos-nube|funcionalidades|eventos|dropshipping|especialistas-nube|evolucion|vender)(/|$)'
+                           '^/(site|loja-virtual|compare|plano-gratis|planos-e-precos|planes-y-precios|compara|tienda-gratis|vender/online|vender|crear-mi-tienda-online|login|recuperar-contrasena|nuvem-envio|nuvem-pago|nuvem-pay|solucoes|soluciones|next|ecossistema|parceiros|ecosistema|socios|asociados|loja-layouts-nuvem|tienda-disenos-nube|funcionalidades|eventos|dropshipping|especialistas-nube|evolucion)(/|$)'
                          )
                     )
                )
@@ -197,7 +194,7 @@ owner_enriched AS (
     FROM insti_pages_enriched s
 ),
 
-/* === Paso 1: SOLO mkt_source (idéntico a Stores) === */
+/* === Paso 1: mkt_source (idéntico a Stores) === */
 classified_source AS (
   SELECT
     s.*,
@@ -255,13 +252,12 @@ classified_source AS (
   FROM owner_enriched s
 ),
 
-/* === Paso 2: mkt_subteam (fallback = mkt_source, precedencia Stores) === */
+/* === Paso 2: mkt_subteam (fallback = mkt_source) === */
 classified_final AS (
   SELECT
     cs.*,
     COALESCE(
       CASE
-        /* PERFORMANCE */
         WHEN cs.mkt_source IN ('Performance Brand','Performance No Brand') THEN
           CASE
             WHEN cs.source_mkt = 'Performance'
@@ -283,7 +279,6 @@ classified_final AS (
             ELSE 'Performance No Brand'
           END
 
-        /* PRODUCT MARKETING */
         WHEN cs.mkt_source = 'Product Marketing' THEN
           CASE
             WHEN cs.utm_campaign_cam IS NOT NULL
@@ -294,7 +289,6 @@ classified_final AS (
             ELSE 'Product Marketing'
           END
 
-        /* AI (ChatGPT) + opcional Gemini via referrer_kw si existe en inputs) */
         WHEN cs.mkt_source = 'Organic' AND (
                (cs.last_source_lc = 'chatgpt.com' AND (cs.last_medium_lc = '' OR cs.last_medium_lc IS NULL))
                OR POSITION('chatgpt' IN cs.last_source_lc) > 0
@@ -302,11 +296,9 @@ classified_final AS (
              )
         THEN 'AI'
 
-        /* Affiliates con tipificación */
         WHEN cs.mkt_source = 'Affiliates'
         THEN COALESCE(cs.affiliate_type, 'Affiliates')
 
-        /* Owners/referrer/partner SOLO si coincide el owner con mkt_source */
         WHEN cs.mkt_source = cs.subteam_team
              AND cs.subteam_cam IS NOT NULL
              AND cs.utm_campaign_cam IS NOT NULL
@@ -318,12 +310,8 @@ classified_final AS (
         WHEN cs.mkt_source = cs.referrer_team AND cs.referrer_subteam IS NOT NULL THEN cs.referrer_subteam
         WHEN cs.mkt_source = cs.partner_team  AND cs.partner_subteam  IS NOT NULL THEN cs.partner_subteam
 
-        /* SIN UTM source_mkt → igual que Stores: cae en mkt_source */
         WHEN cs.source_mkt IS NULL THEN cs.mkt_source
-
-        /* Con utm_subteam explícito → úsalo */
         WHEN cs.utm_subteam IS NOT NULL THEN cs.utm_subteam
-
         ELSE cs.mkt_source
       END,
       cs.mkt_source
@@ -331,7 +319,7 @@ classified_final AS (
   FROM classified_source cs
 ),
 
-/* insti_page_groups + organic_results (mantener) */
+/* insti_page_groups + organic_results */
 insti_groups AS (
     SELECT
       s.*,
@@ -353,7 +341,7 @@ insti_groups AS (
                     )
                     OR REGEXP_LIKE(
                          s.path_clean,
-                         '^/(site|loja-virtual|compare|plano-gratis|planos-e-precos|planes-y-precios|compara|tienda-gratis|vender/online|vender|crear-mi-tienda-online|login|recuperar-contrasena|nuvem-envio|nuvem-pago|nuvem-pay|solucoes|soluciones|next|ecossistema|parceiros|ecosistema|socios|asociados|loja-layouts-nuvem|tienda-disenos-nube|funcionalidades|eventos|dropshipping|especialistas-nube|evolucion)(/|$)'
+                         '^/(site|loja-virtual|compare|plano-gratis|planos-e-precos|planes-y-precios|compara|tienda-gratis|planos-e-precos|planes-y-precios|crear-mi-tienda-online|login|recuperar-contrasena|nuvem-envio|nuvem-pago|nuvem-pay|solucoes|soluciones|next|ecossistema|parceiros|ecosistema|socios|asociados|loja-layouts-nuvem|tienda-disenos-nube|funcionalidades|eventos|dropshipping|especialistas-nube|evolucion|vender)(/|$)'
                        )
                   )
              )
@@ -388,17 +376,16 @@ insti_groups AS (
               OR POSITION('/tienda-aplicaciones-nube' IN s.path_clean) > 0 THEN 'Apps'
             WHEN POSITION('/canais' IN s.path_clean) > 0 OR POSITION('/canales' IN s.path_clean) > 0
               OR POSITION('/empreendedores' IN s.path_clean) > 0 OR POSITION('/emprendedores' IN s.path_clean) > 0 THEN 'Canais'
-            WHEN POSITION('/midia/companhia' IN s.path_clean) > 0
-              OR POSITION('/midia/equipe' IN s.path_clean) > 0
-              OR POSITION('/midia/imprensa' IN s.path_clean) > 0
-              OR POSITION('/midia/nuvem-na-midia/nuvem-shop-lanca-primeiro-aplicativo-mcommerce-brasil' IN s.path_clean) > 0 THEN 'Companhia'
+            WHEN POSITION('/midia' IN s.path_clean) > 0
+              OR POSITION('/imprensa' IN s.path_clean) > 0
+              OR POSITION('/companhia' IN s.path_clean) > 0
+              OR POSITION('/equipe' IN s.path_clean) > 0 THEN 'Companhia'
             WHEN POSITION('/dropshipping' IN s.path_clean) > 0 THEN 'Dropshipping'
             WHEN POSITION('/eventos' IN s.path_clean) > 0 THEN 'Eventos'
             WHEN POSITION('/funcionalidades' IN s.path_clean) > 0 THEN 'Funcionalidades'
-            WHEN POSITION('/loja-layouts-nuvem' IN s.path_clean) > 0
+            WHEN POSITION('/loja-virtual' IN s.path_clean) > 0
               OR POSITION('/tienda-disenos-nube' IN s.path_clean) > 0 THEN 'Layouts'
             WHEN POSITION('/login' IN s.path_clean) > 0 OR POSITION('/recuperar-contrasena' IN s.path_clean) > 0 THEN 'Login'
-            WHEN POSITION('/loja-virtual' IN s.path_clean) > 0 THEN 'Loja Virtual'
             WHEN POSITION('/monte-sua-loja-virtual' IN s.path_clean) > 0 THEN 'Monte sua loja'
             WHEN POSITION('/next' IN s.path_clean) > 0 THEN 'Next'
             WHEN POSITION('/ecossistema' IN s.path_clean) > 0 OR POSITION('/parceiros' IN s.path_clean) > 0
@@ -413,10 +400,6 @@ insti_groups AS (
             WHEN POSITION('/nuvem-envio' IN s.path_clean) > 0 OR POSITION('/nuvem-pago' IN s.path_clean) > 0
               OR POSITION('/nuvem-pay' IN s.path_clean) > 0 OR POSITION('/solucoes' IN s.path_clean) > 0
               OR POSITION('/soluciones' IN s.path_clean) > 0 THEN 'Produto'
-            WHEN POSITION('/termos' IN s.path_clean) > 0
-              OR POSITION('/politica-de-privacidade' IN s.path_clean) > 0
-              OR POSITION('/politica-de-cookies' IN s.path_clean) > 0
-              OR POSITION('/regulamento-lojas-nuvem' IN s.path_clean) > 0 THEN 'Termos'
             WHEN POSITION('/crear-mi-tienda-online' IN s.path_clean) > 0 THEN 'Crear tienda'
             WHEN POSITION('/especialistas-nube' IN s.path_clean) > 0 THEN 'Especialistas'
             WHEN POSITION('/evolucion' IN s.path_clean) > 0 THEN 'Evolución'
@@ -430,7 +413,7 @@ insti_groups AS (
     FROM classified_final s
 ),
 
-/* Tags y change_timestamp_incremental (para incrementalidad en DP) */
+/* Tags y change_timestamp_incremental (para DP) */
 inputs_and_audit AS (
     SELECT
       g.*,
@@ -456,9 +439,28 @@ inputs_and_audit AS (
         COALESCE(g.affiliate_class_sys_audit_updated_on,   TIMESTAMP '1900-01-01')
       ) AS change_timestamp_incremental
     FROM insti_groups g
+),
+
+/* DEDUP INTRA-INTERMEDIO por dp_row_hash → 1 fila */
+int_dedup AS (
+  SELECT *
+  FROM (
+    SELECT
+      ia.*,
+      ROW_NUMBER() OVER (
+        PARTITION BY ia.dp_row_hash
+        ORDER BY
+          ia.change_timestamp_incremental DESC,
+          ia.date DESC
+      ) AS rn
+    FROM inputs_and_audit ia
+  ) z
+  WHERE rn = 1
 )
 
-SELECT *
-FROM inputs_and_audit
+SELECT
+  --  TODO lo que necesita el DP + dp_row_hash
+  int_dedup.*
+FROM int_dedup
 
 

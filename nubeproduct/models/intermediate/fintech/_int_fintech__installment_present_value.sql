@@ -18,6 +18,6 @@ SELECT
        INSTALLMENT_DATA.discount_pre_payment,
        INSTALLMENT_DATA.installment_interest_amount - INSTALLMENT_DATA.discount_pre_payment AS installment_accumulated_amount,
        INSTALLMENT_DATA.installment_updated_amount
-  FROM {{ ref('credito_dev__mova_installment_present_value') }} AS INSTALLMENT_DATA
+  FROM {{ ref('fintech__lending__installment_present_value__snapshot_daily') }} AS INSTALLMENT_DATA
   LEFT JOIN {{ ref('fintech_contracts') }} AS CONTRACTS
          ON INSTALLMENT_DATA.hub_contract_id = CONTRACTS.hub_contract_id
