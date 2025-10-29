@@ -13,6 +13,10 @@ WITH store_preferences AS (
         CAST(created_at AS timestamp) AS created_at,
         CAST(domain_mapping_id AS string) AS domain_mapping_id,
         CAST(store_id AS string) AS store_id,
+        LOWER(TRIM(REGEXP_REPLACE(TRANSLATE(sp.free_text, 'áàâãäéèêëíìîïóòôõöúùûüç', 'aaaaaeeeeiiiiooooouuuuc'),'[^a-z ]','')
+  )
+) AS free_text,
+
         LOWER(TRIM(TRANSLATE(free_text, 'áàâãäéèêëíìîïóòôõöúùûüç', 'aaaaaeeeeiiiiooooouuuuc'))) AS free_text
     FROM {{ source('stg_onboarding', 'store_preferences') }} 
 
