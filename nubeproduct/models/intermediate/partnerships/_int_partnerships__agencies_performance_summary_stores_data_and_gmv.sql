@@ -58,11 +58,27 @@ agencies_stores AS -- Create a table with the stores depending on partners
         partner_created_at,
         partner_country_code,
         DS.snapshot_date
-    FROM {{ ref('s__general__partners_stores__ref')}}
+    FROM 
+        (
+            SELECT 
+                PSR.store_id,
+                PSR.created_at,
+                PSR.first_payment_flg,
+                PSR.first_seller_at,
+                PSR.first_payment,
+                PSR.churned_at,
+                PSR.partner_id,
+                PIR.partner_code,
+                PIR.partner_created_at,
+                PIR.partner_country_code
+            FROM  {{ ref('s__general__partners_stores__ref')}} AS PSR
+            LEFT JOIN {{ ref('s__general__partners_info__ref') }} AS PIR
+                ON PSR.partner_id = PIR.partner_id
+            WHERE partnership_type = 'store_development'
+                AND acquired_by = 'Partner'
+        )
     CROSS JOIN date_spine AS DS
-    WHERE partnership_type = 'store_development'
-        AND acquired_by = 'Partner'
-        AND DATE(created_at) <= DS.snapshot_date
+    WHERE DATE(created_at) <= DS.snapshot_date
 ),
 contracts AS    -- Create a table with the historicalcontracts for each store
 (
