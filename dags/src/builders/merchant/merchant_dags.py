@@ -20,7 +20,15 @@ default_args = {
 
 }
 
-# Crear el DAG frecuencia diaria
+# Crear el DAG frecuencia diaria 6am
+dag = create_dbt_dag(
+    dag_id='dbt_merchant_daily-6am',
+    schedule_interval_tag='daily-6am',
+    default_args=default_args,
+    tags=['merchant','daily-6am']
+)
+
+# Crear el DAG frecuencia diaria 8am
 dag = create_dbt_dag(
     dag_id='dbt_merchant_daily-8am',
     schedule_interval_tag='daily-8am',
@@ -28,7 +36,7 @@ dag = create_dbt_dag(
     tags=['merchant','daily-8am-8pm']
 )
 
-# Crear el DAG frecuencia diaria
+# Crear el DAG frecuencia diaria 8pm
 dag = create_dbt_dag(
     dag_id='dbt_merchant_daily-8pm',
     schedule_interval_tag='daily-8pm',

@@ -17,6 +17,7 @@ select
     plan,
     has_nuvempago,
     has_pagonube,
+    pn_np_orders_since_rollout,
     has_configed_feature,
     first_config_at,
     overall_active,

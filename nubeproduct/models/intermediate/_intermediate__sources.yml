@@ -240,6 +240,7 @@ sources:
     tables:
       - name: companies
         description: "Hubspot companies information."
+      - name: deals_archived
 
   - name: int_nuvem_envio_conciliation
     database: hive_metastore

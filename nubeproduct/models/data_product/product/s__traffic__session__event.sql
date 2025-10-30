@@ -17,7 +17,7 @@ WHERE
    {% if not is_incremental() %}
    base_date BETWEEN DATE('2024-01-01') AND DATE('2024-01-05')
    {% else %}
-   base_date {{ get_max_date(this, 'base_date', 1, 'month') }}
+   base_date {{ get_max_date(this, 'base_date', 2, 'week') }}
    {% endif %}
 )
 
@@ -30,7 +30,7 @@ WHERE
    {% if not is_incremental() %}
    base_date BETWEEN DATE('2024-01-01') AND DATE('2024-01-05')
    {% else %}
-   base_date {{ get_max_date(this, 'base_date', 1, 'month') }}
+   base_date {{ get_max_date(this, 'base_date', 2, 'week') }}
    {% endif %}
 )
 
@@ -43,7 +43,7 @@ WHERE
    {% if not is_incremental() %}
    base_date BETWEEN DATE('2024-01-01') AND DATE('2024-01-05')
    {% else %}
-   base_date {{ get_max_date(this, 'base_date', 1, 'month') }}
+   base_date {{ get_max_date(this, 'base_date', 2, 'week') }}
    {% endif %}
 )
 
@@ -86,42 +86,56 @@ LEFT JOIN
    AND swd.base_date = suc.base_date
 )
 
+, deduped_sessions AS (
+SELECT
+    *
+FROM (
+    SELECT
+        *
+        , ROW_NUMBER() OVER (PARTITION BY unique_session_key ORDER BY session_timestamp ASC) AS row_num
+    FROM raw_sessions
+) sub
+WHERE row_num = 1
+)
+
 , existing_data AS (
-   {{ get_existing_data(this, ['unique_session_key', 'sys_audit_created_on', 'sys_audit_created_by'])}}
+    {{ get_existing_data(this, ['unique_session_key'])}}
 )
 
 SELECT
-   raw_sessions.unique_session_key
-   , raw_sessions.session_timestamp
-   , raw_sessions.base_date
-   , raw_sessions.session_id
-   , raw_sessions.consumer_id
-   , raw_sessions.store_id
-   , raw_sessions.visitor_country
-   , raw_sessions.device
-   , raw_sessions.theme
-   , raw_sessions.user_agent
-   , raw_sessions.ip_address
-   , raw_sessions.utm_source
-   , raw_sessions.utm_medium
-   , raw_sessions.utm_campaign
-   , raw_sessions.utm_term
-   , raw_sessions.utm_content
-   , raw_sessions.landing_page
-   , raw_sessions.http_referral
-   , raw_sessions.ref_domain
-   , raw_sessions.land_domain
-   , raw_sessions.source_name
-   , raw_sessions.source_group
-   , raw_sessions.google_subchannel
-   , raw_sessions.traffic_type
-   , raw_sessions.is_end_user
-   , COALESCE(existing_data.sys_audit_created_on, CURRENT_TIMESTAMP) AS sys_audit_created_on
-   , COALESCE(existing_data.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by
-   , CURRENT_TIMESTAMP AS sys_audit_updated_on
-   , 'data-dev-dbt-products' AS sys_audit_updated_by
+   dds.unique_session_key
+   , dds.session_timestamp
+   , dds.base_date
+   , dds.session_id
+   , dds.consumer_id
+   , dds.store_id
+   , dds.visitor_country
+   , dds.device
+   , dds.theme
+   , dds.user_agent
+   , dds.ip_address
+   , dds.utm_source
+   , dds.utm_medium
+   , dds.utm_campaign
+   , dds.utm_term
+   , dds.utm_content
+   , dds.landing_page
+   , dds.http_referral
+   , dds.ref_domain
+   , dds.land_domain
+   , dds.source_name
+   , dds.source_group
+   , dds.google_subchannel
+   , dds.traffic_type
+   , dds.is_end_user
+    , CURRENT_TIMESTAMP AS sys_audit_created_on
+    , 'data-dev-dbt-products' AS sys_audit_created_by
+    , CURRENT_TIMESTAMP AS sys_audit_updated_on
+    , 'data-dev-dbt-products' AS sys_audit_updated_by
 FROM
-   raw_sessions
+   deduped_sessions AS dds
 LEFT JOIN
    existing_data
-   ON raw_sessions.unique_session_key = existing_data.unique_session_key
+   ON dds.unique_session_key = existing_data.unique_session_key
+WHERE
+    existing_data.unique_session_key IS NULL

@@ -604,4 +604,206 @@ models:
       - name: sys_audit_updated_by
         description: Source or user responsible for the latest update.
 
-  
+  - name: g__operations__orders_gmv_store__agg_daily
+    config:
+      meta:
+        owner: "gustavo.braga@nuvemshop.com.br"
+        domain: "operations"
+        business_owner: "Nico Loreti"
+    description: Contains daily GMV and order metrics by store, both on and off platform, as well as breakdowns by storefront type.
+    columns:
+      - name: store_id
+        description: Unique identifier of the store. External key.
+        tests:
+          - not_null
+      - name: country
+        description: Country of the store.
+        tests:
+          - not_null
+      - name: domain
+        description: Domain of the store. Can be null for stores without custom domains.
+      - name: vertical
+        description: Vertical of the store.
+      - name: province
+        description: Province or state where the store is located.
+      - name: city
+        description: City where the store is located.
+      - name: region
+        description: Geographic region where the store is located.
+      - name: business_size
+        description: Business size classification of the store.
+      - name: segment
+        description: Seller segment classification of the store.
+      - name: nice_9_name
+        description: Nice name identifier for the store.
+      - name: plan_group
+        description: Plan group associated with the store.
+      - name: bu
+        description: Business unit associated with the store.
+      - name: date
+        description: Date of the order metrics. Partition dimension.
+        tests:
+          - not_null
+      - name: year_month_day_code
+        description: YYYYMMDD code used for partitioning the data. Partition Key.
+        tests:
+          - not_null
+      - name: mes
+        description: Month identifier for the order metrics.
+      - name: platform_type
+        description: Whether the order was placed on or off platform.
+      - name: storefront
+        description: Storefront type from which the order originated (mobile, store, form, social, pos, api, others).
+      - name: device
+        description: Device type used for the order.
+      - name: payment_provider
+        description: Payment provider used for the order.
+      - name: payment_method
+        description: Payment method used for the order.
+      - name: shipping_method
+        description: Shipping method selected for the order.
+      - name: shipping_province
+        description: Province or region to which the order was shipped.
+      - name: gateway_installments
+        description: Number of installments used in the payment.
+      - name: order_source
+        description: Source of the order.
+      - name: social_network
+        description: Social network from which the order originated.
+      - name: source_details
+        description: Additional details about the order source.
+      - name: source_type
+        description: Type of source for the order.
+      - name: gmv
+        description: Gross Merchandise Value in local currency for the day.
+      - name: gmv_usd
+        description: Gross Merchandise Value converted to USD for the day.
+      - name: orders
+        description: Total number of orders for the day.
+        tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              row_condition: "orders IS NOT NULL"
+      - name: orders_free_shipping
+        description: Number of orders with free shipping for the day.
+      - name: products
+        description: Total number of products sold for the day.
+        tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              row_condition: "products IS NOT NULL"
+      - name: row_key
+        description: Unique hash key generated from all dimension columns. Primary key for incremental updates.
+        tests:
+          - not_null
+          - unique
+      - name: sys_audit_created_on
+        description: Timestamp when the row was initially created in the summary table.
+      - name: sys_audit_created_by
+        description: Source or user responsible for the initial row creation.
+      - name: sys_audit_updated_on
+        description: Timestamp of the latest update to the row.
+      - name: sys_audit_updated_by
+        description: Source or user responsible for the latest update.
+
+  - name: g__operations__orders_gmv__agg_daily
+    config:
+      meta:
+        owner: "gustavo.braga@nuvemshop.com.br"
+        domain: "operations"
+        business_owner: "Nico Loreti"
+    description: Contains daily GMV and order metrics by country, both on and off platform, as well as breakdowns by storefront type.
+    columns:
+      - name: country
+        description: Country of the store.
+        tests:
+          - not_null
+      - name: vertical
+        description: Vertical of the store.
+      - name: province
+        description: Province or state where the store is located.
+      - name: city
+        description: City where the store is located.
+      - name: region
+        description: Geographic region where the store is located.
+      - name: business_size
+        description: Business size classification of the store.
+      - name: segment
+        description: Seller segment classification of the store.
+      - name: nice_9_name
+        description: Nice name identifier for the store.
+      - name: plan_group
+        description: Plan group associated with the store.
+      - name: bu
+        description: Business unit associated with the store.
+      - name: date
+        description: Date of the order metrics. Partition dimension.
+        tests:
+          - not_null
+      - name: year_month_day_code
+        description: YYYYMMDD code used for partitioning the data. Partition Key.
+        tests:
+          - not_null
+      - name: mes
+        description: Month identifier for the order metrics.
+      - name: platform_type
+        description: Whether the order was placed on or off platform.
+      - name: storefront
+        description: Storefront type from which the order originated (mobile, store, form, social, pos, api, others).
+      - name: device
+        description: Device type used for the order.
+      - name: payment_provider
+        description: Payment provider used for the order.
+      - name: payment_method
+        description: Payment method used for the order.
+      - name: shipping_method
+        description: Shipping method selected for the order.
+      - name: shipping_province
+        description: Province or region to which the order was shipped.
+      - name: gateway_installments
+        description: Number of installments used in the payment.
+      - name: order_source
+        description: Source of the order.
+      - name: social_network
+        description: Social network from which the order originated.
+      - name: source_details
+        description: Additional details about the order source.
+      - name: source_type
+        description: Type of source for the order.
+      - name: gmv
+        description: Gross Merchandise Value in local currency for the day.
+      - name: gmv_usd
+        description: Gross Merchandise Value converted to USD for the day.
+      - name: orders
+        description: Total number of orders for the day.
+        tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              row_condition: "orders IS NOT NULL"
+      - name: orders_free_shipping
+        description: Number of orders with free shipping for the day.
+      - name: products
+        description: Total number of products sold for the day.
+        tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              row_condition: "products IS NOT NULL"
+      - name: stores
+        description: Total number of stores with orders for the day.
+        tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              row_condition: "stores IS NOT NULL"
+      - name: row_key
+        description: Unique hash key generated from all dimension columns. Primary key for incremental updates.
+        tests:
+          - not_null
+          - unique
+      - name: sys_audit_created_on
+        description: Timestamp when the row was initially created in the summary table.
+      - name: sys_audit_created_by
+        description: Source or user responsible for the initial row creation.
+      - name: sys_audit_updated_on
+        description: Timestamp of the latest update to the row.
+      - name: sys_audit_updated_by
+        description: Source or user responsible for the latest update.

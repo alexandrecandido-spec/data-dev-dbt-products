@@ -1,0 +1,13 @@
+version: 2
+
+
+sources:
+  - name: int_zendesk_support_prod
+    database: raw
+    schema: zendesk_support_prod
+    description: "Intermediate tables built from raw data in the zendesk_support_prod schema, typically used to normalize or enrich support(CX) team information."
+    tables:
+      - name: groups
+        description: "Contains information about the users groups of support(CX)"
+      - name: organizations
+        description: "Zendesk organizations with id and external_id (maps to store_id)"
