@@ -21,7 +21,7 @@ base AS (
     flg_ne_selected,
     delivery_status,
     country
-  FROM hive_metastore.data_logistics.logistics_gsv__orders
+  FROM {{ ref('logistics_gsv__orders') }}
 )
 
 -- DAILY
