@@ -897,7 +897,7 @@ models:
           - dbt_expectations.expect_column_values_to_be_between:
               min_value: 1
 
-  - name: product_orders_saved_searches
+  - name: g__orders__merchant_saved_search_usage__event
     description:  This data product contains information on usage of the saved searches feature within the orders admin. Each row will have information of a specific saved search with data on what filters are included in the saved search, if that saved search is custom or not, the order in which the merchant has position that saved search, if it is hidden or not, etc. If a saved search is modified, this table will only store the latest version of the saved search. Additionally, if a saved search is deleted, this table will not store that saved search anymore.
     config:
       meta:
@@ -992,8 +992,16 @@ models:
         description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
       - name: saved_search_stock_issues
         description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
+      - name: sys_audit_created_on
+        description: "the date when the record was created"
+      - name: sys_audit_updated_on
+        description: "the date when the record was updated"
+      - name: sys_audit_created_by
+        description: "the user who created the record"
+      - name: sys_audit_updated_by
+        description: "the user who updated the record"
 
-  - name: product_orders_saved_searches_enablement
+  - name: g__orders__merchant_saved_search_enablement__event
     description:  This data product contains information on the enablement of the saved searches feature within the orders admin. Each row will have information of a specific store with data on if the saved searches feature is available for that store, when it was enabled for that store, etc.
     config:
       meta:
@@ -1023,13 +1031,28 @@ models:
         description: the date when the merchant churned
       - name: plan_name
         description: the group name of the merchant's plan (using operations__grouping_plans data product) 
-      - name: created_at
+      - name: merchant_created_at
         description: the date when the merchant was created
       - name: has_saved_searches_available
-        description: 1 if the merchant has the saved searches feature available, 0 otherwise (based on tags)
+        description: 1 if the merchant has the saved searches feature available, 0 otherwise (based on tags before sunset date)
       - name: saved_searches_available_at
-        description: the date when the saved searches feature was made available to the merchant (tag was added)
-
+        description: the date when the saved searches feature was made available to the merchant (tag was added or date of rollout)
+      - name: saved_searches_first_use
+        description: the date when the merchant first used the saved searches feature
+      - name: saved_searches_last_use
+        description: the date when the merchant last used the saved searches feature
+      - name: saved_searches_count
+        description: the total non default saved searches the merchant has active currently
+      - name: saved_searches_user
+        description: 1 if the merchant has used the saved searches feature, 0 otherwise
+      - name: sys_audit_created_on
+        description: the date when the record was created
+      - name: sys_audit_updated_on
+        description: the date when the record was updated
+      - name: sys_audit_created_by
+        description: the user who created the record
+      - name: sys_audit_updated_by
+        description: the user who updated the record
 
   - name: product_issues_and_problems_comments
     description: >
@@ -1078,14 +1101,6 @@ models:
         description: "Comment date in YYYYMMDD format (integer)."
         tests:
           - not_null
-      - name: saved_searches_first_use
-        description: the date when the merchant first used the saved searches feature
-      - name: saved_searches_last_use
-        description: the date when the merchant last used the saved searches feature
-      - name: saved_searches_count
-        description: the total non default saved searches the merchant has active currently
-      - name: saved_searches_user
-        description: 1 if the merchant has used the saved searches feature, 0 otherwise
 
   - name: product_nuvemchat_stores
     description: >
