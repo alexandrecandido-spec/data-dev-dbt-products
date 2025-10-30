@@ -283,5 +283,3 @@ sources:
         description: "Table with each stock transfer process created by merchants. Including information regarding the distribution center, the type of transfer, status etc."
       - name: mwp_stock_transfer_detail
         description: "Table with details regarding each stock transfer. Contains each product id and variant id that is required to be transferred and the quantities finally transferred"
-
-
