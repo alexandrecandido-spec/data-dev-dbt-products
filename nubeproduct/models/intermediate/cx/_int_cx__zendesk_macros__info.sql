@@ -5,9 +5,7 @@ WITH actions AS (
     MAX(CASE WHEN field = 'comment_value_html' THEN value END) AS comment_value_html,
     MAX(CASE WHEN field = 'current_tags' THEN value END) AS current_tags,
     MAX(CASE WHEN field = 'status' THEN value END) AS status,
-    MAX(CASE WHEN field = 'type' THEN value END) AS restriction_type,
-    MAX(CASE WHEN field = 'id' THEN value END) AS restriction_id,
-    MAX(CASE WHEN field = 'ids' THEN value END) AS restriction_ids
+    MAX(CASE WHEN field IN('side_conversation', 'side_conversation_slack', 'side_conversation_ticket') THEN TRUE ELSE FALSE END) AS side_conversation_flg,
   FROM
     (
       SELECT
@@ -20,7 +18,16 @@ WITH actions AS (
         FROM_JSON(actions, 'array<struct<field:string,value:string>>')
       ) ex AS pos, item
     )
-  WHERE field IN('comment_mode_is_public','comment_value_html','current_tags','status')
+  WHERE field IN
+    (
+      'comment_mode_is_public',
+      'comment_value_html',
+      'current_tags',
+      'status',
+      'side_conversation',
+      'side_conversation_slack',
+      'side_conversation_ticket'
+    )
   GROUP BY id
 ),
 restrictions AS 
@@ -44,6 +51,7 @@ SELECT
   created_at AS macro_created_at,
   updated_at AS macro_updated_at,
   description AS macro_description,
+  a.side_conversation_flg,
   CAST(COALESCE(a.comment_mode_is_public, 'false') AS BOOLEAN) AS comment_mode_is_public,
   a.comment_value_html,
   a.current_tags,

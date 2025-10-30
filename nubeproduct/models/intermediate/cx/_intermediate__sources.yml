@@ -11,3 +11,5 @@ sources:
         description: "Contains information about the users groups of support(CX)"
       - name: organizations
         description: "Zendesk organizations with id and external_id (maps to store_id)"
+      - name: macros
+        description: "Contains information about the macros of support(CX)"

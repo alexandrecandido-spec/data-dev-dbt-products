@@ -142,3 +142,5 @@ models:
         description: Timestamp when the row was last updated.
       - name: sys_audit_updated_by
         description: System or user that last updated the row.
+      - name: side_conversation_flg
+        description: Flag indicating if the macro is for a side conversation.

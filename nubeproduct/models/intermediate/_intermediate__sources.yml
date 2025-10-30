@@ -283,13 +283,3 @@ sources:
         description: "Table with each stock transfer process created by merchants. Including information regarding the distribution center, the type of transfer, status etc."
       - name: mwp_stock_transfer_detail
         description: "Table with details regarding each stock transfer. Contains each product id and variant id that is required to be transferred and the quantities finally transferred"
-
-  - name: int_zendesk_support_prod
-    database: raw
-    schema: zendesk_support_prod
-    description: "Intermediate tables built from raw data in the zendesk_support_prod schema, typically used to normalize or enrich support(CX) team information."
-    tables:
-      - name: groups
-        description: "Contains information about the users groups of support(CX)"
-      - name: macros
-        description: "Contains information about the macros of support(CX)"

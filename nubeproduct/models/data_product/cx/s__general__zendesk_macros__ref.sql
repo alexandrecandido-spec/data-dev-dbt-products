@@ -22,6 +22,7 @@ SELECT
     M.comment_value_html,
     M.current_tags,
     M.status,
+    M.side_conversation_flg,
     M.restriction_type,
     M.restriction_id,
     M.restriction_ids,
