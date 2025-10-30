@@ -58,7 +58,7 @@ cmmi.vertical_name,
 mo.payment_status,
 mo.gateway,
 mo.gateway_method,
-mo.gateway_method_integration_type,
+mo.gateway_integration_type,
 mo.storefront,
 mo.device_type,
 case when si.custom_theme is not null then 'Open FTP' else 'Closed FTP' end as FTP,
@@ -73,4 +73,4 @@ left join {{ ref('merchant__attributes__store_info__ref') }} si on ccfe.store_id
 left join {{ ref('midmarket_weekly_business_review') }}  wbr on ccfe.store_id = wbr.store_id and ccfe.base_date between wbr.date_from and wbr.date_to
     and playbook not in ('Out of portfolio', 'Effective churn')
 where base_date> DATE('2025-08-01')
-group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32--,33,34,35,36,37,38,39,40,41
+group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33--,34,35,36,37,38,39,40,41
