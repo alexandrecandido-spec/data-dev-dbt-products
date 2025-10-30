@@ -5,7 +5,7 @@ WITH actions AS (
     MAX(CASE WHEN field = 'comment_value_html' THEN value END) AS comment_value_html,
     MAX(CASE WHEN field = 'current_tags' THEN value END) AS current_tags,
     MAX(CASE WHEN field = 'status' THEN value END) AS status,
-    MAX(CASE WHEN field IN('side_conversation', 'side_conversation_slack', 'side_conversation_ticket') THEN TRUE ELSE FALSE END) AS side_conversation_flg,
+    MAX(CASE WHEN field IN('side_conversation', 'side_conversation_slack', 'side_conversation_ticket') THEN TRUE ELSE FALSE END) AS side_conversation_flg
   FROM
     (
       SELECT
