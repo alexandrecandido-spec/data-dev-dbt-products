@@ -221,6 +221,11 @@ models:
 
   - name: g__operations__funnel_merchants__agg_daily
     description: "Merchant-level funnel tracking for Nuvem Envio adoption and engagement."
+    config:
+      meta:
+        owner: "gustavo.oliveira@nuvemshop.com.br"
+        domain: "logistics"
+        business_owner: "Simone Harnik"
     columns:
       - name: granularity
         description: Defines the aggregation level of the metric (day, week, or month).
@@ -267,6 +272,11 @@ models:
 
   - name: g__operations__funnel_orders__agg_daily
     description: "Order-level funnel analysis for tracking operational funnel conversion."
+    config:
+      meta:
+        owner: "gustavo.oliveira@nuvemshop.com.br"
+        domain: "logistics"
+        business_owner: "Simone Harnik"
     columns:
       - name: tier
         description: Funnel stage name representing each step in the order journey.
