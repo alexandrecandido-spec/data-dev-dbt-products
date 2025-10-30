@@ -56,7 +56,7 @@ sum(mo.total) as total,
 sum(mo.total_in_usd) as total_in_usd
 FROM {{ ref('s__traffic__cart_checkout_funnel__event') }} ccfe
 left join {{ ref('company_metrics_merchant_info') }} cmmi on ccfe.store_id = cmmi.store_id
-left join {{ ref('product__mwp_options') }} mop on ccfe.store_id = mop.store_id and mop.option_name = 'twig_template'
+left join {{ ref('product__general__store_options__event') }} mop on ccfe.store_id = mop.store_id and mop.option_name = 'twig_template'
 left join {{ ref('orders__mwp_orders') }} mo on ccfe.cart_id = mo.id and mo.created_at>=date('2025-01-01')
 left join {{ ref('merchant__attributes__store_info__ref') }} si on ccfe.store_id = si.store_id
 left join {{ ref('midmarket_weekly_business_review') }}  wbr on ccfe.store_id = wbr.store_id and ccfe.base_date between wbr.date_from and wbr.date_to
