@@ -75,6 +75,8 @@ sources:
     tables:
       - name: active_merchants
         description: "List of currently active merchants, based on plan subscriptions and payment activity."
+      - name: churns_merchants
+        description: "List of churns merchants."
 
   - name: int_third_party
     database: hive_metastore
