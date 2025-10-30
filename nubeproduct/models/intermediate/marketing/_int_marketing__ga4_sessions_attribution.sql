@@ -10,7 +10,7 @@ WITH base AS (
         CASE WHEN LOWER(COALESCE(agg.last_source,''))   IN ('(none)','(not set)') THEN '' ELSE LOWER(COALESCE(agg.last_source,''))   END AS last_source_lc,
         CASE WHEN LOWER(COALESCE(agg.last_medium,''))   IN ('(none)','(not set)') THEN '' ELSE LOWER(COALESCE(agg.last_medium,''))   END AS last_medium_lc,
         CASE WHEN LOWER(COALESCE(agg.last_campaign,'')) IN ('(none)','(not set)') THEN '' ELSE LOWER(COALESCE(agg.last_campaign,'')) END AS last_campaign_lc
-    FROM {{ ref('marketing_ga4_sessions_aggregated') }} agg
+    FROM {{ ref('g__acquisition__ga4_sessions__agg_daily') }} agg
 ),
 
 /* partner_code desde /partners/<code>… */
