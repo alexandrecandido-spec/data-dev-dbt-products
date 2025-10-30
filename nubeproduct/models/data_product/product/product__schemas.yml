@@ -1547,6 +1547,20 @@ models:
         description: "Timestamp when the order was fulfilled (using order logging data)"
       - name: order_delivered_at
         description: "Timestamp when the order was delivered (using order logging data)"
+      - name: completed_to_paid_time
+        description: "Time from order completion to order payment"
+      - name: paid_to_unfulfilled_time
+        description: "Time from order payment to order unfulfillment"
+      - name: completed_to_unfulfilled_time
+        description: "Time from order completion to order unfulfillment"
+      - name: completed_to_fulfilled_time
+        description: "Time from order completion to order fulfillment"
+      - name: unfulfilled_to_fulfilled_time
+        description: "Time from order unfulfillment to order fulfillment"
+      - name: fulfilled_to_delivered_time
+        description: "Time from order fulfillment to order delivery"
+      - name: completed_to_delivered_time
+        description: "Time from order completion to order delivery"
       - name: payment_status
         description: "Payment status of the order"
       - name: fulfillment_status
