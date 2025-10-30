@@ -25,7 +25,7 @@ updated_at,
 app_id,
 order_date_store_id,
 year_month_day_code
-from {{ ref('product__mwp_orders_logging') }}
+from {{ ref('product__orders__order_logging__event') }}
 
     {% if is_incremental() %}
 
