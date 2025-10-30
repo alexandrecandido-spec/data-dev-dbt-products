@@ -30,7 +30,7 @@ models:
         description: Source or user responsible for the latest update.
 
 
-  - name: midmarket_grouping_interactions
+  - name: g__success__interactions__agg_snapshot_weekly_monthly
     config:
       meta:
         owner: "guillermo.defelice@tiendanube.com"
@@ -525,6 +525,12 @@ models:
         description: Number of tasks completed during the week.
       - name: whatsapp
         description: Number of WhatsApp messages sent during the week.
+      - name: next_meeting
+        description: Date of the next scheduled meeting with the store.
+      - name: vertical
+        description: Merchant vertical/category classification.
+      - name: previous_gmv_local_currency
+        description: Gross Merchandise Value in local currency from the previous week for comparison purposes.
       - name: contract_end_date
         description: End date of the store's contract.
       - name: periodicity
@@ -638,6 +644,12 @@ models:
         description: Number of tasks completed during the month.
       - name: whatsapp
         description: Number of WhatsApp messages sent during the month.
+      - name: next_meeting
+        description: Date of the next scheduled meeting with the store.
+      - name: vertical
+        description: Merchant vertical/category classification.
+      - name: previous_gmv_local_currency
+        description: Gross Merchandise Value in local currency from the previous month for comparison purposes.
       - name: contract_end_date
         description: End date of the store's contract.
       - name: periodicity
