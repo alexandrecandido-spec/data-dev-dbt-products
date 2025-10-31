@@ -13,14 +13,14 @@ WITH existing_data AS (
 SELECT DISTINCT 
     md5(concat_ws(
         '-',
-        coalesce(P.partner_code, ''),
-        coalesce(GA4.event_date, ''),
-        coalesce(GA4.event_source, ''),
+        coalesce(cast(P.partner_code as string), ''),
+        coalesce(cast(GA4.event_date as string), ''),
+        coalesce(cast(GA4.event_source as string), ''),
         coalesce(GA4.country, ''),
-        coalesce(GA4.source, ''),
-        coalesce(GA4.event_medium, ''),
-        coalesce(GA4.event_campaign, ''),
-        coalesce(GA4.landing_page, ''),
+        coalesce(cast(GA4.source as string), ''),
+        coalesce(cast(GA4.event_medium as string), ''),
+        coalesce(cast(GA4.event_campaign as string), ''),
+        coalesce(cast(GA4.landing_page as string), ''),
         coalesce(GA4.page, '')
     )) as partner_event_hash_key,
 
