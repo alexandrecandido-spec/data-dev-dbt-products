@@ -2,6 +2,16 @@
 with
     active as (select store_id from {{ ref("hubspot_active_stores") }}),
 
+scs_priority AS   
+(
+select 
+  s.store_id,
+  TRIM(regexp_replace(success_priority, '^[^a-zA-Z0-9]*', '')) AS success_priority
+from {{ source('int_third_party', 'midmarket_hubspot_deals') }} d
+inner join {{ ref('midmarket_success_stores') }} s
+  on d.deal_id = s.deal_id
+where s.in_portfolio = true
+),
     base as (
         select
             merchant.store_id,
@@ -10,8 +20,10 @@ with
             merchant.first_payment,
             merchant.country_id,
             merchant.group_id,
-            merchant.current_segment_id
+            merchant.current_segment_id,
+            sp.success_priority
         from {{ ref("dim_merchant_info") }} merchant
+        left join scs_priority sp on sp.store_id = merchant.store_id
     ),
 
     country as (select country_id, country_code from {{ ref("dim_location_country") }}),
@@ -88,7 +100,8 @@ select
     -- segment name
     case
         when s.segment_name = 'Not Informed' then null else s.segment_name
-    end as status_by_orders
+    end as status_by_orders,
+    b.success_priority
 from active a
 left join base b on b.store_id = a.store_id
 left join country c on c.country_id = b.country_id

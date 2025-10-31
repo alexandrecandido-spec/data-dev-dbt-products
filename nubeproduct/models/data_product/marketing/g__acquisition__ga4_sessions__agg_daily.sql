@@ -1,4 +1,4 @@
--- depends_on: {{ ref('marketing_ga4_sessions_classified') }}
+-- depends_on: {{ ref('s__acquisition__ga4_sessions_by_country__event') }}
 
 {{ 
   config(
@@ -44,7 +44,7 @@ prepared AS (
   SELECT
       cls.*,
       CASE WHEN engage = 1 THEN 'Engaged' ELSE 'Bounced' END AS session_status
-  FROM {{ ref('marketing_ga4_sessions_classified') }} cls
+  FROM {{ ref('s__acquisition__ga4_sessions_by_country__event') }} cls
   CROSS JOIN baseline b
   {% if is_incremental() %}
   -- hoy + 5 previos => 6 días
