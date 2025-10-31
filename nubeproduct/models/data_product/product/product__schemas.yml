@@ -1482,6 +1482,16 @@ models:
         description: 1 if the merchant has NuvemPago, 0 otherwise (based on if the merchant has nuvem-pago as a payment in at least one order in the past 12 months)
       - name: has_pagonube
         description: 1 if the merchant has Pagonube, 0 otherwise (based on if the merchant has pago-nube as a payment in at least one order in the past 12 months)
+      - name: total_orders_last_365d
+        description: the total number of orders the merchant has made in the past 12 months
+      - name: total_np_orders_last_365d
+        description: the total number of orders the merchant has made with NuvemPago in the past 12 months
+      - name: total_pn_orders_last_365d
+        description: the total number of orders the merchant has made with Pagonube in the past 12 months
+      - name: total_np_orders_since_rollout
+        description: the total number of orders the merchant has made with NuvemPago since the rollout of auto cancel (September 15, 2025)
+      - name: total_pn_orders_since_rollout
+        description: the total number of orders the merchant has made with Pagonube since the rollout of auto cancel (September 15, 2025)
       - name: pn_np_orders_since_rollout
         description: 1 if the merchant has made at least one order with NuvemPago or Pagonube since the rollout of auto cancel (September 15, 2025)
       - name: has_configed_feature
