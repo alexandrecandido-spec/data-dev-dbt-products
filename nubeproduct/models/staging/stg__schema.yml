@@ -3332,8 +3332,27 @@ models:
         description: "Unique identifier of the HubSpot deal"
         tests:
           - not_null
+      - name: createdate
+        description: "Date when the deal was created in HubSpot"
       - name: dealname
         description: "Name of the deal in HubSpot"
+      - name: pipeline
+        description: "HubSpot pipeline name (e.g., 'Sales | AR', 'Onboarding | BR', 'Success | MX')"
+        tests:
+          - accepted_values:
+              values: 
+                - 'Sales | AR'
+                - 'Sales | BR'
+                - 'Sales | MX'
+                - 'Upsell Success | AR'
+                - 'Upsell Success | BR'
+                - 'Upsell Success | MX'
+                - 'Onboarding | AR'
+                - 'Onboarding | BR'
+                - 'Onboarding | MX'
+                - 'Success | AR'
+                - 'Success | BR'
+                - 'Success | MX'
       - name: country
         description: "Country code (AR, BR, MX) extracted from the pipeline name"
         tests:

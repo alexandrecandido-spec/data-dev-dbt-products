@@ -53,7 +53,7 @@ with
                 and cast(date_trunc('month', mbr.date_from) as date) = cast(date_trunc('month', gmv.datemonth) as date)
             left join {{ ref('company_metrics_merchant_info') }} as mi
                 on mbr.store_id = mi.store_id
-            /*left join {{ ref('_int_midmarket_closing_pack_franchise_group_tiers')}} as tiers
+            /*left join _int_midmarket_closing_pack_franchise_group_tiers as tiers
                 on mbr.store_id = tiers.store_id
                 and cast(date_trunc('month', mbr.date_from) as date) = tiers.datemonth*/
             left join success_acquisition_channels as sac
@@ -93,7 +93,7 @@ with
             and cast(date_trunc('month', mbr.date_from) as date) = cast(date_trunc('month', gmv.datemonth) as date)
             left join {{ ref('company_metrics_merchant_info') }} as mi
             on mbr.store_id = mi.store_id
-            /*left join {{ ref('_int_midmarket_closing_pack_franchise_group_tiers')}} as tiers
+            /*left join _int_midmarket_closing_pack_franchise_group_tiers as tiers
             on mbr.store_id = tiers.store_id
             and cast(date_trunc('month', mbr.date_from) as date) = tiers.datemonth*/
             left join success_acquisition_channels as sac
@@ -133,7 +133,7 @@ with
                 and cast(date_trunc('month', mbr.date_from) as date) = cast(date_trunc('month', gmv.datemonth) as date)
             left join {{ ref('company_metrics_merchant_info') }} as mi
                 on mbr.store_id = mi.store_id
-            /*left join {{ ref('_int_midmarket_closing_pack_franchise_group_tiers')}} as tiers
+            /*left join _int_midmarket_closing_pack_franchise_group_tiers as tiers
             on mbr.store_id = tiers.store_id
             and cast(date_trunc('month', mbr.date_from) as date) = tiers.datemonth*/
             left join success_acquisition_channels as sac
@@ -173,7 +173,7 @@ with
                 and d.out_of_portfolio_month = mbr.date_from
             left join {{ ref('company_metrics_merchant_info') }} as mi
                 on d.store_id = mi.store_id
-            /*left join {{ ref('_int_midmarket_closing_pack_individual_tiers')}} as tiers
+            /*left join _int_midmarket_closing_pack_individual_tiers as tiers
                 on d.store_id = tiers.store_id
                 and d.out_of_portfolio_month = tiers.datemonth*/
             left join {{ ref('company_metrics_gmv_and_segments') }} as gmv
@@ -219,7 +219,7 @@ with
                 and c.churn_month = mbr.date_from
             left join {{ ref('company_metrics_merchant_info') }} as mi
                 on c.store_id = mi.store_id
-            /*left join {{ ref('_int_midmarket_closing_pack_individual_tiers')}} as tiers
+            /*left join _int_midmarket_closing_pack_individual_tiers as tiers
                 on c.store_id = tiers.store_id
                 and c.churn_month = tiers.datemonth*/
             left join {{ ref('company_metrics_gmv_and_segments' )}} as gmv

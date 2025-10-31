@@ -45,7 +45,7 @@ with
             o.cpt,
             o.potential_gross_profit_perc
     	from {{ ref('midmarket__general__closing_pack_hubspot_deals') }} as o
-            /*left join {{ ref('midmarket_monthly_currency_values')}} as fc
+            /*left join midmarket_monthly_currency_values as fc
                 on o.country = fc.country
                 and o.sales_close_month = fc.period_date*/
     		left join {{ ref('company_metrics_merchant_info') }} as mi
@@ -102,7 +102,7 @@ with
             o.cpt,
             o.potential_gross_profit_perc
     	from {{ ref('midmarket__general__closing_pack_hubspot_deals') }} as o
-            /*left join {{ ref('midmarket_monthly_currency_values')}} as fc
+            /*left join midmarket_monthly_currency_values as fc
                 on o.country = fc.country
                 and o.sales_close_month = fc.period_date*/
     		left join {{ ref('company_metrics_merchant_info') }} as mi
@@ -159,7 +159,7 @@ with
             o.cpt,
             o.potential_gross_profit_perc
     	from {{ ref('midmarket__general__closing_pack_hubspot_deals') }} as o
-            /*left join {{ ref('midmarket_monthly_currency_values')}} as fc
+            /*left join midmarket_monthly_currency_values as fc
                 on o.country = fc.country
                 and o.sales_close_month = fc.period_date*/
 			left join {{ ref('company_metrics_merchant_info') }} as mi
