@@ -2322,6 +2322,8 @@ models:
         domain: "Marketing"
         business_owner: "Giselle Galli"
     columns:
+      - name: year_month_day_code
+        description: "Reference year and month. Also the field used to partition the table."
       - name: date
         description: "Date of the Search Console metric."
         tests:
@@ -2388,6 +2390,8 @@ models:
         domain: "Marketing"
         business_owner: "Giselle Galli"
     columns:
+      - name: year_month_day_code
+        description: "Reference year and month. Also the field used to partition the table."
       - name: date
         description: "Date of the Search Console metric."
         tests:
