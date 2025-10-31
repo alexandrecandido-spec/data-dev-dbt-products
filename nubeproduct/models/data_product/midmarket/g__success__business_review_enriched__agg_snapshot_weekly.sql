@@ -2,9 +2,7 @@
 
 {{
     config(
-        materialized='incremental',
-        unique_key=['date_from', 'store_id'],
-        incremental_strategy='append',
+        materialized='table', 
         on_schema_change='fail',
         tags=['weekly-monday-1030am']
     )
@@ -13,6 +11,7 @@
 SELECT 
     wbr.*,
     si.domain as store_name,
+    mi.vertical_name as vertical,
     CAST(si.churned_at AS DATE) as churned_at, 
     CAST(si.first_payment AS DATE) as first_payment,
     gp.lead_source,
@@ -23,6 +22,10 @@ SELECT
     gp.createdate,
     gmv.snapshot_orders_on_platform_weekly as orders,
     gmv.snapshot_gmv_local_currency_on_platform_weekly as gmv_local_currency,
+    LAG(gmv.snapshot_gmv_local_currency_on_platform_weekly, 1) OVER (
+        PARTITION BY wbr.store_id 
+        ORDER BY wbr.date_from
+    ) as previous_gmv_local_currency,
     gmv.snapshot_gmv_usd_on_platform_weekly as gmv_usd,
     t.gmv_local_currency_on_platform_90d as gmv_local_currency_90d,
     t.gmv_usd_on_platform_90d as gmv_usd_90d,
@@ -34,6 +37,7 @@ SELECT
     i.meetings,
     i.tasks,
     i.whatsapp,
+    nm.next_meeting,
     c.contract_end_date,
     'weekly' as periodicity
 
@@ -53,18 +57,13 @@ FROM
         on wbr.store_id = s.store_id
         and wbr.date_from = s.date_from
         and s.periodicity = 'weekly'
-    LEFT JOIN {{ ref('midmarket_grouping_interactions') }} i
+    LEFT JOIN {{ ref('g__success__interactions__agg_snapshot_weekly_monthly') }} i
         on wbr.store_id = i.store_id
         and wbr.date_from = i.date_from
         and i.periodicity = 'weekly'
     LEFT JOIN {{ ref('_int_midmarket_wbr_mbr__companies') }} c
         on wbr.store_id = c.store_id
-
-{% if is_incremental() %}
-WHERE
-    wbr.date_from > (
-        SELECT max(date_from) 
-        FROM {{ this }} 
-        )
-{% endif %}
-
+    LEFT JOIN {{ ref('company_metrics_merchant_info') }} mi
+        on wbr.store_id = mi.store_id
+    LEFT JOIN {{ ref('_int_midmarket_wbr_mbr__next_meeting') }} nm
+        on wbr.store_id = nm.store_id

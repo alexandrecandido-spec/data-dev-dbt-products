@@ -40,6 +40,13 @@ o.gateway,
 apps.handle as gateway_handle,
 o.status,
 o.total_in_usd,
+datediff(SECOND,completed_at,paid_at) as completed_to_paid_time,
+datediff(SECOND,paid_at,unfulfilled_at) as paid_to_unfulfilled_time,
+datediff(SECOND,completed_at,unfulfilled_at) as completed_to_unfulfilled_time,
+datediff(SECOND,completed_at,fulfilled_at) as completed_to_fulfilled_time,
+datediff(SECOND,unfulfilled_at,fulfilled_at) as unfulfilled_to_fulfilled_time,
+datediff(SECOND,fulfilled_at,delivered_at) as fulfilled_to_delivered_time,
+datediff(SECOND,completed_at,delivered_at) as completed_to_delivered_time,
 date(o.completed_at) order_completed_at,
 date(o.cancelled_at) as order_cancelled_at,
 date(t.paid_at) as order_paid_at,
@@ -94,8 +101,9 @@ else case when total_ffoo=store_pickup then 'pickup order'
 else case when total_ffoo=shipping and total_ffoo=1 then 'shipping order'
 else case when total_ffoo=shipping and total_ffoo>1 then 'multiple shipping order'
 else case when total_ffoo=location_pickup then 'location_pickup_order'
+else case when total_ffoo=0 then 'no ffoo'
 else 'combined order'
-end end end end end as order_type,
+end end end end end end as order_type,
 total_ffoo,
 has_ready_for_pickup_ffoo,
 GREATEST(
