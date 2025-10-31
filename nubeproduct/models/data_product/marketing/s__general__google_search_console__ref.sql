@@ -4,7 +4,7 @@
   partition_by='year_month_day_code',
   unique_key=['full_url', 'date', 'search_type', 'country_name', 'device'],
   on_schema_change='fail',
-  tags=['daily-9am', 'marketing']
+  tags=['marketing']
 ) }}
 
 WITH union_gsc_results AS (
