@@ -3,7 +3,7 @@
   incremental_strategy='merge',
   unique_key='partner_event_hash_key',
   on_schema_change='fail',
-  tags=['daily-8am','marketing']
+  tags=['daily-9am','marketing']
 ) }}
 
 WITH existing_data AS (
