@@ -10,4 +10,4 @@ SELECT
     SC.partner_id
 FROM {{ ref('s__lifecycle__store_status__ref') }} AS SS
 LEFT JOIN {{ ref('s__attributes__store_core__ref') }} AS SC ON SS.store_id = SC.store_id
-WHERE SS.state != 4 AND SC.partnership_type = 'affiliate'
+WHERE SC.partnership_type = 'affiliate'
