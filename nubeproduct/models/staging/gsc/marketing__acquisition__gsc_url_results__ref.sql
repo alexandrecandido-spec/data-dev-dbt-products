@@ -4,7 +4,7 @@
   unique_key=['date','full_url','path','search_type','country_name','device'],
   partition_by='year_month_day_code',
   on_schema_change='fail',
-  tags=['daily-8am', 'marketing']
+  tags=['marketing']
 ) }}
 
 WITH source AS (

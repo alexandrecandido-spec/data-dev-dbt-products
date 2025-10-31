@@ -2314,7 +2314,7 @@ models:
         description: "Reference year and month. Also the field used to partition the table."
 
 
-  - name: gsc__url_results
+  - name: marketing__acquisition__gsc_url_results__ref
     description: "Staging model with Google Search Console URL results by date, URL, search type, country and device."
     config:
       meta:
@@ -2380,7 +2380,7 @@ models:
           - not_null
 
 
-  - name: gsc__url_unsplit_results
+  - name: marketing__acquisition__gsc_url_unsplit_results__ref
     description: "Staging model with Google Search Console URL unsplit results by date, URL, search type, country and device."
     config:
       meta:
