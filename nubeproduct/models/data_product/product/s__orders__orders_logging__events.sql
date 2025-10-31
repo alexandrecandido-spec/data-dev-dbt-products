@@ -22,9 +22,7 @@ extra,
 happened_at,
 created_at,
 updated_at,
-app_id,
-order_date_store_id,
-year_month_day_code
+app_id
 from {{ ref('product__orders__order_logging__event') }}
 
     {% if is_incremental() %}
@@ -55,8 +53,6 @@ select
     created_at,
     updated_at,
     app_id,
-    order_date_store_id,
-    year_month_day_code,
     COALESCE(e.sys_audit_created_on, current_timestamp) AS sys_audit_created_on,
     COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by,
     current_timestamp AS sys_audit_updated_on,

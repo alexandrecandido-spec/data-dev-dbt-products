@@ -1482,6 +1482,16 @@ models:
         description: 1 if the merchant has NuvemPago, 0 otherwise (based on if the merchant has nuvem-pago as a payment in at least one order in the past 12 months)
       - name: has_pagonube
         description: 1 if the merchant has Pagonube, 0 otherwise (based on if the merchant has pago-nube as a payment in at least one order in the past 12 months)
+      - name: total_orders_last_365d
+        description: the total number of orders the merchant has made in the past 12 months
+      - name: total_np_orders_last_365d
+        description: the total number of orders the merchant has made with NuvemPago in the past 12 months
+      - name: total_pn_orders_last_365d
+        description: the total number of orders the merchant has made with Pagonube in the past 12 months
+      - name: total_np_orders_since_rollout
+        description: the total number of orders the merchant has made with NuvemPago since the rollout of auto cancel (September 15, 2025)
+      - name: total_pn_orders_since_rollout
+        description: the total number of orders the merchant has made with Pagonube since the rollout of auto cancel (September 15, 2025)
       - name: pn_np_orders_since_rollout
         description: 1 if the merchant has made at least one order with NuvemPago or Pagonube since the rollout of auto cancel (September 15, 2025)
       - name: has_configed_feature
@@ -1813,7 +1823,8 @@ models:
     description: >
       Silver model that consolidates user sessions enriched with traffic source and traffic type classification.
       It integrates standardized UTM parameters, normalized referrer and landing domains, and end-user identification.
-      This model serves as the canonical source of truth for traffic analysis, attribution modeling, and acquisition performance tracking.
+      This model serves as the canonical source of truth for traffic analysis, 
+      attribution modeling, and acquisition performance tracking.
       Full documentation available at:
       https://www.notion.so/Silver-s__traffic__session__event-25685d24ee8f80829dc0d9d32975df3c
     config:
@@ -3176,6 +3187,7 @@ models:
         tests:
             - not_nul
 
+
   - name: g__checkout__funnel__agg_daily
     description: >
       Model that aggregates every dimanesion on the silver model s__traffic__cart_checkout_funnel__event
@@ -3247,3 +3259,71 @@ models:
         description: Payment method provider registered in mwp_orders.
       - name: gateway_method
         description: Payment method type registered in mwp_orders.
+
+
+  - name: s__traffic__cart_session__link
+    description: >
+      Silver table that links each `cart_id` to its first known session, based on the product_cart_add event 
+      and its `unique_session_key`. The model retrieves sessions up to 10 days before the cart creation event, 
+      and includes traffic origin attributes such as `source_name`, `traffic_type`, UTM information, and normalized domains.
+      Full documentation available at:
+      https://www.notion.so/Silver-s__traffic__cart_session__link-29c85d24ee8f802bb1a9c43b7ef83b81
+    config:
+      meta:
+        owner: "barbara.marques@nuvemshop.com.br"
+        domain: "product"
+        business_owner: "Tomas Musich"
+    columns:
+      - name: cart_id
+        description: "Primary identifier of the cart and primary key of the table."
+        tests:
+          - unique
+          - not_null
+      - name: event_timestamp
+        description: "Timestamp when the cart_product_add event occurred, used to determine proximity to session."
+        tests:
+          - not_null
+      - name: event_base_date
+        description: "Partition date for the model, derived from the event_timestamp."
+        tests:
+          - not_null
+      - name: unique_session_key
+        description: "Deterministic technical key for each session, used to link a session to a cart_id."
+        tests:
+          - not_null
+      - name: session_timestamp
+        description: "Timestamp of the first session matched to the cart via unique_session_key."
+      - name: session_base_date
+        description: "Base date of the matched session."
+      - name: visitor_country
+        description: "Country of the visitor as reported in the session."
+      - name: ref_domain
+        description: "Normalized domain extracted from the referrer URL of the matched session."
+      - name: land_domain
+        description: "Normalized domain extracted from the landing page URL of the matched session."
+      - name: source_name
+        description: "Classified traffic source for the session (e.g., Google, Meta, Direct)."
+      - name: source_group
+        description: "Grouped source channel (e.g., Meta, Alphabet, AI Sources)."
+      - name: google_subchannel
+        description: "Google subchannel, if available (e.g., Shopping, Search)."
+      - name: traffic_type
+        description: "Indicates whether the session came from paid or organic traffic."
+      - name: is_end_user
+        description: "Boolean flag indicating whether the session is likely from a real end-user."
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created in this model."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "System or user that created the row in this model."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this model."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row in this model."
+        tests:
+          - not_null
