@@ -1,39 +1,45 @@
 -- Define a lista de todas as colunas de métricas para a macro
 {% set metric_cols = [
-    'trials', 'new_payments', 'new_sellers', 'current_churn_stores', 
+    'trials', 'new_payments', 'payments', 'new_sellers', 'current_churn_stores', 
     'first_churn_30d', 'first_churn_60d', 'first_churn_90d', 'first_churn_post_90d', 
     'total_gmv', 'total_orders', 'gmv_30d', 'orders_30d', 'gmv_90d', 'orders_90d'
 ] %}
 
 WITH base AS (
 
-    -- 📍 Trials
-    {{ generate_metric_union('_int__affiliates_trials', 'trials', metric_cols) }}
+    -- 📍 Trials and Payments
+    {{ generate_metric_union('_int__affiliates_metrics_created_at', 'trials', metric_cols) }}
 
     UNION ALL
 
-    -- 💰 Pagamentos
+    -- 📍 New Payments
+    {{ generate_metric_union('_int__affiliates_metrics_created_at', 'payments', metric_cols) }}
+
+    UNION ALL
+
+    -- 💰 New Payments
     {{ generate_metric_union('_int__affiliates_new_payments', 'new_payments', metric_cols) }}
 
     UNION ALL
 
-    -- 🛍️ Sellers
+    -- 🛍️ New Sellers
     {{ generate_metric_union('_int__affiliates_new_sellers', 'new_sellers', metric_cols) }}
 
     UNION ALL
 
-    -- ❌ Churn atual
+    -- ❌ Current Churned
     {{ generate_metric_union('_int__affiliates_current_churned', 'current_churn_stores', metric_cols) }}
 
     UNION ALL
 
-    -- 📉 Primeiro churn
+    -- 📉 First Churn
     SELECT
         partner_id,
         country_code,
         date,
         0 AS trials,
         0 AS new_payments,
+        0 AS payments,
         0 AS new_sellers,
         0 AS current_churn_stores,
         first_churn_30d,
@@ -50,13 +56,14 @@ WITH base AS (
 
     UNION ALL
 
-    -- 💵 GMV
+    -- 💵 GMV and Orders
     SELECT
         partner_id,
         country_code,
         date,
         0 AS trials,
         0 AS new_payments,
+        0 AS payments,
         0 AS new_sellers,
         0 AS current_churn_stores,
         0 AS first_churn_30d,
@@ -73,7 +80,7 @@ WITH base AS (
 )
 
 -- =====================================================
--- 🎯 Agregação final (por partner, país e data)
+-- 🎯 Final Aggregation (by partner, country and date)
 -- =====================================================
 
 SELECT
@@ -81,19 +88,20 @@ SELECT
     country_code,
     date,
 
-    -- 🧮 Métricas principais
+    -- 🧮 Main Metrics
     SUM(trials) AS trials,
     SUM(new_payments) AS new_payments,
+    SUM(payments) AS payments,
     SUM(new_sellers) AS new_sellers,
     SUM(current_churn_stores) AS current_churn_stores,
 
-    -- 📉 Churn flags
+    -- 📉 First Churns
     SUM(first_churn_30d) AS first_churn_30d,
     SUM(first_churn_60d) AS first_churn_60d,
     SUM(first_churn_90d) AS first_churn_90d,
     SUM(first_churn_post_90d) AS first_churn_post_90d,
 
-    -- 💵 GMV e Orders
+    -- 💵 GMV and Orders
     ROUND(SUM(total_gmv), 2) AS total_gmv,
     ROUND(SUM(total_orders), 2) AS total_orders,
     ROUND(SUM(gmv_30d), 2) AS gmv_30d,

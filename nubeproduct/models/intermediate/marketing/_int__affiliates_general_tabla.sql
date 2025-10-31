@@ -5,6 +5,7 @@ SELECT
     SS.first_seller_at,
     SS.churned_at,
     SS.new_seller,
+    SS.new_payment,
     
     SC.country_code,
     SC.partner_id
