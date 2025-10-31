@@ -8,54 +8,71 @@
 
 with 
   exploded_deals as (
-      SELECT 
-        d.deal_id as merged_deal_id,
-        d.sys_audit_updated_on as audit_merged_updated_on,
-        explode(split(d.merged_deal_ids, '; ')) AS deal_id
-      FROM {{ source('stg_third_party', 'midmarket_hubspot_deals') }} d
-      WHERE 
-        d.merged_deal_ids IS NOT NULL 
-        AND d.merged_deal_ids != ''
-      ),
+      select 
+          d.deal_id as merged_deal_id,
+          d.sys_audit_updated_on as audit_merged_updated_on,
+          explode(split(d.merged_deal_ids, '; ')) as deal_id
+      from {{ source('stg_third_party', 'midmarket_hubspot_deals') }} d
+      where d.merged_deal_ids is not null 
+        and d.merged_deal_ids != ''
+  ),
+  -- dedup
+    exploded_ranked as (
+      select
+          ed.*,
+          row_number() over (
+              partition by cast(ed.deal_id as bigint)
+              order by ed.audit_merged_updated_on desc, ed.merged_deal_id desc
+          ) as rn
+      from exploded_deals ed
+  ),
+  exploded_dedup as (
+      select *
+      from exploded_ranked
+      where rn = 1
+  ),
+  -- source incremental
   source as (
-      SELECT
-        CAST(ed.deal_id AS BIGINT) AS deal_id,
-        'merged' AS deletion_type,
-        ed.audit_merged_updated_on,
-        cast(null as timestamp) as archived_at,
-        d.pipeline,
-        d.dealstage,
-        d.hubspot_owner_id,
-        d.createdate,
-        d.closedate,
-        d.last_modified_date
-      from exploded_deals as ed
-        left join {{ source('stg_third_party', 'midmarket_hubspot_deals') }} d
-          on CAST(ed.deal_id AS BIGINT) = d.deal_id
-        {% if is_incremental() %} 
-        WHERE 
-          ed.audit_merged_updated_on >= (select coalesce(max(t.sys_audit_updated_on),'1900-01-01') from {{ this }} t)
-        {% endif %}
-      ),
+      select
+          cast(ed.deal_id as bigint) as deal_id,
+          'merged' as deletion_type,
+          ed.audit_merged_updated_on,
+          cast(null as timestamp) as archived_at,
+          d.pipeline,
+          d.dealstage,
+          d.hubspot_owner_id,
+          d.createdate,
+          d.closedate,
+          d.last_modified_date
+      from exploded_dedup ed
+      left join {{ source('stg_third_party', 'midmarket_hubspot_deals') }} d
+          on cast(ed.deal_id as bigint) = d.deal_id
+      {% if is_incremental() %} 
+      where ed.audit_merged_updated_on >= (
+          select coalesce(max(t.sys_audit_updated_on),'1900-01-01')
+          from {{ this }} t
+      )
+      {% endif %}
+  ),
+  -- existing data
   existing_data AS (
       {{ get_existing_data(this, ['deal_id', 'sys_audit_created_on', 'sys_audit_created_by']) }}
   )
 
-SELECT 
-    source.deal_id,
-    source.deletion_type,
-    source.archived_at,
-    source.audit_merged_updated_on,
-    source.pipeline,
-    source.dealstage,
-    source.hubspot_owner_id,
-    source.createdate,
-    source.closedate,
-    source.last_modified_date,
-    COALESCE(e.sys_audit_created_on, current_timestamp) AS sys_audit_created_on,
-    COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by,
-    current_timestamp AS sys_audit_updated_on,
-    'data-dev-dbt-products' AS sys_audit_updated_by
-FROM source
-  LEFT JOIN existing_data e
-      ON source.deal_id = e.deal_id
+select
+    s.deal_id,
+    s.deletion_type,
+    s.archived_at,
+    s.audit_merged_updated_on,
+    s.pipeline,
+    s.dealstage,
+    s.hubspot_owner_id,
+    s.createdate,
+    s.closedate,
+    s.last_modified_date,
+    coalesce(e.sys_audit_created_on, current_timestamp) as sys_audit_created_on,
+    coalesce(e.sys_audit_created_by, 'data-dev-dbt-products') as sys_audit_created_by,
+    current_timestamp as sys_audit_updated_on,
+    'data-dev-dbt-products' as sys_audit_updated_by
+from source s
+left join existing_data e on s.deal_id = e.deal_id
