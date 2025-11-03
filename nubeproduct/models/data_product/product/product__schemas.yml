@@ -3375,3 +3375,65 @@ models:
         description: Identifies which event type was the last on the cart.
       - name: base_date
         description: first_event_timestamp casted as date, for partitioning.
+
+  - name: g__ecosystem__app_api_hits__agg_daily
+    description: >
+      This data product contains the daily API hits by app and store.
+    config:
+      meta:
+        owner: "fernando.martinez@tiendanube.com"
+        domain: "product"
+        business_owner: "Nicolas Loreti"
+    columns:
+      - name: unique_id
+        description: "Unique identifier of the app API hits."
+        tests:
+          - not_null
+          - unique
+      - name: registered_date
+        description: "Date when the app API hits were registered."
+      - name: app_id
+        description: "Unique identifier of the app."
+      - name: store_id
+        description: "Unique identifier of the store."
+      - name: total_api_hits
+        description: "Total number of API hits."
+      - name: sys_audit_created_on
+        description: "Timestamp when this record was first created in the DBT model."
+      - name: sys_audit_created_by
+        description: "Identifier for the user or system that created this record."
+      - name: sys_audit_updated_on
+        description: "Timestamp when this record was last updated."
+      - name: sys_audit_updated_by
+        description: "Identifier for the user or system that last updated this record."
+  
+  - name: g__ecosystem__app_api_hits__agg_monthly
+    description: >
+      This data product contains the monthly API hits by app and store.
+    config:
+      meta:
+        owner: "fernando.martinez@tiendanube.com"
+        domain: "product"
+        business_owner: "Nicolas Loreti"
+    columns:
+      - name: unique_id
+        description: "Unique identifier of the app API hits."
+        tests:
+          - not_null
+          - unique
+      - name: registered_month
+        description: "Month when the app API hits were registered."
+      - name: app_id
+        description: "Unique identifier of the app."
+      - name: store_id
+        description: "Unique identifier of the store."
+      - name: total_api_hits
+        description: "Total number of API hits."
+      - name: sys_audit_created_on
+        description: "Timestamp when this record was first created in the DBT model."
+      - name: sys_audit_created_by
+        description: "Identifier for the user or system that created this record."
+      - name: sys_audit_updated_on
+        description: "Timestamp when this record was last updated."
+      - name: sys_audit_updated_by
+        description: "Identifier for the user or system that last updated this record."
