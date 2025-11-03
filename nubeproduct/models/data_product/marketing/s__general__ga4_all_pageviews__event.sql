@@ -3,7 +3,7 @@
   incremental_strategy='merge',
   unique_key=['unique_session','event_timestamp'],
   on_schema_change='fail',
-  tags=['daily-6am','marketing']
+  tags=['daily-7am','marketing']
 ) }}
 
 WITH filtered AS (
