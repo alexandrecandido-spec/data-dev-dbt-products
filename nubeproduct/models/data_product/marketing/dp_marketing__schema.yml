@@ -1688,7 +1688,7 @@ models:
         description: "Process/system that last updated the record."
 
 
-  - name: marketing_gscgrowth_results
+  - name: s__general__google_search_console__ref
     description: "Aggregated and classified Google Search Console results with audit fields."
     config:
       meta:
@@ -1696,6 +1696,8 @@ models:
         business_owner: "Giselle Galli"
         domain: "marketing"
     columns:
+      - name: year_month_day_code
+        description: "Year and month day code in YYYYMMDD format"
       - name: date
         description: "Date of the record."
         tests: [not_null]
@@ -1935,3 +1937,4 @@ models:
         description: "Timestamp when the row was last updated in this table."
         tests:
           - not_null
+
