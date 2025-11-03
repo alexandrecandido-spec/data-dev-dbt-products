@@ -3327,3 +3327,51 @@ models:
         description: "System or user that last updated the row in this model."
         tests:
           - not_null
+
+
+  - name: g__checkout__funnel_completion_time__event
+    description: >
+      Gold layer table with different types of completion times, such as selected payment method to paid.
+    config:
+      meta:
+        owner: "fabrizio.crivella@tiendanube.com"
+        business_owner: "Rocio Diez"
+        openmetadata:
+          domain: "product"
+    columns:
+      - name: cart_id
+        description: Unique identifier of cart.
+        tests:
+          - not_null
+      - name: store_id
+        description: Unique identifier of store.
+        tests:
+          - not_null
+      - name: diff_first_and_last_event_minutes
+        description: Difference in minutes between first and last event.
+      - name: diff_selected_payment_to_paid_seconds
+        description: Difference in seconds between payment method selection and paid order.
+      - name: diff_completed_contact_to_selected_payment_seconds
+        description: Difference in seconds between completed contact and payment method selection.
+      - name: wallet
+        description: Contains information about Wallet usage on the cart.
+      - name: payment_method_name
+        description: Payment method selected on checkout_selected_payment_method step.
+      - name: payment_method_type
+        description: Payment method type selected on checkout_selected_payment_method step.
+      - name: payment_method_integration_type
+        description: Payment method integration type selected on checkout_selected_payment_method step.
+      - name: shipping_method_type
+        description: Shipping method type selected on checkout_selected_shipping_method step.
+      - name: shipping_method_id
+        description: Unique identifier of shipping method selected on checkout_selected_shipping_method step.
+      - name: shipping_method_code
+        description: Code of the shipping method selected on checkout_selected_shipping_method step.
+      - name: payment_retry_feature
+        description: Contains information about Payment Retry feature usage on the cart.
+      - name: first_event
+        description: Identifies which event type was the first on the cart.
+      - name: last_event
+        description: Identifies which event type was the last on the cart.
+      - name: base_date
+        description: first_event_timestamp casted as date, for partitioning.
