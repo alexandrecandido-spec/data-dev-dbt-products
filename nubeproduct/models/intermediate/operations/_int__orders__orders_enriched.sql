@@ -67,10 +67,10 @@ orders_plus_store_attributes as (
 orders_plus_store_plan_group as (
   select
       ops.*,
-      mi.current_plan_type                                         as nice_9_name,  
-      mi.current_plan_type                                         as plan_group_mi, 
-      coalesce(mi.max_segment,   'Undefined')          as segment,
-      case when mi.current_plan_type = 'enterprise' then 'MM' else 'SMB' end as bu 
+      mi.current_plan_type                                         as current_plan,  
+      coalesce(mi.max_segment,   'Undefined')          as max_seller_segment,
+      mi.current_segment as current_seller_segment,
+      case when mi.current_plan_type = 'enterprise' then 'MM' else 'SMB' end as current_bu 
   from orders_plus_store_attributes ops
   left join {{ ref('s__lifecycle__store_status__ref') }} mi
     on ops.store_id = mi.store_id
@@ -84,11 +84,21 @@ plans_snapshot as (
      am.store_id,
      am.store_country                          as country,
      am.store_id_plan_country                  as plan_id,
-     gp.plan                                   as plan_code,
-     coalesce(gp.grupo, 'Undefined')           as plan_group
+     case when gp.grupo = 'enterprise' then 'MM' else 'SMB' end as historical_bu, 
+     coalesce(gp.grupo, 'Undefined')           as historical_plan_group
   from {{ source('int_finance', 'active_merchants') }} am
   left join {{ ref('s__general__grouping_plans__ref') }} gp 
     on gp.plan = am.store_id_plan_country
+)
+
+, orders_with_historical_segment as (
+  select
+     ops.*,
+     gs.segment as historical_seller_segment
+  from orders_plus_store_plan_group ops 
+  LEFT JOIN {{ ref('company_metrics_gmv_and_segments') }} gs
+      on ops.store_id = gs.store_id
+      and date_trunc(ops.date, 'month') = gs.datemonth
 )
 
   select
@@ -101,10 +111,13 @@ plans_snapshot as (
       s.city,
       s.region,
       s.business_size,
-      s.segment,
-      s.nice_9_name,
-      coalesce(p.plan_group, s.plan_group_mi)  as plan_group,  -- snapshot prevalece; MI é fallback
-      s.bu,
+      s.max_seller_segment,
+      s.current_seller_segment,
+      s.current_plan,
+      coalesce(p.historical_plan_group, s.current_plan)  as historical_plan,  -- snapshot prevalece; MI é fallback
+      coalesce(p.historical_bu, s.current_bu) as historical_bu,
+      s.current_bu,
+      s.historical_seller_segment,
 
       s.date,
       s.year_month_day_code,
@@ -127,7 +140,7 @@ plans_snapshot as (
       s.shipping_cost,
       s.product_quantity
       
-  from orders_plus_store_plan_group s
+  from orders_with_historical_segment s
   left join plans_snapshot p
     on p.store_id  = s.store_id
    and p.date_plan = s.date
