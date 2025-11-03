@@ -3,7 +3,7 @@
     config(
         materialized='incremental',
         incremental_strategy='merge',
-        unique_key=['base_date','cart_id'],
+        unique_key=['cart_id'],
         on_schema_change='fail',
         partition_by = 'base_date',
         tags=["daily-1am"]
@@ -47,7 +47,8 @@ left join {{ ref('company_metrics_merchant_info') }} cmmi on ccfe.store_id = cmm
 left join {{ ref('product__general__store_options__event') }} mop on ccfe.store_id = mop.store_id and mop.option_name = 'twig_template'
 left join {{ ref('orders__mwp_orders') }} mo on ccfe.cart_id = mo.id and mo.created_at>=date('2025-01-01')
 left join {{ ref('merchant__attributes__store_info__ref') }} si on ccfe.store_id = si.store_id
-left join {{ ref('midmarket_weekly_business_review') }}  wbr on ccfe.store_id = wbr.store_id and ccfe.base_date between wbr.date_from and wbr.date_to
+left join {{ ref('midmarket_weekly_business_review') }}  wbr on ccfe.store_id = wbr.store_id 
+    and ccfe.base_date >= wbr.date_from and ccfe.base_date < wbr.date_to
     and playbook not in ('Out of portfolio', 'Effective churn')
 left join {{ ref('_int__product__orders__paid_event_timestamp') }} paid_timestamp on ccfe.cart_id = paid_timestamp.order_id
 WHERE
