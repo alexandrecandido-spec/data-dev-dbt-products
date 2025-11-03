@@ -45,18 +45,23 @@ from
     left join {{ ref('_int_midmarket_wbr_mbr__calls') }} c
         on ss.deal_id = c.deal_id
         and wd.date_from = c.date_from
+        and c.periodicity = 'weekly'
     left join {{ ref('_int_midmarket_wbr_mbr__emails') }} e
         on ss.deal_id = e.deal_id
         and wd.date_from = e.date_from
+        and e.periodicity = 'weekly'
     left join {{ ref('_int_midmarket_wbr_mbr__meetings') }} m
         on ss.deal_id = m.deal_id
         and wd.date_from = m.date_from
+        and m.periodicity = 'weekly'
     left join {{ ref('_int_midmarket_wbr_mbr__tasks') }} t
         on ss.deal_id = t.deal_id
         and wd.date_from = t.date_from
+        and t.periodicity = 'weekly'
     left join {{ ref('_int_midmarket_wbr_mbr__whatsapp') }} w
         on ss.deal_id = w.deal_id
         and wd.date_from = w.date_from
+        and w.periodicity = 'weekly'
 {% if is_incremental() %}
 where
     wd.date_from > (
@@ -88,18 +93,23 @@ from
     left join {{ ref('_int_midmarket_wbr_mbr__calls') }} c
         on ss.deal_id = c.deal_id
         and md.date_from = c.date_from
+        and c.periodicity = 'monthly'
     left join {{ ref('_int_midmarket_wbr_mbr__emails') }} e
         on ss.deal_id = e.deal_id
         and md.date_from = e.date_from
+        and e.periodicity = 'monthly'
     left join {{ ref('_int_midmarket_wbr_mbr__meetings') }} m
         on ss.deal_id = m.deal_id
         and md.date_from = m.date_from
+        and m.periodicity = 'monthly'
     left join {{ ref('_int_midmarket_wbr_mbr__tasks') }} t
         on ss.deal_id = t.deal_id
         and md.date_from = t.date_from
+        and t.periodicity = 'monthly'
     left join {{ ref('_int_midmarket_wbr_mbr__whatsapp') }} w
         on ss.deal_id = w.deal_id
         and md.date_from = w.date_from
+        and w.periodicity = 'monthly'
 {% if is_incremental() %}
 where
     md.date_from > (

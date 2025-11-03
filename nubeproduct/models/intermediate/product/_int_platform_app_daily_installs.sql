@@ -1,7 +1,7 @@
 with 
 dates as (
     SELECT distinct 
-        date_trunc('month',date_id) as registered_date
+        date(date_id) as registered_date
     FROM {{ ref('dim_calendar') }} 
     where true
     and date_id between date_trunc('month', current_date) - interval '4' month and current_date
