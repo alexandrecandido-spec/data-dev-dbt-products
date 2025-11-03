@@ -632,14 +632,20 @@ models:
         description: Geographic region where the store is located.
       - name: business_size
         description: Business size classification of the store.
-      - name: segment
-        description: Seller segment classification of the store.
-      - name: nice_9_name
-        description: Nice name identifier for the store.
-      - name: plan_group
-        description: Plan group associated with the store.
-      - name: bu
-        description: Business unit associated with the store.
+      - name: max_seller_segment
+        description: Maximum seller segment classification the store has ever achieved.
+      - name: current_seller_segment
+        description: Current seller segment classification of the store.
+      - name: historical_seller_segment
+        description: Historical seller segment classification of the store.
+      - name: current_plan
+        description: Current plan associated with the store.
+      - name: historical_plan
+        description: Historical plan associated with the store.
+      - name: current_bu
+        description: Current business unit associated with the store.
+      - name: historical_bu
+        description: Historical business unit associated with the store.
       - name: date
         description: Date of the order metrics. Partition dimension.
         tests:
@@ -728,14 +734,20 @@ models:
         description: Geographic region where the store is located.
       - name: business_size
         description: Business size classification of the store.
-      - name: segment
-        description: Seller segment classification of the store.
-      - name: nice_9_name
-        description: Nice name identifier for the store.
-      - name: plan_group
-        description: Plan group associated with the store.
-      - name: bu
-        description: Business unit associated with the store.
+      - name: max_seller_segment
+        description: Maximum seller segment classification the store has ever achieved.
+      - name: current_seller_segment
+        description: Current seller segment classification of the store.
+      - name: historical_seller_segment
+        description: Historical seller segment classification of the store.
+      - name: current_plan
+        description: Current plan associated with the store.
+      - name: historical_plan
+        description: Historical plan associated with the store.
+      - name: current_bu
+        description: Current business unit associated with the store.
+      - name: historical_bu
+        description: Historical business unit associated with the store.
       - name: date
         description: Date of the order metrics. Partition dimension.
         tests:
