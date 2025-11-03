@@ -1,9 +1,7 @@
 {{ config(
   materialized='incremental',
     unique_key=[
-    'store_id','completed_at',
-    'gateway','payment','shipping','storefront',
-    'currency','country_currency','platform_type'
+    'store_id','date','platform_type'
   ],
   incremental_strategy='merge',
   on_schema_change='fail',

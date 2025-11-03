@@ -1754,24 +1754,11 @@ models:
       - name: year_month_day_code
         description: "Date in YYYYMMDD integer format used for partitioning"
         tests: [not_null]
-      - name: completed_at
+      - name: date
         description: "Order completion date"
-        tests: [not_null]
       - name: store_id
         description: "Unique identifier of the store"
         tests: [not_null]
-      - name: gateway
-        description: "Payment gateway used for the transaction"
-      - name: payment
-        description: "Payment method used for the transaction"
-      - name: shipping
-        description: "Shipping method used for the order"
-      - name: storefront
-        description: "Storefront channel where the order was placed"
-      - name: currency
-        description: "Currency used for the transaction"
-      - name: country_currency
-        description: "Local currency of the store's country"
       - name: platform_type
         description: "Platform type where the transaction occurred"
       - name: country
