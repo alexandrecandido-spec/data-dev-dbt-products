@@ -4,7 +4,7 @@
   partition_by='year_month_day_code',
   unique_key=['full_url', 'date', 'search_type', 'country_name', 'device'],
   on_schema_change='fail',
-  tags=['daily-9am', 'marketing']
+  tags=['marketing']
 ) }}
 
 WITH union_gsc_results AS (
@@ -44,6 +44,6 @@ LEFT JOIN existing_data e ON -- Materialized table with all existing data
   CAST(date_format(u.date, 'yyyyMMdd') AS INT) = e.year_month_day_code
   
 WHERE rp.pattern IS NOT NULL OR dp.domain IS NOT NULL
-{% if is_incremental() %}
+{% if is_incremental() %} 
   AND u.sys_audit_updated_on > (SELECT COALESCE(MAX(sys_audit_updated_on), DATE '2000-01-01') FROM {{ this }})
 {% endif %}
