@@ -24,7 +24,7 @@ select
   date_entered_churn_onboarding_mx,  
   date_entered_downgrade_onboarding_ar,
   date_entered_downgrade_onboarding_br,
-  date_entered_downgrade_onboarding_mx,  
+  date_entered_downgrade_onboarding_mx,
   deadline_goal,
   forecast,
   delay_reason,
@@ -62,6 +62,8 @@ select
   notes_last_updated,
   closed_lost_reason__2__nuevmshop_,
   closed_lost_reason__1__nuevmshop_,
+  closed_won_reason__1__nuevmshop_,
+  closed_won_reason__2__nuevmshop_,
   closed_lost_notes_sales,
   date_entered_prospect_mkt_br,
   date_exited_prospect_mkt_br,
@@ -110,6 +112,15 @@ select
   date_entered_scheduled_opportunity_br,
   subcategory,
 
+  /*Upsell & Renewal*/
+  date_entered_negotiation_upsell_success_ar,
+  date_entered_negotiation_upsell_success_br,
+  
+  /*Success*/
+  date_entered_downgrade_ar,
+  date_entered_downgrade_br,
+  date_entered_downgrade_mx,
+  
   current_timestamp AS sys_audit_created_on,
   'data-dev-dbt-products' AS sys_audit_created_by,
   current_timestamp AS sys_audit_updated_on,

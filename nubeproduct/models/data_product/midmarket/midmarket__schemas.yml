@@ -609,6 +609,116 @@ models:
         tests:
           - not_null
 
+  - name: s__upsell__renewal__pipeline__snapshot
+    description: >
+      Midmarket Upsell & Renewal pipeline data product. Consolidates staging deals from the Upsell Success pipelines 
+      with standardized business logic, status mapping, and unified date fields across countries (AR/BR/MX).
+    config:
+      meta:
+        owner: "pedro.fregonese@tiendanube.com"
+        domain: "midmarket"
+        business_owner: "Franco Tiberti"
+    columns:
+      - name: deal_id
+        description: "Unique identifier for the HubSpot deal. Primary key."
+        tests:
+          - unique
+          - not_null
+      - name: store_id
+        description: "Internal store identifier linked to the deal."
+      - name: stage
+        description: "Current HubSpot deal stage within the Upsell & Renewal pipeline."
+        tests:
+          - not_null
+      - name: deal_status
+        description: "Business status derived from stage. Possible values: 'On-going' (Suspect, Prospect, Scheduled Meeting, Negotiation, In Signature), 'Lost', or 'Won' (Won, Upsell, NEXT Renewal)."
+        tests:
+          - accepted_values:
+              values: ["On-going", "Lost", "Won"]
+      - name: dealname
+        description: "Deal name or title as defined in HubSpot."
+      - name: deal_owner
+        description: "HubSpot owner (Deal owner) assigned to the deal."
+      - name: sales_dev_owner
+        description: "Sales Development team member responsible for the lead or initial contact."
+      - name: pipeline_creation_date
+        description: "Deal creation date in HubSpot."
+        tests:
+          - not_null
+      - name: closedate
+        description: "Deal close date when the deal was successfully won or lost."
+      - name: country
+        description: "Country derived from the Upsell Success pipeline (AR/BR/MX)."
+        tests:
+          - accepted_values:
+              values: ["AR", "BR", "MX"]
+      - name: pipeline
+        description: "HubSpot pipeline name (Upsell Success | AR, Upsell Success | BR, or Upsell Success | MX)."
+        tests:
+          - accepted_values:
+              values: ["Upsell Success | AR", "Upsell Success | BR", "Upsell Success | MX"]
+      - name: client_upsell_motive
+        description: "Whether the deal is an upsell or a renewal opportunity."
+      - name: potential_gmv
+        description: "Potential GMV (Gross Merchandise Value) estimated for this renewal or upsell opportunity."
+      - name: potential_gross_profit_perc
+        description: "Gross profit percentage estimated for the upsell or renewal deal."
+      - name: potential_gross_profit
+        description: "Potential gross profit value derived from deal estimates."
+      - name: subscription
+        description: "Monthly subscription fee amount for the upsell or renewal plan."
+      - name: cpt
+        description: "Cost per transaction (transaction fee) for the deal."
+      - name: success_priority
+        description: "Priority flag indicating strategic importance or success level (e.g., Level 1, Level 2, Level 3)."
+      - name: vertical
+        description: "Vertical or industry segment of the merchant."
+      - name: closed_lost_reason_1
+        description: "Primary reason selected when the deal is lost (custom field)."
+      - name: closed_lost_reason_2
+        description: "Secondary reason selected when the deal is lost (custom field)."
+      - name: closed_won_reason_1
+        description: "Primary reason selected when the deal is won (custom field)."
+      - name: closed_won_reason_2
+        description: "Secondary reason selected when the deal is won (custom field)."
+      - name: closed_lost_notes_sales
+        description: "Notes entered by the Success team when a deal is marked as lost."
+      - name: notes_last_updated
+        description: "Timestamp of the last note update on the deal."
+      - name: company_name
+        description: "Company or merchant name associated with the deal."
+      - name: date_entered_negotiation_upsell_success
+        description: "Date when the deal entered the 'Negotiation' stage in the Upsell/Renewal pipeline. Unified across AR and BR (MX currently null)."
+      - name: forecast_category
+        description: "HubSpot's forecast category label for the deal."
+      - name: stage_before_closing_deal
+        description: "Deal stage before closure or disqualification."
+      - name: city_state_sales
+        description: "City and state or sales territory linked to the deal."
+      - name: deal_tags
+        description: "Tags applied to the deal for classification or segmentation."
+      - name: aspirational_brand
+        description: "Binary flag (1/0) indicating if the deal is tagged as 'Aspirational brand'."
+        tests:
+          - accepted_values:
+              values: [0, 1]
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when the record was last processed or refreshed."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run."
+        tests:
+          - not_null
+
   - name: g__success__business_review_enriched__agg_snapshot_weekly
     config:
       meta:

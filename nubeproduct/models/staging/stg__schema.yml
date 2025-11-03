@@ -2545,6 +2545,12 @@ models:
         description: "Date when the deal entered 'Downgrade' in BR onboarding."
       - name: date_entered_downgrade_onboarding_mx
         description: "Date when the deal entered 'Downgrade' in MX onboarding."
+      - name: date_entered_downgrade_ar
+        description: "Date when the deal entered 'Downgrade' in AR Upsell/Renewal pipeline)."
+      - name: date_entered_downgrade_br
+        description: "Date when the deal entered 'Downgrade' in BR Upsell/Renewal pipeline)."
+      - name: date_entered_downgrade_mx
+        description: "Date when the deal entered 'Downgrade' in MX Upsell/Renewal pipeline)."
       - name: deadline_goal
         description: "Target onboarding deadline value as a label (e.g., '30 days')."
       - name: forecast
@@ -2613,6 +2619,10 @@ models:
         description: "Secondary reason recorded for a lost deal (custom field)."
       - name: closed_lost_reason__1__nuevmshop_
         description: "Primary reason recorded for a lost deal (custom field)."
+      - name: closed_won_reason__1__nuevmshop_
+        description: "Primary reason recorded for a won deal (custom field)."
+      - name: closed_won_reason__2__nuevmshop_
+        description: "Secondary reason recorded for a won deal (custom field)."
       - name: closed_lost_notes_sales
         description: "Notes entered by Sales when the deal was lost."
       - name: date_entered_prospect_mkt_br
@@ -2673,6 +2683,10 @@ models:
         description: "Date when the deal entered 'Scheduled Opportunities' in MX."
       - name: date_entered_problem_discovery_sales_dev_mx
         description: "Date when the deal entered the Problem Discovery stage in MX Sales Dev."
+      - name: date_entered_negotiation_upsell_success_ar
+        description: "Date when the deal entered the 'Negotiation' stage in AR Upsell/Renewal pipeline."
+      - name: date_entered_negotiation_upsell_success_br
+        description: "Date when the deal entered the 'Negotiation' stage in BR Upsell/Renewal pipeline."
       - name: ne_status
         description: "Status of Nuvem Envío (shipping service) associated with the merchant."
       - name: agency_that_referred
