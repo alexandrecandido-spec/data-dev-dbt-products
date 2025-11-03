@@ -3437,3 +3437,59 @@ models:
         description: "Timestamp when this record was last updated."
       - name: sys_audit_updated_by
         description: "Identifier for the user or system that last updated this record."
+
+  - name: g__growth__store_conversion__agg_daily
+    description: >
+      Daily aggregated dataset that measures store trial-to-paid conversion performance. It calculates how many stores 
+      converted (made their first payment) within 7, 14, 21, ... up to 84 days after creation, segmented by country, 
+      device type, affiliate status, and fraud/block status.
+    config:
+      meta:
+        owner: "ynara.oliveira@nuvemshop.com.br"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - country
+            - device
+            - is_affiliate
+            - is_store_blocked
+            - days_agg
+    columns:
+      - name: date
+        description: "Store creation date (daily granularity)."
+        tests:
+          - not_null
+      - name: country
+        description: "Country of the store, standardized in uppercase."
+      - name: device
+        description: >
+          Type of device used when the store was created, derived from the verified code.
+          Possible values: Desktop, Mobile, App, Tablet, Undefined.
+      - name: is_affiliate
+        description: >
+          Indicates whether the store was created via an affiliate partnership
+          ('Yes' if partner_id is not null, otherwise 'No').
+      - name: is_store_blocked
+        description: "Flag showing if the store was marked or blocked for fraud."
+      - name: days_agg
+        description: >
+          Conversion window in days since store creation.
+          Values: total07, total14, total21, ..., total84.
+      - name: stores
+        description: >
+          Number of stores that made their first payment within the corresponding conversion window.
+      - name: trials
+        description: >
+          Total number of stores (trials) created on that date for the same country, device,
+          affiliate and fraud segment. Serves as the denominator for conversion rate calculations.
+      - name: sys_audit_created_on
+        description: "Timestamp of when this record was created in our data warehouse"
+      - name: sys_audit_created_by
+        description: "System identifier of the process that created this record"
+      - name: sys_audit_updated_on
+        description: "Timestamp of when this record was last updated in our data warehouse"
+      - name: sys_audit_updated_by
+        description: "System identifier of the process that last updated this record"
