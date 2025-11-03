@@ -1966,3 +1966,4 @@ models:
         description: "Timestamp when the row was last updated in this table."
         tests:
           - not_null
+
