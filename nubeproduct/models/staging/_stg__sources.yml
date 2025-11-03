@@ -454,3 +454,10 @@ sources:
     tables:
       - name: ext__partnerships__platform_development__app_managers
         description: "Contains the information of the app and tech partner managers"
+
+  - name: stg_raw_ecosystem
+    database: raw
+    schema: ecosystem
+    tables:
+      - name: api_calls
+        description: "Contains the API calls from the ecosystem database"

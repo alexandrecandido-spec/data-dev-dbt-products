@@ -3259,3 +3259,30 @@ models:
       - name: sys_audit_updated_by
         description: "Identifier for the user or system that last updated this record."
   
+  - name: product__ecosystem__api_hits__snapshot_daily
+    description: "Staging model that contains information about the API calls in the ecosystem."
+    config:
+      meta:
+        owner: "fernando.martinez@tiendanube.com"
+        domain: "product"
+        business_owner: "Nicolas Loreti"
+    columns:
+      - name: unique_id
+        description: "Unique identifier of the API call."
+        tests:
+          - not_null
+          - unique
+      - name: registered_date
+        description: "Date when the API call was registered."
+      - name: installed_app_id
+        description: "Unique identifier of the installed app."
+      - name: api_hits
+        description: "Number of API hits."
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model. Preserved from previous loads for existing records."
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model. Defaults to 'data-dev-dbt-products'."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed."
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
