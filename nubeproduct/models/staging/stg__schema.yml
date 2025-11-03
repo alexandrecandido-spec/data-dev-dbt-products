@@ -3444,3 +3444,157 @@ models:
         description: "Timestamp when this record was last updated."
       - name: sys_audit_updated_by
         description: "Identifier for the user or system that last updated this record."
+  - name: midmarket__general__closing_pack_hubspot_deals
+    description: >
+      Unified staging model for Mid-market Closing Pack that consolidates all HubSpot deal data across 
+      Sales, Upsell & Renewal, Onboarding, and Success pipelines. This model serves as the single source 
+      of truth for all closing pack metrics, containing comprehensive information about deal progression, 
+      lifecycle events, and key performance indicators across all mid-market segments (AR, BR, MX).
+      
+      The model extracts and standardizes data from all relevant pipelines:
+      - Sales: New business opportunities and closed deals
+      - Upsell Success: Renewal and upsell opportunities
+      - Onboarding: Project kickoffs, go-lives, and transitions
+      - Success: Active merchants, churns, downgrades, warnings and unknowns
+    config:
+      meta:
+        owner: "pedro.fregonese@tiendanube.com"
+        domain: "midmarket"
+        business_owner: "Franco Tiberti"
+    columns:
+      - name: store_id
+        description: "Unique identifier of the store"
+        tests:
+          - not_null
+      - name: deal_id
+        description: "Unique identifier of the HubSpot deal"
+        tests:
+          - not_null
+      - name: createdate
+        description: "Date when the deal was created in HubSpot"
+      - name: dealname
+        description: "Name of the deal in HubSpot"
+      - name: pipeline
+        description: "HubSpot pipeline name (e.g., 'Sales | AR', 'Onboarding | BR', 'Success | MX')"
+        tests:
+          - accepted_values:
+              values: 
+                - 'Sales | AR'
+                - 'Sales | BR'
+                - 'Sales | MX'
+                - 'Upsell Success | AR'
+                - 'Upsell Success | BR'
+                - 'Upsell Success | MX'
+                - 'Onboarding | AR'
+                - 'Onboarding | BR'
+                - 'Onboarding | MX'
+                - 'Success | AR'
+                - 'Success | BR'
+                - 'Success | MX'
+      - name: country
+        description: "Country code (AR, BR, MX) extracted from the pipeline name"
+        tests:
+          - accepted_values:
+              values: ["AR", "BR", "MX"]
+      - name: close_month
+        description: "Month when the deal was closed (closedate), truncated to the first day of the month"
+      - name: sales_close_month
+        description: "Month when the sales deal was closed (close_date_sales), used for tracking sales-specific closures"
+      - name: acquisition_channel
+        description: "Channel through which the lead was originally acquired (where_did_the_lead_came_from_)"
+      - name: hubspot_vertical
+        description: "Business vertical classification from HubSpot"
+      - name: potential_gmv
+        description: "Potential GMV value as recorded in HubSpot (gmv_potencial)"
+      - name: subscription
+        description: "Subscription fee amount"
+      - name: cpt
+        description: "Cost per transaction"
+      - name: potential_gross_profit_perc
+        description: "Potential gross profit percentage"
+      - name: dealstage
+        description: "Current stage of the deal in the pipeline"
+      - name: produto_nuvemshop
+        description: "Nuvemshop product type (e.g., 'Plano Next / Evolucion - (Mid Market)')"
+      - name: owner
+        description: "HubSpot owner responsible for the deal"
+      - name: sales_date_entered_scheduled_meetings_month
+        description: "Month when the deal entered scheduled meetings stage in Sales pipeline (AR/BR/MX specific)"
+      - name: sales_date_entered_problem_discovery_month
+        description: "Month when the deal entered problem discovery stage in Sales pipeline (AR/BR/MX specific)"
+      - name: amount
+        description: "Deal amount in local currency (used for Sales pipeline)"
+      - name: segmento_nuvemshop
+        description: "Nuvemshop segment classification (e.g., 'Mid Market plan')"
+      - name: cidade_territorio_sales
+        description: "City and state/territory label used by Sales team"
+      - name: client_upsell_motive
+        description: "Reason for the upsell or renewal (Upsell Success pipeline)"
+      - name: onboarding_close_month
+        description: "Month when onboarding deal was closed"
+      - name: onboarding_project_start_month
+        description: "Month when the onboarding project started (kickoff_date)"
+      - name: onboarding_transition_to_customer_success_month
+        description: "Month when the store transitioned from Onboarding to Customer Success (AR/BR specific)"
+      - name: onboarding_churn_month
+        description: "Month when churn occurred during onboarding phase (AR/BR/MX)"
+      - name: onboarding_downgrade_month
+        description: "Month when downgrade occurred during onboarding phase (AR/BR/MX)"
+      - name: onboarding_go_live_month
+        description: "Month when the store went live (data_go_live)"
+      - name: date_churn
+        description: "Date when the store entered effective churn status in Success pipeline"
+      - name: churn_month
+        description: "Month when the churn occurred in Success pipeline, truncated to the first day of the month"
+      - name: effective_churn_root_cause
+        description: "Root cause of the effective churn as recorded in HubSpot Success pipeline"
+      - name: date_out_of_portfolio
+        description: "Date when the store moved out of portfolio (downgrade) in Success pipeline"
+      - name: out_of_portfolio_month
+        description: "Month when the out of portfolio event occurred in Success pipeline, truncated to the first day of the month"
+      - name: out_of_portfolio_root_cause
+        description: "Root cause of moving out of portfolio as recorded in HubSpot Success pipeline"
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model"
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record. Defaults to 'data-dev-dbt-products'"
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed"
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'"
+        tests:
+          - not_null
+          
+  - name: product__ecosystem__api_hits__snapshot_daily
+    description: "Staging model that contains information about the API calls in the ecosystem."
+    config:
+      meta:
+        owner: "fernando.martinez@tiendanube.com"
+        domain: "product"
+        business_owner: "Nicolas Loreti"
+    columns:
+      - name: unique_id
+        description: "Unique identifier of the API call."
+        tests:
+          - not_null
+          - unique
+      - name: registered_date
+        description: "Date when the API call was registered."
+      - name: installed_app_id
+        description: "Unique identifier of the installed app."
+      - name: api_hits
+        description: "Number of API hits."
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model. Preserved from previous loads for existing records."
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model. Defaults to 'data-dev-dbt-products'."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed."
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
