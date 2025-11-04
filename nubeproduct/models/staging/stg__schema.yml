@@ -117,12 +117,52 @@ models:
         description: "Store identifier."
         tests:
           - not_null
+      - name: quotation_id
+        description: "Identifier for the quotation associated with this contract."
+      - name: borrower_document
+        description: "Document identifier of the borrower."
+      - name: borrower_name
+        description: "Name of the borrower."
       - name: disbursed_at
         description: "Date when the credit amount was disbursed."
+      - name: disbursed_month
+        description: "Month when the credit amount was disbursed."
+      - name: created_at
+        description: "Date when the credit proposal was created."
+      - name: updated_at
+        description: "Date when the credit proposal was last updated."
+      - name: first_installment_at
+        description: "Date when the first installment is scheduled to be paid."
+      - name: last_installment_at
+        description: "Date when the last installment is scheduled to be paid."
+      - name: status
+        description: "Status of the credit proposal."
+      - name: portfolio_type
+        description: "Type of portfolio (renegotiation or general)."
+      - name: installments_number
+        description: "Number of installments for the credit proposal."
+      - name: operation_total_taxes_amount
+        description: "Total amount of taxes for the operation."
+      - name: operation_total_costs_amount
+        description: "Total amount of costs for the operation."
+      - name: operation_gross_amount
+        description: "Gross amount of the operation. Equivalent to (operation_net_amount + operation_total_taxes_amount + operation_total_costs_amount)"
+      - name: operation_net_amount
+        description: "Net amount of the operation, equal to the amount requested by the borrower."
+      - name: interest_monthly_rate
+        description: "Monthly interest rate applied to the contract."
       - name: finished_at
         description: "Date when the credit was finalized (It could be by being renegotiated or fully paid)."
       - name: original_contract_ids
         description: "Not null only if the credit is a renegotiation. It contains all contracts ids that were renegotiated."
+      - name: lending_hub
+        description: "Hub of the credit. Currently only Mova."
+      - name: payer_id
+        description: "Identifier of the payer."
+      - name: collection_strategy
+        description: "Strategy used for collection."
+      - name: payer_state
+        description: "State of the payer."
       - name: sys_audit_created_on
         description: "Timestamp when the record was first loaded into the model. Defaults to current_timestamp if not available."
       - name: sys_audit_created_by
