@@ -2,20 +2,23 @@ WITH store_source AS (
     SELECT
         store_id,
         partner_id,
-        partnership_type
+        partnership_type,
+        sys_audit_updated_on
     FROM {{ ref('merchant__attributes__store_info__ref') }}
 ), 
 tags_info AS (
     SELECT
         store_id,
         has_partner_tag,
-        has_affiliate_tag
+        has_affiliate_tag,
+        sys_audit_updated_on
     FROM {{ ref('merchant__attributes__store_tags__ref') }}
 ),
 ql_flag AS (
     SELECT
         store_id,
-        CASE WHEN new_payment_probability >= prod_cutoff THEN 1 ELSE 0 END AS quality_lead_flag
+        CASE WHEN new_payment_probability >= prod_cutoff THEN 1 ELSE 0 END AS quality_lead_flag,
+        change_timestamp
     FROM {{ ref('_int_marketing_store_info__get_quality_leads_info') }}
 ),
 attribution_info AS (
@@ -33,7 +36,8 @@ attribution_info AS (
         MAX(CASE WHEN trials_first_click = 1 THEN landing_page_domain ELSE NULL END) AS mkt_landing_page_domain_first_click,
         MAX(CASE WHEN trials_last_click = 1 THEN landing_page_domain ELSE NULL END) AS mkt_landing_page_domain_last_click,
         MAX(CASE WHEN trials_first_click = 1 THEN landing_page_path ELSE NULL END) AS mkt_landing_page_path_first_click,
-        MAX(CASE WHEN trials_last_click = 1 THEN landing_page_path ELSE NULL END) AS mkt_landing_page_path_last_click
+        MAX(CASE WHEN trials_last_click = 1 THEN landing_page_path ELSE NULL END) AS mkt_landing_page_path_last_click,
+        MAX(sys_audit_updated_on) AS sys_audit_updated_on
     FROM {{ ref('marketing_attribution_model') }}
     GROUP BY 1
 ),
@@ -42,7 +46,8 @@ partner_info AS (
         partner_id,
         partner_code,
         partner_team,
-        mkt_exclusion
+        mkt_exclusion,
+        sys_audit_updated_on
     FROM {{ ref('s__general__partners_info__ref') }}
 ),
 ql_profile AS (
@@ -84,7 +89,9 @@ SELECT
         ELSE 'No' 
     END AS flag_affiliate,
 
-    ql_p.profile AS ql_profile
+    ql_p.profile AS ql_profile,
+
+    greatest(ss.sys_audit_updated_on, ti.sys_audit_updated_on, ql.change_timestamp, att.sys_audit_updated_on, pi.sys_audit_updated_on) AS change_timestamp
 FROM store_source ss
 LEFT JOIN tags_info ti ON ss.store_id = ti.store_id
 LEFT JOIN ql_flag ql ON ss.store_id = ql.store_id

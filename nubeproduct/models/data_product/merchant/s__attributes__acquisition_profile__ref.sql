@@ -42,11 +42,16 @@ source_data AS (
 
         main_source.flag_affiliate,
 
-        main_source.ql_profile
-    FROM {{ ref('_int__acquisition__profile_store') }} main_source
+        main_source.ql_profile,
+
+        main_source.change_timestamp
+    FROM {{ ref('_int__acquisition__profile_store') }} AS main_source
+    {% if is_incremental() %}
+    WHERE main_source.change_timestamp > ( SELECT COALESCE(MAX(sys_audit_updated_on), DATE '1900-01-01') FROM {{ this }} )
+    {% endif %}
 )
 SELECT 
-    sd.*,
+    sd.* EXCEPT(sd.change_timestamp),
     COALESCE(e.sys_audit_created_on, current_timestamp) AS sys_audit_created_on,
     COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by,
     current_timestamp AS sys_audit_updated_on,
