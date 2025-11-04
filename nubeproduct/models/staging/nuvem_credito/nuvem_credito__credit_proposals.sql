@@ -20,7 +20,7 @@ SELECT
         CAST(c.finished_at AS DATE) AS finished_at,
         CAST(c.first_installment_at AS DATE) AS first_installment_at,
         CAST(c.last_installment_at AS DATE) AS last_installment_at,
-        c.status,
+        case when c.status = 'renegotiated' then 'paying' else c.status end as status,
         CASE
             WHEN c.original_contract_ids IS NOT NULL
               OR c.hub_contract_id IN ('566774','668824','691318') THEN 'renegotiation'
