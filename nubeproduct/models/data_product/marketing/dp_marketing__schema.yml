@@ -1192,6 +1192,10 @@ models:
         description: "The store's credit available limit registered in admin."
         tests:
           - not_null
+      - name: gmv_local_currency_on_platform_monthly
+        description: "GMV in local currency over the last closed month."
+      - name: gmv_local_currency_on_platform_90d
+        description: "GMV in local currency over the last 90 days."
       - name: sys_audit_created_on
         description: "Timestamp when the row was originally created."
       - name: sys_audit_created_by
