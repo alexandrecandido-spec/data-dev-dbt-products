@@ -24,7 +24,7 @@ source_data AS (
 
         main_source.tag_acquired_by,
 
-        main_source.quality_lead_flag,
+        main_source.quality_lead_flag AS is_quality_lead,
 
         main_source.mkt_source_last_click,
         main_source.mkt_subteam_last_click,
