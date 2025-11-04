@@ -461,3 +461,11 @@ sources:
     tables:
       - name: api_calls
         description: "Contains the API calls from the ecosystem database"
+
+  - name: stg_nuvem_pago
+    database: hive_metastore
+    schema: nuvempago
+    description: "Source containing tables related to Nuvem Pago"
+    tables:
+      - name: charges_dashboard
+        description: "Contains the chargebacks from Nuvem Pago"
