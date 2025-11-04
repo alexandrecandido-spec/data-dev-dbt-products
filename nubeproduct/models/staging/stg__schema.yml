@@ -3686,3 +3686,67 @@ models:
         description: "Timestamp of the current model run when the record was processed."
       - name: sys_audit_updated_by
         description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
+  
+  - name: nuvem_pago__chargebacks__chargebacks__event
+    description: "Staging model that contains the chargebacks from Nuvem Pago."
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "product"
+        business_owner: "Martin Palombo"
+    columns:
+      - name: _id
+        description: "Unique identifier of the chargeback."
+        tests:
+          - not_null
+          - unique
+      - name: createdAt_date
+        description: "Date when the chargeback was created."
+      - name: amount
+        description: "Amount of the chargeback."
+      - name: chargeback
+        description: "Additional data of the chargeback (deadline, reason, status, etc.)"
+      - name: createdAt
+        description: "Timestamp when the chargeback was created."
+      - name: customer
+        description: "Data from the customer that made the chargeback."
+      - name: events
+        description: "Events of the chargeback and timestamps"
+      - name: failureReason
+        description: "Failure reason of the chargeback."
+      - name: orderId
+        description: "Order identifier of the order with the chargeback."
+      - name: orderNumber
+        description: "Order number of the order with the chargeback."
+      - name: origin
+        description: "Origin of the chargeback."
+      - name: paidAt
+        description: "Timestamp when the order was paid."
+      - name: paymentMethod
+        description: "Payment method of the order with the chargeback."
+      - name: remainingAmountToRefund
+        description: "Remaining amount to refund"
+      - name: status
+        description: "Status of the chargeback (resolved_insurance, resolved_without_dispute, etc.)"
+      - name: storeId
+        description: "Store identifier of the store with the chargeback."
+      - name: transactionId
+        description: "Transaction identifier of the transaction with the chargeback."
+      - name: updatedAt
+        description: "Timestamp when the chargeback was last updated."
+      - name: cascadia_event_timestamp
+        description: "Timestamp when the event was created in the cascadia platform."
+      - name: source_event_timestamp
+        description: "Timestamp when the event was created in the source system."
+      - name: source_event_order
+        description: "Order identifier of the order with the event in the source system."
+      - name: year_month_code
+        description: "Year and month code in YYYYMM format."
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model."
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model."
+      - name: sys_audit_updated_on
+        description: "Timestamp when the record was last updated."
+      - name: sys_audit_updated_by
+        description: "User or process that last updated the record."
