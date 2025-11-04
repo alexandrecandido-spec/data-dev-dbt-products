@@ -3659,7 +3659,7 @@ models:
         tests:
           - not_null
 
-  - name: marketing__acquisition__merchant_sellers_base_total__domain
+  - name: marketing__acquisition__project_ms_base__domain
     description: "Manual Merchant Sellers base (A–S and T–Z sheets) unified into a single table and enriched with store_id by domain mapping. Preserves all raw rows even when no store_id match is found. No tag logic here. Includes sys_audit_* fields, is partitioned by year_month_day_code, and is materialized incrementally (merge)."
     config:
       meta:

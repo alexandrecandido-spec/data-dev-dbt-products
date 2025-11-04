@@ -4,7 +4,7 @@
   unique_key=['domain'],                   
   partition_by=['year_month_day_code'],
   on_schema_change='fail',
-  tags=['daily-6am','marketing']
+  tags=['daily-9am','marketing']
 ) }}
 
 WITH existing AS (

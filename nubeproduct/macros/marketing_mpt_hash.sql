@@ -1,3 +1,4 @@
+-- creado por sofia.torres@tiendanube.com
 -- Hash genérico de columnas (null-safe y portable)
 -- Usa concat_ws con '|' y castea todo a string del motor actual.
 {% macro mpt_hash(cols) -%}

@@ -1967,3 +1967,89 @@ models:
         tests:
           - not_null
 
+  - name: s__acquisition__project_ms__ref
+    description: "Marketing Project Tagging - Merchant Sellers (Project). One row per store_id with tag decision, contact date, core/lifecycle fields, representative Merchant Sellers base fields, first visit signals, and dependency audit timestamps."
+    config:
+      meta:
+        owner: "sofia.torres@tiendanube.com"
+        domain: "marketing"
+        business_owner: "Giselle Galli"
+    columns:
+      - name: store_id
+        description: "Store unique identifier."
+        tests: [not_null, unique]
+      - name: has_ms_tag
+        description: "Boolean-like flag (1/0) indicating Merchant Sellers tag according to project logic."
+      - name: ms_reason
+        description: "Reason for tag: 'external_disparo', 'pre_creation_visit', or 'both'."
+        tests:
+          - accepted_values:
+              values: ['external_disparo','pre_creation_visit','both']
+      - name: ms_contact_date
+        description: "Contact date used for the tag (first_disparo_date or first_visit_date, whichever applied)."
+      - name: created_at
+        description: "Store creation date (from store core ref)."
+      - name: partner_code
+        description: "Partner code (from store core ref)."
+      - name: new_seller_at
+        description: "First seller date when new_seller=1 (from lifecycle ref)."
+      - name: first_payment
+        description: "First payment date (from lifecycle ref)."
+      - name: churned_at
+        description: "Churned at date (from lifecycle ref)."
+      - name: domain
+        description: "Representative domain from Merchant Sellers base (per store)."
+      - name: emails
+        description: "Emails captured in Merchant Sellers base."
+      - name: phones
+        description: "Phones captured in Merchant Sellers base."
+      - name: instagram_url
+        description: "Instagram URL captured in Merchant Sellers base."
+      - name: platform
+        description: "Normalized platform from Merchant Sellers base."
+      - name: estimated_monthly_sales
+        description: "Estimated monthly sales from Merchant Sellers base."
+      - name: peso
+        description: "Weight/score from Merchant Sellers base."
+      - name: repeated_domain
+        description: "Repeated domain note from Merchant Sellers base."
+      - name: disparos
+        description: "Message/trigger notes from Merchant Sellers base."
+      - name: disparo_date
+        description: "Trigger/first contact date from Merchant Sellers base."
+      - name: mapping_method
+        description: "Domain mapping method: domain_exact, domain_clean, or none."
+      - name: first_disparo_date
+        description: "Earliest disparo_date among the stores rows in base."
+      - name: first_visit_ts
+        description: "Timestamp of the first visit to /empreendedores/crescer%."
+      - name: first_visit_date
+        description: "Date of the first visit to /empreendedores/crescer%."
+      - name: deps_ms_updated_on
+        description: "Max sys_audit_updated_on from Merchant Sellers staging for the store."
+      - name: deps_sc_updated_on
+        description: "sys_audit_updated_on from store core ref for the store."
+      - name: deps_lc_updated_on
+        description: "sys_audit_updated_on from lifecycle ref for the store."
+      - name: deps_at_updated_on
+        description: "Max sys_audit_updated_on from attribution model for the store."
+      - name: deps_last_updated_on
+        description: "Greatest timestamp across dependency audits used for incremental scoping."
+      - name: year_month_day_code
+        description: "YYYYMMDD partition code derived from partition_date."
+        tests: [not_null]
+      - name: sys_audit_created_on
+        description: "Row creation timestamp (preserved across updates)."
+        tests: [not_null]
+      - name: sys_audit_created_by
+        description: "Creator process/user (preserved)."
+        tests: [not_null]
+      - name: sys_audit_updated_on
+        description: "Last update timestamp."
+        tests: [not_null]
+      - name: sys_audit_updated_by
+        description: "Last updater process/user."
+        tests: [not_null]
+      - name: row_hash
+        description: "MD5 over business columns to detect content changes."
+        tests: [not_null]
