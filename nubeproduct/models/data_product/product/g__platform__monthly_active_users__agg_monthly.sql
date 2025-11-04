@@ -4,6 +4,19 @@
     unique_key=['unique_id'],
     replace_where="registered_month = date_trunc('month', current_date)",
     on_schema_change='fail',
+    pre_hook = [
+        """
+        {% if is_incremental() %}
+        {% if execute %}
+        {% set relation = adapter.get_relation(database=this.database, schema=this.schema, identifier=this.identifier) %}
+        {% if relation is not none %}
+        DELETE FROM {{ this }}
+        WHERE registered_month = date_trunc('month', current_date());
+        {% endif %}
+        {% endif %}
+        {% endif %}
+        """
+    ],
     tags=['daily-8am']
 ) }}
 
@@ -75,7 +88,7 @@ api_hits as (
     {% else %}
         true
     {% endif %}
-)
+),
 aux as (
     select distinct
         concat(s.registered_month, '_', s.store_id, '_', coalesce(s.app_id, 999999)) as unique_id,
@@ -93,22 +106,22 @@ aux as (
         ao.total_gmv_usd as app_gmv_usd
         ,ah.total_api_hits as app_api_hits
         ,case 
-            when app_category = 'tools'
-             and is_app_active
-             and is_script_active
-             and total_api_hits > 0
+            when s.app_category = 'tools'
+                and is_app_active = 1
+                and is_script_active = 1
+                and total_api_hits > 0
             then true
-         when app_category = 'shipping'
-          and is_app_active
-          and is_shipping_carrier_active
-          and total_api_hits > 0
-       then true
-         when app_category not in ('tools', 'shipping')
-          and is_app_active
-          and total_api_hits > 0
-       then true
-   else false
-   end as is_monthly_mau
+        when s.app_category = 'shipping'
+            and is_app_active = 1
+            and is_shipping_carrier_active = 1
+            and total_api_hits > 0
+        then true
+            when s.app_category not in ('tools', 'shipping')
+            and is_app_active = 1
+            and total_api_hits > 0
+        then true
+        else false
+    end as is_monthly_mau
     from store_app_dates s
     left join orders o
         on s.store_id = o.store_id

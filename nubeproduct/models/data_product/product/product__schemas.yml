@@ -2972,8 +2972,6 @@ models:
         description: "Merchant phone."
       - name: store_vertical
         description: "Store vertical."
-      - name: group_name
-        description: "Store group name."
       - name: creation_date
         description: "Store creation date."
       - name: first_payment
@@ -3054,6 +3052,10 @@ models:
         description: "App GMV in local currency in the store in the month."
       - name: app_gmv_usd
         description: "App GMV in USD in the store in the month."
+      - name: app_api_hits
+        description: "App API hits in the store in the month."
+      - name: is_monthly_mau
+        description: "App is monthly active user in the store in the month."
       - name: sys_audit_created_on
         description: "Audit: created timestamp."
       - name: sys_audit_created_by
