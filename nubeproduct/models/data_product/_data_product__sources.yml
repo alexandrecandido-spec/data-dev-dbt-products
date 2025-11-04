@@ -22,6 +22,7 @@ sources:
       - name: mwp_plans_countries
       - name: mwp_store_info
       - name: mwp_store_settings
+      - name: mwp_email_templates_v2
 
   - name: dp_finances
     database: hive_metastore
@@ -87,4 +88,40 @@ sources:
         description: "It includes every possible answer choice for the pre-onboarding survey questions that the user will see in the frontend."
       - name: domain_mappings
         description: "It links the question groups of the questionnaires with the answer options from the domain types."
+
+  - name: dp_zendesk_support_prod
+    database: raw
+    schema: zendesk_support_prod
+    description: "Data Product tables built from raw data in the zendesk_support_prod schema, typically used to normalize or enrich support(CX) team information."
+    tables:
+      - name: groups
+        description: "Contains information about support agent groups used for ticket assignment, workflow organization, and permissions management."
+      - name: macros
+        description: "Stores predefined actions or responses (macros) that agents can apply to tickets to automate repetitive tasks and standardize support processes."
+      - name: organizations
+        description: "Holds data about customer organizations, grouping end users and companies to facilitate ticket routing, reporting, and SLA management."
+      - name: ticket_activities
+        description: "Tracks various high-level activities or events related to tickets, such as creation, updates, merges, or satisfaction surveys."
+      - name: ticket_audits
+        description: "Records a detailed log of all changes and events applied to a ticket, including field updates, status transitions, and automation triggers."
+      - name: ticket_comments
+        description: "Contains all public and internal comments or replies associated with tickets, including metadata about authors, visibility, and timestamps."
+      - name: tickets
+        description: "Represents the core Zendesk support tickets — customer requests or incidents — including status, priority, requester, assignee, and organization data."
+      - name: users
+        description: "Stores all user profiles in the Zendesk account, including end users, agents, and administrators, along with their roles and contact information."
+      - name: legacy_macros_usage
+        description: "Historical snapshot of Zendesk macros usage data, capturing how predefined actions were applied to tickets over time for auditing and trend analysis."
+      - name: legacy_ticket_history
+        description: "Historical snapshot of Zendesk ticket events and status changes, storing ticket lifecycle data extracted from ticket audit logs for analytical purposes."
+      - name: legacy_chats
+        description: "Historical snapshot of Zendesk chats, storing data extracted from ticket audit logs for analytical purposes."
+
+  - name: dp_testing
+    database: hive_metastore
+    schema: testing
+    description: "Testing schema containing historical data migrated from notebooks"
+    tables:
+      - name: daily_email_template_data
+        description: "Historical data from notebook process for daily email template usage (orderreadyforpickup events)"
 

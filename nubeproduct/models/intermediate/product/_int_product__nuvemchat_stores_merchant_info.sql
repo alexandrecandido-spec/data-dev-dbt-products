@@ -28,12 +28,12 @@ nc_data.*,
     WHEN nc_data.onboarding = true THEN 'onboarding'
 ELSE 'issues' END AS chatnube_state,
  CASE 
-    WHEN nc_data.current_invoice_state = 'paid' AND (nc_data.ai_conversations_after_invoice > 0 OR nc_data.days_since_last_invoice <= 10) THEN 'on track'
+    WHEN nc_data.current_invoice_state = 'paid' AND (nc_data.ai_conversations_after_invoice > 0 OR nc_data.days_since_last_invoice <= 10)  THEN 'on track'
     WHEN nc_data.current_invoice_state = 'paid' AND coalesce(nc_data.ai_conversations_after_invoice, 0) = 0  AND nc_data.days_since_last_invoice > 10 THEN 'churn'
     WHEN nc_data.onboarding = false AND coalesce(nc_data.total_invoices, 0) = 0 AND (nc_data.trial_end_date < current_date OR nc_data.trial_end_date is NULL) AND (coalesce(nc_data.conversations_after_trial, 0) = 0 OR nc_data.last_conversation_date <= DATE('2025-07-31')) THEN 'not converted'
     WHEN nc_data.onboarding = false AND coalesce(nc_data.total_invoices, 0) = 0 AND (nc_data.trial_end_date >= date_sub(current_date, 30) OR nc_data.trial_start_date >= date_sub(current_date, 45)) AND nc_data.cycle_end_date >= current_date AND nc_data.conversations_after_trial > 0 THEN 'on track'
     WHEN nc_data.current_invoice_state = 'unpaid' AND coalesce(nc_data.paid_invoices, 0) = 0 AND current_date<=grace_until THEN 'on track'
-    WHEN nc_data.current_invoice_state = 'unpaid' AND nc_data.paid_invoices > 0 AND current_date<=grace_until THEN 'on track'
+    WHEN nc_data.current_invoice_state = 'unpaid' AND nc_data.paid_invoices > 0 AND current_date<=grace_until AND unpaid_invoices_since_last_paid=1 THEN 'on track'
     WHEN nc_data.current_invoice_state = 'unpaid' AND (current_date>grace_until OR unpaid_invoices_since_last_paid>1 ) AND nc_data.paid_invoices > 0 THEN 'churn'
     WHEN nc_data.current_invoice_state = 'unpaid' AND current_date>grace_until AND coalesce(nc_data.paid_invoices, 0) = 0 THEN 'not converted'
     WHEN nc_data.trial_end_date >= current_date THEN 'trial'
@@ -45,7 +45,7 @@ ELSE 'issues' END AS chatnube_state,
 ELSE 'issues' END AS chatnube_state_group,
  CASE
   WHEN nc_data.current_invoice_state = 'paid' AND coalesce(nc_data.ai_conversations_after_invoice, 0) = 0 AND nc_data.days_since_last_invoice > 10 THEN date_add(nc_data.invoice_created_at, 11)
-  WHEN nc_data.current_invoice_state = 'unpaid' AND nc_data.days_since_last_invoice > 10 AND nc_data.paid_invoices > 0 THEN date_add(nc_data.invoice_created_at, 11)
+  WHEN nc_data.current_invoice_state = 'unpaid' AND (current_date>grace_until OR unpaid_invoices_since_last_paid>1) AND nc_data.paid_invoices > 0 THEN date_add(nc_data.invoice_created_at, 11)
   ELSE NULL END AS churned_date,
 msi.country,
 gp.grupo AS plan_group,
