@@ -54,9 +54,10 @@ SELECT
 FROM 
     {{ ref('_int_storefronts_sessions_checkout_events_summary') }} i
 WHERE
-    -- Aplicamos la lógica de incrementalidad de fecha (ventana de 7 días para seguridad)
+    -- Aplicamos la lógica de incrementalidad de fecha
     {% if is_incremental() %}
-         i.base_date {{ get_max_date(this, 'base_date', 1, 'month') }}
+         i.base_date >= (select DATE_SUB(max(base_date), 60) from {{ this }})
+         and i.base_date < (select DATEADD(day,30,max(base_date)) from {{ this }})
     {% else %}
         -- Lógica de primera carga (ajusta el rango según sea necesario)
          i.base_date BETWEEN DATE('2025-01-01') AND DATE('2025-01-31') 
