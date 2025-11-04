@@ -334,7 +334,19 @@ models:
         description: "Unique identifier of the ticket in Zendesk."
         tests:
           - not_null
-      - name: status_value
+      - name: event_id
+        description: "Monotonic event identifier from Zendesk used to guarantee deterministic ordering within each ticket."
+        tests:
+          - not_null
+      - name: assignee_id
+        description: "Latest known assignee responsible for the ticket at the moment of this satisfaction event. Forward-filled from previous assignee changes; uses -1 when no assignee existed at that point."
+        tests:
+          - not_null
+      - name: group_id
+        description: "Latest known Zendesk group associated with the ticket at the moment of this satisfaction event. Forward-filled from previous group changes; uses -1 when no group existed at that point."
+        tests:
+          - not_null
+      - name: status
         description: "Normalized (lowercased) status value captured from ticket events."
         tests:
           - not_null
@@ -372,5 +384,65 @@ models:
           - not_null
       - name: sys_audit_updated_by
         description: "System or user that last updated the row."
+        tests:
+          - not_null
+
+  - name: s__general__zendesk_satisfaction_score__event
+    description: >
+      Event-level table that tracks Zendesk ticket satisfaction score changes,
+      along with the latest known assignee_id and group_id at the moment of each
+      satisfaction event. Each row represents a point in time when a
+      satisfaction-related event occurred, after applying a forward-fill logic
+      for assignee and group attributes.
+    meta:
+      domain: "cx"
+      owner: "valeria.nascimento@nuvemshop.com.br"
+      business_owner: "Operations"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ticket_id
+            - event_id
+    columns:
+      - name: ticket_id
+        description: "Unique identifier of the ticket in Zendesk."
+        tests:
+          - not_null
+      - name: event_timestamp
+        description: "UTC timestamp when the satisfaction or related event occurred in Zendesk."
+        tests:
+          - not_null
+      - name: event_id
+        description: "Monotonic event identifier from Zendesk used to guarantee deterministic ordering within each ticket."
+        tests:
+          - not_null
+      - name: satisfaction_score
+        description: "Satisfaction score value captured at this event. Represents the most recent non-null score up to this point in time (e.g., offered, good, bad)."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['offered', 'good', 'bad']
+      - name: assignee_id
+        description: "Latest known assignee responsible for the ticket at the moment of this satisfaction event. Forward-filled from previous assignee changes; uses -1 when no assignee existed at that point."
+        tests:
+          - not_null
+      - name: group_id
+        description: "Latest known Zendesk group associated with the ticket at the moment of this satisfaction event. Forward-filled from previous group changes; uses -1 when no group existed at that point."
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created by the dbt process."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "System or user that created the row (usually the dbt job user)."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp of the most recent update to the row by the dbt process."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row (usually the dbt job user)."
         tests:
           - not_null
