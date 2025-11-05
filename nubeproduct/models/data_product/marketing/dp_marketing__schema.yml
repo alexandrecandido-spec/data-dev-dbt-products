@@ -1941,8 +1941,6 @@ models:
         description: "Timestamp when the row was last updated in this table."
         tests:
           - not_null
-
-
   # ================================================================
   # PRODUCT MARKETING: PAYMENTS (SILVER REF)
   # ================================================================
@@ -1987,4 +1985,3 @@ models:
         description: "Timestamp of when this record was last updated in our data warehouse"
       - name: sys_audit_updated_by
         description: "System identifier of the process that last updated this record"
-
