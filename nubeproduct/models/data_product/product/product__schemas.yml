@@ -2972,8 +2972,6 @@ models:
         description: "Merchant phone."
       - name: store_vertical
         description: "Store vertical."
-      - name: group_name
-        description: "Store group name."
       - name: creation_date
         description: "Store creation date."
       - name: first_payment
@@ -3054,6 +3052,10 @@ models:
         description: "App GMV in local currency in the store in the month."
       - name: app_gmv_usd
         description: "App GMV in USD in the store in the month."
+      - name: app_api_hits
+        description: "App API hits in the store in the month."
+      - name: is_monthly_mau
+        description: "App is monthly active user in the store in the month."
       - name: sys_audit_created_on
         description: "Audit: created timestamp."
       - name: sys_audit_created_by
@@ -3493,3 +3495,149 @@ models:
         description: "Timestamp of when this record was last updated in our data warehouse"
       - name: sys_audit_updated_by
         description: "System identifier of the process that last updated this record"
+    
+  - name: s__orders__ready_for_pickup_template_usage__event
+    description: >
+      Store level table with data on the current state of the ready for pickup template (active/inactive) and timestamps of when it was first and last active (historical data from the
+      s__orders__ready_for_pickup_template_usage__snapshot_daily model).
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "product"
+        business_owner: "Martin Palombo"
+    columns:
+      - name: store_id
+        description: "Unique identifier of the store."
+        tests:
+          - not_null
+          - unique
+      - name: domain
+        description: "Domain of the store."
+      - name: current_segment
+        description: "Current segment of the store."
+      - name: state
+        description: "State of the store."
+      - name: merchant_created_at
+        description: "Date when the merchant created the store. Only merchants created before 2025-08-06 have the choice to active template. Others are originated with it enabled."
+      - name: currently_active
+        description: "Boolean flag indicating if the template is currently active for this merchant."
+      - name: first_active_at
+        description: "Date when the template was first active for this merchant."
+      - name: last_active_at
+        description: "Date when the template was last active for this merchant."
+      - name: sys_audit_created_by
+        description: "Identifier for the user or system that created this record."
+      - name: sys_audit_updated_on
+        description: "Timestamp when the record was last updated in the DBT model."
+      - name: sys_audit_updated_by
+        description: "Identifier for the user or system that last updated this record."
+  
+  - name: s__orders__ready_for_pickup_template_usage__snapshot_daily
+    description: >
+      Daily snapshots of the ready for pickup template usage (active/inactive) for each store.
+    config:
+      meta:
+        owner: "sol.abelley@tiendanube.com"
+        domain: "product"
+        business_owner: "Martin Palombo"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - store_id
+            - report_date
+    columns:
+      - name: store_id
+        description: "Unique identifier of the store."
+        tests:
+          - not_null
+      - name: report_date
+        description: "Date when the snapshot was taken."
+        tests:
+          - not_null
+      - name: domain
+        description: "Domain of the store."
+      - name: active
+        description: "Boolean flag indicating if the template is currently active for the merchant or not"
+      - name: state
+        description: "State of the store"
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first created in the DBT model."
+      - name: sys_audit_created_by
+        description: "Identifier for the user or system that created this record."
+      - name: sys_audit_updated_on
+        description: "Timestamp when the record was last updated in the DBT model."
+      - name: sys_audit_updated_by
+        description: "Identifier for the user or system that last updated this record."
+
+  - name: s__nuvem_pago__chargebacks__event
+    description: >
+      Data product that contains the chargebacks from Nuvem Pago and Pago Nube.
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "product"
+        business_owner: "Martin Palombo"
+    columns:
+      - name: cbk_id
+        description: "Unique identifier of the chargeback."
+        tests:
+          - not_null
+          - unique
+      - name: store_id
+        description: "Unique identifier of the store."
+        tests:
+          - not_null
+      - name: order_id
+        description: "Unique identifier of the order."
+        tests:
+          - not_null
+      - name: cbk_events
+        description: "Events of the chargeback and timestamps"
+      - name: cbk_amount
+        description: "Amount of the chargeback."
+      - name: cbk_chargeback
+        description: "Additional data of the chargeback (deadline, reason, status, etc.)"
+      - name: cbk_customer
+        description: "Data from the customer that made the chargeback."
+      - name: cbk_deadline
+        description: "Deadline of the chargeback."
+      - name: cbk_created_at
+        description: "Timestamp when the chargeback was created."
+      - name: order_paid_at
+        description: "Timestamp when the order was paid."
+      - name: cbk_reason
+        description: "Reason of the chargeback."
+      - name: cbk_status
+        description: "Status of the chargeback (resolved_insurance, resolved_without_dispute, etc.)"
+      - name: cbk_failure_reason
+        description: "Failure reason of the chargeback."
+      - name: cbk_order_number
+        description: "Order number of the order with the chargeback."
+      - name: cbk_origin
+        description: "Origin of the chargeback."
+      - name: cbk_payment_method
+        description: "Payment method of the order with the chargeback."
+      - name: cbk_remaining_amount_to_refund
+        description: "Remaining amount to refund"
+      - name: order_cbk_status
+        description: "Status of the chargeback on the order (chargebacked or paid)"
+      - name: cbk_year_month_code
+        description: "Year and month code of the chargeback."
+      - name: country
+        description: "Country of the store."
+      - name: domain
+        description: "Domain of the store."
+      - name: state
+        description: "State of the store."
+      - name: current_segment
+        description: "Current segment of the store."
+      - name: plan_name
+        description: "Name of the plan of the store."
+      - name: sys_audit_created_on
+        description: "Timestamp when the chargeback was created."
+      - name: sys_audit_created_by
+        description: "User or system that created the chargeback."
+      - name: sys_audit_updated_on
+        description: "Timestamp when the chargeback was last updated."
+      - name: sys_audit_updated_by
+        description: "User or system that last updated the chargeback."
