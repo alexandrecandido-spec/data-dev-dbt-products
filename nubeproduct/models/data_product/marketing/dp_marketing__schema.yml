@@ -1942,18 +1942,8 @@ models:
         tests:
           - not_null
 
-  # ================================================================
-  # PRODUCT MARKETING: SHIPPING (SILVER REF)
-  # ================================================================
   - name: s__product_marketing__shipping__ref
-    description: |
-      **Data Product SILVER REF: Shipping Configuration Metrics**
-      
-      Métricas de configuración de métodos de envío por tienda durante el onboarding.
-      Completo cuando la tienda activó un carrier con status activo.
-      
-      **Domain:** marketing  
-      **Granularity:** ref (one row per store)
+    description: "**Data Product SILVER REF: Shipping Configuration Metrics**\n\nMétricas de configuración de métodos de envío por tienda durante el onboarding.\nCompleto cuando la tienda activó un carrier con status activo.\n\n**Domain:** marketing\n**Granularity:** ref (one row per store)"
     meta:
       owner: "jhu.boggio@tiendanube.com"
       domain: "marketing"
@@ -1964,20 +1954,16 @@ models:
         tests:
           - not_null
           - unique
-      
       - name: config_shipping
         description: "Indica si la tienda configuró métodos de envío. 1 = configurado, 0 = no configurado"
         tests:
           - not_null
           - accepted_values:
               values: [0, 1]
-      
       - name: first_date_config_shipping
         description: "Fecha de la primera configuración de carrier activo"
-      
       - name: last_date_config_shipping
         description: "Fecha de la última configuración de carrier activo"
-      
       - name: sys_audit_created_on
         description: "Timestamp of when this record was created in our data warehouse"
       - name: sys_audit_created_by
