@@ -1942,3 +1942,49 @@ models:
         tests:
           - not_null
 
+
+  # ================================================================
+  # PRODUCT MARKETING: PAYMENTS (SILVER REF)
+  # ================================================================
+  - name: s__product_marketing__payments__ref
+    description: |
+      **Data Product SILVER REF: Payments Configuration Metrics**
+      
+      Métricas de configuración de métodos de pago por tienda durante el onboarding.
+      Completo en la primera ocurrencia del evento PaymentProviderRegistered.
+      
+      **Domain:** marketing  
+      **Granularity:** ref (one row per store)
+    meta:
+      owner: "jhu.boggio@tiendanube.com"
+      domain: "marketing"
+      business_owner: "Giselle Galli"
+    columns:
+      - name: store_id
+        description: "ID único de la tienda"
+        tests:
+          - not_null
+          - unique
+      
+      - name: config_payment
+        description: "Indica si la tienda configuró métodos de pago. 1 = configurado, 0 = no configurado"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [0, 1]
+      
+      - name: first_date_config_payment
+        description: "Fecha del primer evento PaymentProviderRegistered"
+      
+      - name: last_date_config_payment
+        description: "Fecha del último evento PaymentProviderRegistered"
+      
+      - name: sys_audit_created_on
+        description: "Timestamp of when this record was created in our data warehouse"
+      - name: sys_audit_created_by
+        description: "System identifier of the process that created this record"
+      - name: sys_audit_updated_on
+        description: "Timestamp of when this record was last updated in our data warehouse"
+      - name: sys_audit_updated_by
+        description: "System identifier of the process that last updated this record"
+
