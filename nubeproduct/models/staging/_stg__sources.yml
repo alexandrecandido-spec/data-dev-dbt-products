@@ -53,6 +53,8 @@ sources:
         description: "Table with zipcodes from Brazil."
       - name: mwp_shipping_carriers
         description: "Table with shipping carriers"
+      - name: mwp_shipping_carriers_options
+        description: "Table with shipping carrier options and settings"
 
 
   - name: stg_orders
