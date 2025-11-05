@@ -29,8 +29,14 @@ La fecha de completitud es la última de las tres configuraciones.
 */
 
 WITH existing_data AS (
-    {{ get_existing_data(this, ['store_id', 'sys_audit_created_on', 'sys_audit_created_by']) }}
+    {{ get_existing_data(this, ['store_id', 'sys_audit_created_on', 'sys_audit_created_by', 'config_layout']) }}
 ),
+{% if is_incremental() %}
+last_updated AS (
+    SELECT COALESCE(MAX(sys_audit_updated_on), TIMESTAMP '1900-01-01') AS max_updated_on
+    FROM {{ this }}
+),
+{% endif %}
 banner_config AS (
     SELECT
         opt.store_id,
@@ -99,22 +105,36 @@ SELECT
     END) AS config_layout,
     -- Nombre del tema/layout actual
     MAX(CASE WHEN lt.rn = 1 THEN lt.layout_name END) AS layout_name,
-    -- Primera fecha de config = la más temprana de las 3
-    MIN(LEAST(
-        COALESCE(bc.first_banner_date, CAST('9999-12-31' AS TIMESTAMP)),
-        COALESCE(sc.first_slider_date, CAST('9999-12-31' AS TIMESTAMP)),
-        COALESCE(cc.first_colors_date, CAST('9999-12-31' AS TIMESTAMP))
-    )) AS first_date_config_layout,
-    -- Última fecha de config = la más tardía de las 3 (fecha de completitud)
-    MAX(GREATEST(
-        COALESCE(bc.last_banner_date, CAST('1900-01-01' AS TIMESTAMP)),
-        COALESCE(sc.last_slider_date, CAST('1900-01-01' AS TIMESTAMP)),
-        COALESCE(cc.last_colors_date, CAST('1900-01-01' AS TIMESTAMP))
-    )) AS last_date_config_layout,
+    -- Primera fecha de config = la más temprana de las configuraciones que tiene
+    -- Si no tiene ninguna configuración, retorna NULL en lugar de placeholder date
+    CASE 
+        WHEN bc.first_banner_date IS NULL 
+            AND sc.first_slider_date IS NULL 
+            AND cc.first_colors_date IS NULL 
+        THEN NULL
+        ELSE LEAST(
+            COALESCE(bc.first_banner_date, CAST('9999-12-31' AS TIMESTAMP)),
+            COALESCE(sc.first_slider_date, CAST('9999-12-31' AS TIMESTAMP)),
+            COALESCE(cc.first_colors_date, CAST('9999-12-31' AS TIMESTAMP))
+        )
+    END AS first_date_config_layout,
+    -- Última fecha de config = la más tardía de las configuraciones que tiene (fecha de completitud)
+    -- Si no tiene ninguna configuración, retorna NULL en lugar de placeholder date
+    CASE 
+        WHEN bc.last_banner_date IS NULL 
+            AND sc.last_slider_date IS NULL 
+            AND cc.last_colors_date IS NULL 
+        THEN NULL
+        ELSE GREATEST(
+            COALESCE(bc.last_banner_date, CAST('1900-01-01' AS TIMESTAMP)),
+            COALESCE(sc.last_slider_date, CAST('1900-01-01' AS TIMESTAMP)),
+            COALESCE(cc.last_colors_date, CAST('1900-01-01' AS TIMESTAMP))
+        )
+    END AS last_date_config_layout,
     
     -- Auditoría
-    MAX(COALESCE(ed.sys_audit_created_on, current_timestamp)) AS sys_audit_created_on,
-    MAX(COALESCE(ed.sys_audit_created_by, 'data-dev-dbt-products')) AS sys_audit_created_by,
+    COALESCE(ed.sys_audit_created_on, current_timestamp) AS sys_audit_created_on,
+    COALESCE(ed.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by,
     current_timestamp AS sys_audit_updated_on,
     'data-dev-dbt-products' AS sys_audit_updated_by
     
@@ -126,7 +146,20 @@ LEFT JOIN layout_theme lt ON s.store_id = lt.store_id AND lt.rn = 1
 LEFT JOIN existing_data ed ON s.store_id = ed.store_id
 WHERE s.created_at > '2024-01-01'
 {% if is_incremental() %}
-    AND s.store_id NOT IN (SELECT store_id FROM {{ this }})
+    AND (
+        -- Procesar tiendas nuevas (no existen en tabla)
+        ed.store_id IS NULL
+        -- O tiendas existentes que NO están completas (config_layout = 0 o NULL)
+        -- Y tienen cambios recientes en configuraciones
+        OR (
+            COALESCE(ed.config_layout, 0) = 0
+            AND GREATEST(
+                COALESCE(bc.last_banner_date, TIMESTAMP '1900-01-01'),
+                COALESCE(sc.last_slider_date, TIMESTAMP '1900-01-01'),
+                COALESCE(cc.last_colors_date, TIMESTAMP '1900-01-01')
+            ) > (SELECT max_updated_on FROM last_updated)
+        )
+    )
 {% endif %}
 GROUP BY s.store_id
 
