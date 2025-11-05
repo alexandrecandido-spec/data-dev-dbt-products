@@ -1942,3 +1942,74 @@ models:
         tests:
           - not_null
 
+
+  # ================================================================
+  # PRODUCT MARKETING: LAYOUT (SILVER REF)
+  # ================================================================
+  - name: s__product_marketing__layout__ref
+    description: |
+      **Data Product SILVER REF: Layout Configuration Metrics**
+      
+      Métricas de configuración de layout/tema por tienda durante el onboarding.
+      El layout se considera completamente configurado cuando la tienda ha personalizado banner, slider Y colors.
+      La fecha de completitud es la última de las tres configuraciones.
+      
+      **Domain:** marketing  
+      **Granularity:** ref (one row per store)
+    meta:
+      owner: "jhu.boggio@tiendanube.com"
+      domain: "marketing"
+      business_owner: "Giselle Galli"
+    columns:
+      - name: store_id
+        description: "ID único de la tienda"
+        tests:
+          - not_null
+          - unique 
+      
+      - name: config_banner
+        description: "Indica si la tienda configuró el banner. 1 = configurado, 0 = no configurado"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [0, 1]
+      
+      - name: config_slider
+        description: "Indica si la tienda configuró el slider. 1 = configurado, 0 = no configurado"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [0, 1]
+      
+      - name: config_colors
+        description: "Indica si la tienda configuró los colores personalizados. 1 = configurado, 0 = no configurado"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [0, 1]
+      
+      - name: config_layout
+        description: "Indica si el layout está completamente configurado (banner + slider + colors). 1 = configurado, 0 = no configurado"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [0, 1]
+      
+      - name: layout_name
+        description: "Nombre del tema/template actual instalado (ej: 'sydney', 'tokyo')"
+      
+      - name: first_date_config_layout
+        description: "Fecha de la primera configuración de layout (la más temprana entre banner, slider o colors)"
+      
+      - name: last_date_config_layout
+        description: "Fecha de completitud del layout (la más tardía entre banner, slider y colors)"
+      
+      - name: sys_audit_created_on
+        description: "Timestamp of when this record was created in our data warehouse"
+      - name: sys_audit_created_by
+        description: "System identifier of the process that created this record"
+      - name: sys_audit_updated_on
+        description: "Timestamp of when this record was last updated in our data warehouse"
+      - name: sys_audit_updated_by
+        description: "System identifier of the process that last updated this record"
+
