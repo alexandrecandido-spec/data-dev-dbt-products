@@ -3818,8 +3818,6 @@ models:
         description: "Store identifier mapped by domain (nullable if no match or ambiguous)."
       - name: mapping_method
         description: "Mapping strategy used to derive store_id from domain."
-      - name: source_slice
-        description: "Source worksheet slice identifier within the manual dataset ('a_s' or 't_z')."
       - name: domain
         description: "Raw domain (lowercased and trimmed) from the manual source."
       - name: emails
