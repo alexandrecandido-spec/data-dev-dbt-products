@@ -154,20 +154,27 @@ LEFT JOIN layout_theme lt ON s.store_id = lt.store_id AND lt.rn = 1
 LEFT JOIN existing_data ed ON s.store_id = ed.store_id
 WHERE s.created_at > '2024-01-01'
 {% if is_incremental() %}
+    -- Procesar tiendas nuevas (no existen en tabla) o tiendas existentes que NO están completas
     AND (
-        -- Procesar tiendas nuevas (no existen en tabla)
         ed.store_id IS NULL
-        -- O tiendas existentes que NO están completas (config_layout = 0 o NULL)
-        -- Y tienen cambios recientes en configuraciones
-        OR (
-            COALESCE(ed.config_layout, 0) = 0
-            AND GREATEST(
-                COALESCE(bc.last_banner_date, TIMESTAMP '1900-01-01'),
-                COALESCE(sc.last_slider_date, TIMESTAMP '1900-01-01'),
-                COALESCE(cc.last_colors_date, TIMESTAMP '1900-01-01')
-            ) > (SELECT max_updated_on FROM last_updated)
-        )
+        OR COALESCE(ed.config_layout, 0) = 0
     )
 {% endif %}
 GROUP BY s.store_id
+{% if is_incremental() %}
+HAVING 
+    -- Procesar todas las tiendas nuevas (no existen en tabla)
+    -- ANY_VALUE() necesario porque ed viene de LEFT JOIN y necesitamos agregar en contexto GROUP BY
+    ANY_VALUE(ed.store_id) IS NULL
+    -- O tiendas incompletas con cambios recientes en configuraciones
+    -- MAX() necesario porque estamos en contexto GROUP BY y usamos columnas de JOINs
+    OR (
+        COALESCE(ANY_VALUE(ed.config_layout), 0) = 0
+        AND GREATEST(
+            COALESCE(MAX(bc.last_banner_date), TIMESTAMP '1900-01-01'),
+            COALESCE(MAX(sc.last_slider_date), TIMESTAMP '1900-01-01'),
+            COALESCE(MAX(cc.last_colors_date), TIMESTAMP '1900-01-01')
+        ) > (SELECT max_updated_on FROM last_updated)
+    )
+{% endif %}
 
