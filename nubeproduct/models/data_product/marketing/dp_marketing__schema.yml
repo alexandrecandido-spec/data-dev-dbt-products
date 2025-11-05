@@ -1956,20 +1956,16 @@ models:
         tests:
           - not_null
           - unique
-      
       - name: config_payment
         description: "Indica si la tienda configuró métodos de pago. 1 = configurado, 0 = no configurado"
         tests:
           - not_null
           - accepted_values:
               values: [0, 1]
-      
       - name: first_date_config_payment
         description: "Fecha del primer evento PaymentProviderRegistered"
-      
       - name: last_date_config_payment
         description: "Fecha del último evento PaymentProviderRegistered"
-      
       - name: sys_audit_created_on
         description: "Timestamp of when this record was created in our data warehouse"
       - name: sys_audit_created_by
