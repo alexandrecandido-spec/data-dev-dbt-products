@@ -9,7 +9,7 @@ WITH base AS (
         CAST(start_date AS DATE) AS start_date,
         CAST(end_date AS DATE) AS end_date,
         c.sys_audit_updated_on
-    FROM {{ ref('product__billing__contracts__scd') }} c
+    FROM {{ ref('billing__contracts__store_contract__scd') }} c
     left join {{ ref('s__general__grouping_plans__ref') }} p on p.plan = c.plan_id
 ),
 
@@ -38,10 +38,14 @@ flags AS (
         WHEN prev_end_date IS NULL THEN 1
         -- 🔹 cambia de plan
         WHEN plan_name != prev_plan THEN 1
-        -- 🔹 cambia de tipo (por ejemplo trial → standard o pre-churn → standard)
-        WHEN type != prev_type THEN 1
-        -- 🔹 hay gap entre periodos (no continuidad)
+        -- 🔹 si cambia el plan, SIEMPRE nuevo bloque
         WHEN start_date > prev_end_date THEN 1
+        -- 🔹 hay gap entre periodos (no continuidad)
+        WHEN type IN ('change-plan','change-plan-free-until-next-bill')
+           AND COALESCE(plan_name,'~') = COALESCE(prev_plan,'~') THEN 0
+        -- 🔹 si es change-plan* y NO cambió el plan, NO abrir bloque
+        WHEN type != prev_type THEN 1
+        -- 🔹 cambia de tipo (por ejemplo trial → standard o pre-churn → standard)
         ELSE 0
     END AS new_block_flag
   FROM ordered
@@ -56,18 +60,29 @@ grouped AS (
             ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
         ) AS group_id
     FROM flags
+),
+
+-- 4️⃣ Determinamos el tipo representativo del bloque
+typed AS (
+    SELECT
+        g.*,
+        FIRST_VALUE(CASE 
+            WHEN type NOT IN ('change-plan','change-plan-free-until-next-bill') 
+            THEN type END) 
+            IGNORE NULLS OVER (PARTITION BY store_id, group_id ORDER BY start_date, id) AS main_type
+    FROM grouped g
 )
 
--- 4️⃣ Consolidamos por bloque
+-- 5️⃣ Consolidamos por bloque
 SELECT
 store_id,
 plan_name,
-type AS contract_type,
+main_type AS contract_type,
 MIN(id) AS contract_id,
 MIN(created_at_contract) AS created_at_contract,
 MIN(start_date) AS start_date,
 MAX(end_date) AS end_date,
 MAX(sys_audit_updated_on) AS sys_audit_updated_on
-FROM grouped
-GROUP BY store_id, plan_name, type, group_id
+FROM typed
+GROUP BY store_id, plan_name, main_type, group_id
 ORDER BY store_id, start_date

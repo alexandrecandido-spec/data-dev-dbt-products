@@ -4,7 +4,7 @@
         incremental_strategy = 'merge',
         unique_key='id',
         on_schema_change='fail',
-        tags = ['product','daily-6am']
+        tags = ['billing','daily-6am']
     )
 }}
 

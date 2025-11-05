@@ -1,24 +1,24 @@
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'merge',
-    unique_key = ['contract_id'],
+    unique_key = ['hash_key'],
     on_schema_change = 'fail',
-    tags = ['daily-8am-8pm']
+    tags = ['daily-8am']
 ) }}
 
 WITH existing_data AS (
-  {{ get_existing_data(this, ['contract_id', 'sys_audit_created_on', 'sys_audit_created_by']) }}
+  {{ get_existing_data(this, ['hash_key', 'sys_audit_created_on', 'sys_audit_created_by']) }}
 ),
 source_data AS (
-SELECT 
-main_source.contract_id,
+SELECT
 main_source.store_id,
 main_source.plan_name,
 main_source.contract_type,
 main_source.created_at_contract,
 main_source.start_date,
 main_source.end_date,
-main_source.sys_audit_updated_on
+main_source.sys_audit_updated_on,
+main_source.contract_id AS hash_key
 FROM {{ ref('_int__billing__store_contracts') }} main_source
 WHERE
 {% if not is_incremental() %}
@@ -38,4 +38,4 @@ sd.* EXCEPT(sd.sys_audit_updated_on)
 , 'data-dev-dbt-products' AS sys_audit_updated_by 
 FROM source_data sd
 LEFT JOIN existing_data e
-                          ON sd.contract_id = e.contract_id
+                          ON sd.hash_key = e.hash_key
