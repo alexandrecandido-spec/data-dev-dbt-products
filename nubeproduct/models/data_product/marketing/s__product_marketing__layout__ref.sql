@@ -95,6 +95,10 @@ layout_theme AS (
 
 SELECT
     s.store_id,
+    -- Componentes individuales configurados
+    MAX(CASE WHEN bc.store_id IS NOT NULL THEN 1 ELSE 0 END) AS config_banner,
+    MAX(CASE WHEN sc.store_id IS NOT NULL THEN 1 ELSE 0 END) AS config_slider,
+    MAX(CASE WHEN cc.store_id IS NOT NULL THEN 1 ELSE 0 END) AS config_colors,
     -- Layout configurado = tiene banner + slider + colors
     MAX(CASE
         WHEN bc.store_id IS NOT NULL 
@@ -107,7 +111,8 @@ SELECT
     MAX(CASE WHEN lt.rn = 1 THEN lt.layout_name END) AS layout_name,
     -- Primera fecha de config = la más temprana de las configuraciones que tiene
     -- Si no tiene ninguna configuración, retorna NULL en lugar de placeholder date
-    CASE 
+    -- MAX() necesario porque usamos columnas de JOINs en contexto GROUP BY
+    MAX(CASE 
         WHEN bc.first_banner_date IS NULL 
             AND sc.first_slider_date IS NULL 
             AND cc.first_colors_date IS NULL 
@@ -117,10 +122,11 @@ SELECT
             COALESCE(sc.first_slider_date, CAST('9999-12-31' AS TIMESTAMP)),
             COALESCE(cc.first_colors_date, CAST('9999-12-31' AS TIMESTAMP))
         )
-    END AS first_date_config_layout,
+    END) AS first_date_config_layout,
     -- Última fecha de config = la más tardía de las configuraciones que tiene (fecha de completitud)
     -- Si no tiene ninguna configuración, retorna NULL en lugar de placeholder date
-    CASE 
+    -- MAX() necesario porque usamos columnas de JOINs en contexto GROUP BY
+    MAX(CASE 
         WHEN bc.last_banner_date IS NULL 
             AND sc.last_slider_date IS NULL 
             AND cc.last_colors_date IS NULL 
@@ -130,11 +136,13 @@ SELECT
             COALESCE(sc.last_slider_date, CAST('1900-01-01' AS TIMESTAMP)),
             COALESCE(cc.last_colors_date, CAST('1900-01-01' AS TIMESTAMP))
         )
-    END AS last_date_config_layout,
+    END) AS last_date_config_layout,
     
     -- Auditoría
-    COALESCE(ed.sys_audit_created_on, current_timestamp) AS sys_audit_created_on,
-    COALESCE(ed.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by,
+    -- ANY_VALUE() en lugar de MAX() porque cada store_id tiene solo una fila en existing_data
+    -- pero necesitamos agregar en contexto GROUP BY
+    ANY_VALUE(COALESCE(ed.sys_audit_created_on, current_timestamp)) AS sys_audit_created_on,
+    ANY_VALUE(COALESCE(ed.sys_audit_created_by, 'data-dev-dbt-products')) AS sys_audit_created_by,
     current_timestamp AS sys_audit_updated_on,
     'data-dev-dbt-products' AS sys_audit_updated_by
     
