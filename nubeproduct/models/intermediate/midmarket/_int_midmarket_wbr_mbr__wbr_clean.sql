@@ -76,6 +76,12 @@ select
         WHEN rep = 'ts-taynahbreviglieri' THEN 'Taynah Breviglieri'
         WHEN rep = 'ts-toledo' THEN 'Regina Toledo'
         WHEN rep = 'ts-valerialima' THEN 'Valéria Lima'
+        WHEN rep = 'glaucia-pestana' THEN 'Glaucia Pestana'
+        WHEN rep = 'ts-josefaria' THEN 'José Faria'
+        WHEN rep = 'ts-juanmazza' THEN 'Juan Cruz Mazza'
+        WHEN rep = 'ts-mailenavarro' THEN 'Mailé Navarro'
+        WHEN rep = 'ts-maressaperes' THEN 'Maressa Peres'
+        WHEN rep = 'ts-robertoporto' THEN 'Roberto Porto'
         ELSE null
     END as rep,
     case 
