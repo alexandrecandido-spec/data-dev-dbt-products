@@ -139,10 +139,8 @@ aux as (
         and s.registered_month = ah.registered_month
     where 
         s.registered_month >= dateadd(month, -12, date_trunc('month', current_date))
-        and (
-            (ao.total_orders > 0 and first_payment is null) 
-            or (s.first_payment is not null and s.churned_at is null)
-        )
+        and ((ao.total_orders > 0 and first_payment is null) 
+            or (s.first_payment is not null and monthly_fee > 0 and s.churned_at is null))
     {% if is_incremental() %}
         and s.registered_month = date_trunc('month', current_date)
     {% endif %}

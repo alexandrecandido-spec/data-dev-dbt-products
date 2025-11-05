@@ -1594,6 +1594,12 @@ models:
         description: "Plan of the store"
       - name: cancel_reason
         description: "Reason for the order cancellation"
+      - name: first_payment
+        description: "Date when the merchant made their first payment"
+      - name: churned_at
+        description: "Date when the merchant churned"
+      - name: created_at
+        description: "Date when the merchant was created"
       - name: store_id
         description: "Store id of the order"
       - name: domain
@@ -2972,6 +2978,8 @@ models:
         description: "Merchant phone."
       - name: store_vertical
         description: "Store vertical."
+      - name: monthly_fee
+        description: "Store plan monthly fee."
       - name: creation_date
         description: "Store creation date."
       - name: first_payment
