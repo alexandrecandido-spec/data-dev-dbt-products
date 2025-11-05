@@ -13,8 +13,8 @@ cd_counts AS (
     SELECT 
         l.storeid AS store_id,
         GREATEST(
-            MAX(l.sys_audit_updated_on),
-            MAX(il.sys_audit_updated_on)
+            COALESCE(MAX(l.sys_audit_updated_on), '1900-01-01'),
+            COALESCE(MAX(il.sys_audit_updated_on), '1900-01-01')
         ) AS l_max_sys_audit_updated_on,
         COUNT(DISTINCT l.id) AS cd_count,
         COUNT(DISTINCT CASE WHEN l.deletedAt IS NULL THEN l.id END) AS active_cd_count,
@@ -40,8 +40,8 @@ language_countries AS (
     SELECT 
         l.store_id,
         GREATEST(
-            MAX(l.sys_audit_updated_on),
-            MAX(uc.sys_audit_updated_on)
+            COALESCE(MAX(l.sys_audit_updated_on), '1900-01-01'),
+            COALESCE(MAX(uc.sys_audit_updated_on), '1900-01-01')
         ) AS lc_max_sys_audit_updated_on,   
         count(distinct CASE WHEN l.active = 1 THEN l.id END) store_enabled_languages,
         count(distinct CASE WHEN l.active = 1 THEN uc.id END) store_enabled_countries
@@ -62,10 +62,10 @@ SELECT
     lc.store_enabled_languages,
     lc.store_enabled_countries,
     GREATEST(
-        cc.mpc_max_sys_audit_updated_on,
-        cd.l_max_sys_audit_updated_on,
-        gm.gmv_max_sys_audit_updated_on,
-        lc.lc_max_sys_audit_updated_on
+        COALESCE(cc.mpc_max_sys_audit_updated_on, '1900-01-01'),
+        COALESCE(cd.l_max_sys_audit_updated_on, '1900-01-01'),
+        COALESCE(gm.gmv_max_sys_audit_updated_on, '1900-01-01'),
+        COALESCE(lc.lc_max_sys_audit_updated_on, '1900-01-01')
     ) AS c_max_sys_audit_updated_on
 FROM category_counts cc
 FULL OUTER JOIN cd_counts cd ON cc.store_id = cd.store_id
