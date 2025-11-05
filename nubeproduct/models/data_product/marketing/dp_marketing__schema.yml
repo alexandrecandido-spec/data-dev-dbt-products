@@ -1954,24 +1954,26 @@ models:
         description: "Store unique identifier."
         tests: [not_null, unique]
       - name: has_ms_tag
-        description: "Boolean-like flag (1/0) indicating Merchant Sellers tag according to project logic."
+        description: "Flag (1/0) indicating Merchant Sellers tag by project logic."
+        tests:
+          - accepted_values: {values: [0,1]}
       - name: ms_reason
-        description: "Reason for tag: 'external_disparo', 'pre_creation_visit', or 'both'."
+        description: "Reason: 'external_disparo', 'pre_creation_visit', or 'both'."
         tests:
           - accepted_values:
               values: ['external_disparo','pre_creation_visit','both']
       - name: ms_contact_date
-        description: "Contact date used for the tag (first_disparo_date or first_visit_date, whichever applied)."
+        description: "Contact date used for the tag (first_disparo_date or first_visit_date)."
       - name: created_at
-        description: "Store creation date (from store core ref)."
+        description: "Store creation timestamp (from store core)."
       - name: partner_code
-        description: "Partner code (from store core ref)."
+        description: "Partner code (from store core)."
       - name: new_seller_at
-        description: "First seller date when new_seller=1 (from lifecycle ref)."
+        description: "First seller date when new_seller=1 (from lifecycle)."
       - name: first_payment
-        description: "First payment date (from lifecycle ref)."
+        description: "First payment date (from lifecycle)."
       - name: churned_at
-        description: "Churned at date (from lifecycle ref)."
+        description: "Churn date (from lifecycle)."
       - name: domain
         description: "Representative domain from Merchant Sellers base (per store)."
       - name: emails
@@ -1995,26 +1997,28 @@ models:
       - name: mapping_method
         description: "Domain mapping method: domain_exact, domain_clean, or none."
       - name: first_disparo_date
-        description: "Earliest disparo_date among the stores rows in base."
+        description: "Earliest disparo_date among Merchant Sellers rows for the store."
       - name: first_visit_ts
-        description: "Timestamp of the first visit to /empreendedores/crescer%."
+        description: "Timestamp of first visit to /empreendedores/crescer%."
       - name: first_visit_date
-        description: "Date of the first visit to /empreendedores/crescer%."
+        description: "Date of first visit to /empreendedores/crescer%."
       - name: deps_ms_updated_on
-        description: "Max sys_audit_updated_on from Merchant Sellers staging for the store."
+        description: "Max sys_audit_updated_on from Merchant Sellers staging."
       - name: deps_sc_updated_on
-        description: "sys_audit_updated_on from store core ref for the store."
+        description: "sys_audit_updated_on from store core ref."
       - name: deps_lc_updated_on
-        description: "sys_audit_updated_on from lifecycle ref for the store."
+        description: "sys_audit_updated_on from lifecycle ref."
       - name: deps_at_updated_on
-        description: "Max sys_audit_updated_on from attribution model for the store."
+        description: "Max sys_audit_updated_on from attribution model."
       - name: deps_last_updated_on
-        description: "Greatest timestamp across dependency audits used for incremental scoping."
+        description: "Greatest timestamp across dependency audits (scoping incremental)."
+      - name: partition_date
+        description: "Best available date used for partitioning (prefers ms_contact_date)."
       - name: year_month_day_code
         description: "YYYYMMDD partition code derived from partition_date."
         tests: [not_null]
       - name: sys_audit_created_on
-        description: "Row creation timestamp (preserved across updates)."
+        description: "Row creation timestamp (preserved)."
         tests: [not_null]
       - name: sys_audit_created_by
         description: "Creator process/user (preserved)."
@@ -2028,9 +2032,9 @@ models:
       - name: row_hash
         description: "MD5 over business columns to detect content changes."
         tests: [not_null]
-models:
+
   - name: s__acquisition__project_tags__ref
-    description: "Silver REF table for Marketing Project Tagging at store grain. Exposes three boolean flags (Merchant Sellers, Drop Sellers, Webinars), their tag names, a concatenated tag string, the three relevant dates, and standard audit fields. Only stores with at least one tag are included."
+    description: "Silver REF table for Marketing Project Tagging at store grain. Exposes three boolean flags (Merchant Sellers, Drop Sellers, Webinars), their tag names, a concatenated tag string, the three relevant dates, and audit fields. Only stores with at least one tag are included."
     config:
       meta:
         owner: "sofia.torres@tiendanube.com"
@@ -2039,62 +2043,52 @@ models:
     columns:
       - name: store_id
         description: "Unique store identifier."
-        tests:
-          - not_null
-          - unique
+        tests: [not_null, unique]
+
       - name: has_ms_tag
-        description: "Boolean (0/1). '1' when the store satisfies Merchant Sellers tag logic."
+        description: "Boolean (0/1). 1 when the store satisfies Merchant Sellers logic."
         tests:
           - not_null
-          - accepted_values:
-              values: [0, 1]
+          - accepted_values: {values: [0,1]}
       - name: has_ds_tag
-        description: "Boolean (0/1). '1' when the store has the Drop Sellers tag."
+        description: "Boolean (0/1). 1 when the store has Drop Sellers tag."
         tests:
           - not_null
-          - accepted_values:
-              values: [0, 1]
+          - accepted_values: {values: [0,1]}
       - name: has_wb_tag
-        description: "Boolean (0/1). '1' when the store has attended at least one webinar (live or on-demand)."
+        description: "Boolean (0/1). 1 when the store attended at least one webinar."
         tests:
           - not_null
-          - accepted_values:
-              values: [0, 1]
+          - accepted_values: {values: [0,1]}
       - name: tag_ms_name
-        description: "Literal 'Merchant Sellers' when has_ms_tag = 1; otherwise NULL."
+        description: "Literal 'Merchant Sellers' when has_ms_tag = 1; else NULL."
       - name: tag_ds_name
-        description: "Literal 'Drop Sellers' when has_ds_tag = 1; otherwise NULL."
+        description: "Literal 'Drop Sellers' when has_ds_tag = 1; else NULL."
       - name: tag_wb_name
-        description: "When has_wb_tag = 1: 'Webinars MM-YY' where MM-YY is derived from first_webinar_at; otherwise NULL."
+        description: "When has_wb_tag = 1: 'Webinars MM-YY' derived from first_webinar_at; else NULL."
       - name: marketing_projects_tag
-        description: "Concatenation of present tag names in stable order: Merchant Sellers, Drop Sellers, Webinars MM-YY. Separator: ' + '. Example: 'Merchant Sellers + Webinars 01-25'."
+        description: "Concatenation in stable order: Merchant Sellers, Drop Sellers, Webinars MM-YY. Separator: ' + '."
       - name: ms_contact_date
-        description: "Merchant Sellers contact date chosen by logic (either first_disparo_date or first_visit_date, whichever applies)."
+        description: "MS contact date (first_disparo_date or first_visit_date)."
       - name: ds_tag_created_date
-        description: "Drop Sellers tag creation date from source tags table."
+        description: "Drop Sellers tag creation date."
       - name: first_webinar_at
-        description: "First webinar attendance date (live or on-demand) for the store."
+        description: "First webinar attendance date (live/on-demand)."
       - name: year_month_day_code
-        description: "Partition code (YYYYMMDD) derived from the most recent of ms_contact_date, ds_tag_created_at, or first_webinar_at."
-        tests:
-          - not_null
+        description: "Partition code (YYYYMMDD) from the first available date among the three (fallback today)."
+        tests: [not_null]
       - name: sys_audit_created_on
-        description: "Creation timestamp for audit purposes in the target."
-        tests:
-          - not_null
+        description: "Creation timestamp in the target."
+        tests: [not_null]
       - name: sys_audit_created_by
-        description: "User or process that created the record in the target."
-        tests:
-          - not_null
+        description: "User/process that created the record."
+        tests: [not_null]
       - name: sys_audit_updated_on
-        description: "Last update timestamp for audit purposes in the target."
-        tests:
-          - not_null
+        description: "Last update timestamp in the target."
+        tests: [not_null]
       - name: sys_audit_updated_by
-        description: "User or process that performed the latest update in the target."
-        tests:
-          - not_null
+        description: "User/process that made the last update."
+        tests: [not_null]
       - name: row_hash
-        description: "MD5 over the exposed payload (flags, names, concatenation, and dates) to detect actual content changes."
-        tests:
-          - not_null
+        description: "MD5 over exposed payload to detect content changes."
+        tests: [not_null]
