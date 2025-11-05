@@ -7,6 +7,8 @@ preenchendo apenas a coluna de 'metric_name' com os dados da fonte.
 SELECT
     partner_id,
     country_code,
+    is_store_blocked,
+    new_seller,
     date,
     {% for col in metric_columns %}
     {% if col == metric_name %}
