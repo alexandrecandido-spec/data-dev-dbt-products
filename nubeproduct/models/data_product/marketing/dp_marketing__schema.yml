@@ -12,8 +12,6 @@ models:
       - name: event_timestamp
         tests:
           - not_null
-
-
   - name: hubspot_active_stores
     columns:
       - name: store_id
@@ -23,8 +21,6 @@ models:
       - dbt_expectations.expect_table_row_count_to_be_between:
           min_value: 300000
           max_value: 1000000
-
-
   - name: inputs_marketing_attribution
     description: "A data product that lists all inputs from the GitHub mkt_attribution repository to help users:
      - Determine the impact of acquisition efforts and results in the attribution model.
@@ -147,8 +143,6 @@ models:
         description: "System identifier of the process that created this record"
       - name: sys_audit_updated_by
         description: "System identifier of the process that last updated this record"
-  
-
   - name: marketing_inputs_attribution
     description: "A data product that lists all inputs from the GitHub mkt_attribution repository to help users:
      - Determine the impact of acquisition efforts and results in the attribution model.
@@ -271,8 +265,6 @@ models:
         description: "System identifier of the process that created this record"
       - name: sys_audit_updated_by
         description: "System identifier of the process that last updated this record"
-
-
   - name: marketing_attribution_model
     description: "data product contains granular click-level data used in the marketing attribution model. Each click is linked to the responsible marketing team or source, enabling the attribution of acquisition results—such as store creation—to specific marketing efforts. This dataset supports performance analysis, reporting, and decision-making across acquisition channels"
     config:
@@ -404,8 +396,6 @@ models:
         description: "Timestamp of when the data was last updated"
       - name: sys_audit_updated_by
         description: "System identifier of the process that last updated this record"
-  
-
   - name: marketing_attribution_completeness
     description: "data product contains the completeness data quality checks of the marketing attribution model"
     config:
@@ -448,8 +438,6 @@ models:
           - dbt_expectations.expect_column_values_to_be_between:
               min_value: 0
               strictly: false
-
-
   - name: marketing_inputs_attribution__utm
     description: "A data product that contains UTM-specific inputs from the GitHub mkt_attribution repository. This model focuses on tracking and validating UTM parameters used in marketing campaigns, helping users:
      - Track and validate UTM parameters for marketing campaigns
@@ -497,8 +485,6 @@ models:
         description: "System identifier of the process that created this record"
       - name: sys_audit_updated_by
         description: "System identifier of the process that last updated this record"
-
-
   - name: marketing_inputs_attribution__subteam
     description: "A data product that contains subteam-specific inputs from the GitHub mkt_attribution repository. This model focuses on tracking and validating subteam parameters used in marketing campaigns, helping users:
      - Track and validate subteam parameters for marketing campaigns
@@ -544,8 +530,6 @@ models:
         description: "Timestamp of when this record was last updated in our data warehouse"
       - name: sys_audit_created_by
         description: "System identifier of the process that created this record"
-
-
   - name: marketing_inputs_attribution__url
     description: "A data product that contains URL-specific inputs from the GitHub mkt_attribution repository. This model focuses on tracking and validating URL parameters used in marketing campaigns, helping users:
      - Track and validate URL parameters for marketing campaigns
@@ -591,8 +575,6 @@ models:
         description: "System identifier of the process that created this record"
       - name: sys_audit_updated_by
         description: "System identifier of the process that last updated this record"
-  
-
   - name: marketing_inputs_attribution__insti
     description: "A data product that contains INSTI-specific inputs from the GitHub mkt_attribution repository. This model focuses on tracking and validating INSTI parameters used in marketing campaigns, helping users:
      - Track and validate INSTI parameters for marketing campaigns
@@ -636,8 +618,6 @@ models:
         description: "System identifier of the process that created this record"
       - name: sys_audit_updated_by
         description: "System identifier of the process that last updated this record"
-
-
   - name: marketing_inputs_attribution__referrer
     description: "A data product that contains referrer-specific inputs from the GitHub mkt_attribution repository. This model focuses on tracking and validating referrer parameters used in marketing campaigns, helping users:
      - Track and validate referrer parameters for marketing campaigns
@@ -679,8 +659,6 @@ models:
         description: "System identifier of the process that created this record"
       - name: sys_audit_updated_by
         description: "System identifier of the process that last updated this record"
-
-
   - name: marketing_inputs_attribution__partner_fraud
     description: "A data product that contains partner fraud-specific inputs from the GitHub mkt_attribution repository. This model focuses on tracking and validating partner fraud parameters used in marketing campaigns, helping users:
      - Track and validate partner fraud parameters for marketing campaigns
@@ -720,8 +698,6 @@ models:
         description: "System identifier of the process that created this record"
       - name: sys_audit_updated_by
         description: "System identifier of the process that last updated this record"
-
-
   - name: marketing_inputs_attribution__partner_exception
     description: "A data product that contains partner exception-specific inputs from the GitHub mkt_attribution repository. This model focuses on tracking and validating partner exception parameters used in marketing campaigns, helping users:
      - Track and validate partner exception parameters for marketing campaigns
@@ -763,8 +739,6 @@ models:
         description: "System identifier of the process that created this record"
       - name: sys_audit_updated_by
         description: "System identifier of the process that last updated this record"
-
-
   - name: marketing_inputs_attribution__affiliate_classification
     description: "A data product that contains affiliate classification-specific inputs from the GitHub mkt_attribution repository. This model focuses on tracking and validating affiliate classification parameters used in marketing campaigns, helping users:
      - Track and validate affiliate classification parameters for marketing campaigns
@@ -804,8 +778,6 @@ models:
         description: "System identifier of the process that created this record"
       - name: sys_audit_updated_by
         description: "System identifier of the process that last updated this record"
-  
-
   - name: s__acquisition__ga4_sessions_by_country__event
     description: Session level view enriched with device information, GA4 source
       labels and a “classified_country” logic that maps each session
@@ -885,8 +857,6 @@ models:
         description: Timestamp when the row was last updated by dbt.
       - name: sys_audit_updated_by
         description: dbt job or service account that last updated the row.
-
-
   - name: g__acquisition__ga4_sessions__agg_daily
     description: Daily aggregation of *marketing_ga4_sessions_classified* with
       engagement, trial and payment metrics.  
@@ -975,8 +945,6 @@ models:
         description: Timestamp when the row was last updated.
       - name: sys_audit_updated_by
         description: dbt job or service account that last updated the row.
-
-
   - name: g__acquisition__ga4_sessions_attribution__agg_daily
     description: Extends the aggregated GA4 sessions table with marketing classification (mkt_source, mkt_subteam), URL ownership, partner_code and incremental logic.
     config:
@@ -1084,8 +1052,6 @@ models:
         description: Timestamp of the last update.
       - name: sys_audit_updated_by
         description: Service account that last updated the row.
-    
-
   - name: marketing_first_seller_date
     description: "This data product identifies the first date on which a store qualified as a “seller”, based on sales performance, and aligns it with the store’s presence in the moltres_store_info. The main goal is to determine when each store first achieved at least 7 sales in a rolling 90-day window, according to data from company_metrics_paid_orders."
     config:
@@ -1112,8 +1078,6 @@ models:
         description: "System identifier of the process that created this record"
       - name: sys_audit_updated_by
         description: "System identifier of the process that last updated this record"
-
-
   - name: marketing_attribution_store_consistency
     description: "This data product validates the attribution model by comparing the number of stores in the attribution model with the number of stores in the store info table."
     config:
@@ -1149,8 +1113,6 @@ models:
         description: "System identifier of the process that created this record"
       - name: sys_audit_updated_by
         description: "System identifier of the process that last updated this record"
-  
-
   - name: marketing_hubspot_company_variables
     meta:
       owner: "santiago.gandolfo@tiendanube.com"
@@ -1204,8 +1166,6 @@ models:
         description: "Maximum timestamp from all dependency tables (dim_merchant_info and related dimension tables)."
       - name: sys_audit_updated_by
         description: "System or user that last updated the row."
-
-
   - name: marketing_hubspot_partners_contacts_variables
     meta:
       owner: "carlos.montes@tiendanube.com"
@@ -1233,7 +1193,6 @@ models:
         description: "System or user that last updated the row."
       - name: year_month_day_code
         description: "Date in YYYYMMDD integer format used for partitioning."
-
   - name: marketing_hubspot_users_contacts_variables
     meta:
       owner: "santiago.gandolfo@tiendanube.com"
@@ -1270,8 +1229,6 @@ models:
         description: "System or user that last updated the row."
       - name: year_month_day_code
         description: "Date in YYYYMMDD integer format used for partitioning."
-
-  
   - name: marketing_merchant_info_refined
     config:
       meta:
@@ -1429,8 +1386,6 @@ models:
     - dbt_utils.equality:
         compare_model: ref('company_metrics_merchant_info')
         compare_columns: ['store_id']
-
-
   - name: marketing_event_info
     description: "Incremental dataset with marketing events (clicks and scroll) enriched from GA/analytics. Deduplicated by user-session-timestamp-event, exposes page, action, and device metadata, and includes audit traces."
     config:
@@ -1472,8 +1427,6 @@ models:
         description: "Timestamp when the record was last updated in the DWH."
       - name: sys_audit_updated_by
         description: "Process/system that last updated the record."
-
-
   - name: marketing_all_pageviews
     description: "Incremental dataset of all GA page_view events with session-level landing page, UTM breakdown, device category, geography, and audit fields; deduplicated by user-session-timestamp."
     config:
@@ -1529,8 +1482,6 @@ models:
         description: "Timestamp when the record was last updated in the DWH."
       - name: sys_audit_updated_by
         description: "Process/system that last updated the record."
-
-
   - name: marketing_first_visit
     description: "Incremental dataset with a single earliest 'first_visit' event per user, including event timestamp, derived first_visit_date, period code, and audit fields."
     config:
@@ -1561,8 +1512,6 @@ models:
         description: "Timestamp when the record was last updated in the DWH."
       - name: sys_audit_updated_by
         description: "Process/system that last updated the record."
-
-
   - name: marketing_mod_pv_info
     description: "Incremental dataset of GA page_view events with per-session landing page and last-touch UTM attribution (source/medium/campaign) at the moment of each page view; deduplicated by user-session-timestamp and enriched with device, geography, environment, and audit fields."
     config:
@@ -1610,8 +1559,6 @@ models:
         description: "Timestamp when the record was last updated in the DWH."
       - name: sys_audit_updated_by
         description: "Process/system that last updated the record."
-
-
   - name: marketing_session_info
     description: "Incremental dataset with one row per unique session including engagement flag, start/end timestamps and dates, session source, period code, and audit fields."
     config:
@@ -1647,8 +1594,6 @@ models:
         description: "Timestamp when the record was last updated in the DWH."
       - name: sys_audit_updated_by
         description: "Process/system that last updated the record."
-
-
   - name: marketing_tp_info
     description: "Incremental dataset of trial and payment touchpoints from GA, keeping one record per (unique_session, user_pseudo_id, event_timestamp). Emits conditional fields for trial (Store created) and payment (New payment) with device info and audit fields."
     config:
@@ -1690,8 +1635,6 @@ models:
         description: "Timestamp when the record was last updated in the DWH."
       - name: sys_audit_updated_by
         description: "Process/system that last updated the record."
-
-
   - name: s__general__google_search_console__ref
     description: "Aggregated and classified Google Search Console results with audit fields."
     config:
@@ -1747,8 +1690,6 @@ models:
       - name: sys_audit_updated_by
         description: "System or user that last updated the row."
         tests: [not_null]
-
-
   - name: g__general__gmv_by_mkt_source__agg_daily
     description: "Daily GMV metrics by marketing source combining store performance data with marketing attribution and segment information for comprehensive performance analysis"
     config:
@@ -1803,7 +1744,6 @@ models:
       - name: sys_audit_updated_by
         description: "System identifier of the process that last updated this record"
         tests: [not_null]
-
   - name: g__acquisition__affiliates_ga4_pageviews__agg_daily
     description: "Daily aggregated performance metrics by partner, combining GA4 acquisition data and partner attributes for comprehensive performance analysis"
     config:
@@ -1879,7 +1819,6 @@ models:
         description: "Identifier for the process or job that last updated the record."
         tests:
           - not_null
-          
   - name: s__general__ga4_all_pageviews__event
     description: "Daily page views data with acquisition information from GA4"
     columns:
@@ -1941,18 +1880,14 @@ models:
         description: "Timestamp when the row was last updated in this table."
         tests:
           - not_null
-
-
   # ================================================================
   # PRODUCT MARKETING: PAYMENTS (SILVER REF)
   # ================================================================
   - name: s__product_marketing__payments__ref
     description: |
       **Data Product SILVER REF: Payments Configuration Metrics**
-      
       Métricas de configuración de métodos de pago por tienda durante el onboarding.
       Completo en la primera ocurrencia del evento PaymentProviderRegistered.
-      
       **Domain:** marketing  
       **Granularity:** ref (one row per store)
     meta:
@@ -1965,20 +1900,16 @@ models:
         tests:
           - not_null
           - unique
-      
       - name: config_payment
         description: "Indica si la tienda configuró métodos de pago. 1 = configurado, 0 = no configurado"
         tests:
           - not_null
           - accepted_values:
               values: [0, 1]
-      
       - name: first_date_config_payment
         description: "Fecha del primer evento PaymentProviderRegistered"
-      
       - name: last_date_config_payment
         description: "Fecha del último evento PaymentProviderRegistered"
-      
       - name: sys_audit_created_on
         description: "Timestamp of when this record was created in our data warehouse"
       - name: sys_audit_created_by
@@ -1987,4 +1918,3 @@ models:
         description: "Timestamp of when this record was last updated in our data warehouse"
       - name: sys_audit_updated_by
         description: "System identifier of the process that last updated this record"
-
