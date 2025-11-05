@@ -53,9 +53,9 @@ select
     CAST(msi.created_at AS DATE) AS created_at,
     CAST(msi.churned_at AS DATE) AS churned_at,
     GREATEST(
-        spv.sh_max_sys_audit_updated_on,
-        combined.c_max_sys_audit_updated_on,
-        mf.mf_max_sys_audit_updated_on
+        COALESCE(spv.sh_max_sys_audit_updated_on, '1900-01-01'),
+        COALESCE(combined.c_max_sys_audit_updated_on, '1900-01-01'),
+        COALESCE(mf.mf_max_sys_audit_updated_on, '1900-01-01')
     ) AS max_sys_audit_updated_on
 FROM {{ ref('moltres__mwp_store_info') }} msi
 LEFT JOIN {{ ref('operations_grouping_plans') }} gp on gp.plan = msi.plan
