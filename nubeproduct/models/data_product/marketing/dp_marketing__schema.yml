@@ -1945,14 +1945,7 @@ models:
   # PRODUCT MARKETING: PAYMENTS (SILVER REF)
   # ================================================================
   - name: s__product_marketing__payments__ref
-    description: |
-      **Data Product SILVER REF: Payments Configuration Metrics**
-      
-      Métricas de configuración de métodos de pago por tienda durante el onboarding.
-      Completo en la primera ocurrencia del evento PaymentProviderRegistered.
-      
-      **Domain:** marketing  
-      **Granularity:** ref (one row per store)
+    description: "**Data Product SILVER REF: Payments Configuration Metrics**\n\nMétricas de configuración de métodos de pago por tienda durante el onboarding.\nCompleto en la primera ocurrencia del evento PaymentProviderRegistered.\n\n**Domain:** marketing\n**Granularity:** ref (one row per store)"
     meta:
       owner: "jhu.boggio@tiendanube.com"
       domain: "marketing"
