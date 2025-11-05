@@ -471,3 +471,11 @@ sources:
     tables:
       - name: charges_dashboard
         description: "Contains the chargebacks from Nuvem Pago"
+
+  - name: stg_payments
+    database: hive_metastore
+    schema: payments
+    description: "Source containing payment provider configuration and events"
+    tables:
+      - name: journal_payment_provider
+        description: "Payment provider journal with registration events and configuration. Contains PaymentProviderRegistered events."
