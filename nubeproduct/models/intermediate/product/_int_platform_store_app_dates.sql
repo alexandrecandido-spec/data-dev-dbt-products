@@ -7,7 +7,7 @@ stores as (
         ,mail
         ,phone
         ,type as store_vertical
-        --,group_name
+        ,monthly_fee
         ,date(created_at) as creation_date
         ,date(first_payment) as first_payment
         ,date(churned_at) as churned_at
@@ -29,7 +29,7 @@ store_dates as (
     cross join {{ ref('_int_pd_github_dates') }} d
 ),
 apps as (
-    SELECT
+    SELECT distinct
         app_id
         ,app_name
         ,app_category
@@ -58,7 +58,7 @@ installs as (
     group by 1,2,3,4,5,6,7,8
 ),
 scripts as (
-    SELECT
+    SELECT distinct
         store_id
         ,app_id
         ,date(created_date) as created_date
@@ -66,7 +66,7 @@ scripts as (
     from {{ ref('product__ecosystem__mwp_scripts__scd') }}
 ),
 shipping_carriers as (
-    SELECT
+    SELECT distinct
         store_id
         ,app_id
         ,status
@@ -75,7 +75,7 @@ shipping_carriers as (
     from {{ ref('product__ecosystem__mwp_shipping_carriers__scd') }}
 ),
 partner_managers as (
-    select
+    select distinct
         country
         ,partner_id
         ,partner_manager
