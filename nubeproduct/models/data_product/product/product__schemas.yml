@@ -2978,6 +2978,8 @@ models:
         description: "Merchant phone."
       - name: store_vertical
         description: "Store vertical."
+      - name: monthly_fee
+        description: "Store plan monthly fee."
       - name: creation_date
         description: "Store creation date."
       - name: first_payment
