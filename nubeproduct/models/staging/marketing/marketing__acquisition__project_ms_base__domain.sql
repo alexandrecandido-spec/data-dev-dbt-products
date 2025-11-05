@@ -1,7 +1,7 @@
 {{ config(
   materialized='incremental',
   incremental_strategy='merge',
-  unique_key=['domain'],                   
+  unique_key=['domain'],
   partition_by=['year_month_day_code'],
   on_schema_change='fail',
   tags=['daily-9am','marketing']
@@ -10,7 +10,7 @@
 WITH existing AS (
   {% if is_incremental() %}
   SELECT
-    domain,                         
+    domain,
     row_hash,
     sys_audit_created_on,
     sys_audit_created_by
@@ -36,11 +36,13 @@ base AS (
     CAST(REPLACE(estimated_monthly_sales, ',', '') AS DOUBLE) AS estimated_monthly_sales,
     CAST(peso AS DOUBLE)                                      AS peso,
     CAST(repeated_domain AS {{ dbt.type_string() }})          AS repeated_domain,
-    CAST(disparos AS INT)                                     AS disparos,
-    CAST(disparo_date AS DATE)                                AS disparo_date
+    CAST(disparos AS {{ dbt.type_string() }})                 AS disparos,
+    CAST({{ marketing_mpt_parse_ts("disparo_date") }} AS DATE) AS disparo_date
   FROM {{ source('stg_unity_data_manual','ext__marketing__acquisition__merchant_sellers_base_total_a_s') }}
   WHERE domain IS NOT NULL AND trim(domain) <> ''
+
   UNION ALL
+
   SELECT
     lower(trim(domain)),
     emails,
@@ -50,15 +52,13 @@ base AS (
     CAST(REPLACE(estimated_monthly_sales, ',', '') AS DOUBLE),
     CAST(peso AS DOUBLE),
     CAST(repeated_domain AS {{ dbt.type_string() }}),
-    CAST(disparos AS INT),
-    CAST(disparo_date AS DATE)
+    CAST(disparos AS {{ dbt.type_string() }}),
+    CAST({{ marketing_mpt_parse_ts("disparo_date") }} AS DATE)
   FROM {{ source('stg_unity_data_manual','ext__marketing__acquisition__merchant_sellers_base_total_t_z') }}
   WHERE domain IS NOT NULL AND trim(domain) <> ''
 ),
 
--- 2) DEDUPE después del UNION: 1 fila por domain
---    Regla: con fecha primero; si hay varias con fecha, la de fecha mínima;
---    si ninguna tiene fecha, desempate determinístico.
+-- 2) DEDUPE por domain priorizando registros con fecha
 ranked AS (
   SELECT
     b.*,
@@ -67,35 +67,33 @@ ranked AS (
       ORDER BY
         CASE WHEN b.disparo_date IS NOT NULL THEN 0 ELSE 1 END,
         b.disparo_date ASC,
-        COALESCE(b.platform,'')       ASC,
-        COALESCE(b.emails,'')         ASC,
-        COALESCE(b.phones,'')         ASC,
-        COALESCE(b.instagram_url,'')  ASC
+        COALESCE(b.platform,'')      ASC,
+        COALESCE(b.emails,'')        ASC,
+        COALESCE(b.phones,'')        ASC,
+        COALESCE(b.instagram_url,'') ASC
     ) AS rn
   FROM base b
 ),
 
 picked AS (
-  SELECT *
-  FROM ranked
-  WHERE rn = 1
+  SELECT * FROM ranked WHERE rn = 1
 ),
 
--- 3) Mapping domain → store_id (exacto → clean)
+-- 3) Mapping domain → store_id (exacto / clean)
 store_info AS (
   SELECT
-    CAST(store_id AS BIGINT)                       AS store_id,
-    lower(trim(domain))                            AS tn_domain,
-    split_part(lower(trim(domain)),'.',1)          AS tn_domain_clean
+    CAST(store_id AS BIGINT)              AS store_id,
+    lower(trim(domain))                   AS tn_domain,
+    split_part(lower(trim(domain)),'.',1) AS tn_domain_clean
   FROM {{ ref('s__attributes__store_core__ref') }}
 ),
 
 map_store AS (
   SELECT
     p.*,
-    split_part(p.domain, '.', 1)                   AS ext_domain_clean,
-    si_exact.store_id                              AS store_id_exact,
-    si_clean.store_id                              AS store_id_clean
+    split_part(p.domain, '.', 1)   AS ext_domain_clean,
+    si_exact.store_id              AS store_id_exact,
+    si_clean.store_id              AS store_id_clean
   FROM picked p
   LEFT JOIN store_info si_exact
     ON p.domain = si_exact.tn_domain
@@ -116,7 +114,7 @@ resolved AS (
   FROM map_store m
 ),
 
--- 4) Partición (si no hay disparo_date, usamos hoy para no dejar NULL)
+-- 4) Partición (fallback a hoy para evitar NULL)
 with_keys AS (
   SELECT
     r.*,
@@ -124,7 +122,7 @@ with_keys AS (
   FROM resolved r
 ),
 
--- 5) row_hash con TODOS los campos de negocio (sin auditoría/partición)
+-- 5) row_hash (mantener disparos como texto y fecha parseada)
 with_hash AS (
   SELECT
     wk.*,
@@ -133,15 +131,14 @@ with_hash AS (
       "wk.domain", "wk.platform",
       "CAST(wk.estimated_monthly_sales AS DECIMAL(38,6))",
       "CAST(wk.peso AS DECIMAL(38,6))",
-      "CAST(wk.disparos AS " ~ dbt.type_string() ~ ")",
       "CAST(wk.repeated_domain AS " ~ dbt.type_string() ~ ")",
       "wk.emails", "wk.phones", "wk.instagram_url",
-      "CAST(wk.disparo_date AS DATE)"
+      "CAST(wk.disparo_date AS DATE)",
+      "COALESCE(wk.disparos, '')"
     ]) }} AS row_hash
   FROM with_keys wk
 ),
 
--- 6) Upsert solo si es nuevo o cambió algo (preservamos created_*)
 to_upsert AS (
   SELECT
     wh.*,
@@ -166,3 +163,4 @@ SELECT
   sys_audit_updated_on, sys_audit_updated_by,
   row_hash
 FROM to_upsert
+

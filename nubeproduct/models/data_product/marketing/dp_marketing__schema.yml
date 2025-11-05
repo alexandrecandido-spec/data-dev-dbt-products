@@ -2053,3 +2053,73 @@ models:
       - name: row_hash
         description: "MD5 over business columns to detect content changes."
         tests: [not_null]
+models:
+  - name: s__acquisition__project_tags__ref
+    description: "Silver REF table for Marketing Project Tagging at store grain. Exposes three boolean flags (Merchant Sellers, Drop Sellers, Webinars), their tag names, a concatenated tag string, the three relevant dates, and standard audit fields. Only stores with at least one tag are included."
+    config:
+      meta:
+        owner: "sofia.torres@tiendanube.com"
+        domain: "marketing"
+        business_owner: "Giselle Galli"
+    columns:
+      - name: store_id
+        description: "Unique store identifier."
+        tests:
+          - not_null
+          - unique
+      - name: has_ms_tag
+        description: "Boolean (0/1). '1' when the store satisfies Merchant Sellers tag logic."
+        tests:
+          - not_null
+          - accepted_values:
+              values: [0, 1]
+      - name: has_ds_tag
+        description: "Boolean (0/1). '1' when the store has the Drop Sellers tag."
+        tests:
+          - not_null
+          - accepted_values:
+              values: [0, 1]
+      - name: has_wb_tag
+        description: "Boolean (0/1). '1' when the store has attended at least one webinar (live or on-demand)."
+        tests:
+          - not_null
+          - accepted_values:
+              values: [0, 1]
+      - name: tag_ms_name
+        description: "Literal 'Merchant Sellers' when has_ms_tag = 1; otherwise NULL."
+      - name: tag_ds_name
+        description: "Literal 'Drop Sellers' when has_ds_tag = 1; otherwise NULL."
+      - name: tag_wb_name
+        description: "When has_wb_tag = 1: 'Webinars MM-YY' where MM-YY is derived from first_webinar_at; otherwise NULL."
+      - name: marketing_projects_tag
+        description: "Concatenation of present tag names in stable order: Merchant Sellers, Drop Sellers, Webinars MM-YY. Separator: ' + '. Example: 'Merchant Sellers + Webinars 01-25'."
+      - name: ms_contact_date
+        description: "Merchant Sellers contact date chosen by logic (either first_disparo_date or first_visit_date, whichever applies)."
+      - name: ds_tag_created_date
+        description: "Drop Sellers tag creation date from source tags table."
+      - name: first_webinar_at
+        description: "First webinar attendance date (live or on-demand) for the store."
+      - name: year_month_day_code
+        description: "Partition code (YYYYMMDD) derived from the most recent of ms_contact_date, ds_tag_created_at, or first_webinar_at."
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: "Creation timestamp for audit purposes in the target."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "User or process that created the record in the target."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Last update timestamp for audit purposes in the target."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "User or process that performed the latest update in the target."
+        tests:
+          - not_null
+      - name: row_hash
+        description: "MD5 over the exposed payload (flags, names, concatenation, and dates) to detect actual content changes."
+        tests:
+          - not_null

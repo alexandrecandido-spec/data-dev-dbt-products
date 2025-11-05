@@ -70,7 +70,7 @@ raw AS (
     w.firstName, w.lastName, w.phone,
     LOWER(TRIM(w.status))                                                  AS status,
     w.webinar,
-    CAST(w.webinar_date AS TIMESTAMP)                                      AS webinar_date,
+    {{ marketing_mpt_parse_ts("w.webinar_date") }} AS webinar_date,
     NULLIF(TRIM(w.webinar_code),'')                                        AS webinar_code,
     w.country
   FROM {{ source('stg_unity_data_manual','ext__marketing__product_marketing__lifecycle_registrados_webinars') }} w
@@ -82,9 +82,15 @@ raw AS (
 with_keys AS (
   SELECT
     r.*,
-    CAST(date_format(COALESCE(CAST(r.webinar_date AS DATE), current_date),'yyyyMMdd') AS INT) AS year_month_day_code
+    CAST(
+      date_format(
+        COALESCE(CAST(r.webinar_date AS DATE), current_date),
+        'yyyyMMdd'
+      ) AS INT
+    ) AS year_month_day_code
   FROM raw r
 ),
+
 
 -- 5) row_hash con "todos los campos de negocio" (sin sys_audit_* ni partición)
 with_hash AS (

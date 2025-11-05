@@ -5,25 +5,26 @@
   partition_by=['year_month_day_code'],
   on_schema_change='fail',
   tags=['daily-9am','marketing'],
-post_hook=["OPTIMIZE {{ this }} ZORDER BY (store_id, ms_contact_date)"]
- ) }}
+  post_hook=["OPTIMIZE {{ this }} ZORDER BY (store_id, ms_contact_date)"]
+) }}
 
 -- 1) baseline para incremental
-WITH baseline AS (
+with baseline as (
   {% if is_incremental() %}
-  SELECT COALESCE(MAX(sys_audit_updated_on), TIMESTAMP '1900-01-01') AS last_upd
-  FROM {{ this }}
+    select coalesce(max(sys_audit_updated_on), timestamp '1900-01-01') as last_upd
+    from {{ this }}
   {% else %}
-  SELECT TIMESTAMP '1900-01-01' AS last_upd
+    select timestamp '1900-01-01' as last_upd
   {% endif %}
 ),
 
--- 2) fuente (ephemeral)
-src_all AS (
-  SELECT * FROM {{ ref('_int__marketing_acquisition__project_ms__store') }}
+-- 2) fuente (ya viene SOLO con has_ms_tag=1 desde la intermediate)
+src_all as (
+  select *
+  from {{ ref('_int__marketing_acquisition__project_ms__store') }}
 ),
 
--- 3) changed ids (lookback fijo sin vars/env)
+-- 3) ids cambiados (lookback fijo)
 {% set lookback = 7 %}
 {{ marketing_mpt_changed_ids(
      last_upd_cte='baseline',
@@ -40,63 +41,76 @@ src_all AS (
      ]
 ) }}
 
-, src AS (
+, src as (
   {% if is_incremental() %}
-    SELECT s.* FROM src_all s INNER JOIN changed_ids c USING (store_id)
+    -- (a) nuevos que aún no existen en el target
+    select s.*
+    from src_all s
+    left join {{ this }} t using (store_id)
+    where t.store_id is null
+
+    union all
+
+    -- (b) y los que cambiaron según changed_ids
+    select s.*
+    from src_all s
+    inner join changed_ids c using (store_id)
   {% else %}
-    SELECT * FROM src_all
+    select * from src_all
   {% endif %}
 )
 
 -- 4) claves y partición
-, with_keys AS (
-  SELECT
+, with_keys as (
+  select
     s.*,
     {{ marketing_mpt_greatest_ts([
       'deps_ms_updated_on',
       'deps_sc_updated_on',
       'deps_lc_updated_on',
       'deps_at_updated_on'
-    ]) }} AS deps_last_updated_on,
-    COALESCE(
-      CAST(ms_contact_date AS DATE),
-      CAST(created_at AS DATE),
+    ]) }} as deps_last_updated_on,
+
+    coalesce(
+      cast(ms_contact_date as date),
+      cast(created_at as date),
       first_disparo_date,
       first_visit_date
-    ) AS partition_date,
-    CAST(date_format(
-      COALESCE(
-        CAST(ms_contact_date AS DATE),
-        CAST(created_at AS DATE),
+    ) as partition_date,
+
+    cast(date_format(
+      coalesce(
+        cast(ms_contact_date as date),
+        cast(created_at as date),
         first_disparo_date,
         first_visit_date
       ), 'yyyyMMdd'
-    ) AS INT) AS year_month_day_code
-  FROM src s
+    ) as int) as year_month_day_code
+  from src s
 )
 
--- 5) existing seguro 
-, existing AS (
+-- 5) existing (para preservar created_*)
+, existing as (
   {% if is_incremental() %}
-    SELECT store_id, sys_audit_created_on, sys_audit_created_by
-    FROM {{ this }}
+    select store_id, sys_audit_created_on, sys_audit_created_by
+    from {{ this }}
   {% else %}
-    SELECT
-      CAST(NULL AS BIGINT)      AS store_id,
-      CAST(NULL AS TIMESTAMP)   AS sys_audit_created_on,
-      CAST(NULL AS STRING)      AS sys_audit_created_by
-    WHERE 1=0
+    select
+      cast(null as bigint)     as store_id,
+      cast(null as timestamp)  as sys_audit_created_on,
+      cast(null as string)     as sys_audit_created_by
+    where 1=0
   {% endif %}
 )
 
 -- 6) auditoría + row hash
-, final_rows AS (
-  SELECT
+, final_rows as (
+  select
     w.*,
-    COALESCE(e.sys_audit_created_on, current_timestamp)         AS sys_audit_created_on,
-    COALESCE(e.sys_audit_created_by,  'data-dev-dbt-marketing') AS sys_audit_created_by,
-    current_timestamp                                            AS sys_audit_updated_on,
-    'data-dev-dbt-marketing'                                     AS sys_audit_updated_by,
+    coalesce(e.sys_audit_created_on, current_timestamp)         as sys_audit_created_on,
+    coalesce(e.sys_audit_created_by,  'data-dev-dbt-marketing') as sys_audit_created_by,
+    current_timestamp                                           as sys_audit_updated_on,
+    'data-dev-dbt-marketing'                                    as sys_audit_updated_by,
 
     {{ mpt_hash([
       'w.store_id',
@@ -128,9 +142,10 @@ src_all AS (
       'w.deps_at_updated_on',
       'w.deps_last_updated_on',
       'w.year_month_day_code'
-    ]) }} AS row_hash
-  FROM with_keys w
-  LEFT JOIN existing e USING (store_id)
+    ]) }} as row_hash
+  from with_keys w
+  left join existing e using (store_id)
 )
 
-SELECT * FROM final_rows
+-- 7) fuente del MERGE
+select * from final_rows

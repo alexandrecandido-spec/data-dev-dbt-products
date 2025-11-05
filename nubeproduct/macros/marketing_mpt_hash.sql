@@ -16,3 +16,12 @@ md5(
 {% macro mpt_surrogate_key(cols) -%}
 {{ mpt_hash(cols) }}
 {%- endmacro %}
+
+-- Wrappers con prefijo "marketing_" para mantener consistencia
+{% macro marketing_mpt_hash(cols) -%}
+  {{ mpt_hash(cols) }}
+{%- endmacro %}
+
+{% macro marketing_mpt_surrogate_key(cols) -%}
+  {{ mpt_surrogate_key(cols) }}
+{%- endmacro %}
