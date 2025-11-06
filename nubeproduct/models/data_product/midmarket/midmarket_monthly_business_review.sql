@@ -6,7 +6,7 @@
         unique_key=['date_from', 'store_id'],
         incremental_strategy='append',
         on_schema_change='fail',
-        tags=['monthly-1st-12pm']
+        tags=['monthly-1st-9am']
     )
 }}
 

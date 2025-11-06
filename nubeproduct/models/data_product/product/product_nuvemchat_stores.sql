@@ -8,6 +8,19 @@
     )
 }}
 
+
+with exchange as (
+    SELECT
+        processed_at,
+        country_currency_code,
+        ROUND(direct_exchange_rate,1) direct_exchange_rate,
+        sys_audit_updated_on
+    FROM
+        {{ ref('finance_exchange_rate') }}
+    WHERE
+        processed_at >= date('2025-01-01')
+)
+
 SELECT
     store_id,
     cn_store_id,
@@ -25,6 +38,9 @@ SELECT
     days_since_last_invoice,
     last_invoice_count_conversation,
     paid_invoices,
+    last_invoice_cost_total,
+    last_invoice_cost_per_conversation,
+    e.direct_exchange_rate,
     last_paid_date,
     first_paid_date,
     grace_until,
@@ -36,6 +52,7 @@ SELECT
     conversations_after_trial,
     conversations_in_trial,
     ai_conv_last_3d,
+    ai_conv_last_30d,
     last_conversation_date,
     chatnube_state,
     chatnube_state_group,
@@ -53,6 +70,8 @@ SELECT
     current_timestamp AS sys_audit_updated_on,
     'data-dev-dbt-products' AS sys_audit_updated_by
 FROM {{ ref('_int_product__nuvemchat_stores_merchant_info') }} s
+LEFT JOIN exchange e ON s.country = e.country_currency_code AND e.processed_at = DATE(s.invoice_created_at)
     {% if is_incremental() %}
 WHERE s.max_combined_sys_audit_updated_on >= (SELECT coalesce(max(sys_audit_updated_on),'1900-01-01') FROM {{ this }})
+OR e.sys_audit_updated_on >= (SELECT coalesce(max(sys_audit_updated_on),'1900-01-01') FROM {{ this }})
     {% endif %}
