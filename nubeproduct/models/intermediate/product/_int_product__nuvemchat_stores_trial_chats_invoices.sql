@@ -83,6 +83,8 @@ SELECT
     p.invoice_end_cycle_date,
     p.days_since_last_invoice,
     p.last_invoice_count_conversation,
+    p.invoice_cost_total as last_invoice_cost_total,
+    p.cost_per_conversation as last_invoice_cost_per_conversation,
     p.paid_invoices,
     p.last_paid_date,
     p.first_paid_date,
@@ -94,7 +96,8 @@ SELECT
     p.ai_conversations_after_invoice,
     count(distinct CASE WHEN (DATE(bp.trial_end_date)<DATE(c.conversation_created_at) OR DATE(bp.trial_end_date) is null ) AND m.message_discr = 'bot' AND ch.channel_discr <> 'playground' THEN c.conversation_id END) AS conversations_after_trial,
     count(distinct CASE WHEN DATE(bp.trial_end_date)>=DATE(c.conversation_created_at) AND m.message_discr = 'bot' AND ch.channel_discr <> 'playground' THEN c.conversation_id END) AS conversations_in_trial,
-    count(distinct CASE WHEN m.message_discr = 'bot' AND ch.channel_discr <> 'playground' AND DATE(c.conversation_created_at) BETWEEN date_sub(current_date, 3) AND date_sub(current_date, 1) THEN c.conversation_id END) AS ai_conv_last_3d,
+    count(distinct CASE WHEN m.message_discr = 'bot' AND ch.channel_discr <> 'playground' AND DATE(c.conversation_created_at) BETWEEN date_sub(current_date, 3) AND current_date THEN c.conversation_id END) AS ai_conv_last_3d,
+    count(distinct CASE WHEN m.message_discr = 'bot' AND ch.channel_discr <> 'playground' AND DATE(c.conversation_created_at) BETWEEN date_sub(current_date, 30) AND current_date THEN c.conversation_id END) AS ai_conv_last_30d,
     MAX(CASE WHEN m.message_discr = 'bot' AND ch.channel_discr <> 'playground' THEN DATE(c.conversation_created_at) END) AS last_conversation_date,
     GREATEST(
         MAX(p.sys_audit_updated_on),
@@ -111,4 +114,4 @@ LEFT JOIN {{ref('nuvem_chat__channel')}} ch ON ch.channel_id = c.channel_id
 LEFT JOIN {{ref('nuvem_chat__message')}} m ON m.conversation_id = c.conversation_id
 LEFT JOIN invoices p on p.cn_store_id = s.cn_store_id
 LEFT JOIN unpaid_invoices_after_last_paid ui ON ui.cn_store_id = s.cn_store_id
-GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24
+GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26
