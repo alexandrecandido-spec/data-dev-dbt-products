@@ -3773,7 +3773,7 @@ models:
           column_A: total_sessions_with_unique_carts
           column_B: total_sessions_with_carts
 
-  - name: s__growth__trial_np_by_app_install__ref
+  - name: s__general__trial_np_by_app_install__ref
     description: "Data product that contains informations of trials and new payments and app installation information."
     config:
       meta:
