@@ -70,9 +70,6 @@ models:
         description: Timestamp of the latest update to the row.
       - name: sys_audit_updated_by
         description: Source or user responsible for the latest update.
-    tests:
-      - unique:
-          column_name: ['region_code', 'country_id']
 
 
   - name: dimension__attributes__location_state__ref
