@@ -4,6 +4,19 @@
     unique_key=['unique_id'],
     replace_where="registered_month = date_trunc('month', current_date)",
     on_schema_change='fail',
+    pre_hook = [
+        """
+        {% if is_incremental() %}
+        {% if execute %}
+        {% set relation = adapter.get_relation(database=this.database, schema=this.schema, identifier=this.identifier) %}
+        {% if relation is not none %}
+        DELETE FROM {{ this }}
+        WHERE registered_month = date_trunc('month', current_date());
+        {% endif %}
+        {% endif %}
+        {% endif %}
+        """
+    ],
     tags=['daily-8am']
 ) }}
 
@@ -62,6 +75,20 @@ segments as (
         true
     {% endif %}
 ),
+api_hits as (
+    select
+        registered_month
+        ,app_id
+        ,store_id
+        ,total_api_hits
+    from {{ ref('g__ecosystem__app_api_hits__agg_monthly') }}
+    where
+    {% if is_incremental() %}
+        registered_month >= date_trunc('month', current_date)
+    {% else %}
+        true
+    {% endif %}
+),
 aux as (
     select distinct
         concat(s.registered_month, '_', s.store_id, '_', coalesce(s.app_id, 999999)) as unique_id,
@@ -77,6 +104,24 @@ aux as (
         ao.total_orders as app_total_orders,
         ao.total_gmv_local_currency as app_gmv_lc,
         ao.total_gmv_usd as app_gmv_usd
+        ,ah.total_api_hits as app_api_hits
+        ,case 
+            when s.app_category = 'tools'
+                and is_app_active = 1
+                and is_script_active = 1
+                and total_api_hits > 0
+            then true
+        when s.app_category = 'shipping'
+            and is_app_active = 1
+            and is_shipping_carrier_active = 1
+            and total_api_hits > 0
+        then true
+            when s.app_category not in ('tools', 'shipping')
+            and is_app_active = 1
+            and total_api_hits > 0
+        then true
+        else false
+    end as is_monthly_mau
     from store_app_dates s
     left join orders o
         on s.store_id = o.store_id
@@ -88,12 +133,14 @@ aux as (
         on s.store_id = ao.store_id
         and s.registered_month = ao.registered_month
         and s.app_id = ao.app_id
+    left join api_hits ah
+        on s.app_id = ah.app_id
+        and s.store_id = ah.store_id
+        and s.registered_month = ah.registered_month
     where 
         s.registered_month >= dateadd(month, -12, date_trunc('month', current_date))
-        and (
-            (ao.total_orders > 0 and first_payment is null) 
-            or (s.first_payment is not null and s.churned_at is null)
-        )
+        and ((ao.total_orders > 0 and first_payment is null) 
+            or (s.first_payment is not null and monthly_fee > 0 and s.churned_at is null))
     {% if is_incremental() %}
         and s.registered_month = date_trunc('month', current_date)
     {% endif %}

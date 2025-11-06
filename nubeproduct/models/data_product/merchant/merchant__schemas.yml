@@ -181,3 +181,65 @@ models:
         description: "Timestamp of the current model run when the record was processed."
       - name: sys_audit_updated_by
         description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
+
+  - name: s__attributes__acquisition_profile__ref
+    description: "Data Product silver that contains the acquisition profile attributes of each store, including marketing attribution, quality leads, partner information."
+    config:
+      meta:
+        owner: "yan.santos@nuvemshop.com.br"
+        domain: "merchant"
+        business_owner: "Giselle Galli"
+    columns:
+      - name: store_id
+        description: "Store identifier."
+        tests: [not_null, unique]
+      - name: partner_id
+        description: "Partner identifier associated with the store."
+      - name: tag_acquired_by
+        description: "Tag indicating how the store was acquired."
+        tests: [not_null]
+      - name: is_quality_lead
+        description: "Flag indicating whether the store is a quality lead."
+        tests: [not_null]
+      - name: mkt_source_last_click
+        description: "Marketing source from the last click attribution."
+      - name: mkt_subteam_last_click
+        description: "Marketing subteam from the last click attribution."
+      - name: mkt_campaign_last_click
+        description: "Marketing campaign from the last click attribution."
+      - name: mkt_source_first_click
+        description: "Marketing source from the first click attribution."
+      - name: mkt_subteam_first_click
+        description: "Marketing subteam from the first click attribution."
+      - name: mkt_campaign_first_click
+        description: "Marketing campaign from the first click attribution."
+      - name: mkt_source_partner_click
+        description: "Marketing source from the partner click attribution."
+      - name: mkt_subteam_partner_click
+        description: "Marketing subteam from the partner click attribution."
+      - name: mkt_campaign_partner_click
+        description: "Marketing campaign from the partner click attribution."
+      - name: mkt_landing_page_domain_first_click
+        description: "Landing page domain from the first click attribution."
+      - name: mkt_landing_page_domain_last_click
+        description: "Landing page domain from the last click attribution."
+      - name: mkt_landing_page_path_first_click
+        description: "Landing page path from the first click attribution."
+      - name: mkt_landing_page_path_last_click
+        description: "Landing page path from the last click attribution."
+      - name: flag_affiliate
+        description: "Flag indicating whether the store is an affiliate."
+      - name: ql_profile
+        description: "Quality lead profile classification."
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created."
+        tests: [not_null]
+      - name: sys_audit_created_by
+        description: "System or user that created the row."
+        tests: [not_null]
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this table."
+        tests: [not_null]
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row."
+        tests: [not_null]

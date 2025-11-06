@@ -1,15 +1,16 @@
 WITH renegotiated_credits AS (
     SELECT 
-        TRIM(contract_id) AS contract_id
+        REGEXP_REPLACE(TRIM(contract_id), '[{}]', '') AS contract_id
     FROM {{ source('int_nuvem_credito', 'contracts') }} 
     LATERAL VIEW EXPLODE(
         SPLIT(
-            REGEXP_REPLACE(original_contract_ids, '\\[|\\]', ''), 
+            REGEXP_REPLACE(original_contract_ids, '\\[|\\]|\\{|\\}', ''), 
             ','
         )
     ) t AS contract_id
     WHERE original_contract_ids IS NOT NULL
         AND TRIM(contract_id) != ''
+        AND disbursed_at IS NOT NULL AND status IN ('finished', 'paying')
 
     UNION
 

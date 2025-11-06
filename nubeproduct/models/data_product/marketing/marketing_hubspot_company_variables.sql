@@ -25,6 +25,8 @@ with
             ) as website,
             coalesce(msi.partner_id, '') as associated_partner_id,
             coalesce(credit_limit.available_limit_admin, 0.0) as np_lending_available_credit,
+            gmv.gmv_local_currency_on_platform_monthly,
+            gmv.gmv_local_currency_on_platform_90d,
             active_stores.store_id
         from {{ ref("hubspot_active_stores") }} active_stores
         left join
@@ -44,6 +46,9 @@ with
         left join
             {{ ref("int_credit_last_available_limit") }} credit_limit
             on active_stores.store_id = credit_limit.store_id
+        left join
+            {{ ref("_int__midmarket__hubspot_gmv_by_store") }} gmv
+            on active_stores.store_id = gmv.store_id
     )
 
 select
@@ -54,6 +59,8 @@ select
     info.associated_partner_id,
     info.website,
     info.np_lending_available_credit,
+    info.gmv_local_currency_on_platform_monthly,
+    info.gmv_local_currency_on_platform_90d,
     {% if is_incremental() %}
         coalesce(
             existing_data.sys_audit_created_on, current_timestamp
@@ -77,7 +84,9 @@ from source_data as info
             "stats_url",
             "associated_partner_id",
             "website",
-            "np_lending_available_credit"
+            "np_lending_available_credit",
+            "gmv_local_currency_on_platform_monthly",
+            "gmv_local_currency_on_platform_90d"
         ] %}
     where
         existing_data.store_id is null

@@ -7,8 +7,10 @@
     tags = ['daily-8am'],
     pre_hook = [
         """
-        DELETE FROM {{ this }}
-        WHERE registered_month = date_trunc('month', current_date());
+        {% if is_incremental() %}
+            DELETE FROM {{ this }}
+            WHERE registered_month = date_trunc('month', current_date());
+        {% endif %}
         """
     ]
 ) }}

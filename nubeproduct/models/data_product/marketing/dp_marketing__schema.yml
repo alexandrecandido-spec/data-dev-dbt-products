@@ -1192,6 +1192,10 @@ models:
         description: "The store's credit available limit registered in admin."
         tests:
           - not_null
+      - name: gmv_local_currency_on_platform_monthly
+        description: "GMV in local currency over the last closed month."
+      - name: gmv_local_currency_on_platform_90d
+        description: "GMV in local currency over the last 90 days."
       - name: sys_audit_created_on
         description: "Timestamp when the row was originally created."
       - name: sys_audit_created_by
@@ -1756,32 +1760,17 @@ models:
       - name: year_month_day_code
         description: "Date in YYYYMMDD integer format used for partitioning"
         tests: [not_null]
-      - name: completed_at
+      - name: date
         description: "Order completion date"
-        tests: [not_null]
       - name: store_id
         description: "Unique identifier of the store"
         tests: [not_null]
-      - name: gateway
-        description: "Payment gateway used for the transaction"
-      - name: payment
-        description: "Payment method used for the transaction"
-      - name: shipping
-        description: "Shipping method used for the order"
-      - name: storefront
-        description: "Storefront channel where the order was placed"
-      - name: currency
-        description: "Currency used for the transaction"
-      - name: country_currency
-        description: "Local currency of the store's country"
       - name: platform_type
         description: "Platform type where the transaction occurred"
       - name: country
         description: "Country code of the store"
       - name: partner_id
         description: "Partner ID associated with the store"
-      - name: partner_code
-        description: "Partner code associated with the store"
       - name: mkt_source_first_click
         description: "Marketing source attributed to the first click in the customer journey"
       - name: mkt_subteam_first_click
@@ -1794,20 +1783,6 @@ models:
         description: "Marketing source attributed to partner click in the customer journey"
       - name: mkt_subteam_partner_click
         description: "Marketing subteam attributed to partner click in the customer journey"
-      - name: gmv_30d
-        description: "GMV in local currency over 30-day period"
-      - name: gmv_usd_30d
-        description: "GMV in USD over 30-day period"
-      - name: orders_30d
-        description: "Total orders over 30-day period"
-      - name: gmv_90d
-        description: "GMV in local currency over 90-day period"
-      - name: gmv_usd_90d
-        description: "GMV in USD over 90-day period"
-      - name: orders_90d
-        description: "Total orders over 90-day period"
-      - name: historical_segment
-        description: "Historical segment classification of the store"
       - name: gmv
         description: "Daily Gross merchandise value in local currency"
       - name: gmv_usd
@@ -1966,4 +1941,117 @@ models:
         description: "Timestamp when the row was last updated in this table."
         tests:
           - not_null
+  
+  - name: s__product_marketing__layout__ref
+    description: "**Data Product SILVER REF: Layout Configuration Metrics** Métricas de configuración de layout/tema por tienda durante el onboarding. El layout se considera completamente configurado cuando la tienda ha personalizado banner, slider Y colors. La fecha de completitud es la última de las tres configuraciones. **Domain:** marketing  **Granularity:** ref (one row per store)"
+    meta:
+      owner: "jhu.boggio@tiendanube.com"
+      domain: "marketing"
+      business_owner: "Giselle Galli"
+    columns:
+      - name: store_id
+        description: "ID único de la tienda"
+        tests:
+          - not_null
+          - unique 
+      - name: config_banner
+        description: "Indica si la tienda configuró el banner. 1 = configurado, 0 = no configurado"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [0, 1]
+      - name: config_slider
+        description: "Indica si la tienda configuró el slider. 1 = configurado, 0 = no configurado"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [0, 1]
+      - name: config_colors
+        description: "Indica si la tienda configuró los colores personalizados. 1 = configurado, 0 = no configurado"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [0, 1]
+      - name: config_layout
+        description: "Indica si el layout está completamente configurado (banner + slider + colors). 1 = configurado, 0 = no configurado"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [0, 1]
+      - name: layout_name
+        description: "Nombre del tema/template actual instalado (ej: 'sydney', 'tokyo')"
+      - name: first_date_config_layout
+        description: "Fecha de la primera configuración de layout (la más temprana entre banner, slider o colors)"
+      - name: last_date_config_layout
+        description: "Fecha de completitud del layout (la más tardía entre banner, slider y colors)"
+      - name: sys_audit_created_on
+        description: "Timestamp of when this record was created in our data warehouse"
+      - name: sys_audit_created_by
+        description: "System identifier of the process that created this record"
+      - name: sys_audit_updated_on
+        description: "Timestamp of when this record was last updated in our data warehouse"
+      - name: sys_audit_updated_by
+        description: "System identifier of the process that last updated this record"
+   
+  - name: s__product_marketing__payments__ref
+    description: "**Data Product SILVER REF: Payments Configuration Metrics**\n\nMétricas de configuración de métodos de pago por tienda durante el onboarding.\nCompleto en la primera ocurrencia del evento PaymentProviderRegistered.\n\n**Domain:** marketing\n**Granularity:** ref (one row per store)"
+    meta:
+      owner: "jhu.boggio@tiendanube.com"
+      domain: "marketing"
+      business_owner: "Giselle Galli"
+    columns:
+      - name: store_id
+        description: "ID único de la tienda"
+        tests:
+          - not_null
+          - unique
+      - name: config_payment
+        description: "Indica si la tienda configuró métodos de pago. 1 = configurado, 0 = no configurado"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [0, 1]
+      - name: first_date_config_payment
+        description: "Fecha del primer evento PaymentProviderRegistered"
+      - name: last_date_config_payment
+        description: "Fecha del último evento PaymentProviderRegistered"
+      - name: sys_audit_created_on
+        description: "Timestamp of when this record was created in our data warehouse"
+      - name: sys_audit_created_by
+        description: "System identifier of the process that created this record"
+      - name: sys_audit_updated_on
+        description: "Timestamp of when this record was last updated in our data warehouse"
+      - name: sys_audit_updated_by
+        description: "System identifier of the process that last updated this record" 
+
+  - name: s__product_marketing__shipping__ref
+    description: "**Data Product SILVER REF: Shipping Configuration Metrics**\n\nMétricas de configuración de métodos de envío por tienda durante el onboarding.\nCompleto cuando la tienda activó un carrier con status activo.\n\n**Domain:** marketing\n**Granularity:** ref (one row per store)"
+    meta:
+      owner: "jhu.boggio@tiendanube.com"
+      domain: "marketing"
+      business_owner: "Giselle Galli"
+    columns:
+      - name: store_id
+        description: "ID único de la tienda"
+        tests:
+          - not_null
+          - unique
+      - name: config_shipping
+        description: "Indica si la tienda configuró métodos de envío. 1 = configurado, 0 = no configurado"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [0, 1]
+      - name: first_date_config_shipping
+        description: "Fecha de la primera configuración de carrier activo"
+      - name: last_date_config_shipping
+        description: "Fecha de la última configuración de carrier activo"
+      - name: sys_audit_created_on
+        description: "Timestamp of when this record was created in our data warehouse"
+      - name: sys_audit_created_by
+        description: "System identifier of the process that created this record"
+      - name: sys_audit_updated_on
+        description: "Timestamp of when this record was last updated in our data warehouse"
+      - name: sys_audit_updated_by
+        description: "System identifier of the process that last updated this record"
 

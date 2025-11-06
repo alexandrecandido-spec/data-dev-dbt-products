@@ -1,0 +1,51 @@
+version: 2
+models:
+  - name: s__contracts__store_contracts__scd
+    description: "Data Product silver that contains the store contracts information. This model is used to track the contracts of each store, including the plan name, contract type, start date, end date, and sys_audit_updated_on. With a SCD type aggregated by store, plan name and contract type."
+    config:
+      meta:
+        owner: "ronald.corcho@tiendanube.com"
+        domain: "merchant"
+        business_owner: "Analytics Engineering"
+    columns:
+      - name: store_id
+        description: "Store identifier linked to the contract."
+        tests:
+          - not_null
+      - name: plan_name
+        description: "Plan type name."
+      - name: contract_type
+        description: "Type of contract event (e.g., freemium, change-plan)."
+      - name: created_at_contract
+        description: "Timestamp when the contract entry was created."
+      - name: start_date
+        description: "Date when the contract started."
+        tests:
+          - not_null:
+              severity: warn
+      - name: end_date
+        description: "Date when the contract ended."
+        tests:
+          - not_null:
+              severity: warn
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "System or user that created the row."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this table."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row."
+        tests:
+          - not_null
+      - name: hash_key
+        description: "Hash key for the contract. It is a concatenation of the store_id, plan_name, contract_type and start_date."
+        tests:
+          - not_null
+          - unique

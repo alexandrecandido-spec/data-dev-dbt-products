@@ -25,9 +25,9 @@ product_variant_counts AS (
         COUNT(DISTINCT v.id) AS variant_count,
         COUNT(DISTINCT CASE WHEN p.publish = 1 THEN v.id END) AS published_product_variant_count,
         GREATEST(
-            MAX(p.sys_audit_updated_on),
-            MAX(v.sys_audit_updated_on),
-            MAX(vd.sys_audit_updated_on)
+            COALESCE(MAX(p.sys_audit_updated_on), '1900-01-01'),
+            COALESCE(MAX(v.sys_audit_updated_on), '1900-01-01'),
+            COALESCE(MAX(vd.sys_audit_updated_on), '1900-01-01')
         ) AS pvc_max_sys_audit_updated_on
     FROM {{ ref('product__mwp_product_list') }} p 
     LEFT JOIN {{ ref('product__mwp_product_variants') }} v ON v.product_id = p.id
@@ -49,8 +49,8 @@ SELECT
     pvc.variant_count,
     pvc.published_product_variant_count,
     GREATEST(
-        sh.sh_max_sys_audit_updated_on,
-        pvc.pvc_max_sys_audit_updated_on
+        COALESCE(sh.sh_max_sys_audit_updated_on, '1900-01-01'),
+        COALESCE(pvc.pvc_max_sys_audit_updated_on, '1900-01-01')
     ) AS sh_max_sys_audit_updated_on
 FROM stock_history sh
 FULL OUTER JOIN product_variant_counts pvc ON sh.store_id = pvc.store_id
