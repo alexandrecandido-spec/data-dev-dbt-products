@@ -3658,7 +3658,7 @@ models:
       - name: sys_audit_updated_by
         description: "User or system that last updated the chargeback."
 
-  - name: s__growth__trial_np_by_app_install__ref
+  - name: s__general__trial_np_by_app_install__ref
     description: "Data product that contains informations of trials and new payments and app installation information."
     config:
       meta:
