@@ -2054,4 +2054,34 @@ models:
         description: "Timestamp of when this record was last updated in our data warehouse"
       - name: sys_audit_updated_by
         description: "System identifier of the process that last updated this record"
+  - name: s__product_marketing__products__ref
+    description: "**Data Product SILVER REF: Products Configuration Metrics**\n\nMétricas de configuración de productos por tienda durante el onboarding.\nCompleto cuando la tienda tiene al menos 6 productos válidos (con descripción y al menos 1 imagen).\n\n**Domain:** marketing\n**Granularity:** ref (one row per store)"
+    meta:
+      owner: "jhu.boggio@tiendanube.com"
+      domain: "marketing"
+      business_owner: "Giselle Galli"
+    columns:
+      - name: store_id
+        description: "ID único de la tienda"
+        tests:
+          - not_null
+          - unique
+      - name: config_products
+        description: "Indica si la tienda configuró productos. 1 = configurado (6+ productos válidos), 0 = no configurado"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [0, 1]
+      - name: first_date_config_products
+        description: "Fecha del primer producto válido creado"
+      - name: last_date_config_products
+        description: "Fecha del sexto producto válido (fecha de completitud) si tiene 6+, sino fecha del último producto válido"
+      - name: sys_audit_created_on
+        description: "Timestamp of when this record was created in our data warehouse"
+      - name: sys_audit_created_by
+        description: "System identifier of the process that created this record"
+      - name: sys_audit_updated_on
+        description: "Timestamp of when this record was last updated in our data warehouse"
+      - name: sys_audit_updated_by
+        description: "System identifier of the process that last updated this record"
 

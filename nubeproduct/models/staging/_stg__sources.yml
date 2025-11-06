@@ -248,6 +248,10 @@ sources:
         description: "Contains information stock on each CD for each variant"
       - name: mwp_product_list 
         description: "Contains all products"
+      - name: mwp_product_list_i18n
+        description: "Contains product internationalization data including descriptions"
+      - name: mwp_product_images
+        description: "Contains product images"
       - name: mwp_product_variants
         description: "Contains all product variants"
       - name: mwp_product_videos
