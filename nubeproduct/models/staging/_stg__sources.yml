@@ -55,6 +55,8 @@ sources:
         description: "Table with shipping carriers"
       - name: mwp_shipping_carriers_options
         description: "Table with shipping carrier options and settings"
+      - name: mwp_store_access
+        description: "Table with store admin access events"
 
 
   - name: stg_orders

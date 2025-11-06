@@ -2054,4 +2054,35 @@ models:
         description: "Timestamp of when this record was last updated in our data warehouse"
       - name: sys_audit_updated_by
         description: "System identifier of the process that last updated this record"
-
+  - name: g__product_marketing__admin_access_store__agg
+    description: "**Data Product GOLD: Admin Access Metrics by Store**\n\nMétricas de accesos al panel de administración por tienda en diferentes períodos de tiempo.\nAgrega eventos de acceso usando SUM para calcular métricas por ventanas temporales (7d, 15d, 30d, 60d).\n\n**Domain:** marketing\n**Granularity:** agg (one row per store)"
+    meta:
+      owner: "jhu.boggio@tiendanube.com"
+      domain: "marketing"
+      business_owner: "Giselle Galli"
+    columns:
+      - name: store_id
+        description: "ID único de la tienda"
+        tests:
+          - not_null
+          - unique
+      - name: qty_admin_access_7d
+        description: "Cantidad total de accesos al admin en los primeros 7 días desde creación de la tienda"
+      - name: qty_admin_access_15d
+        description: "Cantidad total de accesos al admin en los primeros 15 días desde creación de la tienda"
+      - name: qty_admin_access_30d
+        description: "Cantidad total de accesos al admin en los primeros 30 días desde creación de la tienda"
+      - name: qty_admin_access_60d
+        description: "Cantidad total de accesos al admin en los primeros 60 días desde creación de la tienda"
+      - name: first_date_admin_access
+        description: "Fecha del primer acceso al admin"
+      - name: last_date_admin_access
+        description: "Fecha del último acceso al admin"
+      - name: sys_audit_created_on
+        description: "Timestamp of when this record was created in our data warehouse"
+      - name: sys_audit_created_by
+        description: "System identifier of the process that created this record"
+      - name: sys_audit_updated_on
+        description: "Timestamp of when this record was last updated in our data warehouse"
+      - name: sys_audit_updated_by
+        description: "System identifier of the process that last updated this record"
