@@ -47,6 +47,7 @@ partners AS (
         partner_utm_medium,
         partner_utm_content,
         mkt_exclusion,
+        affiliate_main_platform,
         flag_partner_exception
     FROM {{ ref('s__general__partners_info__ref') }}
 ),
@@ -71,6 +72,7 @@ joined AS (
         p.partner_utm_content,
         p.mkt_exclusion,
         p.flag_partner_exception,
+        p.affiliate_main_platform,
 
         -- Metrics
         b.trials,
