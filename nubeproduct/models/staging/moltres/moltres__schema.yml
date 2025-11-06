@@ -375,7 +375,7 @@ models:
         description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
   
 
-  - name: product__billing__contracts__scd
+  - name: billing__contracts__store_contract__scd
     description: "Staging model containing contracts created through contracts - plan subscription events, with a SCD type."
     config:
       meta:

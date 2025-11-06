@@ -1144,6 +1144,12 @@ models:
         description: number of days since the last invoice was created
       - name: last_invoice_count_conversation
         description: number of conversations in the last invoice
+      - name: last_invoice_cost_total
+        description: cost of the last invoice
+      - name: last_invoice_cost_per_conversation
+        description: cost per conversation of the last invoice
+      - name: direct_exchange_rate
+        description: exchange rate for the last invoice
       - name: paid_invoices
         description: number of paid invoices
       - name: last_paid_date
@@ -1168,6 +1174,8 @@ models:
         description: number of conversations in the trial
       - name: ai_conv_last_3d
         description: number of ai conversations in the last 3 days
+      - name: ai_conv_last_30d
+        description: number of ai conversations in the last 30 days
       - name: last_conversation_date
         description: date when the last conversation was started
       - name: chatnube_state
@@ -1594,6 +1602,12 @@ models:
         description: "Plan of the store"
       - name: cancel_reason
         description: "Reason for the order cancellation"
+      - name: first_payment
+        description: "Date when the merchant made their first payment"
+      - name: churned_at
+        description: "Date when the merchant churned"
+      - name: created_at
+        description: "Date when the merchant was created"
       - name: store_id
         description: "Store id of the order"
       - name: domain
@@ -2972,6 +2986,8 @@ models:
         description: "Merchant phone."
       - name: store_vertical
         description: "Store vertical."
+      - name: monthly_fee
+        description: "Store plan monthly fee."
       - name: creation_date
         description: "Store creation date."
       - name: first_payment
