@@ -34,7 +34,7 @@ wp AS (
     CAST(ID AS BIGINT)                           AS wp_user_id,
     CAST(account_confirmed_at AS TIMESTAMP)      AS account_confirmed_at,
     CAST(user_registered      AS TIMESTAMP)      AS user_registered
-  FROM {{ source('int_moltres','wp_users') }}
+  FROM {{ source('stg_moltres','wp_users') }}
   WHERE user_email IS NOT NULL AND TRIM(user_email) <> ''
 ),
 

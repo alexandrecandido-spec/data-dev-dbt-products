@@ -104,48 +104,42 @@ src_all as (
 )
 
 -- 6) auditoría + row hash
-, final_rows as (
-  select
-    w.*,
-    coalesce(e.sys_audit_created_on, current_timestamp)         as sys_audit_created_on,
-    coalesce(e.sys_audit_created_by,  'data-dev-dbt-marketing') as sys_audit_created_by,
-    current_timestamp                                           as sys_audit_updated_on,
-    'data-dev-dbt-marketing'                                    as sys_audit_updated_by,
-
-    {{ mpt_hash([
-      'w.store_id',
-      'w.has_ms_tag',
-      'w.ms_reason',
-      'w.ms_contact_date',
-      'w.created_at',
-      'w.partner_code',
-      'w.new_seller_at',
-      'w.first_payment',
-      'w.churned_at',
-      'w.domain',
-      'w.emails',
-      'w.phones',
-      'w.instagram_url',
-      'w.platform',
-      'w.estimated_monthly_sales',
-      'w.peso',
-      'w.repeated_domain',
-      'w.disparos',
-      'w.disparo_date',
-      'w.mapping_method',
-      'w.first_disparo_date',
-      'w.first_visit_ts',
-      'w.first_visit_date',
-      'w.deps_ms_updated_on',
-      'w.deps_sc_updated_on',
-      'w.deps_lc_updated_on',
-      'w.deps_at_updated_on',
-      'w.deps_last_updated_on',
-      'w.year_month_day_code'
-    ]) }} as row_hash
-  from with_keys w
-  left join existing e using (store_id)
-)
-
--- 7) fuente del MERGE
-select * from final_rows
+select
+  w.*,
+  coalesce(e.sys_audit_created_on, current_timestamp)          as sys_audit_created_on,
+  coalesce(e.sys_audit_created_by,  'data-dev-dbt-marketing')  as sys_audit_created_by,
+  current_timestamp                                             as sys_audit_updated_on,
+  'data-dev-dbt-marketing'                                      as sys_audit_updated_by,
+  {{ mpt_hash([
+    'w.store_id',
+    'w.has_ms_tag',
+    'w.ms_reason',
+    'w.ms_contact_date',
+    'w.created_at',
+    'w.partner_code',
+    'w.new_seller_at',
+    'w.first_payment',
+    'w.churned_at',
+    'w.domain',
+    'w.emails',
+    'w.phones',
+    'w.instagram_url',
+    'w.platform',
+    'w.estimated_monthly_sales',
+    'w.peso',
+    'w.repeated_domain',
+    'w.disparos',
+    'w.disparo_date',
+    'w.mapping_method',
+    'w.first_disparo_date',
+    'w.first_visit_ts',
+    'w.first_visit_date',
+    'w.deps_ms_updated_on',
+    'w.deps_sc_updated_on',
+    'w.deps_lc_updated_on',
+    'w.deps_at_updated_on',
+    'w.deps_last_updated_on',
+    'w.year_month_day_code'
+  ]) }}                                                     as row_hash
+from with_keys w
+left join existing e using (store_id)
