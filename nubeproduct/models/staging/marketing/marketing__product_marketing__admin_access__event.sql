@@ -12,6 +12,7 @@ Staging Model: Store Admin Access Events
 Description: Eventos de acceso al panel de administración por tienda
 Owner: jhu.boggio@tiendanube.com
 Domain: marketing
+Subdomain: product_marketing
 
 Este modelo filtra y prepara los datos de mwp_store_access para consumo en modelos GOLD.
 Solo incluye accesos de tiendas creadas después de 2024-01-01.

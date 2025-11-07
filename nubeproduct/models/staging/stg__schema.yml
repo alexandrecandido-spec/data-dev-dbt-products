@@ -3720,6 +3720,35 @@ models:
       - name: sys_audit_updated_by
         description: "User or process that last updated the record."
 
+  - name: marketing__product_marketing__admin_access__event
+    description: "Staging model for store admin access events. Filters and prepares data from mwp_store_access for consumption in GOLD models. Only includes access events from stores created after 2024-01-01."
+    config:
+      meta:
+        owner: "jhu.boggio@tiendanube.com"
+        domain: "marketing"
+        business_owner: "Giselle Galli"
+    columns:
+      - name: id
+        description: "Unique identifier of the access event."
+        tests:
+          - not_null
+          - unique
+      - name: store_id
+        description: "Unique identifier of the store."
+        tests:
+          - not_null
+      - name: created_at
+        description: "Timestamp when the access event occurred."
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first inserted into this table."
+      - name: sys_audit_created_by
+        description: "User or process that first inserted the record."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the most recent update to the record."
+      - name: sys_audit_updated_by
+        description: "User or process that performed the last update."
   - name: marketing__product_marketing__lifecycle_registrados_webinars__event
     description: "Manual webinar registrations enriched with store_id via email mapping (keeps rows with NULL store_id). One row per raw registration record. No tag logic here. Includes sys_audit_* fields, is partitioned by year_month_day_code, and is materialized incrementally (merge)."
     config:
