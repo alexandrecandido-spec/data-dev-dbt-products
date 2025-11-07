@@ -1162,6 +1162,8 @@ models:
         description: "Order unique identifier"
       - name: store_id
         description: "Order unique identifier"
+      - name: dispatched_at
+        description: "Dispatched date"
       - name: carrier_code
         description: "Carrier code"
       - name: delivery_option_code
