@@ -3,8 +3,24 @@ WITH store_source AS (
         store_id,
         partner_id,
         partnership_type,
+        country_code,
+        device,
+        created_at,
         sys_audit_updated_on
-    FROM {{ ref('merchant__attributes__store_info__ref') }}
+    FROM {{ ref('s__attributes__store_core__ref') }}
+),
+ranked_store_info_ql AS (
+  SELECT 
+    si.*
+    , np.predicted_prob AS new_payment_probability
+    , tb_cff.cutoff AS prod_cutoff
+    , COALESCE(CASE WHEN np.predicted_prob >= tb_cff.cutoff  THEN 1 ELSE 0 END, 0) AS quality_lead_flag
+    , ROW_NUMBER() OVER (PARTITION BY si.store_id ORDER BY si.created_at DESC) AS rownumber
+  FROM store_source si
+  LEFT JOIN {{ ref('marketing__models__quality_leads__ref') }} np ON si.store_id = np.store_id
+  LEFT JOIN {{ source('int_data_predictors', 'marketing_cutoffs_table') }} tb_cff ON si.country_code = tb_cff.country 
+                                                                                    AND np.model_id = tb_cff.model_id 
+                                                                                    AND (tb_cff.device = si.device OR tb_cff.device IS NULL)
 ), 
 tags_info AS (
     SELECT
@@ -13,13 +29,6 @@ tags_info AS (
         has_affiliate_tag,
         sys_audit_updated_on
     FROM {{ ref('merchant__attributes__store_tags__ref') }}
-),
-ql_flag AS (
-    SELECT
-        store_id,
-        CASE WHEN new_payment_probability >= prod_cutoff THEN 1 ELSE 0 END AS quality_lead_flag,
-        change_timestamp
-    FROM {{ ref('_int_marketing_store_info__get_quality_leads_info') }}
 ),
 attribution_info AS (
     SELECT 
@@ -56,6 +65,8 @@ ql_profile AS (
         profile
     FROM {{ ref('_int__last_ql_profile') }}
 )
+
+
 SELECT
     ss.store_id,
     ss.partner_id,
@@ -66,7 +77,7 @@ SELECT
         ELSE 'Nuvemshop' 
     END AS tag_acquired_by,
 
-    ql.quality_lead_flag,
+    ss.quality_lead_flag,
 
     att.mkt_source_last_click,
     att.mkt_subteam_last_click,
@@ -89,12 +100,12 @@ SELECT
         ELSE 'No' 
     END AS flag_affiliate,
 
-    ql_p.profile AS ql_profile,
+    COALESCE(ql_p.profile, 'not informed') AS ql_profile,
 
-    greatest(ss.sys_audit_updated_on, ti.sys_audit_updated_on, ql.change_timestamp, att.sys_audit_updated_on, pi.sys_audit_updated_on) AS change_timestamp
-FROM store_source ss
+    greatest(ss.sys_audit_updated_on, ti.sys_audit_updated_on, att.sys_audit_updated_on, pi.sys_audit_updated_on) AS change_timestamp
+FROM ranked_store_info_ql ss
 LEFT JOIN tags_info ti ON ss.store_id = ti.store_id
-LEFT JOIN ql_flag ql ON ss.store_id = ql.store_id
 LEFT JOIN attribution_info att ON ss.store_id = att.store_id
 LEFT JOIN partner_info pi ON ss.partner_id = pi.partner_id
 LEFT JOIN ql_profile ql_p ON ss.store_id = ql_p.store_id
+WHERE ss.rownumber = 1
