@@ -249,6 +249,10 @@ sources:
         description: "Contains information stock on each CD for each variant"
       - name: mwp_product_list 
         description: "Contains all products"
+      - name: mwp_product_list_i18n
+        description: "Contains product internationalization data including descriptions"
+      - name: mwp_product_images
+        description: "Contains product images"
       - name: mwp_product_variants
         description: "Contains all product variants"
       - name: mwp_product_videos
@@ -457,6 +461,12 @@ sources:
     tables:
       - name: ext__partnerships__platform_development__app_managers
         description: "Contains the information of the app and tech partner managers"
+      - name: ext__marketing__product_marketing__lifecycle_registrados_webinars
+        description: "Webinar registrations captured by Product Marketing (Education). One row per registration; raw fields as provided by the source."
+      - name: ext__marketing__acquisition__merchant_sellers_base_total_a_s
+        description: "Manually curated Merchant Sellers prospects/domains (A–S slice). Raw outreach and enrichment fields."
+      - name: ext__marketing__acquisition__merchant_sellers_base_total_t_z
+        description: "Manually curated Merchant Sellers prospects/domains (T–Z slice). Same schema as the A–S slice."
 
   - name: stg_raw_ecosystem
     database: raw

@@ -2054,6 +2054,139 @@ models:
         description: "Timestamp of when this record was last updated in our data warehouse"
       - name: sys_audit_updated_by
         description: "System identifier of the process that last updated this record"
+  - name: s__product_marketing__products__ref
+    description: "**Data Product SILVER REF: Products Configuration Metrics**\n\nMétricas de configuración de productos por tienda durante el onboarding.\nCompleto cuando la tienda tiene al menos 6 productos válidos (con descripción y al menos 1 imagen).\n\n**Domain:** marketing\n**Granularity:** ref (one row per store)"
+    meta:
+      owner: "jhu.boggio@tiendanube.com"
+      domain: "marketing"
+      business_owner: "Giselle Galli"
+    columns:
+      - name: store_id
+        description: "ID único de la tienda"
+        tests:
+          - not_null
+          - unique
+      - name: config_products
+        description: "Indica si la tienda configuró productos. 1 = configurado (6+ productos válidos), 0 = no configurado"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [0, 1]
+      - name: first_date_config_products
+        description: "Fecha del primer producto válido creado"
+      - name: last_date_config_products
+        description: "Fecha del sexto producto válido (fecha de completitud) si tiene 6+, sino fecha del último producto válido"
+      - name: sys_audit_created_on
+        description: "Timestamp of when this record was created in our data warehouse"
+      - name: sys_audit_created_by
+        description: "System identifier of the process that created this record"
+      - name: sys_audit_updated_on
+        description: "Timestamp of when this record was last updated in our data warehouse"
+      - name: sys_audit_updated_by
+        description: "System identifier of the process that last updated this record"
+
+  - name: s__acquisition__project_ms__ref
+    description: "Marketing Project Tagging - Merchant Sellers (Project). One row per store_id with tag decision, contact date, core/lifecycle fields, representative Merchant Sellers base fields, first visit signals, and dependency audit timestamps."
+    config:
+      meta:
+        owner: "sofia.torres@tiendanube.com"
+        domain: "marketing"
+        business_owner: "Giselle Galli"
+    columns:
+      - name: store_id
+        description: "Store unique identifier."
+        tests: [not_null, unique]
+      - name: has_ms_tag
+        description: "Flag (1/0) indicating Merchant Sellers tag by project logic."
+        tests:
+          - accepted_values: {values: [0,1]}
+      - name: ms_reason
+        description: "Reason: 'external_disparo', 'pre_creation_visit', or 'both'."
+        tests:
+          - accepted_values:
+              values: ['external_disparo','pre_creation_visit','both']
+      - name: ms_contact_date
+        description: "Contact date used for the tag (first_disparo_date or first_visit_date)."
+      - name: created_at
+        description: "Store creation timestamp (from store core)."
+      - name: partner_code
+        description: "Partner code (from store core)."
+      - name: new_seller_at
+        description: "First seller date when new_seller=1 (from lifecycle)."
+      - name: first_payment
+        description: "First payment date (from lifecycle)."
+      - name: churned_at
+        description: "Churn date (from lifecycle)."
+      - name: domain
+        description: "Representative domain from Merchant Sellers base (per store)."
+      - name: emails
+        description: "Emails captured in Merchant Sellers base."
+      - name: phones
+        description: "Phones captured in Merchant Sellers base."
+      - name: instagram_url
+        description: "Instagram URL captured in Merchant Sellers base."
+      - name: platform
+        description: "Normalized platform from Merchant Sellers base."
+      - name: estimated_monthly_sales
+        description: "Estimated monthly sales from Merchant Sellers base."
+      - name: peso
+        description: "Weight/score from Merchant Sellers base."
+      - name: repeated_domain
+        description: "Repeated domain note from Merchant Sellers base."
+      - name: disparos
+        description: "Message/trigger notes from Merchant Sellers base."
+      - name: disparo_date
+        description: "Trigger/first contact date from Merchant Sellers base."
+      - name: mapping_method
+        description: "Domain mapping method: domain_exact, domain_clean, or none."
+      - name: first_disparo_date
+        description: "Earliest disparo_date among Merchant Sellers rows for the store."
+      - name: first_visit_ts
+        description: "Timestamp of first visit to /empreendedores/crescer%."
+      - name: first_visit_date
+        description: "Date of first visit to /empreendedores/crescer%."
+      - name: deps_ms_updated_on
+        description: "Max sys_audit_updated_on from Merchant Sellers staging."
+      - name: deps_sc_updated_on
+        description: "sys_audit_updated_on from store core ref."
+      - name: deps_lc_updated_on
+        description: "sys_audit_updated_on from lifecycle ref."
+      - name: deps_at_updated_on
+        description: "Max sys_audit_updated_on from attribution model."
+      - name: deps_last_updated_on
+        description: "Greatest timestamp across dependency audits (scoping incremental)."
+      - name: partition_date
+        description: "Best available date used for partitioning (prefers ms_contact_date)."
+      - name: year_month_day_code
+        description: "YYYYMMDD partition code derived from partition_date."
+        tests: [not_null]
+      - name: sys_audit_created_on
+        description: "Row creation timestamp (preserved)."
+        tests: [not_null]
+      - name: sys_audit_created_by
+        description: "Creator process/user (preserved)."
+        tests: [not_null]
+      - name: sys_audit_updated_on
+        description: "Last update timestamp."
+        tests: [not_null]
+      - name: sys_audit_updated_by
+        description: "Last updater process/user."
+        tests: [not_null]
+      - name: row_hash
+        description: "MD5 over business columns to detect content changes."
+        tests: [not_null]
+
+  - name: s__acquisition__project_tags__ref
+    description: "Silver REF table for Marketing Project Tagging at store grain. Exposes three boolean flags (Merchant Sellers, Drop Sellers, Webinars), their tag names, a concatenated tag string, the three relevant dates, and audit fields. Only stores with at least one tag are included."
+    config:
+      meta:
+        owner: "sofia.torres@tiendanube.com"
+        domain: "marketing"
+        business_owner: "Giselle Galli"
+    columns:
+      - name: store_id
+        description: "Unique store identifier."
+        tests: [not_null, unique]
 
   - name: g__product_marketing__storefront_sessions_store__agg
     description: "**Data Product GOLD: Storefront Sessions Metrics by Store**\n\nMétricas de sesiones reales de usuarios finales en storefronts por tienda durante el onboarding.\nCuenta sesiones únicas en ventanas de tiempo (7d, 15d, 30d, 60d, 90d) desde creación de la tienda.\nExcluye merchants, bots y tráfico no-humano.\n\n**Domain:** marketing\n**Granularity:** agg (one row per store)"
@@ -2093,3 +2226,50 @@ models:
         description: "Timestamp of when this record was last updated in our data warehouse"
       - name: sys_audit_updated_by
         description: "System identifier of the process that last updated this record"
+      - name: has_ms_tag
+        description: "Boolean (0/1). 1 when the store satisfies Merchant Sellers logic."
+        tests:
+          - not_null
+          - accepted_values: {values: [0,1]}
+      - name: has_ds_tag
+        description: "Boolean (0/1). 1 when the store has Drop Sellers tag."
+        tests:
+          - not_null
+          - accepted_values: {values: [0,1]}
+      - name: has_wb_tag
+        description: "Boolean (0/1). 1 when the store attended at least one webinar."
+        tests:
+          - not_null
+          - accepted_values: {values: [0,1]}
+      - name: tag_ms_name
+        description: "Literal 'Merchant Sellers' when has_ms_tag = 1; else NULL."
+      - name: tag_ds_name
+        description: "Literal 'Drop Sellers' when has_ds_tag = 1; else NULL."
+      - name: tag_wb_name
+        description: "When has_wb_tag = 1: 'Webinars MM-YY' derived from first_webinar_at; else NULL."
+      - name: marketing_projects_tag
+        description: "Concatenation in stable order: Merchant Sellers, Drop Sellers, Webinars MM-YY. Separator: ' + '."
+      - name: ms_contact_date
+        description: "MS contact date (first_disparo_date or first_visit_date)."
+      - name: ds_tag_created_date
+        description: "Drop Sellers tag creation date."
+      - name: first_webinar_at
+        description: "First webinar attendance date (live/on-demand)."
+      - name: year_month_day_code
+        description: "Partition code (YYYYMMDD) from the first available date among the three (fallback today)."
+        tests: [not_null]
+      - name: sys_audit_created_on
+        description: "Creation timestamp in the target."
+        tests: [not_null]
+      - name: sys_audit_created_by
+        description: "User/process that created the record."
+        tests: [not_null]
+      - name: sys_audit_updated_on
+        description: "Last update timestamp in the target."
+        tests: [not_null]
+      - name: sys_audit_updated_by
+        description: "User/process that made the last update."
+        tests: [not_null]
+      - name: row_hash
+        description: "MD5 over exposed payload to detect content changes."
+        tests: [not_null]
