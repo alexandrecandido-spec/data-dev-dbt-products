@@ -63,6 +63,115 @@ models:
       - name: sys_audit_updated_by
         description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
 
+  - name: s__attributes__store_identity__ref
+    description: "**Data Product SILVER REF: Store Identity Information**\n\nInformación consolidada de identidad de la tienda (contactos, documentos fiscales, redes sociales, tema activo).\nConsolida datos desde múltiples fuentes para proporcionar una vista unificada de la identidad de la tienda.\n\n**Domain:** merchant\n**Granularity:** ref (one row per store)"
+    config:
+      meta:
+        owner: "jhu.boggio@tiendanube.com"
+        domain: "merchant"
+        business_owner: "Analytics Engineering"
+    columns:
+      - name: store_id
+        description: "ID único de la tienda"
+        tests:
+          - not_null
+          - unique
+      - name: main_user_id
+        description: "ID del usuario principal de la tienda"
+        tests:
+          - dbt_expectations.expect_column_values_to_not_be_null:
+              row_condition: "user_email IS NOT NULL"
+      - name: store_name
+        description: "Nombre de la tienda (desde i18n)"
+      - name: store_description
+        description: "Descripción de la tienda (desde i18n)"
+      - name: user_email
+        description: "Email del usuario principal"
+        tests:
+          - dbt_expectations.expect_column_values_to_not_be_null:
+              row_condition: "main_user_id IS NOT NULL"
+      - name: user_first_name
+        description: "Nombre del usuario principal"
+      - name: user_last_name
+        description: "Apellido del usuario principal"
+      - name: user_nicename
+        description: "Nombre de usuario (nicename) del usuario principal"
+      - name: user_registered_at
+        description: "Fecha de registro del usuario principal"
+        tests:
+          - dbt_expectations.expect_column_values_to_not_be_null:
+              row_condition: "user_email IS NOT NULL"
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: timestamp
+      - name: user_role
+        description: "Rol del usuario principal"
+      - name: phone_from_footer
+        description: "Teléfono desde el footer de la tienda"
+      - name: owner_phone_number
+        description: "Número de teléfono del dueño (sin formatear)"
+      - name: phone_whatsapp_button
+        description: "Número de WhatsApp del botón de contacto"
+      - name: owner_phone
+        description: "Teléfono del dueño formateado con código de país"
+      - name: doc_type
+        description: "Tipo de documento fiscal (ej: CPF, CNPJ)"
+        tests:
+          - dbt_expectations.expect_column_values_to_not_be_null:
+              row_condition: "doc_number IS NOT NULL"
+      - name: doc_number
+        description: "Número de documento fiscal"
+        tests:
+          - dbt_expectations.expect_column_values_to_not_be_null:
+              row_condition: "doc_type IS NOT NULL"
+      - name: instagram
+        description: "Usuario de Instagram de la tienda"
+      - name: facebook
+        description: "URL o usuario de Facebook de la tienda"
+      - name: twitter
+        description: "Usuario de Twitter de la tienda"
+      - name: tiktok
+        description: "Usuario de TikTok de la tienda"
+      - name: pinterest
+        description: "Usuario de Pinterest de la tienda"
+      - name: active_theme
+        description: "Nombre del tema activo actual (ej: 'sydney', 'tokyo')"
+        tests:
+          - dbt_expectations.expect_column_values_to_not_be_null:
+              row_condition: "first_date_config_theme IS NOT NULL"
+      - name: first_date_config_theme
+        description: "Fecha de la primera configuración de tema"
+        tests:
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: timestamp
+          - dbt_utils.expression_is_true:
+              expression: "first_date_config_theme IS NULL OR last_date_config_theme IS NULL OR first_date_config_theme <= last_date_config_theme"
+      - name: last_date_config_theme
+        description: "Fecha de la última configuración de tema"
+        tests:
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: timestamp
+          - dbt_expectations.expect_column_values_to_not_be_null:
+              row_condition: "first_date_config_theme IS NOT NULL"
+      - name: sys_audit_created_on
+        description: "Timestamp of when this record was created in our data warehouse"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: timestamp
+      - name: sys_audit_created_by
+        description: "System identifier of the process that created this record"
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp of when this record was last updated in our data warehouse"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: timestamp
+      - name: sys_audit_updated_by
+        description: "System identifier of the process that last updated this record"
+        tests:
+          - not_null
 
   - name: s__lifecycle__first_seller_date__ref
     description: "This data product identifies the first date on which a store qualified as a “seller”, based on sales performance, and aligns it with the store’s presence in the moltres_store_info. The main goal is to determine when each store first achieved at least 7 sales in a rolling 90-day window, according to data from company_metrics_paid_orders."
