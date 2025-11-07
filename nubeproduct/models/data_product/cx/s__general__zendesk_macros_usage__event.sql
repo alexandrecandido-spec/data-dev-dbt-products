@@ -24,7 +24,7 @@
   ,macro_id
   ,created_at
   ,row_number() over (partition by ticket_id, macro_id, audit_id order by created_at desc) as rnk
-  FROM  {{ ref('_int_cx__zendesk_tickets_macros_usage') }}
+  FROM  {{ ref('_int_cx__zendesk_macros_usage') }}
   WHERE airbyte_extracted_at >= (select coalesce(max(date(sys_audit_updated_on)), date('1900-01-01')) from {{ this }})
   )
   WHERE rnk = 1
