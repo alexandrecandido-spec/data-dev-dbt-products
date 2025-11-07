@@ -1144,6 +1144,12 @@ models:
         description: number of days since the last invoice was created
       - name: last_invoice_count_conversation
         description: number of conversations in the last invoice
+      - name: last_invoice_cost_total
+        description: cost of the last invoice
+      - name: last_invoice_cost_per_conversation
+        description: cost per conversation of the last invoice
+      - name: direct_exchange_rate
+        description: exchange rate for the last invoice
       - name: paid_invoices
         description: number of paid invoices
       - name: last_paid_date
@@ -1168,6 +1174,8 @@ models:
         description: number of conversations in the trial
       - name: ai_conv_last_3d
         description: number of ai conversations in the last 3 days
+      - name: ai_conv_last_30d
+        description: number of ai conversations in the last 30 days
       - name: last_conversation_date
         description: date when the last conversation was started
       - name: chatnube_state
@@ -1594,6 +1602,12 @@ models:
         description: "Plan of the store"
       - name: cancel_reason
         description: "Reason for the order cancellation"
+      - name: first_payment
+        description: "Date when the merchant made their first payment"
+      - name: churned_at
+        description: "Date when the merchant churned"
+      - name: created_at
+        description: "Date when the merchant was created"
       - name: store_id
         description: "Store id of the order"
       - name: domain
@@ -2972,6 +2986,8 @@ models:
         description: "Merchant phone."
       - name: store_vertical
         description: "Store vertical."
+      - name: monthly_fee
+        description: "Store plan monthly fee."
       - name: creation_date
         description: "Store creation date."
       - name: first_payment
@@ -3187,7 +3203,7 @@ models:
       - name: sys_audit_updated_by
         description: "Identifier of the user or system that last updated this record."
         tests:
-            - not_nul
+            - not_null
 
 
   - name: g__checkout__funnel__agg_daily
@@ -3473,7 +3489,7 @@ models:
       - name: is_affiliate
         description: >
           Indicates whether the store was created via an affiliate partnership
-          ('Yes' if partner_id is not null, otherwise 'No').
+          ('TRUE' if partner_id is not null, otherwise 'FALSE').
       - name: is_store_blocked
         description: "Flag showing if the store was marked or blocked for fraud."
       - name: days_agg
@@ -3641,3 +3657,162 @@ models:
         description: "Timestamp when the chargeback was last updated."
       - name: sys_audit_updated_by
         description: "User or system that last updated the chargeback."
+
+  - name: s__general__trial_np_by_app_install__ref
+    description: "Data product that contains informations of trials and new payments and app installation information."
+    config:
+      meta:
+        owner: "ynra.oliveira@nuvemshop.com.br"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: store_id
+        description: "Unique identifier of the store."
+        tests:
+          - not_null
+          - unique
+      - name: created_at
+        description: "Timestamp when the merchant was created."
+      - name: country
+        description: "Country of the store, standardized in uppercase."
+      - name: first_payment
+        description: "Timestamp whe the store made the first payment."
+      - name: is_affiliate
+        description: >
+          Indicates whether the store was created via an affiliate partnership
+          ('TRUE' if partner_id is not null, otherwise 'FALSE').
+      - name: is_store_blocked
+        description: "Flag showing if the store was marked or blocked for fraud."
+      - name: option_value
+        description: "Theme chosen by the user."
+      - name: is_app_installed
+        description: "Boolean TRUE or FALSE indicating if the store has the app installed."
+      - name: app_installed_at
+        description: "Timestamp when the app was installed."
+      - name: device
+        description: >
+          Type of device used when the store was created, derived from the verified code.
+          Possible values: Desktop, Mobile, App, Tablet, Undefined.
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first inserted into this table."
+      - name: sys_audit_created_by
+        description: "User or process that first inserted the record."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the most recent update to the record."
+      - name: sys_audit_updated_by
+        description: "User or process that performed the last update."
+        
+        
+  - name: g__traffic__session_carts__agg_daily
+    description: >
+      Gold model that aggregates sessions by store and traffic dimensions at a daily granularity,
+      combining them with cart generation and paid order information. It is used to analyze
+      acquisition effectiveness, conversion from session to cart, and directional GMV trends.
+      --
+      GMV-related fields are included solely for funnel tracking purposes. 
+      For official revenue figures, refer to Finance data products and dashboards.
+      --
+      This model is updated incrementally, processing only the last 30 days from the most recent update.
+      Therefore, cart updates are only tracked within 30 days after the original session occurred.
+      --
+      Data availability:
+      - Sessions: from 2024-01-01 onwards
+      - Cart linkage to sessions: from 2024-01-23 onwards
+      --
+      Full documentation available at:
+      https://www.notion.so/Gold-g__traffic__session_carts__agg_daily-2a185d24ee8f80f69bb4fdfaf8dc3c5c
+    config:
+      meta:
+        owner: "barbara.marques@nuvemshop.com.br"
+        domain: "product"
+        business_owner: "Tomas Musich"
+    columns:
+      - name: base_date
+        description: "Partition date for the table, based on the session timestamp."
+        tests: 
+          - not_null
+      - name: store_id
+        description: "Store identifier where the session occurred."
+        tests: 
+          - not_null
+      - name: country_code
+        description: "Country of the store at the time of update (not necessarily at session time)."
+        tests: 
+          - not_null
+      - name: vertical_name
+        description: "Vertical classification of the store, captured at the model update."
+      - name: current_plan_type
+        description: "Type of the store plan, captured at the model update."
+      - name: current_segment
+        description: "Segment classification of the store (tiny, small, etc.), captured at the model update."
+      - name: is_store_blocked
+        description: "Whether the store was blocked, captured at the model update."
+      - name: visitor_country
+        description: "Country of the visitor based on latest update (not necessarily at session time)."
+      - name: device
+        description: "Device category (desktop, mobile, etc.) used in the session."
+      - name: theme
+        description: "Theme identifier of the storefront during the session."
+      - name: source_name
+        description: "Classified traffic source for the session (e.g., google, meta, direct)."
+        tests: 
+          - not_null
+      - name: source_group
+        description: "Grouped classification of `source_name` by parent company or channel family (e.g., meta, alphabet, ai sources)."
+        tests: 
+          - not_null
+      - name: google_subchannel
+        description: "Detailed classification of Google Ads campaigns by subchannel (e.g., pmax, shopping, search)."
+      - name: traffic_type
+        description: "Indicates whether the session came from paid or organic traffic."
+        tests: 
+          - not_null
+      - name: is_end_user
+        description: "Boolean flag indicating whether the session is likely from a real end-user."
+        tests: 
+          - not_null
+      - name: storefront
+        description: "Storefront domain accessed during the session (store, mobile, pos, etc)."
+      - name: total_sessions
+        description: "Count of sessions aggregated by the defined key."
+      - name: total_unique_sessions
+        description: "Count of unique sessions aggregated by the defined key. Must generate the same total as total_sessions."
+      - name: total_unique_session_ids
+        description: "Count of distinct session_id's aggregated by the defined key."
+      - name: total_unique_consumer_ids
+        description: "Count of distinct consumer_id's aggregated by the defined key."
+      - name: total_sessions_with_carts
+        description: "Count of carts matched to sessions aggregated by the defined key."
+      - name: total_sessions_with_unique_carts
+        description: "Count of unique carts matched to sessions aggregated by the defined key. Must generate the same total as total_sessions_with_carts."
+      - name: total_sessions_with_paid_orders
+        description: >
+          Count of sessions where a cart resulted in a paid order.
+          Attention: this is only for funnel reference. For official GMV data, please consult official dashboards and data models, by the Finance team.
+      - name: total_usd_sessions_with_paid_orders
+        description: >
+          Sum of the total order value (USD) of sessions where a cart resulted in a paid order.
+          Attention: this is only for funnel reference. For official GMV data, please consult official dashboards and data models, by the Finance team.
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created in this model."
+        tests: 
+          - not_null
+      - name: sys_audit_created_by
+        description: "System or user that created the row in this model."
+        tests: 
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this model."
+        tests: 
+          - not_null
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row in this model."
+        tests: 
+          - not_null
+    tests:
+      - dbt_expectations.expect_column_pair_values_to_be_equal:
+          column_A: total_unique_sessions
+          column_B: total_sessions
+      - dbt_expectations.expect_column_pair_values_to_be_equal:
+          column_A: total_sessions_with_unique_carts
+          column_B: total_sessions_with_carts

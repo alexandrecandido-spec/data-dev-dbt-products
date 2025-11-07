@@ -44,9 +44,18 @@ ELSE 'issues' END AS chatnube_state,
     WHEN nc_data.onboarding = true THEN 'activation'
 ELSE 'issues' END AS chatnube_state_group,
  CASE
-  WHEN nc_data.current_invoice_state = 'paid' AND coalesce(nc_data.ai_conversations_after_invoice, 0) = 0 AND nc_data.days_since_last_invoice > 10 THEN date_add(nc_data.invoice_created_at, 11)
-  WHEN nc_data.current_invoice_state = 'unpaid' AND (current_date>grace_until OR unpaid_invoices_since_last_paid>1) AND nc_data.paid_invoices > 0 THEN date_add(nc_data.invoice_created_at, 11)
-  ELSE NULL END AS churned_date,
+  WHEN 
+  nc_data.current_invoice_state = 'paid' AND 
+  coalesce(nc_data.ai_conversations_after_invoice, 0) = 0 AND 
+  nc_data.days_since_last_invoice > 10 
+    THEN nc_data.last_conversation_date
+  WHEN 
+  nc_data.current_invoice_state = 'unpaid' AND 
+  (current_date>grace_until OR unpaid_invoices_since_last_paid>1) AND
+   nc_data.paid_invoices > 0 
+    THEN nc_data.last_conversation_date
+    ELSE NULL 
+    END AS churned_date,
 msi.country,
 gp.grupo AS plan_group,
 msi.domain,
@@ -90,6 +99,8 @@ GROUP BY
     nc_data.days_since_last_invoice,
     nc_data.last_invoice_count_conversation,
     nc_data.paid_invoices,
+    nc_data.last_invoice_cost_total,
+    nc_data.last_invoice_cost_per_conversation,
     nc_data.last_paid_date,
     nc_data.first_paid_date,
     nc_data.grace_until,
@@ -101,6 +112,7 @@ GROUP BY
     nc_data.conversations_after_trial,
     nc_data.conversations_in_trial,
     nc_data.ai_conv_last_3d,
+    nc_data.ai_conv_last_30d,
     nc_data.last_conversation_date,
     nc_data.max_sys_audit_updated_on,
     msi.country,

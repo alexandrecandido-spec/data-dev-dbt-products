@@ -182,6 +182,7 @@ models:
       - name: sys_audit_updated_by
         description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
 
+
   - name: s__attributes__acquisition_profile__ref
     description: "Data Product silver that contains the acquisition profile attributes of each store, including marketing attribution, quality leads, partner information."
     config:
@@ -200,23 +201,30 @@ models:
         tests: [not_null]
       - name: is_quality_lead
         description: "Flag indicating whether the store is a quality lead."
-        tests: [not_null]
+        tests:
+          - not_null
+          - accepted_values:
+              values: [0, 1]
       - name: mkt_source_last_click
-        description: "Marketing source from the last click attribution."
+        description: "Marketing source from the last click attribution. 'not attributed yet' if no attribution found, because the store was created at current date."
+        tests: [not_null]
       - name: mkt_subteam_last_click
-        description: "Marketing subteam from the last click attribution."
+        description: "Marketing subteam from the last click attribution. 'not attributed yet' if no attribution found, because the store was created at current date."
+        tests: [not_null]
       - name: mkt_campaign_last_click
         description: "Marketing campaign from the last click attribution."
       - name: mkt_source_first_click
-        description: "Marketing source from the first click attribution."
+        description: "Marketing source from the first click attribution. 'not attributed yet' if no attribution found, because the store was created at current date."
+        tests: [not_null]
       - name: mkt_subteam_first_click
-        description: "Marketing subteam from the first click attribution."
+        description: "Marketing subteam from the first click attribution. 'not attributed yet' if no attribution found, because the store was created at current date."
+        tests: [not_null]
       - name: mkt_campaign_first_click
         description: "Marketing campaign from the first click attribution."
       - name: mkt_source_partner_click
-        description: "Marketing source from the partner click attribution."
+        description: "Marketing source from the partner click attribution. Tag indicating the affiliate owner of the store."
       - name: mkt_subteam_partner_click
-        description: "Marketing subteam from the partner click attribution."
+        description: "Marketing subteam from the partner click attribution. Tag indicating the affiliate classification of the store."
       - name: mkt_campaign_partner_click
         description: "Marketing campaign from the partner click attribution."
       - name: mkt_landing_page_domain_first_click
@@ -227,10 +235,12 @@ models:
         description: "Landing page path from the first click attribution."
       - name: mkt_landing_page_path_last_click
         description: "Landing page path from the last click attribution."
-      - name: flag_affiliate
-        description: "Flag indicating whether the store is an affiliate."
       - name: ql_profile
         description: "Quality lead profile classification."
+        tests: [not_null]
+      - name: blocked_fraud_tag
+        description: "Tag indicating if the store is blocked or is attributed to a fraudulent partner."
+        tests: [not_null]
       - name: sys_audit_created_on
         description: "Timestamp when the row was originally created."
         tests: [not_null]

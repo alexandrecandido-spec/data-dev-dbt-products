@@ -72,8 +72,8 @@ SELECT
     pm.products_with_metafield_assigned_count,
     vm.variants_with_metafield_assigned_count,
     GREATEST(
-        vm.vm_max_sys_audit_updated_on,
-        pm.pm_max_sys_audit_updated_on
+        COALESCE(vm.vm_max_sys_audit_updated_on, '1900-01-01'),
+        COALESCE(pm.pm_max_sys_audit_updated_on, '1900-01-01')
     ) AS mf_max_sys_audit_updated_on
 FROM variants_metafields vm
 FULL OUTER JOIN products_metafields pm ON vm.store_id = pm.store_id
