@@ -3203,7 +3203,7 @@ models:
       - name: sys_audit_updated_by
         description: "Identifier of the user or system that last updated this record."
         tests:
-            - not_nul
+            - not_null
 
 
   - name: g__checkout__funnel__agg_daily
