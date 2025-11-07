@@ -8,7 +8,7 @@ orig_base AS (
     SUM(o.impressions) AS orig_impr,
     SUM(o.clicks) AS orig_clicks,
     AVG(o.average_position) AS orig_pos
-  FROM {{ ref('gsc__url_results') }} o
+  FROM {{ ref('marketing__acquisition__gsc_url_results__ref') }} o
   GROUP BY 1,2,3,4
 ),
 
@@ -23,7 +23,7 @@ unsplit AS (
     SUM(u.impressions) AS unsplit_impr,
     SUM(u.clicks) AS unsplit_clicks,
     AVG(u.average_position) AS unsplit_pos
-  FROM {{ ref('gsc__url_unsplit_results') }} u
+  FROM {{ ref('marketing__acquisition__gsc_url_unsplit_results__ref') }} u
   GROUP BY 1,2,3,4
 )
 SELECT

@@ -87,6 +87,8 @@ models:
         +tags: ["partnerships"]
       cx:
         +tags: ["cx"]
+      billing:
+        +tags: ["billing"]
 
     data_product:
       +materialized: table
@@ -154,6 +156,10 @@ models:
         +schema: cx
         +tags: ["cx"]
         +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/data_product/cx/"
+      billing:
+        +schema: billing
+        +tags: ["billing"]
+        +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/data_product/billing/"
       +post-hook:
        # testing_unity_{domain}, donde {domain} = this.schema (marketing, finance, etc.)
         - "CREATE TABLE IF NOT EXISTS {{ var('mirror_catalog') }}.{{ this.schema }}.{{ this.identifier }} USING DELTA LOCATION '{{ 

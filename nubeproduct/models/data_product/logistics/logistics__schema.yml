@@ -218,3 +218,105 @@ models:
         description: "Aggregated GSV or GMV value for the day."
       - name: orders_qty
         description: "Total number of orders contributing to GMV on the given day."
+
+  - name: g__operations__funnel_merchants__agg_daily
+    description: "Merchant-level funnel tracking for Nuvem Envio adoption and engagement."
+    config:
+      meta:
+        owner: "gustavo.oliveira@nuvemshop.com.br"
+        domain: "logistics"
+        business_owner: "Simone Harnik"
+    columns:
+      - name: granularity
+        description: Defines the aggregation level of the metric (day, week, or month).
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['day', 'week', 'month']
+      - name: tier
+        description: Funnel stage name representing each step in the merchant adoption flow.
+        tests:
+          - not_null
+      - name: current_segment
+        description: Merchant segmentation used for analytical grouping (e.g., SMB, Enterprise).
+      - name: vertical_name
+        description: Business vertical or industry category of the merchant.
+      - name: plan
+        description: Merchants subscription plan in Nuvemshop.
+      - name: country
+        description: ISO country code where the merchant operates.
+        tests:
+          - not_null
+      - name: ref_period
+        description: Reference date for the metric, corresponding to the defined granularity.
+        tests:
+          - not_null
+      - name: qty
+        description: Number of unique merchants that reached the funnel stage for that period.
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: Timestamp indicating when the record was first created in the data product.
+      - name: sys_audit_created_by
+        description: Identifier of the system or job that created the record.
+      - name: sys_audit_updated_on
+        description: Timestamp indicating the last update to the record.
+      - name: sys_audit_updated_by
+        description: Identifier of the system or job that last updated the record.
+
+  - name: g__operations__funnel_orders__agg_daily
+    description: "Order-level funnel analysis for tracking operational funnel conversion."
+    config:
+      meta:
+        owner: "gustavo.oliveira@nuvemshop.com.br"
+        domain: "logistics"
+        business_owner: "Simone Harnik"
+    columns:
+      - name: tier
+        description: Funnel stage name representing each step in the order journey.
+        tests:
+          - not_null
+      - name: store_id
+        description: Unique identifier of the merchant (store) associated with the order.
+        tests:
+          - not_null
+      - name: domain
+        description: Merchant domain name.
+      - name: current_segment
+        description: Merchant segmentation (e.g., SMB, Enterprise).
+      - name: vertical_name
+        description: Business vertical or industry category of the merchant.
+      - name: plan
+        description: Merchant subscription plan in Nuvemshop.
+      - name: store_creation_date
+        description: Date store was created on the platform.
+      - name: store_state_name
+        description: Merchant registered state or province name.
+      - name: ref_date
+        description: Reference date (daily) for the metric.
+        tests:
+          - not_null
+      - name: ref_week
+        description: Reference week start date for the metric.
+        tests:
+          - not_null
+      - name: ref_month
+        description: Reference month start date for the metric.
+        tests:
+          - not_null
+      - name: country
+        description: ISO country code where the merchant operates.
+        tests:
+          - not_null
+      - name: qty
+        description: Total number of shipments (orders) that reached the funnel stage.
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: Timestamp indicating when the record was first created in the data product.
+      - name: sys_audit_created_by
+        description: Identifier of the system or job that created the record.
+      - name: sys_audit_updated_on
+        description: Timestamp indicating the last update to the record.
+      - name: sys_audit_updated_by
+        description: Identifier of the system or job that last updated the record.

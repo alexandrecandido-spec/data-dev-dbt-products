@@ -32,18 +32,34 @@ default_args_renan = {
 
 # Crear el DAG frecuencia semanal (mixta)
 dag = create_dbt_dag(
-    dag_id='dbt_midmarket_weekly-monday-9am-mixed',
-    schedule_interval_tag='weekly-monday-9am',
+    dag_id='dbt_midmarket_weekly-monday-8am-mixed',
+    schedule_interval_tag='weekly-monday-8am',
     default_args=default_args,
-    tags=['midmarket', 'weekly-monday-9am-monthly-1st-12pm']
+    tags=['midmarket', 'weekly-monday-8am-monthly-1st-11am']
 )
 
 # Crear el DAG frecuencia mensual (mixta)
 dag = create_dbt_dag(
-    dag_id='dbt_midmarket_monthly-1st-12pm-mixed',
-    schedule_interval_tag='monthly-1st-12pm',
+    dag_id='dbt_midmarket_monthly-1st-11am-mixed',
+    schedule_interval_tag='monthly-1st-11am',
     default_args=default_args,
-    tags=['midmarket', 'weekly-monday-9am-monthly-1st-12pm']
+    tags=['midmarket', 'weekly-monday-8am-monthly-1st-11am']
+)
+
+# Crear el DAG frecuencia semanal (mixta)
+dag = create_dbt_dag(
+    dag_id='dbt_midmarket_weekly-monday-8am-mix',
+    schedule_interval_tag='weekly-monday-8am',
+    default_args=default_args,
+    tags=['midmarket', 'weekly-monday-8am-monthly-1st-8am']
+)
+
+# Crear el DAG frecuencia mensual (mixta)
+dag = create_dbt_dag(
+    dag_id='dbt_midmarket_monthly-1st-8am-mix',
+    schedule_interval_tag='monthly-1st-8am',
+    default_args=default_args,
+    tags=['midmarket', 'weekly-monday-8am-monthly-1st-8am']
 )
 
 # Crear el DAG frecuencia semanal
@@ -64,10 +80,10 @@ dag = create_dbt_dag(
 
 # Crear el DAG frecuencia mensual
 dag = create_dbt_dag(
-    dag_id='dbt_midmarket_monthly-1st-12pm',
-    schedule_interval_tag='monthly-1st-12pm',
+    dag_id='dbt_midmarket_monthly-1st-9am',
+    schedule_interval_tag='monthly-1st-9am',
     default_args=default_args,
-    tags=['midmarket', 'monthly-1st-12pm']
+    tags=['midmarket', 'monthly-1st-9am']
 )
 
 # Crear el DAG frecuencia mensual
@@ -84,4 +100,12 @@ dag = create_dbt_dag(
     schedule_interval_tag='daily-6am',
     default_args=default_args,
     tags=['midmarket', 'daily-6am']
+)
+
+# Crear  DAG frecuencia diaria 6am
+dag = create_dbt_dag(
+    dag_id='dbt_midmarket_daily-7am',
+    schedule_interval_tag='daily-7am',
+    default_args=default_args_renan,
+    tags=['midmarket', 'daily-7am']
 )

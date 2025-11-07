@@ -897,7 +897,7 @@ models:
           - dbt_expectations.expect_column_values_to_be_between:
               min_value: 1
 
-  - name: product_orders_saved_searches
+  - name: g__orders__merchant_saved_search_usage__event
     description:  This data product contains information on usage of the saved searches feature within the orders admin. Each row will have information of a specific saved search with data on what filters are included in the saved search, if that saved search is custom or not, the order in which the merchant has position that saved search, if it is hidden or not, etc. If a saved search is modified, this table will only store the latest version of the saved search. Additionally, if a saved search is deleted, this table will not store that saved search anymore.
     config:
       meta:
@@ -992,8 +992,16 @@ models:
         description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
       - name: saved_search_stock_issues
         description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
+      - name: sys_audit_created_on
+        description: "the date when the record was created"
+      - name: sys_audit_updated_on
+        description: "the date when the record was updated"
+      - name: sys_audit_created_by
+        description: "the user who created the record"
+      - name: sys_audit_updated_by
+        description: "the user who updated the record"
 
-  - name: product_orders_saved_searches_enablement
+  - name: g__orders__merchant_saved_search_enablement__event
     description:  This data product contains information on the enablement of the saved searches feature within the orders admin. Each row will have information of a specific store with data on if the saved searches feature is available for that store, when it was enabled for that store, etc.
     config:
       meta:
@@ -1023,13 +1031,28 @@ models:
         description: the date when the merchant churned
       - name: plan_name
         description: the group name of the merchant's plan (using operations__grouping_plans data product) 
-      - name: created_at
+      - name: merchant_created_at
         description: the date when the merchant was created
       - name: has_saved_searches_available
-        description: 1 if the merchant has the saved searches feature available, 0 otherwise (based on tags)
+        description: 1 if the merchant has the saved searches feature available, 0 otherwise (based on tags before sunset date)
       - name: saved_searches_available_at
-        description: the date when the saved searches feature was made available to the merchant (tag was added)
-
+        description: the date when the saved searches feature was made available to the merchant (tag was added or date of rollout)
+      - name: saved_searches_first_use
+        description: the date when the merchant first used the saved searches feature
+      - name: saved_searches_last_use
+        description: the date when the merchant last used the saved searches feature
+      - name: saved_searches_count
+        description: the total non default saved searches the merchant has active currently
+      - name: saved_searches_user
+        description: 1 if the merchant has used the saved searches feature, 0 otherwise
+      - name: sys_audit_created_on
+        description: the date when the record was created
+      - name: sys_audit_updated_on
+        description: the date when the record was updated
+      - name: sys_audit_created_by
+        description: the user who created the record
+      - name: sys_audit_updated_by
+        description: the user who updated the record
 
   - name: product_issues_and_problems_comments
     description: >
@@ -1078,14 +1101,6 @@ models:
         description: "Comment date in YYYYMMDD format (integer)."
         tests:
           - not_null
-      - name: saved_searches_first_use
-        description: the date when the merchant first used the saved searches feature
-      - name: saved_searches_last_use
-        description: the date when the merchant last used the saved searches feature
-      - name: saved_searches_count
-        description: the total non default saved searches the merchant has active currently
-      - name: saved_searches_user
-        description: 1 if the merchant has used the saved searches feature, 0 otherwise
 
   - name: product_nuvemchat_stores
     description: >
@@ -1129,6 +1144,12 @@ models:
         description: number of days since the last invoice was created
       - name: last_invoice_count_conversation
         description: number of conversations in the last invoice
+      - name: last_invoice_cost_total
+        description: cost of the last invoice
+      - name: last_invoice_cost_per_conversation
+        description: cost per conversation of the last invoice
+      - name: direct_exchange_rate
+        description: exchange rate for the last invoice
       - name: paid_invoices
         description: number of paid invoices
       - name: last_paid_date
@@ -1153,6 +1174,8 @@ models:
         description: number of conversations in the trial
       - name: ai_conv_last_3d
         description: number of ai conversations in the last 3 days
+      - name: ai_conv_last_30d
+        description: number of ai conversations in the last 30 days
       - name: last_conversation_date
         description: date when the last conversation was started
       - name: chatnube_state
@@ -1467,6 +1490,18 @@ models:
         description: 1 if the merchant has NuvemPago, 0 otherwise (based on if the merchant has nuvem-pago as a payment in at least one order in the past 12 months)
       - name: has_pagonube
         description: 1 if the merchant has Pagonube, 0 otherwise (based on if the merchant has pago-nube as a payment in at least one order in the past 12 months)
+      - name: total_orders_last_365d
+        description: the total number of orders the merchant has made in the past 12 months
+      - name: total_np_orders_last_365d
+        description: the total number of orders the merchant has made with NuvemPago in the past 12 months
+      - name: total_pn_orders_last_365d
+        description: the total number of orders the merchant has made with Pagonube in the past 12 months
+      - name: total_np_orders_since_rollout
+        description: the total number of orders the merchant has made with NuvemPago since the rollout of auto cancel (September 15, 2025)
+      - name: total_pn_orders_since_rollout
+        description: the total number of orders the merchant has made with Pagonube since the rollout of auto cancel (September 15, 2025)
+      - name: pn_np_orders_since_rollout
+        description: 1 if the merchant has made at least one order with NuvemPago or Pagonube since the rollout of auto cancel (September 15, 2025)
       - name: has_configed_feature
         description: 1 if the merchant has configured the auto cancel feature, 0 otherwise. The presence in the orders_auto_cancel_configuration table is enough to consider it configured (can be deactivated since)
       - name: first_config_at
@@ -1545,6 +1580,20 @@ models:
         description: "Timestamp when the order was fulfilled (using order logging data)"
       - name: order_delivered_at
         description: "Timestamp when the order was delivered (using order logging data)"
+      - name: completed_to_paid_time
+        description: "Time from order completion to order payment"
+      - name: paid_to_unfulfilled_time
+        description: "Time from order payment to order unfulfillment"
+      - name: completed_to_unfulfilled_time
+        description: "Time from order completion to order unfulfillment"
+      - name: completed_to_fulfilled_time
+        description: "Time from order completion to order fulfillment"
+      - name: unfulfilled_to_fulfilled_time
+        description: "Time from order unfulfillment to order fulfillment"
+      - name: fulfilled_to_delivered_time
+        description: "Time from order fulfillment to order delivery"
+      - name: completed_to_delivered_time
+        description: "Time from order completion to order delivery"
       - name: payment_status
         description: "Payment status of the order"
       - name: fulfillment_status
@@ -1553,6 +1602,12 @@ models:
         description: "Plan of the store"
       - name: cancel_reason
         description: "Reason for the order cancellation"
+      - name: first_payment
+        description: "Date when the merchant made their first payment"
+      - name: churned_at
+        description: "Date when the merchant churned"
+      - name: created_at
+        description: "Date when the merchant was created"
       - name: store_id
         description: "Store id of the order"
       - name: domain
@@ -1782,7 +1837,8 @@ models:
     description: >
       Silver model that consolidates user sessions enriched with traffic source and traffic type classification.
       It integrates standardized UTM parameters, normalized referrer and landing domains, and end-user identification.
-      This model serves as the canonical source of truth for traffic analysis, attribution modeling, and acquisition performance tracking.
+      This model serves as the canonical source of truth for traffic analysis, 
+      attribution modeling, and acquisition performance tracking.
       Full documentation available at:
       https://www.notion.so/Silver-s__traffic__session__event-25685d24ee8f80829dc0d9d32975df3c
     config:
@@ -2277,7 +2333,7 @@ models:
       - name: sys_audit_updated_by
         description: "System or user that last updated the row in this model"
         
-  - name: s__product_checkout__orders_events__event
+  - name: s__traffic__cart_checkout_funnel__event
     description: >
       Contains the relation between carts and its associated Checkout events.
       Table consists on a single row by cart, and timestamps at which an event was triggered.
@@ -2539,131 +2595,6 @@ models:
         description: "Boolean flag indicating if the record passed validation checks associated to manual data from Hubspot."
       - name: invalid_reason
         description: "Reason why the record was marked as invalid (if applicable)."
-      - name: sys_audit_created_on
-        description: "Timestamp when this record was first created in the DBT model."
-      - name: sys_audit_created_by
-        description: "Identifier for the user or system that created this record."
-      - name: sys_audit_updated_on
-        description: "Timestamp when this record was last updated."
-      - name: sys_audit_updated_by
-        description: "Identifier for the user or system that last updated this record."
-        
-        
-  - name: g__platform__monthly_active_users__agg_monthly
-    description: "This table contains the monthly active users by store and app."
-    config:
-      meta:
-        owner: "fernando.martinez@tiendanube.com"
-        domain: "product"
-        business_owner: "Nicolas Loreti"
-    columns:
-      - name: unique_id
-        description: "Unique identifier for the store and app."
-        tests: 
-          - not_null
-          - unique
-      - name: registered_month
-        description: "Unique identifier for the issue"
-        tests:
-          - not_null
-      - name: store_id
-        description: "Unique identifier for the store"
-        tests:
-          - not_null
-      - name: merchant_name
-        description: "Name of the merchant"
-      - name: country
-        description: "Country of the merchant"
-      - name: mail
-        description: "Email of the merchant"
-      - name: phone
-        description: "Phone of the merchant"
-      - name: store_vertical
-        description: "Vertical of the store"
-      - name: creation_date
-        description: "Date when the store was created."
-      - name: first_payment
-        description: "Date when the store made its first payment."
-      - name: app_id
-        description: "Unique identifier for the app"
-      - name: app_name
-        description: "Name of the app"
-      - name: app_category
-        description: "Category of the app"
-      - name: app_manager
-        description: "Manager of the app"
-      - name: is_app_published
-        description: "Flag indicating if the app is published"
-      - name: app_creation_date
-        description: "Date when the app was created."
-      - name: app_published_date
-        description: "Date when the app was published."
-      - name: app_deleted_date
-        description: "Date when the app was deleted."
-      - name: app_install_date
-        description: "Date when the app was installed."
-      - name: app_uninstall_date
-        description: "Date when the app was uninstalled."
-      - name: has_no_apps
-        description: "Flag indicating if the store has no apps installed."
-      - name: is_app_active
-        description: "Flag indicating if the app is active."
-      - name: is_new_app_install
-        description: "Flag indicating if the app was installed in the current month."
-      - name: is_app_churn
-        description: "Flag indicating if the app was uninstalled in the current month."
-      - name: script_creation_date
-        description: "Date when the script was created."
-      - name: script_deletion_date
-        description: "Date when the script was deleted."
-      - name: is_new_script
-        description: "Flag indicating if the script was installed in the current month."
-      - name: is_churn_script
-        description: "Flag indicating if the script was uninstalled in the current month."
-      - name: is_script_active
-        description: "Flag indicating if the script is active."
-      - name: shipping_carrier_creation_date
-        description: "Date when the shipping carrier was created."
-      - name: shipping_carrier_deletion_date
-        description: "Date when the shipping carrier was deleted."
-      - name: shipping_carrier_status
-        description: "Status of the shipping carrier."
-      - name: is_shipping_carrier_active
-        description: "Flag indicating if the shipping carrier is active."
-      - name: is_new_shipping_carrier_install
-        description: "Flag indicating if the shipping carrier was installed in the current month."
-      - name: is_shipping_carrier_churn
-        description: "Flag indicating if the shipping carrier was uninstalled in the current month."
-      - name: app_total_orders
-        description: "Total number of orders for the app."
-      - name: app_gmv_lc
-        description: "Total GMV in local currency for the app."
-      - name: app_gmv_usd
-        description: "Total GMV in USD for the app."
-      - name: total_orders
-        description: "Total number of orders for the store."
-      - name: total_gmv_local_currency
-        description: "Total GMV in local currency for the store."
-      - name: total_gmv_usd
-        description: "Total GMV in USD for the store."
-      - name: segment
-        description: "Segment of the store."
-      - name: has_orders
-        description: "Flag indicating if the store has orders."
-      - name: is_new_store
-        description: "Flag indicating if the store was created in the current month."
-      - name: is_new_script
-        description: "Flag indicating if the script was created in the current month."
-      - name: is_churn_script
-        description: "Flag indicating if the script was uninstalled in the current month."
-      - name: churned_at
-        description: "Date when the store churned."
-      - name: is_current_active_store
-        description: "Flag indicating if the store is currently active."
-      - name: is_churned_store
-        description: "Flag indicating if the store has churned."
-      - name: is_active_store
-        description: "Flag indicating if the store is active."
       - name: sys_audit_created_on
         description: "Timestamp when this record was first created in the DBT model."
       - name: sys_audit_created_by
@@ -3028,3 +2959,860 @@ models:
         description: "Timestamp when this record was last updated."
       - name: sys_audit_updated_by
         description: "Identifier for the user or system that last updated this record."
+        
+  - name: g__platform__monthly_active_users__agg_monthly
+    description: "Monthly active users per store and app with store/app and ecosystem metadata."
+    config:
+      meta:
+        owner: "fernando.martinez@tiendanube.com"
+        domain: "product"
+        business_owner: "Nicolas Loreti"
+    columns:
+      - name: unique_id
+        description: "Unique identifier for the store-app-month row."
+        tests: [not_null, unique]
+      - name: registered_month
+        description: "Month of activity."
+        tests: [not_null]
+      - name: store_id
+        description: "Unique identifier for the store."
+      - name: merchant_name
+        description: "Store domain or merchant name."
+      - name: country
+        description: "Store country code."
+      - name: mail
+        description: "Merchant email."
+      - name: phone
+        description: "Merchant phone."
+      - name: store_vertical
+        description: "Store vertical."
+      - name: monthly_fee
+        description: "Store plan monthly fee."
+      - name: creation_date
+        description: "Store creation date."
+      - name: first_payment
+        description: "Store first payment date."
+      - name: churned_at
+        description: "Store churn date, if any."
+      - name: app_id
+        description: "App identifier."
+      - name: app_name
+        description: "App name."
+      - name: app_category
+        description: "App category."
+      - name: is_app_published
+        description: "Whether the app is published."
+      - name: app_creation_date
+        description: "App creation date."
+      - name: app_published_date
+        description: "App published date."
+      - name: app_deleted_date
+        description: "App deleted date."
+      - name: app_install_date
+        description: "Earliest install date for the app in the store."
+      - name: app_uninstall_date
+        description: "Latest uninstall date for the app in the store."
+      - name: has_no_apps
+        description: "Flag indicating no apps in the store."
+      - name: is_app_active
+        description: "App active flag for the month."
+      - name: is_active_store
+        description: "Store active flag for the month."
+      - name: app_manager
+        description: "Nuvemshop app manager for the specific app"
+      - name: is_new_app_install
+        description: "App was installed in the month."
+      - name: is_app_churn
+        description: "App was uninstalled in the month."
+      - name: script_creation_date
+        description: "Script creation date."
+      - name: script_deletion_date
+        description: "Script deletion date."
+      - name: is_new_script
+        description: "Script created in the month."
+      - name: is_churn_script
+        description: "Script deleted in the month."
+      - name: is_script_active
+        description: "Script active flag for the month."
+      - name: shipping_carrier_creation_date
+        description: "Shipping carrier creation date."
+      - name: shipping_carrier_deletion_date
+        description: "Shipping carrier deletion date."
+      - name: shipping_carrier_status
+        description: "Shipping carrier status."
+      - name: is_new_shipping_carrier_install
+        description: "Shipping carrier installed in the month."
+      - name: is_shipping_carrier_churn
+        description: "Shipping carrier uninstalled in the month."
+      - name: is_shipping_carrier_active
+        description: "Shipping carrier active flag for the month."
+      - name: segment
+        description: "Store segment."
+      - name: is_current_active_store
+        description: "Store is currently active this month."
+      - name: has_orders
+        description: "Store has orders this month."
+      - name: is_new_store
+        description: "Store created this month."
+      - name: is_churned_store
+        description: "Store churned this month."
+      - name: total_orders
+        description: "Total store orders in the month."
+      - name: total_gmv_local_currency
+        description: "Store GMV in local currency in the month."
+      - name: total_gmv_usd
+        description: "Store GMV in USD in the month."
+      - name: app_total_orders
+        description: "App orders in the store in the month."
+      - name: app_gmv_lc
+        description: "App GMV in local currency in the store in the month."
+      - name: app_gmv_usd
+        description: "App GMV in USD in the store in the month."
+      - name: app_api_hits
+        description: "App API hits in the store in the month."
+      - name: is_monthly_mau
+        description: "App is monthly active user in the store in the month."
+      - name: sys_audit_created_on
+        description: "Audit: created timestamp."
+      - name: sys_audit_created_by
+        description: "Audit: created by."
+      - name: sys_audit_updated_on
+        description: "Audit: updated timestamp."
+      - name: sys_audit_updated_by
+        description: "Audit: updated by."
+
+
+  - name: s__general__dealbreakers_valid__event
+    description: >
+      Model representing the consolidated and deduplicated state of dealbreakers,
+      both open and closed, filtering archived records and removing duplicates.
+      It contains business logic to maintain the health of the processes involved.
+      Built from the historical changelog and current HubSpot events.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: 
+            - dealbreaker_id
+            - valid_from
+    config:
+      meta:
+        owner: "matias.scasso@tiendanube.com"
+        domain: "product"
+        business_owner: "Martin Palombo"
+    columns:
+      - name: repo_name
+        description: "Determines if row is related to an Issue or Problem."
+        tests:
+            - not_null
+      - name: issue_number
+        description: "Issue/problem identification number. Must be combined with repo_name to correctly identify the issue/problem."
+        tests:
+            - not_null
+      - name: dealbreaker_source
+        description: "Source of the dealbreaker (e.g., HubSpot)."
+      - name: dealbreaker_id
+        description: "Unique identifier for the dealbreaker."
+        tests:
+            - not_null
+      - name: author
+        description: "Author of the dealbreaker (created/updated user with 'h' prefix for Hubspot users)."
+      - name: is_relevant
+        description: "Boolean indicating whether the record is relevant."
+        tests:
+            - not_null
+      - name: valid_from
+        description: "Date from which the data associated with the record is valid."
+        tests:
+            - not_null
+      - name: store_id
+        description: "ID of the store affected by the dealbreaker."
+        tests:
+            - not_null
+      - name: impact
+        description: "Impact of the comment. It is only included for Mid Market stores."
+      - name: sys_audit_created_on
+        description: "Timestamp when this record was first created in the DBT model."
+        tests:
+            - not_null
+      - name: sys_audit_created_by
+        description: "Identifier of the user or system that created this record."
+        tests:
+            - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when this record was last updated."
+        tests:
+            - not_null
+      - name: sys_audit_updated_by
+        description: "Identifier of the user or system that last updated this record."
+        tests:
+            - not_null
+
+
+  - name: s__general__dealbreakers_comment_like__event
+    description: >
+      Model representing the consolidated and deduplicated state of dealbreakers,
+      both open and closed, filtering archived records and removing duplicates.
+      It contains business logic to maintain the health of the processes involved.
+      This model is similar to the s__general__dealbreakers_valid__event model, but it is formatted to match Github comments.
+    config:
+      meta:
+        owner: "matias.scasso@tiendanube.com"
+        domain: "product"
+        business_owner: "Martin Palombo"
+    columns:
+      - name: repo_name
+        description: "Determines if row is related to an Issue or Problem."
+        tests:
+            - not_null
+      - name: issue_number
+        description: "Issue/problem identification number. Must be combined with repo_name to correctly identify the issue/problem."
+        tests:
+            - not_null
+      - name: comment_id
+        description: "Unique key created from the combination of the dealbreaker_id and the valid_from date."
+        tests:
+            - not_null
+            - unique
+      - name: author
+        description: "Author of the dealbreaker (created/updated user with 'h' prefix for Hubspot users)."
+      - name: is_relevant
+        description: "Boolean indicating whether the record is relevant."
+        tests:
+            - not_null
+      - name: comment_date
+        description: "Date from which the data associated with the record is valid."
+        tests:
+            - not_null
+      - name: store_id
+        description: "ID of the store affected by the dealbreaker."
+        tests:
+            - not_null
+      - name: impact
+        description: "Impact of the comment. It is only included for Mid Market stores."
+      - name: sys_audit_created_on
+        description: "Timestamp when this record was first created in the DBT model."
+        tests:
+            - not_null
+      - name: sys_audit_created_by
+        description: "Identifier of the user or system that created this record."
+        tests:
+            - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when this record was last updated."
+        tests:
+            - not_null
+      - name: sys_audit_updated_by
+        description: "Identifier of the user or system that last updated this record."
+        tests:
+            - not_null
+
+
+  - name: g__checkout__funnel__agg_daily
+    description: >
+      Model that aggregates every dimanesion on the silver model s__traffic__cart_checkout_funnel__event
+    config:
+      meta:
+        owner: "fabrizio.crivella@tiendanube.com"
+        domain: "product"
+        business_owner: "Rocio Diez"
+    columns:
+      - name: base_date
+        description: "Date of the first event. Used for partitioning."
+        tests:
+            - not_null
+      - name: store_id
+        description: "Store id associated to the row. For performance reasons we only track store id if the store has large or top segment, 
+          or if it is on Mid Market portfolio."
+        tests:
+            - not_null
+      - name: checkout_start_timestamp
+        description: "Store id associated to the row. For performance reasons we only track store id if the store has large or top segment, 
+          or if it is on Mid Market portfolio."
+        tests:
+            - not_null
+      - name: checkout_start_timestamp
+        description: If the cart iniciated Checkout, this field shows its timestamp.
+      - name: checkout_filled_email_timestamp
+        description: If the cart completed email field, this field shows its timestamp.
+      - name: checkout_clicked_shipping_continue_to_payment_timestamp
+        description: If the cart advanced to payment step, this field shows its timestamp.
+      - name: checkout_selected_payment_method_timestamp
+        description: If the cart selected payment method, this field shows its timestamp.
+      - name: checkout_clicked_payment_complete_order_timestamp
+        description: If the cart clicked on complete order, this field shows its timestamp.
+      - name: checkout_order_placed_timestamp
+        description: If the cart successfully generated an order, this field shows its timestamp.
+      - name: checkout_order_paid_timestamp
+        description: If the order was paid, this field shows its timestamp.
+      - name: wallet
+        description: Contains information about Wallet usage on the cart.
+      - name: payment_method_name
+        description: Payment method selected on checkout_selected_payment_method step.
+      - name: payment_method_type
+        description: Payment method type selected on checkout_selected_payment_method step.
+      - name: payment_method_integration_type
+        description: Payment method integration type selected on checkout_selected_payment_method step.
+      - name: shipping_method_type
+        description: Shipping method type selected on checkout_selected_shipping_method step.
+      - name: shipping_method_id
+        description: Unique identifier of shipping method selected on checkout_selected_shipping_method step.
+      - name: shipping_method_code
+        description: Code of the shipping method selected on checkout_selected_shipping_method step.
+      - name: payment_retry_feature
+        description: Contains information about Payment Retry feature usage on the cart.
+      - name: theme
+        description: Theme currently active on the store.
+      - name: country_code
+        description: Country where the store is located.
+      - name: current_segment_code
+        description: Current segment of the store.
+      - name: group_name
+        description: Current plan of the store.
+      - name: mid_market
+        description: Boolean that indicates if a store was on Mid Market portfolio in a particular day.
+      - name: vartical_name
+        description: Vertical indicated by the store or inferred by Vertifier.
+      - name: payment_status
+        description: Status of the payment registered in mwp_orders.
+      - name: gateway
+        description: Payment method provider registered in mwp_orders.
+      - name: gateway_method
+        description: Payment method type registered in mwp_orders.
+
+
+  - name: s__traffic__cart_session__link
+    description: >
+      Silver table that links each `cart_id` to its first known session, based on the product_cart_add event 
+      and its `unique_session_key`. The model retrieves sessions up to 10 days before the cart creation event, 
+      and includes traffic origin attributes such as `source_name`, `traffic_type`, UTM information, and normalized domains.
+      Full documentation available at:
+      https://www.notion.so/Silver-s__traffic__cart_session__link-29c85d24ee8f802bb1a9c43b7ef83b81
+    config:
+      meta:
+        owner: "barbara.marques@nuvemshop.com.br"
+        domain: "product"
+        business_owner: "Tomas Musich"
+    columns:
+      - name: cart_id
+        description: "Primary identifier of the cart and primary key of the table."
+        tests:
+          - unique
+          - not_null
+      - name: event_timestamp
+        description: "Timestamp when the cart_product_add event occurred, used to determine proximity to session."
+        tests:
+          - not_null
+      - name: event_base_date
+        description: "Partition date for the model, derived from the event_timestamp."
+        tests:
+          - not_null
+      - name: unique_session_key
+        description: "Deterministic technical key for each session, used to link a session to a cart_id."
+        tests:
+          - not_null
+      - name: session_timestamp
+        description: "Timestamp of the first session matched to the cart via unique_session_key."
+      - name: session_base_date
+        description: "Base date of the matched session."
+      - name: visitor_country
+        description: "Country of the visitor as reported in the session."
+      - name: ref_domain
+        description: "Normalized domain extracted from the referrer URL of the matched session."
+      - name: land_domain
+        description: "Normalized domain extracted from the landing page URL of the matched session."
+      - name: source_name
+        description: "Classified traffic source for the session (e.g., Google, Meta, Direct)."
+      - name: source_group
+        description: "Grouped source channel (e.g., Meta, Alphabet, AI Sources)."
+      - name: google_subchannel
+        description: "Google subchannel, if available (e.g., Shopping, Search)."
+      - name: traffic_type
+        description: "Indicates whether the session came from paid or organic traffic."
+      - name: is_end_user
+        description: "Boolean flag indicating whether the session is likely from a real end-user."
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created in this model."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "System or user that created the row in this model."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this model."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row in this model."
+        tests:
+          - not_null
+
+
+  - name: g__checkout__funnel_completion_time__event
+    description: >
+      Gold layer table with different types of completion times, such as selected payment method to paid.
+    config:
+      meta:
+        owner: "fabrizio.crivella@tiendanube.com"
+        business_owner: "Rocio Diez"
+        openmetadata:
+          domain: "product"
+    columns:
+      - name: cart_id
+        description: Unique identifier of cart.
+        tests:
+          - not_null
+      - name: store_id
+        description: Unique identifier of store.
+        tests:
+          - not_null
+      - name: diff_first_and_last_event_minutes
+        description: Difference in minutes between first and last event.
+      - name: diff_selected_payment_to_paid_seconds
+        description: Difference in seconds between payment method selection and paid order.
+      - name: diff_completed_contact_to_selected_payment_seconds
+        description: Difference in seconds between completed contact and payment method selection.
+      - name: wallet
+        description: Contains information about Wallet usage on the cart.
+      - name: payment_method_name
+        description: Payment method selected on checkout_selected_payment_method step.
+      - name: payment_method_type
+        description: Payment method type selected on checkout_selected_payment_method step.
+      - name: payment_method_integration_type
+        description: Payment method integration type selected on checkout_selected_payment_method step.
+      - name: shipping_method_type
+        description: Shipping method type selected on checkout_selected_shipping_method step.
+      - name: shipping_method_id
+        description: Unique identifier of shipping method selected on checkout_selected_shipping_method step.
+      - name: shipping_method_code
+        description: Code of the shipping method selected on checkout_selected_shipping_method step.
+      - name: payment_retry_feature
+        description: Contains information about Payment Retry feature usage on the cart.
+      - name: first_event
+        description: Identifies which event type was the first on the cart.
+      - name: last_event
+        description: Identifies which event type was the last on the cart.
+      - name: base_date
+        description: first_event_timestamp casted as date, for partitioning.
+
+  - name: g__ecosystem__app_api_hits__agg_daily
+    description: >
+      This data product contains the daily API hits by app and store.
+    config:
+      meta:
+        owner: "fernando.martinez@tiendanube.com"
+        domain: "product"
+        business_owner: "Nicolas Loreti"
+    columns:
+      - name: unique_id
+        description: "Unique identifier of the app API hits."
+        tests:
+          - not_null
+          - unique
+      - name: registered_date
+        description: "Date when the app API hits were registered."
+      - name: app_id
+        description: "Unique identifier of the app."
+      - name: store_id
+        description: "Unique identifier of the store."
+      - name: total_api_hits
+        description: "Total number of API hits."
+      - name: sys_audit_created_on
+        description: "Timestamp when this record was first created in the DBT model."
+      - name: sys_audit_created_by
+        description: "Identifier for the user or system that created this record."
+      - name: sys_audit_updated_on
+        description: "Timestamp when this record was last updated."
+      - name: sys_audit_updated_by
+        description: "Identifier for the user or system that last updated this record."
+  
+  - name: g__ecosystem__app_api_hits__agg_monthly
+    description: >
+      This data product contains the monthly API hits by app and store.
+    config:
+      meta:
+        owner: "fernando.martinez@tiendanube.com"
+        domain: "product"
+        business_owner: "Nicolas Loreti"
+    columns:
+      - name: unique_id
+        description: "Unique identifier of the app API hits."
+        tests:
+          - not_null
+          - unique
+      - name: registered_month
+        description: "Month when the app API hits were registered."
+      - name: app_id
+        description: "Unique identifier of the app."
+      - name: store_id
+        description: "Unique identifier of the store."
+      - name: total_api_hits
+        description: "Total number of API hits."
+      - name: sys_audit_created_on
+        description: "Timestamp when this record was first created in the DBT model."
+      - name: sys_audit_created_by
+        description: "Identifier for the user or system that created this record."
+      - name: sys_audit_updated_on
+        description: "Timestamp when this record was last updated."
+      - name: sys_audit_updated_by
+        description: "Identifier for the user or system that last updated this record."
+
+  - name: g__growth__store_conversion__agg_daily
+    description: >
+      Daily aggregated dataset that measures store trial-to-paid conversion performance. It calculates how many stores 
+      converted (made their first payment) within 7, 14, 21, ... up to 84 days after creation, segmented by country, 
+      device type, affiliate status, and fraud/block status.
+    config:
+      meta:
+        owner: "ynara.oliveira@nuvemshop.com.br"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date
+            - country
+            - device
+            - is_affiliate
+            - is_store_blocked
+            - days_agg
+    columns:
+      - name: date
+        description: "Store creation date (daily granularity)."
+        tests:
+          - not_null
+      - name: country
+        description: "Country of the store, standardized in uppercase."
+      - name: device
+        description: >
+          Type of device used when the store was created, derived from the verified code.
+          Possible values: Desktop, Mobile, App, Tablet, Undefined.
+      - name: is_affiliate
+        description: >
+          Indicates whether the store was created via an affiliate partnership
+          ('TRUE' if partner_id is not null, otherwise 'FALSE').
+      - name: is_store_blocked
+        description: "Flag showing if the store was marked or blocked for fraud."
+      - name: days_agg
+        description: >
+          Conversion window in days since store creation.
+          Values: total07, total14, total21, ..., total84.
+      - name: stores
+        description: >
+          Number of stores that made their first payment within the corresponding conversion window.
+      - name: trials
+        description: >
+          Total number of stores (trials) created on that date for the same country, device,
+          affiliate and fraud segment. Serves as the denominator for conversion rate calculations.
+      - name: sys_audit_created_on
+        description: "Timestamp of when this record was created in our data warehouse"
+      - name: sys_audit_created_by
+        description: "System identifier of the process that created this record"
+      - name: sys_audit_updated_on
+        description: "Timestamp of when this record was last updated in our data warehouse"
+      - name: sys_audit_updated_by
+        description: "System identifier of the process that last updated this record"
+    
+  - name: s__orders__ready_for_pickup_template_usage__event
+    description: >
+      Store level table with data on the current state of the ready for pickup template (active/inactive) and timestamps of when it was first and last active (historical data from the
+      s__orders__ready_for_pickup_template_usage__snapshot_daily model).
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "product"
+        business_owner: "Martin Palombo"
+    columns:
+      - name: store_id
+        description: "Unique identifier of the store."
+        tests:
+          - not_null
+          - unique
+      - name: domain
+        description: "Domain of the store."
+      - name: current_segment
+        description: "Current segment of the store."
+      - name: state
+        description: "State of the store."
+      - name: merchant_created_at
+        description: "Date when the merchant created the store. Only merchants created before 2025-08-06 have the choice to active template. Others are originated with it enabled."
+      - name: currently_active
+        description: "Boolean flag indicating if the template is currently active for this merchant."
+      - name: first_active_at
+        description: "Date when the template was first active for this merchant."
+      - name: last_active_at
+        description: "Date when the template was last active for this merchant."
+      - name: sys_audit_created_by
+        description: "Identifier for the user or system that created this record."
+      - name: sys_audit_updated_on
+        description: "Timestamp when the record was last updated in the DBT model."
+      - name: sys_audit_updated_by
+        description: "Identifier for the user or system that last updated this record."
+  
+  - name: s__orders__ready_for_pickup_template_usage__snapshot_daily
+    description: >
+      Daily snapshots of the ready for pickup template usage (active/inactive) for each store.
+    config:
+      meta:
+        owner: "sol.abelley@tiendanube.com"
+        domain: "product"
+        business_owner: "Martin Palombo"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - store_id
+            - report_date
+    columns:
+      - name: store_id
+        description: "Unique identifier of the store."
+        tests:
+          - not_null
+      - name: report_date
+        description: "Date when the snapshot was taken."
+        tests:
+          - not_null
+      - name: domain
+        description: "Domain of the store."
+      - name: active
+        description: "Boolean flag indicating if the template is currently active for the merchant or not"
+      - name: state
+        description: "State of the store"
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first created in the DBT model."
+      - name: sys_audit_created_by
+        description: "Identifier for the user or system that created this record."
+      - name: sys_audit_updated_on
+        description: "Timestamp when the record was last updated in the DBT model."
+      - name: sys_audit_updated_by
+        description: "Identifier for the user or system that last updated this record."
+
+  - name: s__nuvem_pago__chargebacks__event
+    description: >
+      Data product that contains the chargebacks from Nuvem Pago and Pago Nube.
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "product"
+        business_owner: "Martin Palombo"
+    columns:
+      - name: cbk_id
+        description: "Unique identifier of the chargeback."
+        tests:
+          - not_null
+          - unique
+      - name: store_id
+        description: "Unique identifier of the store."
+        tests:
+          - not_null
+      - name: order_id
+        description: "Unique identifier of the order."
+        tests:
+          - not_null
+      - name: cbk_events
+        description: "Events of the chargeback and timestamps"
+      - name: cbk_amount
+        description: "Amount of the chargeback."
+      - name: cbk_chargeback
+        description: "Additional data of the chargeback (deadline, reason, status, etc.)"
+      - name: cbk_customer
+        description: "Data from the customer that made the chargeback."
+      - name: cbk_deadline
+        description: "Deadline of the chargeback."
+      - name: cbk_created_at
+        description: "Timestamp when the chargeback was created."
+      - name: order_paid_at
+        description: "Timestamp when the order was paid."
+      - name: cbk_reason
+        description: "Reason of the chargeback."
+      - name: cbk_status
+        description: "Status of the chargeback (resolved_insurance, resolved_without_dispute, etc.)"
+      - name: cbk_failure_reason
+        description: "Failure reason of the chargeback."
+      - name: cbk_order_number
+        description: "Order number of the order with the chargeback."
+      - name: cbk_origin
+        description: "Origin of the chargeback."
+      - name: cbk_payment_method
+        description: "Payment method of the order with the chargeback."
+      - name: cbk_remaining_amount_to_refund
+        description: "Remaining amount to refund"
+      - name: order_cbk_status
+        description: "Status of the chargeback on the order (chargebacked or paid)"
+      - name: cbk_year_month_code
+        description: "Year and month code of the chargeback."
+      - name: country
+        description: "Country of the store."
+      - name: domain
+        description: "Domain of the store."
+      - name: state
+        description: "State of the store."
+      - name: current_segment
+        description: "Current segment of the store."
+      - name: plan_name
+        description: "Name of the plan of the store."
+      - name: sys_audit_created_on
+        description: "Timestamp when the chargeback was created."
+      - name: sys_audit_created_by
+        description: "User or system that created the chargeback."
+      - name: sys_audit_updated_on
+        description: "Timestamp when the chargeback was last updated."
+      - name: sys_audit_updated_by
+        description: "User or system that last updated the chargeback."
+
+  - name: s__general__trial_np_by_app_install__ref
+    description: "Data product that contains informations of trials and new payments and app installation information."
+    config:
+      meta:
+        owner: "ynra.oliveira@nuvemshop.com.br"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: store_id
+        description: "Unique identifier of the store."
+        tests:
+          - not_null
+          - unique
+      - name: created_at
+        description: "Timestamp when the merchant was created."
+      - name: country
+        description: "Country of the store, standardized in uppercase."
+      - name: first_payment
+        description: "Timestamp whe the store made the first payment."
+      - name: is_affiliate
+        description: >
+          Indicates whether the store was created via an affiliate partnership
+          ('TRUE' if partner_id is not null, otherwise 'FALSE').
+      - name: is_store_blocked
+        description: "Flag showing if the store was marked or blocked for fraud."
+      - name: option_value
+        description: "Theme chosen by the user."
+      - name: is_app_installed
+        description: "Boolean TRUE or FALSE indicating if the store has the app installed."
+      - name: app_installed_at
+        description: "Timestamp when the app was installed."
+      - name: device
+        description: >
+          Type of device used when the store was created, derived from the verified code.
+          Possible values: Desktop, Mobile, App, Tablet, Undefined.
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first inserted into this table."
+      - name: sys_audit_created_by
+        description: "User or process that first inserted the record."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the most recent update to the record."
+      - name: sys_audit_updated_by
+        description: "User or process that performed the last update."
+        
+        
+  - name: g__traffic__session_carts__agg_daily
+    description: >
+      Gold model that aggregates sessions by store and traffic dimensions at a daily granularity,
+      combining them with cart generation and paid order information. It is used to analyze
+      acquisition effectiveness, conversion from session to cart, and directional GMV trends.
+      --
+      GMV-related fields are included solely for funnel tracking purposes. 
+      For official revenue figures, refer to Finance data products and dashboards.
+      --
+      This model is updated incrementally, processing only the last 30 days from the most recent update.
+      Therefore, cart updates are only tracked within 30 days after the original session occurred.
+      --
+      Data availability:
+      - Sessions: from 2024-01-01 onwards
+      - Cart linkage to sessions: from 2024-01-23 onwards
+      --
+      Full documentation available at:
+      https://www.notion.so/Gold-g__traffic__session_carts__agg_daily-2a185d24ee8f80f69bb4fdfaf8dc3c5c
+    config:
+      meta:
+        owner: "barbara.marques@nuvemshop.com.br"
+        domain: "product"
+        business_owner: "Tomas Musich"
+    columns:
+      - name: base_date
+        description: "Partition date for the table, based on the session timestamp."
+        tests: 
+          - not_null
+      - name: store_id
+        description: "Store identifier where the session occurred."
+        tests: 
+          - not_null
+      - name: country_code
+        description: "Country of the store at the time of update (not necessarily at session time)."
+        tests: 
+          - not_null
+      - name: vertical_name
+        description: "Vertical classification of the store, captured at the model update."
+      - name: current_plan_type
+        description: "Type of the store plan, captured at the model update."
+      - name: current_segment
+        description: "Segment classification of the store (tiny, small, etc.), captured at the model update."
+      - name: is_store_blocked
+        description: "Whether the store was blocked, captured at the model update."
+      - name: visitor_country
+        description: "Country of the visitor based on latest update (not necessarily at session time)."
+      - name: device
+        description: "Device category (desktop, mobile, etc.) used in the session."
+      - name: theme
+        description: "Theme identifier of the storefront during the session."
+      - name: source_name
+        description: "Classified traffic source for the session (e.g., google, meta, direct)."
+        tests: 
+          - not_null
+      - name: source_group
+        description: "Grouped classification of `source_name` by parent company or channel family (e.g., meta, alphabet, ai sources)."
+        tests: 
+          - not_null
+      - name: google_subchannel
+        description: "Detailed classification of Google Ads campaigns by subchannel (e.g., pmax, shopping, search)."
+      - name: traffic_type
+        description: "Indicates whether the session came from paid or organic traffic."
+        tests: 
+          - not_null
+      - name: is_end_user
+        description: "Boolean flag indicating whether the session is likely from a real end-user."
+        tests: 
+          - not_null
+      - name: storefront
+        description: "Storefront domain accessed during the session (store, mobile, pos, etc)."
+      - name: total_sessions
+        description: "Count of sessions aggregated by the defined key."
+      - name: total_unique_sessions
+        description: "Count of unique sessions aggregated by the defined key. Must generate the same total as total_sessions."
+      - name: total_unique_session_ids
+        description: "Count of distinct session_id's aggregated by the defined key."
+      - name: total_unique_consumer_ids
+        description: "Count of distinct consumer_id's aggregated by the defined key."
+      - name: total_sessions_with_carts
+        description: "Count of carts matched to sessions aggregated by the defined key."
+      - name: total_sessions_with_unique_carts
+        description: "Count of unique carts matched to sessions aggregated by the defined key. Must generate the same total as total_sessions_with_carts."
+      - name: total_sessions_with_paid_orders
+        description: >
+          Count of sessions where a cart resulted in a paid order.
+          Attention: this is only for funnel reference. For official GMV data, please consult official dashboards and data models, by the Finance team.
+      - name: total_usd_sessions_with_paid_orders
+        description: >
+          Sum of the total order value (USD) of sessions where a cart resulted in a paid order.
+          Attention: this is only for funnel reference. For official GMV data, please consult official dashboards and data models, by the Finance team.
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created in this model."
+        tests: 
+          - not_null
+      - name: sys_audit_created_by
+        description: "System or user that created the row in this model."
+        tests: 
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this model."
+        tests: 
+          - not_null
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row in this model."
+        tests: 
+          - not_null
+    tests:
+      - dbt_expectations.expect_column_pair_values_to_be_equal:
+          column_A: total_unique_sessions
+          column_B: total_sessions
+      - dbt_expectations.expect_column_pair_values_to_be_equal:
+          column_A: total_sessions_with_unique_carts
+          column_B: total_sessions_with_carts

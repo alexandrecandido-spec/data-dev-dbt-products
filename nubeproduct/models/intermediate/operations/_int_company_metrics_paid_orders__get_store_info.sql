@@ -27,8 +27,10 @@ SELECT
             paid_orders.total_in_usd / exchange_rate.indirect_exchange_rate
     END AS total_in_local_currency,
     CASE
-        WHEN storefront in ('mobile', 'store', 'form', 'social', 'pos') or (storefront = 'api' and paid_orders.app_id=12217) THEN 'on'
-        ELSE 'off'
+        -- WHEN storefront in ('mobile', 'store', 'form', 'social', 'pos') or (storefront = 'api' and paid_orders.app_id=12217) THEN 'on'
+        -- ELSE 'off'
+        WHEN storefront = 'api' and paid_orders.app_id <> 12217 THEN 'off'
+        ELSE 'on'
     END AS platform_type,
     store_info.country,
     CASE
@@ -60,6 +62,7 @@ LEFT JOIN {{ ref('finance_exchange_rate') }} exchange_rate_country on DATE(paid_
     AND store_info.country = exchange_rate_country.country_currency_code
 WHERE 
     paid_orders.store_id not in (SELECT related_id FROM blocked_stores)
-    AND is_paid_order = TRUE AND storefront <> 'permalink'
+    AND is_paid_order = TRUE --AND storefront <> 'permalink'
     AND DATE(paid_orders.completed_at) < CURRENT_DATE()
     AND paid_orders.total_in_usd <= 10000 AND paid_orders.total_in_usd >= 0
+    AND paid_orders.total is not null and paid_orders.total >= 0

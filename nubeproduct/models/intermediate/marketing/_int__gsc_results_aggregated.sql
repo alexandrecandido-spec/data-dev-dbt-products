@@ -8,6 +8,6 @@
     SUM(o.impressions) AS impressions,
     SUM(o.clicks) AS clicks,
     AVG(o.average_position) AS average_position
-  FROM {{ ref('gsc__url_results') }} o
+  FROM {{ ref('marketing__acquisition__gsc_url_results__ref') }} o
   GROUP BY 1,2,3,4,5,6
   

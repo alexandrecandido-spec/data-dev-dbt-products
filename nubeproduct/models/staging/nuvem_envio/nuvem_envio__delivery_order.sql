@@ -1,5 +1,14 @@
 -- Extracts the raw delivery order data from Nuvem Envio systems, mapping relevant fields such as store, carrier, dimensions, and identifiers. 
 -- It serves as the base for shipment-related transformations.
+{{
+    config(
+        materialized='table',
+        unique_key= 'id',
+        on_schema_change='fail',
+        tags=["logistics","daily-8am"]
+    )
+}}
+
 SELECT
     year_month_code,
     id,

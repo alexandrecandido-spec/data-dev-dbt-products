@@ -20,7 +20,7 @@ with
             user_is_partner,
             partner_id,
             organization_id
-        from {{ ref("cx__general__zendesk_user_base__ref") }}
+        from {{ ref("_int_cx__zendesk_users_info") }}
     )
 
 select
