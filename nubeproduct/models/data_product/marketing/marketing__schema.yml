@@ -2188,6 +2188,44 @@ models:
         description: "Unique store identifier."
         tests: [not_null, unique]
 
+  - name: g__product_marketing__storefront_sessions_store__agg
+    description: "**Data Product GOLD: Storefront Sessions Metrics by Store**\n\nMétricas de sesiones reales de usuarios finales en storefronts por tienda durante el onboarding.\nCuenta sesiones únicas en ventanas de tiempo (7d, 15d, 30d, 60d, 90d) desde creación de la tienda.\nExcluye merchants, bots y tráfico no-humano.\n\n**Domain:** marketing\n**Granularity:** agg (one row per store)"
+    meta:
+      owner: "jhu.boggio@tiendanube.com"
+      domain: "marketing"
+      business_owner: "Giselle Galli"
+    columns:
+      - name: store_id
+        description: "ID único de la tienda"
+        tests:
+          - not_null
+          - unique
+      - name: first_store_session
+        description: "Fecha de la primera sesión registrada en la tienda"
+      - name: store_sessions_7d
+        description: "Cantidad de sesiones únicas en los primeros 7 días desde creación de la tienda"
+      - name: store_sessions_15d
+        description: "Cantidad de sesiones únicas en los primeros 15 días desde creación de la tienda"
+      - name: store_sessions_30d
+        description: "Cantidad de sesiones únicas en los primeros 30 días desde creación de la tienda"
+      - name: store_sessions_60d
+        description: "Cantidad de sesiones únicas en los primeros 60 días desde creación de la tienda"
+      - name: store_sessions_90d
+        description: "Cantidad de sesiones únicas en los primeros 90 días desde creación de la tienda"
+      - name: total_store_sessions
+        description: "Total de sesiones únicas (sin límite de tiempo)"
+      - name: last_store_session
+        description: "Fecha de la última sesión registrada"
+      - name: last_processed_date
+        description: "Última fecha de datos procesados (para próximo incremental)"
+      - name: sys_audit_created_on
+        description: "Timestamp of when this record was created in our data warehouse"
+      - name: sys_audit_created_by
+        description: "System identifier of the process that created this record"
+      - name: sys_audit_updated_on
+        description: "Timestamp of when this record was last updated in our data warehouse"
+      - name: sys_audit_updated_by
+        description: "System identifier of the process that last updated this record"
       - name: has_ms_tag
         description: "Boolean (0/1). 1 when the store satisfies Merchant Sellers logic."
         tests:
