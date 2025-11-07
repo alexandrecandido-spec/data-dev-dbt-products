@@ -116,24 +116,19 @@ existing as (
       cast(null as string)     as sys_audit_created_by
     where 1=0
   {% endif %}
-),
-
-final_rows as (
-  select
-      u.store_id,
-      u.has_ms_tag, u.has_ds_tag, u.has_wb_tag,
-      u.tag_ms_name, u.tag_ds_name, u.tag_wb_name,
-      u.ms_contact_date, u.ds_tag_created_date, u.first_webinar_at,
-      u.marketing_projects_tag,
-      u.year_month_day_code,
-      coalesce(e.sys_audit_created_on, current_timestamp)        as sys_audit_created_on,
-      coalesce(e.sys_audit_created_by,  'data-dev-dbt-marketing') as sys_audit_created_by,
-      u.sys_audit_updated_on,
-      u.sys_audit_updated_by,
-      u.row_hash
-  from to_upsert u
-  left join existing e using (store_id)
 )
 
--- 5) Fuente del MERGE
-select * from final_rows
+select
+    u.store_id,
+    u.has_ms_tag, u.has_ds_tag, u.has_wb_tag,
+    u.tag_ms_name, u.tag_ds_name, u.tag_wb_name,
+    u.ms_contact_date, u.ds_tag_created_date, u.first_webinar_at,
+    u.marketing_projects_tag,
+    u.year_month_day_code,
+    coalesce(e.sys_audit_created_on, current_timestamp)         as sys_audit_created_on,
+    coalesce(e.sys_audit_created_by,  'data-dev-dbt-marketing') as sys_audit_created_by,
+    u.sys_audit_updated_on,
+    u.sys_audit_updated_by,
+    u.row_hash
+from to_upsert u
+left join existing e using (store_id)
