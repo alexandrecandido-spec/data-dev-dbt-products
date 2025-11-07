@@ -3,7 +3,10 @@
         materialized='incremental',
         incremental_strategy='merge',
         unique_key='store_id',
-        tags=['daily_7am']
+        tags=['daily-10am-10pm'],
+        post_hook=[
+            "DELETE FROM {{ this }} WHERE store_id IN (SELECT store_id FROM {{ ref('merchant__attributes__store_info__ref') }} WHERE state = 4)"
+        ]
     )
 }}
 

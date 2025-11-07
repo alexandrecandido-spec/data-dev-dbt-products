@@ -1,9 +1,3 @@
-{{
-    config(
-        materialized='ephemeral'
-    )
-}}
-
 /*
 Intermediate Model: Store Identity Consolidation
 Description: Consolida información de identidad de la tienda desde múltiples fuentes
