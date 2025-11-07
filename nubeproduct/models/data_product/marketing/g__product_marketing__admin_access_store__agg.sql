@@ -22,7 +22,7 @@ Spec: Cuenta total de accesos al admin en ventanas de tiempo desde la creación 
    - Estrategia MERGE con unique_key=store_id
    - Actualiza métricas cuando hay nuevos accesos dentro de las ventanas temporales (7d, 15d, 30d, 60d)
 
-✅ Fuentes: hive_metastore (raw data), outputs en Unity Catalog (data_marketing)
+✅ Fuentes: Consume desde staging (moltres__mwp_store_access), outputs en Unity Catalog (data_marketing)
 
 ⚠️ NOTA: blocked_fraud_tag NO se calcula aquí, se consume del GOLD final desde s__lifecycle__store_status__ref
 */
@@ -48,10 +48,9 @@ SELECT
     current_timestamp AS sys_audit_updated_on,
     'data-dev-dbt-products' AS sys_audit_updated_by
     
-FROM {{ source('stg_moltres', 'mwp_store_access') }} a 
+FROM {{ ref('moltres__mwp_store_access') }} a 
 INNER JOIN {{ ref('s__attributes__store_core__ref') }} s 
     ON s.store_id = a.store_id
-    AND s.created_at > '2024-01-01'
 LEFT JOIN existing_data ed ON a.store_id = ed.store_id
 {% if is_incremental() %}
     -- Procesar todas las tiendas (nuevas y existentes)
