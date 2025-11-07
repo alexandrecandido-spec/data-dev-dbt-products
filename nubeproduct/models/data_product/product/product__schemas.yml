@@ -3203,7 +3203,7 @@ models:
       - name: sys_audit_updated_by
         description: "Identifier of the user or system that last updated this record."
         tests:
-            - not_nul
+            - not_null
 
 
   - name: g__checkout__funnel__agg_daily
@@ -3489,7 +3489,7 @@ models:
       - name: is_affiliate
         description: >
           Indicates whether the store was created via an affiliate partnership
-          ('Yes' if partner_id is not null, otherwise 'No').
+          ('TRUE' if partner_id is not null, otherwise 'FALSE').
       - name: is_store_blocked
         description: "Flag showing if the store was marked or blocked for fraud."
       - name: days_agg
@@ -3657,6 +3657,50 @@ models:
         description: "Timestamp when the chargeback was last updated."
       - name: sys_audit_updated_by
         description: "User or system that last updated the chargeback."
+
+  - name: s__general__trial_np_by_app_install__ref
+    description: "Data product that contains informations of trials and new payments and app installation information."
+    config:
+      meta:
+        owner: "ynra.oliveira@nuvemshop.com.br"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: store_id
+        description: "Unique identifier of the store."
+        tests:
+          - not_null
+          - unique
+      - name: created_at
+        description: "Timestamp when the merchant was created."
+      - name: country
+        description: "Country of the store, standardized in uppercase."
+      - name: first_payment
+        description: "Timestamp whe the store made the first payment."
+      - name: is_affiliate
+        description: >
+          Indicates whether the store was created via an affiliate partnership
+          ('TRUE' if partner_id is not null, otherwise 'FALSE').
+      - name: is_store_blocked
+        description: "Flag showing if the store was marked or blocked for fraud."
+      - name: option_value
+        description: "Theme chosen by the user."
+      - name: is_app_installed
+        description: "Boolean TRUE or FALSE indicating if the store has the app installed."
+      - name: app_installed_at
+        description: "Timestamp when the app was installed."
+      - name: device
+        description: >
+          Type of device used when the store was created, derived from the verified code.
+          Possible values: Desktop, Mobile, App, Tablet, Undefined.
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first inserted into this table."
+      - name: sys_audit_created_by
+        description: "User or process that first inserted the record."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the most recent update to the record."
+      - name: sys_audit_updated_by
+        description: "User or process that performed the last update."
         
         
   - name: g__traffic__session_carts__agg_daily

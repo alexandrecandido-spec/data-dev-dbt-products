@@ -21,6 +21,9 @@ ccfe.first_event,
 ccfe.first_event_timestamp,
 ccfe.last_event,
 ccfe.last_event_timestamp,
+ccfe.checkout_selected_payment_method_timestamp,
+paid_timestamp.paid_order_timestamp,
+ccfe.checkout_clicked_shipping_continue_to_payment_timestamp,
 ccfe.wallet,
 ccfe.payment_method_name,
 ccfe.payment_method_type,
@@ -57,7 +60,7 @@ WHERE
     -- this filter will only be applied on an incremental run
     -- (uses >= to include records whose timestamp occurred since the last run of this model)
     -- (If event_time is NULL or the table is truncated, the condition will always be true and load all records)
-    base_date >= DATE_SUB( (SELECT COALESCE(MAX(base_date), DATE('1900-01-01')) FROM {{ this }}), 30 )
+    base_date >= DATE_SUB( (SELECT COALESCE(MAX(base_date), DATE('1900-01-01')) FROM {{ this }}), 60 )
 
     {% else %}
 
@@ -81,6 +84,9 @@ s.first_event,
 s.first_event_timestamp,
 s.last_event,
 s.last_event_timestamp,
+s.checkout_selected_payment_method_timestamp,
+s.paid_order_timestamp,
+s.checkout_clicked_shipping_continue_to_payment_timestamp,
 s.wallet,
 s.payment_method_name,
 s.payment_method_type,
