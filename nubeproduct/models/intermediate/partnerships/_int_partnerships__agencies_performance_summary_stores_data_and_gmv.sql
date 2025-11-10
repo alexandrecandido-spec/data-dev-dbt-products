@@ -37,7 +37,7 @@ stores_gmv AS  -- Create a table with the gmv metrics for each partner consideri
         SUM(CASE WHEN order_date >= DATE_SUB(DS.snapshot_date, 180) THEN gmv_local_currency_daily ELSE 0 END) AS gmv_local_currency_last_180d,
         SUM(CASE WHEN order_date >= DATE_SUB(DS.snapshot_date, 365) THEN gmv_usd_daily ELSE 0 END) AS gmv_usd_last_365d,
         SUM(CASE WHEN order_date >= DATE_SUB(DS.snapshot_date, 365) THEN gmv_local_currency_daily ELSE 0 END) AS gmv_local_currency_last_365d
-    FROM {{ ref('g__agencies__stores_gmv_orders__agg_daily') }}
+    FROM {{ ref('_int_partnerships__agencies_stores_gmv_orders_daily_construction') }}
     CROSS JOIN date_spine AS DS
     WHERE order_date <= DS.snapshot_date
     GROUP BY 
@@ -63,7 +63,7 @@ agencies_stores AS -- Create a table with the stores depending on partners
             SELECT 
                 PSR.store_id,
                 PSR.created_at,
-                PSR.first_payment_flg,
+                CAST(PSR.new_payment AS BOOLEAN) AS first_payment_flg,
                 PSR.first_seller_at,
                 PSR.first_payment,
                 PSR.churned_at,
@@ -71,11 +71,11 @@ agencies_stores AS -- Create a table with the stores depending on partners
                 PIR.partner_code,
                 PIR.partner_created_at,
                 PIR.partner_country_code
-            FROM  {{ ref('s__general__partners_stores__ref')}} AS PSR
+            FROM  {{ ref('_int_partnerships__partners_stores__table_merchant_domain')}} AS PSR
             LEFT JOIN {{ ref('s__general__partners_info__ref') }} AS PIR
                 ON PSR.partner_id = PIR.partner_id
             WHERE partnership_type = 'store_development'
-                AND acquired_by = 'Partner'
+                AND tag_acquired_by = 'Partner'
         )
     CROSS JOIN date_spine AS DS
     WHERE DATE(created_at) <= DS.snapshot_date
