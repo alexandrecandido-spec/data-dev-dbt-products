@@ -5,15 +5,13 @@ with
         select
             u.store_id,
             u.id as user_id,
-            u.user_email as email,
+            trim(lower(u.user_email)) as email,
             u.first_name,
             u.last_name,
-            row_number() over (
-                partition by u.user_email order by u.id, u.store_id
-            ) as rn
+            row_number() over (partition by u.user_email order by u.id desc, u.store_id) as rn
         from {{ source("int_moltres", "wp_users") }} u
         inner join stores s on u.store_id = s.store_id
-        where u.deleted = 0 and u.user_email is not null
+        where u.deleted = 0 and u.user_email is not null and u.user_email <> ''
     ),
 
     users as (
@@ -44,11 +42,7 @@ select
     cast(u.user_id as int) as user_id,
     u.email,
     {{ format_username("u.user_id", "u.first_name", "u.last_name") }} as name,
-    {{
-        format_phone_e164(
-            "ss.owner_phone_country", "ss.owner_phone_area", "ss.owner_phone_number"
-        )
-    }} as phone,
+    {{format_phone_e164("ss.owner_phone_country", "ss.owner_phone_area", "ss.owner_phone_number")}} as phone,
     p.partner_id is not null as user_is_partner,
     p.partner_id,
     org.organization_id,

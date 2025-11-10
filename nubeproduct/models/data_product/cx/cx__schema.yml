@@ -3,7 +3,7 @@ version: 2
 models:
   - name: s__general__zendesk_user__ref
     meta:
-      owner: "santiago.gandolfo@tiendanube.com"
+      owner: "felipe.lorenzo@tiendanube.com"
       domain: "cx"
       business_owner: "gabriela.silva@nuvemshop.com.br"
     description: >
