@@ -286,7 +286,7 @@ models:
     config:
       meta:
         owner: "felipe.lorenzo@tiendanube.com"
-        domain: "partners"
+        domain: "partnerships"
         business_owner: "Franco Tiberti"
     description: >
       Weekly historical performance summary of agencies with stores acquired by them (acquired_by = 'Partner'), 
