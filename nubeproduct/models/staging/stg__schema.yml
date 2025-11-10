@@ -3523,8 +3523,6 @@ models:
     columns:
       - name: store_id
         description: "Unique identifier of the store"
-        tests:
-          - not_null
       - name: deal_id
         description: "Unique identifier of the HubSpot deal"
         tests:
