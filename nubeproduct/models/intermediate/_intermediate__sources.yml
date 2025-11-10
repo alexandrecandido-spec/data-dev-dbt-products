@@ -311,3 +311,5 @@ sources:
         description: "Historical snapshot of Zendesk ticket events and status changes, storing ticket lifecycle data extracted from ticket audit logs for analytical purposes."
       - name: legacy_chats
         description: "Historical snapshot of Zendesk chats, storing data extracted from ticket audit logs for analytical purposes."
+      - name: legacy_comments
+        description: "Historical snapshot of Zendesk ticket comments, preserving all public and internal messages exchanged within tickets. This table consolidates comment-level data extracted from Zendesk audit logs or API exports, including authorship, visibility, and timestamps. It serves analytical and auditing purposes, enabling the reconstruction of historical conversations and customer-agent interactions over time."
