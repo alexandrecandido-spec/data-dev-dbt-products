@@ -4,7 +4,7 @@
         incremental_strategy = 'merge',
         unique_key='store_id',
         on_schema_change='fail',
-        tags=["merchant","daily-8am"],
+        tags=["merchant","daily-8am-8pm"],
         post_hook=[
             "DELETE FROM {{ this }}
                     WHERE store_id NOT IN (
@@ -14,7 +14,7 @@
                             {{ source('stg_moltres', 'mwp_tags') }}
                         WHERE 
                             type = 'store'
-                            AND tag IN ('sre-block-store-404', 'sre-block-store-429')
+                            AND tag IN ('sre-block-store-404', 'sre-block-store-429','partner', 'channels-affiliate-attribution')
                             )"
             ]
     )

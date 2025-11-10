@@ -2,7 +2,7 @@
     materialized='table',
     on_schema_change='fail',
     unique_key=['deal_id'],
-    tags=['daily-6am']
+    tags=['midmarket','daily-7am']
 ) }}
 
 select
