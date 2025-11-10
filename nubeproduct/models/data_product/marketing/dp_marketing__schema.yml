@@ -1967,3 +1967,110 @@ models:
         tests:
           - not_null
 
+  - name: s__general__mkt_attribution_model__agg_daily
+    description: "data product contains granular click-level data used in the marketing attribution model. Each click is linked to the responsible marketing team or source, enabling the attribution of acquisition results—such as store creation—to specific marketing efforts. This dataset supports performance analysis, reporting, and decision-making across acquisition channels"
+    config:
+      meta:
+        owner: "malen.correa@tiendanube.com"
+        domain: "marketing" 
+        business_owner: "Giselle Galli" 
+    columns:
+      - name: store_id
+        description: "Unique identifier for each store"
+        tests:
+          - not_null
+      - name: click_order 
+        description: "Order of the click"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 1
+              strictly: false
+      - name: click_qty
+        description: "Quantity of clicks involved on the journey to the store creation"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 1
+              strictly: false
+      - name: click_id 
+        description: "Unique identifier for each click"
+        tests:
+          - dbt_expectations.expect_column_values_to_be_unique:
+              row_condition: "click_id is not null"
+      - name: click_timestamp
+        description: "Timestamp of when the click occurred"
+        tests:
+          - dbt_expectations.expect_column_values_to_not_be_null:
+              row_condition: "click_id is not null"
+      - name: source
+        description: "Indicates the origin of the traffic, such as the platform or channel (e.g., Google, Facebook, newsletter) that brought the user to the site. Used to identify the marketing team or partner responsible for the click."
+      - name: medium
+        description: "Describes the marketing medium through which the traffic arrived (e.g., email, CPC, social, referral). Helps classify the type of acquisition effort."
+      - name: campaign
+        description: "Specifies the name or identifier of the marketing campaign associated with the click. Useful for measuring the performance of specific initiatives."
+      - name: content
+        description: "Used to differentiate between variations of content or creatives within the same campaign (e.g., different ads or links). Supports more granular attribution analysis."
+      - name: referrer_domain
+        description: "Domain of the page that referred the user before landing on the site. Useful for identifying external sources or traffic origins not captured by UTM parameters."
+      - name: referrer_path
+        description: "Full path from the referring URL, providing more detailed context about the exact page that led the user to the site. Helps in refining attribution when the domain alone is not sufficient."
+      - name: landing_page_domain
+        description: "Domain of the landing page where the user first arrived. Helps identify which property or microsite was involved in the acquisition."
+      - name: landing_page_path
+        description: "Path of the landing page URL, capturing the specific page or content that the user landed on. Useful for mapping custom campaigns or tracking user entry points."
+      - name: attribution_source
+        description: "Indicates the source system from which the attribution click data was retrieved. Possible values include local_db, amplitude, or empty (when no click data was available). This field helps track data lineage and diagnose attribution completeness."
+      - name: country
+        description: "Country associated with each store, based on registration data."
+      - name: year_month_day_code
+        description: Date in YYYYMMDD integer format used for partitioning.
+        tests:
+          - not_null        
+      - name: register_url
+        description: "URL of the store's registration page."
+      - name: partner_id
+        description: "ID of the store's partner, if a partner was involved in the store's creation."        
+      - name: partnership_type
+        description: "Type of partnership, if a partner was involved in the store's creation."
+      - name: blocked_fraud_tag
+        description: "Flag indicating if the store is blocked or fraudulent"
+        tests:
+          - accepted_values:
+              values: [0, 1]
+      - name: mkt_source
+        description: "Team responsible for the acquisition efforts and results attribution"
+        tests:
+          - not_null
+      - name: mkt_subteam
+        description: "Subteam responsible for the acquisition efforts and results attribution"
+        tests:
+          - not_null
+      - name: trials_last_click
+        description: "Set to 1 when the acquisition of the trial store is attributed to the last recorded click."
+        tests:
+          - accepted_values:
+              values: [0, 1]
+      - name: trials_first_click
+        description: "Set to 1 when the acquisition of the trial store is attributed to the first recorded click."
+        tests:
+          - accepted_values:
+              values: [0, 1]
+      - name: trials_mean_click
+        description: "Official attribution model. Each click receives a weighted contribution to the store acquisition, and the aggregated attribution is assigned to each team per store."
+        tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              max_value: 1
+      - name: input_sources
+        description: "List of inputs that were used to attribute the store creation to control incrementality in the attribution model"
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: "Timestamp of when the data was created"
+      - name: sys_audit_created_by
+        description: "System identifier of the process that created this record"
+      - name: sys_audit_updated_on
+        description: "Timestamp of when the data was last updated"
+      - name: sys_audit_updated_by
+        description: "System identifier of the process that last updated this record"
