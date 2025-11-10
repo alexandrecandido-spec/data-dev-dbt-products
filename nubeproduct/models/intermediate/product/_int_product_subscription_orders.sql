@@ -11,7 +11,7 @@ subs_orders as (
       ,attempt
       ,case when error_code = '' then null else error_code end as error_code
       ,case when error_description = '' then null else error_description end as error_description
-  from {{ ref('subscriptions_subscription_orders_scd') }}
+  from {{ ref('subscriptions_subscription_orders_events') }}
 ),
 orders as (
 SELECT 
