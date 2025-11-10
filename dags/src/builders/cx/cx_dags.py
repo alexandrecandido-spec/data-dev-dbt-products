@@ -25,6 +25,14 @@ dag = create_dbt_dag(
     tags=['cx', 'daily-6am']
 )
 
+# Crear el DAG frecuencia diaria 7am
+dag = create_dbt_dag(
+    dag_id='dbt_cx_daily-7am',
+    schedule_interval_tag='daily-7am',
+    default_args=default_args,
+    tags=['cx', 'daily-7am']
+)
+
 dag_4_30_am = create_dbt_dag(
     dag_id='dbt_cx_daily-4_30am',
     schedule_interval_tag='daily-4_30am',

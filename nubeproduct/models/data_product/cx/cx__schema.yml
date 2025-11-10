@@ -334,7 +334,19 @@ models:
         description: "Unique identifier of the ticket in Zendesk."
         tests:
           - not_null
-      - name: status_value
+      - name: event_id
+        description: "Monotonic event identifier from Zendesk used to guarantee deterministic ordering within each ticket."
+        tests:
+          - not_null
+      - name: assignee_id
+        description: "Latest known assignee responsible for the ticket at the moment of this satisfaction event. Forward-filled from previous assignee changes; uses -1 when no assignee existed at that point."
+        tests:
+          - not_null
+      - name: group_id
+        description: "Latest known Zendesk group associated with the ticket at the moment of this satisfaction event. Forward-filled from previous group changes; uses -1 when no group existed at that point."
+        tests:
+          - not_null
+      - name: status
         description: "Normalized (lowercased) status value captured from ticket events."
         tests:
           - not_null
@@ -372,5 +384,177 @@ models:
           - not_null
       - name: sys_audit_updated_by
         description: "System or user that last updated the row."
+        tests:
+          - not_null
+
+  - name: s__general__zendesk_satisfaction_score__event
+    description: >
+      Event-level table that tracks Zendesk ticket satisfaction score changes,
+      along with the latest known assignee_id and group_id at the moment of each
+      satisfaction event. Each row represents a point in time when a
+      satisfaction-related event occurred, after applying a forward-fill logic
+      for assignee and group attributes.
+    meta:
+      domain: "cx"
+      owner: "valeria.nascimento@nuvemshop.com.br"
+      business_owner: "Operations"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ticket_id
+            - event_id
+    columns:
+      - name: ticket_id
+        description: "Unique identifier of the ticket in Zendesk."
+        tests:
+          - not_null
+      - name: event_timestamp
+        description: "UTC timestamp when the satisfaction or related event occurred in Zendesk."
+        tests:
+          - not_null
+      - name: event_id
+        description: "Monotonic event identifier from Zendesk used to guarantee deterministic ordering within each ticket."
+        tests:
+          - not_null
+      - name: satisfaction_score
+        description: "Satisfaction score value captured at this event. Represents the most recent non-null score up to this point in time (e.g., offered, good, bad)."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['offered', 'good', 'bad']
+      - name: assignee_id
+        description: "Latest known assignee responsible for the ticket at the moment of this satisfaction event. Forward-filled from previous assignee changes; uses -1 when no assignee existed at that point."
+        tests:
+          - not_null
+      - name: group_id
+        description: "Latest known Zendesk group associated with the ticket at the moment of this satisfaction event. Forward-filled from previous group changes; uses -1 when no group existed at that point."
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created by the dbt process."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "System or user that created the row (usually the dbt job user)."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp of the most recent update to the row by the dbt process."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row (usually the dbt job user)."
+        tests:
+          - not_null
+
+  - name: s__general__zendesk_interactions__event
+    description: >
+      Event-level table that consolidates public Zendesk ticket interactions (comments/messages) with
+      enriched context: actor role, direction (in/out), conversational grouping, lag-based references
+      to previous interactions, time deltas, and the latest known assignee_id and group_id at the
+      moment of each interaction. Built from ticket comments (including legacy snapshot) joined with
+      ticket events timelines for assignee/group.
+    meta:
+      domain: "cx"
+      owner: "valeria.nascimento@nuvemshop.com.br"
+      business_owner: "Operations"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ticket_id
+            - interaction_id
+    columns:
+      - name: ticket_id
+        description: "Unique identifier of the ticket in Zendesk."
+        tests:
+          - not_null
+      - name: interaction_id
+        description: "Unique identifier of the interaction (comment/message) within the ticket timeline."
+        tests:
+          - not_null
+      - name: interaction_timestamp
+        description: "UTC timestamp when the interaction occurred."
+        tests:
+          - not_null
+      - name: author_id
+        description: "Zendesk user id that authored the interaction."
+        tests:
+          - not_null
+      - name: author_type
+        description: "Normalized author role derived from user profile (e.g., agent, end-user)."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['agent','end-user']
+      - name: interaction_type
+        description: "Direction of the interaction: 'in' (customer/end-user) or 'out' (agent)."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['in','out']
+      - name: source
+        description: "Raw source/type from comments (e.g., 'Comment', 'VoiceComment')."
+      - name: is_bot_interaction
+        description: "Flag indicating if the interaction was produced by a bot account."
+        tests:
+          - not_null
+      - name: ticket_interaction_rank
+        description: "Sequential index per ticket (chronological ordering of interactions starting at 1)."
+        tests:
+          - not_null
+      - name: interaction_group_id
+        description: "Conversational group id (gaps-and-islands) for consecutive interactions by the same author type."
+        tests:
+          - not_null
+      - name: is_start_interaction_group
+        description: "Flag indicating the first row of a consecutive interaction group."
+        tests:
+          - not_null
+      - name: is_end_interaction_group
+        description: "Flag indicating the last row of a consecutive interaction group."
+        tests:
+          - not_null
+      - name: is_start_in_interaction
+        description: "Flag indicating the first 'in' interaction after an 'out' (or at the beginning of the ticket)."
+        tests:
+          - not_null
+      - name: previous_in_interaction_id
+        description: "Interaction id of the latest prior 'in' interaction for this ticket; -1 when none exists."
+        tests:
+          - not_null
+      - name: previous_out_interaction_id
+        description: "Interaction id of the latest prior 'out' interaction for this ticket; -1 when none exists."
+        tests:
+          - not_null
+      - name: previous_in_interaction_time
+        description: "Elapsed time in seconds since the previous 'in' interaction; 0 when none exists."
+        tests:
+          - not_null
+      - name: previous_out_interaction_time
+        description: "Elapsed time in seconds since the previous 'out' interaction; 0 when none exists."
+        tests:
+          - not_null
+      - name: assignee_id
+        description: "Latest known assignee responsible for the ticket at the interaction timestamp (forward-filled); -1 when unknown."
+        tests:
+          - not_null
+      - name: group_id
+        description: "Latest known Zendesk group associated with the ticket at the interaction timestamp (forward-filled); -1 when unknown."
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created by the dbt process."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "System or user that created the row (usually the dbt job user)."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp of the most recent update to the row by the dbt process."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row (usually the dbt job user)."
         tests:
           - not_null

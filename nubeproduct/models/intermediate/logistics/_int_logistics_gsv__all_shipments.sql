@@ -76,7 +76,7 @@ FROM {{ ref('_int_logistics_gsv__filtered_delivery_order') }} fdo
     LEFT JOIN {{ ref('company_metrics_merchant_info') }} mi
       ON fdo.store_id = mi.store_id
     LEFT JOIN {{ ref('_int_logistics_gsv__shipping_info') }} spi
-      ON fdo.order_id = spi.order_id
+      ON COALESCE(ff.order_id, ao.order_id, fdo.id) = spi.order_id
     LEFT JOIN {{ ref('_int_logistics_gsv__stores_ne_enabled') }} ns
       ON fdo.store_id = ns.store_id
     LEFT JOIN {{ ref('_int_logistics_gsv__filtered_paid_orders') }} fpo

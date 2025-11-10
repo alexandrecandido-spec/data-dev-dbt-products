@@ -117,12 +117,52 @@ models:
         description: "Store identifier."
         tests:
           - not_null
+      - name: quotation_id
+        description: "Identifier for the quotation associated with this contract."
+      - name: borrower_document
+        description: "Document identifier of the borrower."
+      - name: borrower_name
+        description: "Name of the borrower."
       - name: disbursed_at
         description: "Date when the credit amount was disbursed."
+      - name: disbursed_month
+        description: "Month when the credit amount was disbursed."
+      - name: created_at
+        description: "Date when the credit proposal was created."
+      - name: updated_at
+        description: "Date when the credit proposal was last updated."
+      - name: first_installment_at
+        description: "Date when the first installment is scheduled to be paid."
+      - name: last_installment_at
+        description: "Date when the last installment is scheduled to be paid."
+      - name: status
+        description: "Status of the credit proposal."
+      - name: portfolio_type
+        description: "Type of portfolio (renegotiation or general)."
+      - name: installments_number
+        description: "Number of installments for the credit proposal."
+      - name: operation_total_taxes_amount
+        description: "Total amount of taxes for the operation."
+      - name: operation_total_costs_amount
+        description: "Total amount of costs for the operation."
+      - name: operation_gross_amount
+        description: "Gross amount of the operation. Equivalent to (operation_net_amount + operation_total_taxes_amount + operation_total_costs_amount)"
+      - name: operation_net_amount
+        description: "Net amount of the operation, equal to the amount requested by the borrower."
+      - name: interest_monthly_rate
+        description: "Monthly interest rate applied to the contract."
       - name: finished_at
         description: "Date when the credit was finalized (It could be by being renegotiated or fully paid)."
       - name: original_contract_ids
         description: "Not null only if the credit is a renegotiation. It contains all contracts ids that were renegotiated."
+      - name: lending_hub
+        description: "Hub of the credit. Currently only Mova."
+      - name: payer_id
+        description: "Identifier of the payer."
+      - name: collection_strategy
+        description: "Strategy used for collection."
+      - name: payer_state
+        description: "State of the payer."
       - name: sys_audit_created_on
         description: "Timestamp when the record was first loaded into the model. Defaults to current_timestamp if not available."
       - name: sys_audit_created_by
@@ -517,44 +557,6 @@ models:
       - name: sys_audit_updated_by
         description: "ETL audit: last updater id."
         tests: [not_null]
-  
-
-  - name: data_predictors__quality_leads
-    description: "Staging model that contains information about quality leads, such as store_id, created_at, model_id, predicted_prob and year_month_day_code."
-    config:
-      meta:
-        owner: "ronald.corcho@tiendanube.com"
-        domain: "marketing"
-        business_owner: "Giselle Galli"
-    columns:
-      - name: store_id
-        description: "Unique identifier of the store."
-        tests:
-          - not_null
-          - unique
-      - name: created_at
-        description: "Timestamp when the quality lead was created."
-        tests:
-          - not_null
-      - name: model_id
-        description: "Unique identifier of the model used to predict the quality lead."
-      - name: predicted_prob
-        description: "Estimated probability that the store will convert to a paying customer."
-        tests:
-          - not_null
-          - dbt_expectations.expect_column_values_to_be_between:
-              min_value: 0
-              max_value: 1
-      - name: year_month_day_code
-        description: "Date code in YYYYMMDD format used for partitioning or filtering."
-      - name: sys_audit_created_on
-        description: "Timestamp when the record was first loaded into the model. Defaults to current_timestamp if not available."
-      - name: sys_audit_created_by
-        description: "User or process that first loaded the record into the model. Defaults to 'data-dev-dbt-products'."
-      - name: sys_audit_updated_on
-        description: "Timestamp of the current model run when the record was processed."
-      - name: sys_audit_updated_by
-        description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
 
 
   - name: billing__receipt
@@ -1054,109 +1056,6 @@ models:
         description: "date when the label was created"
       - name: label_updated_at
         description: "date when the label was updated"
-
-  
-  - name: data_predictors__churn_predictions
-    description: "Staging model that contains information about churn predictions (Stores the outputs of the Potential Churn model):
-    - The model runs on the 1st day of each month for all active stores with a paid subscription.
-    - If a store keeps its subscription for more than one month, its `store_id` will appear multiple times in the table (one row per prediction month and model run date).
-    - Normally, the model runs once a month; however, reprocessing may occur after the 5th day.
-    - In such cases, the most recent run for each month should always be considered as the valid one.
-    - See internal documentation (https://docs.google.com/document/d/1VOUsUj_KOQp7krS9WcusGtmO1X8Yq-VJEvIaxCB8ozo/edit?tab=t.7yr9b3opplss)"
-    config:
-      meta:
-        owner: "ianca.leite@nuvemshop.com.br"
-        domain: "marketing"
-        business_owner: "Giselle Galli"
-    columns:
-      - name: store_id
-        description: "Unique identifier of the store."
-        tests:
-          - not_null
-      - name: country
-        description: "Country of the store."
-        tests:
-          - not_null
-      - name: month_end
-        description: "Date (last day of the month) representing the observation/reference period of the store."
-        tests:
-          - not_null
-      - name: timestamp
-        description: "Date of the execution of the churn prediction model."
-        tests:
-          - not_null
-      - name: life_stage
-        description: "Store lifecycle stage at the time of prediction:
-                    - A1 = Up to 30 days old
-                    - A2 = Between 1 and 6 months old
-                    - B  = More than 6 months old
-                    - C = More than 12 months old"
-        tests:
-          - not_null
-          - accepted_values:
-              values: ['A1', 'A2', 'B', 'C']
-      - name: month_segment
-        description: "Segment the store belonged to at the time of prediction."
-        tests:
-          - dbt_expectations.expect_column_values_to_be_in_set:
-              value_set: ['no-seller', 'struggling-seller', 'tiny-seller', 'small-seller', 'medium-seller', 'large-seller', 'top-seller', null]
-      - name: max_segment
-        description: "Highest segment ever reached by the store historically."
-        tests:
-          - dbt_expectations.expect_column_values_to_be_in_set:
-              value_set: ['no-seller', 'struggling-seller', 'tiny-seller', 'small-seller', 'medium-seller', 'large-seller', 'top-seller', null]
-      - name: seller_type
-        description: "Store classification according to segment:
-            - no-seller: segmento_max ∈ {null, struggling, no-seller}
-            - seller: segmento_max ≥ tiny"
-        tests:
-          - not_null
-          - dbt_expectations.expect_column_values_to_be_in_set:
-              value_set: ['no-seller', 'seller']
-      - name: profile
-        description: "Segmentation label based on life_stage and additional model features (e.g., orders, products, admin access, and sessions at different thresholds). 
-                      For more details, see the documentation (https://docs.google.com/document/d/1VOUsUj_KOQp7krS9WcusGtmO1X8Yq-VJEvIaxCB8ozo/)."
-        tests:
-          - dbt_expectations.expect_column_values_to_be_in_set:
-              value_set: ['1. Adormecido','1. Desinteressado','1. Inexperiente','2. Básico','2. Esporádico','2. Perseverante','2. Persistente','3. Baixa conversão','3. Configurado','3. Newbie','3. Regular','4. Potencial','4. Promissor','4. Regular','5. Extraordinário','5. Profissional','6. NA']
-      - name: probability
-        description: "Estimated probability (0–100%) that the store will become a seller. The higher the value, the greater the chance."
-        tests:
-          - dbt_expectations.expect_column_values_to_be_between:
-              min_value: 0.00000000001
-              max_value: 1
-              strictly: false
-      - name: threshold
-        description: "Threshold used to classify probabilities as high or low."
-        tests:
-          - not_null
-          - dbt_expectations.expect_column_values_to_be_between:
-              min_value: 0
-              max_value: 1
-              strictly: true 
-      - name: prediction
-        description: "Binary prediction outcome:
-            - 1 = store predicted as potential seller (probability ≥ cutoff)
-            - 0 = store not predicted as potential seller (probability < cutoff)"
-        tests:
-          - accepted_values:
-              values: [0, 1]
-      - name: model_id
-        description: "Unique identifier for the model name and version. Also indicates the location of the model registered in the Databricks Catalog. Format: catalog.schema.model_name/version_number"
-        tests:
-          - not_null
-      - name: year_month_code
-        description: "Date code in YYYYMM format used for identification row."
-        tests:
-          - not_null
-      - name: sys_audit_created_on
-        description: "Timestamp when the record was first loaded into the model. Defaults to current_timestamp if not available."
-      - name: sys_audit_created_by
-        description: "User or process that first loaded the record into the model. Defaults to 'data-dev-dbt-products'."
-      - name: sys_audit_updated_on
-        description: "Timestamp of the current model run when the record was processed."
-      - name: sys_audit_updated_by
-        description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
         
 
   - name: product__onboarding__store_preference_types
@@ -1263,6 +1162,8 @@ models:
         description: "Order unique identifier"
       - name: store_id
         description: "Order unique identifier"
+      - name: dispatched_at
+        description: "Dispatched date"
       - name: carrier_code
         description: "Carrier code"
       - name: delivery_option_code
@@ -2549,6 +2450,12 @@ models:
         description: "Date when the deal entered 'Downgrade' in BR onboarding."
       - name: date_entered_downgrade_onboarding_mx
         description: "Date when the deal entered 'Downgrade' in MX onboarding."
+      - name: date_entered_downgrade_ar
+        description: "Date when the deal entered 'Downgrade' in AR Upsell/Renewal pipeline)."
+      - name: date_entered_downgrade_br
+        description: "Date when the deal entered 'Downgrade' in BR Upsell/Renewal pipeline)."
+      - name: date_entered_downgrade_mx
+        description: "Date when the deal entered 'Downgrade' in MX Upsell/Renewal pipeline)."
       - name: deadline_goal
         description: "Target onboarding deadline value as a label (e.g., '30 days')."
       - name: forecast
@@ -2617,6 +2524,10 @@ models:
         description: "Secondary reason recorded for a lost deal (custom field)."
       - name: closed_lost_reason__1__nuevmshop_
         description: "Primary reason recorded for a lost deal (custom field)."
+      - name: closed_won_reason__1__nuevmshop_
+        description: "Primary reason recorded for a won deal (custom field)."
+      - name: closed_won_reason__2__nuevmshop_
+        description: "Secondary reason recorded for a won deal (custom field)."
       - name: closed_lost_notes_sales
         description: "Notes entered by Sales when the deal was lost."
       - name: date_entered_prospect_mkt_br
@@ -2677,6 +2588,10 @@ models:
         description: "Date when the deal entered 'Scheduled Opportunities' in MX."
       - name: date_entered_problem_discovery_sales_dev_mx
         description: "Date when the deal entered the Problem Discovery stage in MX Sales Dev."
+      - name: date_entered_negotiation_upsell_success_ar
+        description: "Date when the deal entered the 'Negotiation' stage in AR Upsell/Renewal pipeline."
+      - name: date_entered_negotiation_upsell_success_br
+        description: "Date when the deal entered the 'Negotiation' stage in BR Upsell/Renewal pipeline."
       - name: ne_status
         description: "Status of Nuvem Envío (shipping service) associated with the merchant."
       - name: agency_that_referred
@@ -2711,6 +2626,146 @@ models:
         description: "Date when the deal entered the 'Scheduled Opportunity' stage in BR."
       - name: subcategory
         description: "Subcategory or detailed classification for the merchant/deal."
+      - name: effective_churn_at
+        description: "Effective churn date of the merchant (cast to DATE)."
+      - name: effective_out_of_portfolio_at
+        description: "Date when the merchant was effectively marked as out of portfolio (cast to DATE)."
+      - name: sys_audit_is_deleted
+        description: "Flag indicating if the deal was deleted in HubSpot since last extraction."
+      - name: sys_audit_extracted_on
+        description: "Timestamp of when the record was extracted from HubSpot (raw layer)."
+      - name: forecast_lider_judgement
+        description: "Forecast judgment or qualitative assessment provided by the sales leader."
+      - name: macro_motivo_de_perda___np
+        description: "Macro reason for deal loss (custom HubSpot field)."
+      - name: micro_motivo_de_perda_np
+        description: "Detailed micro reason for deal loss (custom HubSpot field)."
+      - name: special_condition
+        description: "Indicates whether the deal involves a special condition (e.g., discount, exception)."
+      - name: special_condition___reason
+        description: "Reason or justification associated with the special condition."
+      - name: cross_sell
+        description: "Flag indicating if the deal represents a cross-sell opportunity."
+      - name: contract_end_date
+        description: "Contract end date associated with the merchant or deal."
+      - name: date_entered_won_br
+        description: "Date when the deal entered the 'Won' stage in BR."
+      - name: date_entered_won_ar
+        description: "Date when the deal entered the 'Won' stage in AR."
+      - name: date_entered_won_mx
+        description: "Date when the deal entered the 'Won' stage in MX."
+      - name: date_entered_problem_discovery_mx
+        description: "Date when the deal entered the 'Problem Discovery' stage in MX (Sales)."
+      - name: no_show_date
+        description: "Date when a scheduled meeting with the prospect was missed (no-show)."
+      - name: close_date_sales
+        description: "Date recorded by Sales as the official close date for the deal."
+      - name: competitor_identified
+        description: "Competitor identified during the sales process, if any."
+      - name: lead_channel
+        description: "Sales or marketing channel through which the lead was acquired."
+      - name: segmento_ne
+        description: "Segment classification related to Nuvem Envío."
+      - name: freight_calculation
+        description: "Freight calculation type used by the merchant (e.g., manual, automatic, API)."
+      - name: date_entered_open_ne_discovery_br
+        description: "Date when the deal entered the 'Open NE Discovery' stage in BR."
+      - name: date_entered_lost_br
+        description: "Date when the deal entered the 'Lost' stage in BR (cast to DATE)."
+      - name: date_entered_problem_discovery_br
+        description: "Date when the deal entered the 'Problem Discovery' stage in BR (cast to DATE)."
+      - name: date_exited_problem_discovery_br
+        description: "Date when the deal exited the 'Problem Discovery' stage in BR (cast to DATE)."
+      - name: closed_won_reason__1__nuevmshop_
+        description: "Primary reason recorded for a Closed Won deal (custom field)."
+      - name: closed_won_reason__2__nuevmshop_
+        description: "Secondary reason recorded for a Closed Won deal (custom field)."
+      - name: closed_won_notes_sales
+        description: "Sales notes associated with the Closed Won outcome."
+      - name: date_entered_scheduled_opportunities_sales_ar
+        description: "Date when the deal entered 'Scheduled Opportunities' in AR (Sales pipeline) (cast to DATE)."
+      - name: date_entered_problem_discovery_ar
+        description: "Date when the deal entered the 'Problem Discovery' stage in AR (Sales) (cast to DATE)."
+      - name: date_exited_problem_discovery_ar
+        description: "Date when the deal exited the 'Problem Discovery' stage in AR (Sales) (cast to DATE)."
+      - name: date_entered_scheduled_opportunities_sales_mx
+        description: "Date when the deal entered 'Scheduled Opportunities' in MX (Sales pipeline) (cast to DATE)."
+      - name: date_entered_lost_ar
+        description: "Date when the deal entered the 'Lost' stage in AR (cast to DATE)."
+      - name: lead_source_ne
+        description: "Lead source associated with Nuvem Envío (shipping) initiatives. (Assumption — please confirm)"
+      - name: top_pain_1_type
+        description: "Primary pain point category identified for the merchant. (Assumption — please confirm)"
+      - name: top_pain_2_type
+        description: "Secondary pain point category identified for the merchant. (Assumption — please confirm)"
+      - name: closed_won_reason_1_upsell
+        description: "Primary reason for an upsell recorded on a Closed Won event. (Assumption — please confirm)"
+      - name: date_entered_warning_br
+        description: "Date when the deal/store entered a 'Warning' status in BR (cast to DATE). (Assumption — please confirm meaning of 'Warning')"
+      - name: out_of_portfolio_one_liner
+        description: "Short one-liner summary explaining why the merchant is out of portfolio. (Assumption — please confirm)"
+      - name: out_of_portfolio_root_cause
+        description: "Primary root cause explaining out-of-portfolio status. (Assumption — please confirm)"
+      - name: date_exited_warning_br
+        description: "Date when the deal/store exited the 'Warning' status in BR (cast to DATE). (Assumption — please confirm)"
+      - name: top_pain_1_github_id
+        description: "Reference GitHub issue/record ID related to the primary pain point. (Assumption — please confirm)"
+      - name: warning_type
+        description: "Category/type of Warning status. (Assumption — please confirm)"
+      - name: warning_summary
+        description: "Short summary describing the Warning status. (Assumption — please confirm)"
+      - name: warning_root_cause_1
+        description: "Primary root cause associated with the Warning status. (Assumption — please confirm)"
+      - name: pre_mortem_file_url
+        description: "URL to pre-mortem document/file for risk assessment. (Assumption — please confirm)"
+      - name: top_pain_2_github_id
+        description: "Reference GitHub issue/record ID related to the secondary pain point. (Assumption — please confirm)"
+      - name: date_entered_downgrade_br
+        description: "Date when the account entered a 'Downgrade' status in BR (cast to DATE). (Assumption — please confirm scope)"
+      - name: not_unknown_reason
+        description: "Boolean flag indicating the reason is known (i.e., not 'Unknown'). (Assumption — please confirm data type/semantics)"
+      - name: out_of_portfolio_root_cause_2
+        description: "Secondary root cause for out-of-portfolio status. (Assumption — please confirm)"
+      - name: effective_churn_one_liner
+        description: "Short one-liner summary for effective churn. (Assumption — please confirm)"
+      - name: effective_churn_root_cause
+        description: "Primary root cause associated with effective churn. (Assumption — please confirm)"
+      - name: post_mortem_file_url
+        description: "URL to post-mortem document/file after churn/incident. (Assumption — please confirm)"
+      - name: date_entered_downgrade_ar
+        description: "Date when the account entered a 'Downgrade' status in AR (cast to DATE). (Assumption — please confirm scope)"
+      - name: warning_root_cause_2
+        description: "Secondary root cause associated with the Warning status. (Assumption — please confirm)"
+      - name: date_entered_effective_churn_ar
+        description: "Date when effective churn was recorded in AR (cast to DATE)."
+      - name: date_entered_effective_churn_br
+        description: "Date when effective churn was recorded in BR (cast to DATE)."
+      - name: date_entered_effective_churn_mx
+        description: "Date when effective churn was recorded in MX (cast to DATE)."
+      - name: other_relevant_pains
+        description: "Free-text list/description of other relevant pains. (Assumption — please confirm format)"
+      - name: date_entered_warning_mx
+        description: "Date when the deal/store entered a 'Warning' status in MX (cast to DATE). (Assumption — please confirm meaning of 'Warning')"
+      - name: date_entered_downgrade_mx
+        description: "Date when the account entered a 'Downgrade' status in MX (cast to DATE). (Assumption — please confirm scope)"
+      - name: effective_churn_root_cause_2
+        description: "Secondary root cause associated with effective churn. (Assumption — please confirm)"
+      - name: date_entered_warning_ar
+        description: "Date when the deal/store entered a 'Warning' status in AR (cast to DATE). (Assumption — please confirm meaning of 'Warning')"
+      - name: date_exited_warning_mx
+        description: "Date when the deal/store exited the 'Warning' status in MX (cast to DATE). (Assumption — please confirm)"
+      - name: consider_unknown
+        description: "Boolean flag indicating the case should be treated as 'Unknown' pending more info. (Assumption — please confirm semantics)"
+      - name: date_entered_transition_to_customer_success_onboarding__ar
+        description: "Date when the deal transitioned to Customer Success Onboarding in AR (cast to DATE). (Assumption — please confirm stage name)"
+      - name: date_entered_transition_to_customer_success_onboarding__br
+        description: "Date when the deal transitioned to Customer Success Onboarding in BR (cast to DATE). (Assumption — please confirm stage name)"
+      - name: date_exited_warning_ar
+        description: "Date when the deal/store exited the 'Warning' status in AR (cast to DATE). (Assumption — please confirm)"
+      - name: date_exited_effective_churn_br
+        description: "Date when the record exited the effective churn status in BR (cast to DATE). (Assumption — please confirm whether this exists operationally)"
+      - name: date_exited_effective_churn_ar
+        description: "Date when the record exited the effective churn status in AR (cast to DATE). (Assumption — please confirm whether this exists operationally)"
       - name: sys_audit_created_on
         description: "Timestamp when the record was first loaded into the model."
         tests:
@@ -3468,8 +3523,6 @@ models:
     columns:
       - name: store_id
         description: "Unique identifier of the store"
-        tests:
-          - not_null
       - name: deal_id
         description: "Unique identifier of the HubSpot deal"
         tests:
@@ -3602,3 +3655,206 @@ models:
         description: "Timestamp of the current model run when the record was processed."
       - name: sys_audit_updated_by
         description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
+  
+  - name: nuvem_pago__chargebacks__chargebacks__event
+    description: "Staging model that contains the chargebacks from Nuvem Pago."
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "product"
+        business_owner: "Martin Palombo"
+    columns:
+      - name: _id
+        description: "Unique identifier of the chargeback."
+        tests:
+          - not_null
+          - unique
+      - name: createdAt_date
+        description: "Date when the chargeback was created."
+      - name: amount
+        description: "Amount of the chargeback."
+      - name: chargeback
+        description: "Additional data of the chargeback (deadline, reason, status, etc.)"
+      - name: createdAt
+        description: "Timestamp when the chargeback was created."
+      - name: customer
+        description: "Data from the customer that made the chargeback."
+      - name: events
+        description: "Events of the chargeback and timestamps"
+      - name: failureReason
+        description: "Failure reason of the chargeback."
+      - name: orderId
+        description: "Order identifier of the order with the chargeback."
+      - name: orderNumber
+        description: "Order number of the order with the chargeback."
+      - name: origin
+        description: "Origin of the chargeback."
+      - name: paidAt
+        description: "Timestamp when the order was paid."
+      - name: paymentMethod
+        description: "Payment method of the order with the chargeback."
+      - name: remainingAmountToRefund
+        description: "Remaining amount to refund"
+      - name: status
+        description: "Status of the chargeback (resolved_insurance, resolved_without_dispute, etc.)"
+      - name: storeId
+        description: "Store identifier of the store with the chargeback."
+      - name: transactionId
+        description: "Transaction identifier of the transaction with the chargeback."
+      - name: updatedAt
+        description: "Timestamp when the chargeback was last updated."
+      - name: cascadia_event_timestamp
+        description: "Timestamp when the event was created in the cascadia platform."
+      - name: source_event_timestamp
+        description: "Timestamp when the event was created in the source system."
+      - name: source_event_order
+        description: "Order identifier of the order with the event in the source system."
+      - name: year_month_code
+        description: "Year and month code in YYYYMM format."
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model."
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model."
+      - name: sys_audit_updated_on
+        description: "Timestamp when the record was last updated."
+      - name: sys_audit_updated_by
+        description: "User or process that last updated the record."
+
+  - name: marketing__product_marketing__admin_access__event
+    description: "Staging model for store admin access events. Filters and prepares data from mwp_store_access for consumption in GOLD models. Only includes access events from stores created after 2024-01-01."
+    config:
+      meta:
+        owner: "jhu.boggio@tiendanube.com"
+        domain: "marketing"
+        business_owner: "Giselle Galli"
+    columns:
+      - name: id
+        description: "Unique identifier of the access event."
+        tests:
+          - not_null
+          - unique
+      - name: store_id
+        description: "Unique identifier of the store."
+        tests:
+          - not_null
+      - name: created_at
+        description: "Timestamp when the access event occurred."
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first inserted into this table."
+      - name: sys_audit_created_by
+        description: "User or process that first inserted the record."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the most recent update to the record."
+      - name: sys_audit_updated_by
+        description: "User or process that performed the last update."
+  - name: marketing__product_marketing__lifecycle_registrados_webinars__event
+    description: "Manual webinar registrations enriched with store_id via email mapping (keeps rows with NULL store_id). One row per raw registration record. No tag logic here. Includes sys_audit_* fields, is partitioned by year_month_day_code, and is materialized incrementally (merge)."
+    config:
+      meta:
+        owner: "sofia.torres@tiendanube.com"
+        domain: "marketing"
+        business_owner: "Giselle Galli"
+    columns:
+      - name: store_id
+        description: "Store identifier mapped by email (nullable if no match)."
+      - name: mapping_method
+        description: "Mapping strategy used to derive store_id from the source (email vs none)."
+      - name: id
+        description: "Source-provided unique identifier for the webinar registration (if present)."
+      - name: email
+        description: "Registrant email (lowercased and trimmed)."
+      - name: firstName
+        description: "Registrant first name (as provided by source)."
+      - name: lastName
+        description: "Registrant last name (as provided by source)."
+      - name: phone
+        description: "Registrant phone (as provided by source)."
+      - name: status
+        description: "Registration status (normalized to lowercase): registered, live, or on demand/on-demand."
+      - name: webinar
+        description: "Webinar name/title."
+      - name: webinar_date
+        description: "Webinar date/time as provided by the source."
+      - name: webinar_code
+        description: "Webinar code/slug (trimmed; may be NULL)."
+      - name: country
+        description: "Country provided by the source."
+      - name: year_month_day_code
+        description: "Daily partition code YYYYMMDD derived from webinar_date."
+      - name: sys_audit_created_on
+        description: "Creation timestamp for audit purposes (preserved across updates)."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "Process/user that created the record (audit)."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Last update timestamp for audit purposes."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "User/process that last updated the record (audit)."
+        tests:
+          - not_null
+      - name: row_hash
+        description: "MD5 hash of determinative content plus mapping fields used for CDC/merge."
+        tests:
+          - not_null
+
+  - name: marketing__acquisition__project_ms_base__domain
+    description: "Manual Merchant Sellers base (A–S and T–Z sheets) unified into a single table and enriched with store_id by domain mapping. Preserves all raw rows even when no store_id match is found. No tag logic here. Includes sys_audit_* fields, is partitioned by year_month_day_code, and is materialized incrementally (merge)."
+    config:
+      meta:
+        owner: "sofia.torres@tiendanube.com"
+        domain: "marketing"
+        business_owner: "Giselle Galli"
+    columns:
+      - name: store_id
+        description: "Store identifier mapped by domain (nullable if no match or ambiguous)."
+      - name: mapping_method
+        description: "Mapping strategy used to derive store_id from domain."
+      - name: domain
+        description: "Raw domain (lowercased and trimmed) from the manual source."
+      - name: emails
+        description: "Raw emails field from the manual source (string/array as ingested)."
+      - name: phones
+        description: "Raw phones field from the manual source (string/array as ingested)."
+      - name: instagram_url
+        description: "Instagram URL as provided by the source."
+      - name: platform
+        description: "Platform normalized to lowercase (e.g., shopify, woocommerce), when present."
+      - name: estimated_monthly_sales
+        description: "Estimated monthly sales parsed to numeric (when available)."
+      - name: peso
+        description: "Weight/score field from the manual source, if present."
+      - name: repeated_domain
+        description: "Indicates repeated/duplicated domain according to the manual source (raw value)."
+      - name: disparos
+        description: "Count or indicator of external 'shots/contacts' from the manual source."
+      - name: disparo_date
+        description: "First contact/shot date parsed as DATE (when present)."
+      - name: year_month_day_code
+        description: "Daily partition code YYYYMMDD derived from disparo_date (NULL if no date was provided)."
+      - name: sys_audit_created_on
+        description: "Creation timestamp for audit purposes (preserved across updates)."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "Process/user that created the record (audit)."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Last update timestamp for audit purposes."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "User/process that last updated the record (audit)."
+        tests:
+          - not_null
+      - name: row_hash
+        description: "MD5 hash of determinative content plus mapping fields (used for CDC/merge)."
+        tests:
+          - not_null
