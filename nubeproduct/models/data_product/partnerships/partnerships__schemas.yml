@@ -282,44 +282,6 @@ models:
       - name: first_seller_flg
         description: Flag indicating if the store has made a first sale.
 
-  - name: g__agencies__stores_gmv_orders__agg_daily
-    config:
-      meta:
-        owner: "felipe.lorenzo@tiendanube.com"
-        domain: "partnerships"
-        business_owner: "Franco Tiberti"
-    description: >
-      Daily performance summary of stores associated with a partner.
-    columns:
-      - name: store_id
-        description: "Unique identifier of the store."
-        tests:
-          - not_null
-      - name: order_date
-        description: "Date of the order."
-        tests:
-          - not_null
-      - name: gmv_local_currency_daily
-        description: "GMV in local currency for the day."
-        tests:
-          - not_null
-      - name: gmv_usd_daily
-        description: "GMV in USD for the day."
-        tests:
-          - not_null
-      - name: orders_daily
-        description: "Number of orders for the day."
-        tests:
-          - not_null  
-      - name: sys_audit_created_on
-        description: "Date and time when the row was initially created in the summary table."
-      - name: sys_audit_created_by
-        description: "Source or user responsible for the initial row creation."
-      - name: sys_audit_updated_on
-        description: "Timestamp of the latest update to the row."
-      - name: sys_audit_updated_by
-        description: "Source or user responsible for the latest update."
-
   - name: g__agencies__performance_summary__agg_snapshot_weekly
     config:
       meta:
