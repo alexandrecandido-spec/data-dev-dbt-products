@@ -1,13 +1,13 @@
 {{ config(
   materialized='incremental',
   incremental_strategy='merge',
-  unique_key=['id'],                           
+  unique_key=['id'],
   partition_by=['year_month_day_code'],
   on_schema_change='fail',
   tags=['daily-6am','marketing']
 ) }}
 
--- 0) estado actual (para preservar created_* y evitar upsert si no cambió)
+-- 0) estado actual 
 WITH existing AS (
   {% if is_incremental() %}
   SELECT
@@ -26,34 +26,34 @@ WITH existing AS (
   {% endif %}
 ),
 
--- 1) wp_users normalizado: email, store, fechas y ID
-wp AS (
+-- 1) emails de identidad normalizados
+identity_emails AS (
   SELECT
-    LOWER(TRIM(user_email))                      AS email_lc,
-    CAST(store_id AS BIGINT)                     AS store_id,
-    CAST(ID AS BIGINT)                           AS wp_user_id,
-    CAST(account_confirmed_at AS TIMESTAMP)      AS account_confirmed_at,
-    CAST(user_registered      AS TIMESTAMP)      AS user_registered
-  FROM {{ source('stg_moltres','wp_users') }}
+    LOWER(TRIM(user_email))                   AS email_lc,
+    CAST(store_id        AS BIGINT)          AS store_id,
+    CAST(main_user_id    AS BIGINT)          AS main_user_id,
+    CAST(tiendanube_app_installed_at AS TIMESTAMP) AS app_installed_at,
+    CAST(user_registered_at        AS TIMESTAMP)   AS user_registered_at
+  FROM {{ ref('s__attributes__store_identity__ref') }}
   WHERE user_email IS NOT NULL AND TRIM(user_email) <> ''
 ),
 
 -- 2) elegir UNA store por email:
---    1) max(COALESCE(account_confirmed_at, user_registered))
+--    1) más reciente por COALESCE(app_installed_at, user_registered_at)
 --    2) si empata: store_id más alto
---    3) si empata: wp_user_id más alto
+--    3) si sigue empatando: main_user_id más alto
 email_pick AS (
   SELECT email_lc, store_id
   FROM (
     SELECT
-      w.*,
+      i.*,
       ROW_NUMBER() OVER (
-        PARTITION BY w.email_lc
-        ORDER BY COALESCE(w.account_confirmed_at, w.user_registered) DESC,
-                 w.store_id DESC,
-                 w.wp_user_id DESC
+        PARTITION BY i.email_lc
+        ORDER BY COALESCE(i.app_installed_at, i.user_registered_at) DESC,
+                 i.store_id DESC,
+                 i.main_user_id DESC
       ) AS rn
-    FROM wp w
+    FROM identity_emails i
   ) x
   WHERE rn = 1
 ),
@@ -62,7 +62,7 @@ email_pick AS (
 raw AS (
   SELECT
     ep.store_id                                                            AS store_id,
-    CASE WHEN ep.store_id IS NOT NULL THEN 'email' ELSE 'none' END         AS mapping_method,
+    CASE WHEN ep.store_id IS NOT NULL THEN 'email_store_identity' ELSE 'none' END AS mapping_method,
 
     -- crudos (normalizados)
     CAST(w.id AS {{ dbt.type_string() }})                                  AS id,
@@ -70,7 +70,7 @@ raw AS (
     w.firstName, w.lastName, w.phone,
     LOWER(TRIM(w.status))                                                  AS status,
     w.webinar,
-    {{ marketing_mpt_parse_ts("w.webinar_date") }} AS webinar_date,
+    {{ marketing_mpt_parse_ts("w.webinar_date") }}                         AS webinar_date,
     NULLIF(TRIM(w.webinar_code),'')                                        AS webinar_code,
     w.country
   FROM {{ source('stg_unity_data_manual','ext__marketing__product_marketing__lifecycle_registrados_webinars') }} w
@@ -78,7 +78,7 @@ raw AS (
     ON ep.email_lc = LOWER(TRIM(w.email))
 ),
 
--- 4) partición (evitar NULL en partición)
+-- 4) partición 
 with_keys AS (
   SELECT
     r.*,
@@ -91,8 +91,7 @@ with_keys AS (
   FROM raw r
 ),
 
-
--- 5) row_hash con "todos los campos de negocio" (sin sys_audit_* ni partición)
+-- 5) row_hash con "todos los campos de negocio"
 with_hash AS (
   SELECT
     wk.*,
@@ -130,5 +129,13 @@ to_upsert AS (
   WHERE e.row_hash IS NULL OR e.row_hash <> wh.row_hash
 )
 
-SELECT *
+-- 7) resultado
+SELECT
+  store_id, mapping_method,
+  id, email, firstName, lastName, phone,
+  status, webinar, webinar_date, webinar_code, country,
+  year_month_day_code,
+  sys_audit_created_on, sys_audit_created_by,
+  sys_audit_updated_on, sys_audit_updated_by,
+  row_hash
 FROM to_upsert
