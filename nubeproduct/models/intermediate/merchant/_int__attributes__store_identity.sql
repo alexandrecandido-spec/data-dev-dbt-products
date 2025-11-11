@@ -18,18 +18,73 @@ El modelo SILVER solo consumirá este intermediate y manejará la incrementalida
 WITH store_base AS (
     SELECT
         s.store_id,
-        s.main_user_id
-    FROM {{ ref('s__attributes__store_core__ref') }} s
-    WHERE s.created_at > '2024-01-01'
+        s.main_user_id,
+        s.state,
+        s.sys_audit_updated_on
+    FROM {{ ref('merchant__attributes__store_info__ref') }} s
 ),
 
--- Información i18n de la tienda (nombre y descripción)
-store_i18n AS (
-    SELECT
-        store_id,
-        store_name,
-        store_description
-    FROM {{ source('int_moltres', 'mwp_store_settings_i18n') }}
+-- store_name desde i18n (última versión)
+latest_name_description as (
+  select store_id, nullif(trim(name), '') as store_name, store_description, sys_audit_updated_on
+  from (
+    select
+      ss.store_id,
+      i18n.name,
+      i18n.description as store_description,
+      i18n.sys_audit_updated_on,
+      row_number() over (partition by ss.store_id order by i18n.id desc) as rnk
+    from {{ source('int_moltres','mwp_store_settings') }} ss
+    left join {{ source('int_moltres','mwp_store_settings_i18n') }} i18n
+      on ss.id = i18n.store_setting_id
+  ) t
+  where rnk = 1
+),
+
+
+-- mejor candidato de doc desde invoice_info
+merchant_id as (
+  select
+    m.store_id,
+    upper(trim(m.id_type)) as id_type,
+    trim(m.id_number)      as id_number,
+    row_number() over (
+      partition by m.store_id
+      order by case upper(trim(m.id_type))
+                 when 'CNPJ' then 0 when 'CPF' then 0 when 'CUIT' then 0
+                 when 'RUT'  then 0 when 'RFC' then 0 when 'DNI'  then 0
+                 else 9 end,
+               m.name asc
+    ) as rn
+  from {{ source('int_moltres','mwp_invoice_info') }} m
+),
+
+-- fallback: business_id si no hay invoice_info
+biz as (
+  select
+    ss.store_id,
+    trim(ss.business_id) as business_id
+  from {{ source('int_moltres','mwp_store_settings') }} ss
+),
+
+docs as (
+  select
+    b.store_id,
+    case
+      when mi.id_type in ('CNPJ','CPF','CUIT','RUT','RFC','DNI') then mi.id_type
+      when bz.business_id is not null then 'UNKNOWN'
+      else null
+    end as doc_type,
+    nullif(
+      case
+        when mi.id_type in ('CNPJ','CPF','CUIT','RUT','RFC','DNI')
+          then regexp_replace(mi.id_number, '[^0-9A-Z]', '')
+        else regexp_replace(bz.business_id, '[^0-9A-Z]', '')
+      end
+    , '') as doc_number
+  from store_base b
+  left join (select * from merchant_id where rn = 1) mi on b.store_id = mi.store_id
+  left join biz bz on b.store_id = bz.store_id
 ),
 
 -- Configuración de la tienda (teléfonos, redes sociales)
@@ -49,17 +104,9 @@ store_settings AS (
         facebook,
         twitter,
         tiktok,
-        pinterest
+        pinterest,
+        sys_audit_updated_on
     FROM {{ source('stg_moltres', 'mwp_store_settings') }}
-),
-
--- Información de documentos fiscales
-invoice_info AS (
-    SELECT
-        store_id,
-        id_type AS doc_type,
-        id_number AS doc_number
-    FROM {{ source('stg_moltres', 'mwp_invoice_info') }}
 ),
 
 -- Información del usuario principal
@@ -73,8 +120,9 @@ main_user AS (
         wu.first_name AS user_first_name,
         wu.last_name AS user_last_name,
         wu.user_nicename,
-        wu.user_registered_at,
-        wu.user_role
+        wu.user_registered AS user_registered_at,
+        wu.role AS user_role,
+        wu.sys_audit_updated_on
     FROM {{ source('int_moltres', 'wp_users') }} wu
     -- No filtramos por deleted porque si el usuario es el main_user_id oficial,
     -- debemos incluirlo sin importar su estado de eliminación
@@ -82,34 +130,47 @@ main_user AS (
 
 -- Información del tema activo
 theme_info AS (
-    SELECT
-        opt.store_id,
-        opt.option_value AS active_theme,
-        MIN(opt.created_at) AS first_date_config_theme,
-        MAX(opt.created_at) AS last_date_config_theme
-    FROM {{ source('stg_moltres', 'mwp_options') }} opt
-    WHERE opt.option_name = 'twig_template'
-    GROUP BY opt.store_id, opt.option_value
+    SELECT 
+    active_theme.*
+    FROM (
+        SELECT
+            t.store_id,
+            t.active_theme,
+            t.first_date_config_theme,
+            t.last_date_config_theme,
+            ROW_NUMBER() OVER (PARTITION BY t.store_id ORDER BY t.last_date_config_theme DESC) AS rn
+        FROM (
+            SELECT
+                opt.store_id,
+                opt.option_value AS active_theme,
+                MIN(opt.created_at) AS first_date_config_theme,
+                MAX(opt.created_at) AS last_date_config_theme
+            FROM {{ source('stg_moltres', 'mwp_options') }} opt
+            WHERE opt.option_name = 'twig_template'
+            GROUP BY opt.store_id, opt.option_value
+        ) t
+    ) active_theme
+    WHERE rn = 1
 ),
 
--- Obtener el tema más reciente por tienda
-theme_latest AS (
+---Informacion de instalacion de APP nuvemshop/Tendanube
+app_info AS (
     SELECT
-        store_id,
-        active_theme,
-        first_date_config_theme,
-        last_date_config_theme,
-        ROW_NUMBER() OVER (PARTITION BY store_id ORDER BY last_date_config_theme DESC) AS rn
-    FROM theme_info
+    p.store_id,
+    min(p.app_install_date) as tiendanube_app_installed_at
+    FROM {{ ref('moltres__platform_mwp_apps_stores') }} p 
+    WHERE p.app_id = 2602
+    GROUP BY 1
 )
 
 SELECT
     sb.store_id,
+    sb.state,
     sb.main_user_id,
     
     -- Información de la tienda
-    si18n.store_name,
-    si18n.store_description,
+    nd.store_name,
+    nd.store_description,
     
     -- Información de contacto
     mu.user_email,
@@ -137,12 +198,19 @@ SELECT
     -- Tema
     tl.active_theme,
     tl.first_date_config_theme,
-    tl.last_date_config_theme
+    tl.last_date_config_theme,
+
+    -- Informacion de instalacion de APP nuvemshop/Tendanube
+    ai.tiendanube_app_installed_at,
+
+    -- Auditoría incremental
+    greatest(sb.sys_audit_updated_on, nd.sys_audit_updated_on, ss.sys_audit_updated_on, mu.sys_audit_updated_on, tl.last_date_config_theme, ai.tiendanube_app_installed_at) as change_timestamp
 
 FROM store_base sb
-LEFT JOIN store_i18n si18n ON sb.store_id = si18n.store_id
+LEFT JOIN latest_name_description nd ON sb.store_id = nd.store_id
 LEFT JOIN store_settings ss ON sb.store_id = ss.store_id
-LEFT JOIN invoice_info ii ON sb.store_id = ii.store_id
+LEFT JOIN docs ii ON sb.store_id = ii.store_id
 LEFT JOIN main_user mu ON sb.store_id = mu.store_id AND sb.main_user_id = mu.user_id
-LEFT JOIN theme_latest tl ON sb.store_id = tl.store_id AND tl.rn = 1
+LEFT JOIN theme_info tl ON sb.store_id = tl.store_id 
+LEFT JOIN app_info ai ON sb.store_id = ai.store_id
 

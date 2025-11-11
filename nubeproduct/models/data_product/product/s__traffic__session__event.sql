@@ -2,10 +2,14 @@
 
 {{ config(
    materialized = 'incremental',
+   incremental_strategy = 'merge',
    unique_key = 'unique_session_key',
    partition_by = 'base_date',
    on_schema_change = 'fail',
-   tags = ['product', 'daily-3am']
+   tags = ['daily-3am'],
+   pre_hook = [
+        "DELETE FROM {{ this }} WHERE base_date = DATE('2024-09-23')"
+    ]
 ) }}
 
 WITH swd AS (
@@ -17,7 +21,7 @@ WHERE
    {% if not is_incremental() %}
    base_date BETWEEN DATE('2024-01-01') AND DATE('2024-01-05')
    {% else %}
-   base_date {{ get_max_date(this, 'base_date', 2, 'week') }}
+   base_date = DATE('2024-09-23')
    {% endif %}
 )
 
@@ -30,7 +34,7 @@ WHERE
    {% if not is_incremental() %}
    base_date BETWEEN DATE('2024-01-01') AND DATE('2024-01-05')
    {% else %}
-   base_date {{ get_max_date(this, 'base_date', 2, 'week') }}
+   base_date = DATE('2024-09-23')
    {% endif %}
 )
 
@@ -43,7 +47,7 @@ WHERE
    {% if not is_incremental() %}
    base_date BETWEEN DATE('2024-01-01') AND DATE('2024-01-05')
    {% else %}
-   base_date {{ get_max_date(this, 'base_date', 2, 'week') }}
+   base_date = DATE('2024-09-23')
    {% endif %}
 )
 
@@ -98,44 +102,35 @@ FROM (
 WHERE row_num = 1
 )
 
-, existing_data AS (
-    {{ get_existing_data(this, ['unique_session_key'])}}
-)
-
 SELECT
-   dds.unique_session_key
-   , dds.session_timestamp
-   , dds.base_date
-   , dds.session_id
-   , dds.consumer_id
-   , dds.store_id
-   , dds.visitor_country
-   , dds.device
-   , dds.theme
-   , dds.user_agent
-   , dds.ip_address
-   , dds.utm_source
-   , dds.utm_medium
-   , dds.utm_campaign
-   , dds.utm_term
-   , dds.utm_content
-   , dds.landing_page
-   , dds.http_referral
-   , dds.ref_domain
-   , dds.land_domain
-   , dds.source_name
-   , dds.source_group
-   , dds.google_subchannel
-   , dds.traffic_type
-   , dds.is_end_user
+    unique_session_key
+    , session_timestamp
+    , base_date
+    , session_id
+    , consumer_id
+    , store_id
+    , visitor_country
+    , device
+    , theme
+    , user_agent
+    , ip_address
+    , utm_source
+    , utm_medium
+    , utm_campaign
+    , utm_term
+    , utm_content
+    , landing_page
+    , http_referral
+    , ref_domain
+    , land_domain
+    , source_name
+    , source_group
+    , google_subchannel
+    , traffic_type
+    , is_end_user
     , CURRENT_TIMESTAMP AS sys_audit_created_on
     , 'data-dev-dbt-products' AS sys_audit_created_by
     , CURRENT_TIMESTAMP AS sys_audit_updated_on
     , 'data-dev-dbt-products' AS sys_audit_updated_by
 FROM
-   deduped_sessions AS dds
-LEFT JOIN
-   existing_data
-   ON dds.unique_session_key = existing_data.unique_session_key
-WHERE
-    existing_data.unique_session_key IS NULL
+   deduped_sessions 
