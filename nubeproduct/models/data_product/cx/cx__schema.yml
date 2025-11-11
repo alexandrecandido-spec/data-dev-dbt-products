@@ -485,7 +485,7 @@ models:
         tests:
           - not_null
           - accepted_values:
-              values: ['agent','end-user']
+              values: ['admin','agent','end-user']
       - name: interaction_type
         description: "Direction of the interaction: 'in' (customer/end-user) or 'out' (agent)."
         tests:
