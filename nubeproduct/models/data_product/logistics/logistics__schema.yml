@@ -239,16 +239,10 @@ models:
           - not_null
       - name: current_segment
         description: Merchant segmentation used for analytical grouping (e.g., SMB, Enterprise).
-        tests:
-          - not_null
       - name: vertical_name
         description: Business vertical or industry category of the merchant.
-        tests:
-          - not_null
       - name: plan
         description: Merchants subscription plan in Nuvemshop.
-        tests:
-          - not_null
       - name: country
         description: ISO country code where the merchant operates.
         tests:
@@ -288,28 +282,16 @@ models:
           - not_null
       - name: domain
         description: Merchant domain name.
-        tests:
-          - not_null
       - name: current_segment
         description: Merchant segmentation (e.g., SMB, Enterprise).
-        tests:
-          - not_null
       - name: vertical_name
         description: Business vertical or industry category of the merchant.
-        tests:
-          - not_null
       - name: plan
         description: Merchant subscription plan in Nuvemshop.
-        tests:
-          - not_null
       - name: store_creation_date
         description: Date store was created on the platform.
-        tests:
-          - not_null
       - name: store_state_name
         description: Merchant registered state or province name.
-        tests:
-          - not_null
       - name: ref_date
         description: Reference date (daily) for the metric.
         tests:

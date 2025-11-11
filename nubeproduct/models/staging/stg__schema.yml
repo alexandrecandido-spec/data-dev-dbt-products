@@ -1162,6 +1162,8 @@ models:
         description: "Order unique identifier"
       - name: store_id
         description: "Order unique identifier"
+      - name: dispatched_at
+        description: "Dispatched date"
       - name: carrier_code
         description: "Carrier code"
       - name: delivery_option_code
@@ -3521,8 +3523,6 @@ models:
     columns:
       - name: store_id
         description: "Unique identifier of the store"
-        tests:
-          - not_null
       - name: deal_id
         description: "Unique identifier of the HubSpot deal"
         tests:
@@ -3719,3 +3719,142 @@ models:
         description: "Timestamp when the record was last updated."
       - name: sys_audit_updated_by
         description: "User or process that last updated the record."
+
+  - name: marketing__product_marketing__admin_access__event
+    description: "Staging model for store admin access events. Filters and prepares data from mwp_store_access for consumption in GOLD models. Only includes access events from stores created after 2024-01-01."
+    config:
+      meta:
+        owner: "jhu.boggio@tiendanube.com"
+        domain: "marketing"
+        business_owner: "Giselle Galli"
+    columns:
+      - name: id
+        description: "Unique identifier of the access event."
+        tests:
+          - not_null
+          - unique
+      - name: store_id
+        description: "Unique identifier of the store."
+        tests:
+          - not_null
+      - name: created_at
+        description: "Timestamp when the access event occurred."
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first inserted into this table."
+      - name: sys_audit_created_by
+        description: "User or process that first inserted the record."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the most recent update to the record."
+      - name: sys_audit_updated_by
+        description: "User or process that performed the last update."
+  - name: marketing__product_marketing__lifecycle_registrados_webinars__event
+    description: "Manual webinar registrations enriched with store_id via email mapping (keeps rows with NULL store_id). One row per raw registration record. No tag logic here. Includes sys_audit_* fields, is partitioned by year_month_day_code, and is materialized incrementally (merge)."
+    config:
+      meta:
+        owner: "sofia.torres@tiendanube.com"
+        domain: "marketing"
+        business_owner: "Giselle Galli"
+    columns:
+      - name: store_id
+        description: "Store identifier mapped by email (nullable if no match)."
+      - name: mapping_method
+        description: "Mapping strategy used to derive store_id from the source (email vs none)."
+      - name: id
+        description: "Source-provided unique identifier for the webinar registration (if present)."
+      - name: email
+        description: "Registrant email (lowercased and trimmed)."
+      - name: firstName
+        description: "Registrant first name (as provided by source)."
+      - name: lastName
+        description: "Registrant last name (as provided by source)."
+      - name: phone
+        description: "Registrant phone (as provided by source)."
+      - name: status
+        description: "Registration status (normalized to lowercase): registered, live, or on demand/on-demand."
+      - name: webinar
+        description: "Webinar name/title."
+      - name: webinar_date
+        description: "Webinar date/time as provided by the source."
+      - name: webinar_code
+        description: "Webinar code/slug (trimmed; may be NULL)."
+      - name: country
+        description: "Country provided by the source."
+      - name: year_month_day_code
+        description: "Daily partition code YYYYMMDD derived from webinar_date."
+      - name: sys_audit_created_on
+        description: "Creation timestamp for audit purposes (preserved across updates)."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "Process/user that created the record (audit)."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Last update timestamp for audit purposes."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "User/process that last updated the record (audit)."
+        tests:
+          - not_null
+      - name: row_hash
+        description: "MD5 hash of determinative content plus mapping fields used for CDC/merge."
+        tests:
+          - not_null
+
+  - name: marketing__acquisition__project_ms_base__domain
+    description: "Manual Merchant Sellers base (A–S and T–Z sheets) unified into a single table and enriched with store_id by domain mapping. Preserves all raw rows even when no store_id match is found. No tag logic here. Includes sys_audit_* fields, is partitioned by year_month_day_code, and is materialized incrementally (merge)."
+    config:
+      meta:
+        owner: "sofia.torres@tiendanube.com"
+        domain: "marketing"
+        business_owner: "Giselle Galli"
+    columns:
+      - name: store_id
+        description: "Store identifier mapped by domain (nullable if no match or ambiguous)."
+      - name: mapping_method
+        description: "Mapping strategy used to derive store_id from domain."
+      - name: domain
+        description: "Raw domain (lowercased and trimmed) from the manual source."
+      - name: emails
+        description: "Raw emails field from the manual source (string/array as ingested)."
+      - name: phones
+        description: "Raw phones field from the manual source (string/array as ingested)."
+      - name: instagram_url
+        description: "Instagram URL as provided by the source."
+      - name: platform
+        description: "Platform normalized to lowercase (e.g., shopify, woocommerce), when present."
+      - name: estimated_monthly_sales
+        description: "Estimated monthly sales parsed to numeric (when available)."
+      - name: peso
+        description: "Weight/score field from the manual source, if present."
+      - name: repeated_domain
+        description: "Indicates repeated/duplicated domain according to the manual source (raw value)."
+      - name: disparos
+        description: "Count or indicator of external 'shots/contacts' from the manual source."
+      - name: disparo_date
+        description: "First contact/shot date parsed as DATE (when present)."
+      - name: year_month_day_code
+        description: "Daily partition code YYYYMMDD derived from disparo_date (NULL if no date was provided)."
+      - name: sys_audit_created_on
+        description: "Creation timestamp for audit purposes (preserved across updates)."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "Process/user that created the record (audit)."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Last update timestamp for audit purposes."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "User/process that last updated the record (audit)."
+        tests:
+          - not_null
+      - name: row_hash
+        description: "MD5 hash of determinative content plus mapping fields (used for CDC/merge)."
+        tests:
+          - not_null

@@ -64,6 +64,85 @@ models:
         description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
 
 
+  - name: s__attributes__store_identity__ref
+    description: "Data Product silver that contains the identity attributes of each store. Includes identification data, contact information, fiscal documents, social media, active theme, and information about the installation of the nuvemshop/tendanube app."
+    config:
+      meta:
+        owner: "jhu.boggio@tiendanube.com"
+        domain: "merchant"
+        business_owner: "Analytics Engineering"
+    columns:
+      - name: store_id
+        description: "ID único de la tienda"
+        tests:
+          - not_null
+          - unique
+      - name: main_user_id
+        description: "ID del usuario principal de la tienda"
+      - name: store_name
+        description: "Nombre de la tienda (desde i18n)"
+      - name: store_description
+        description: "Descripción de la tienda (desde i18n)"
+      - name: user_email
+        description: "Email del usuario principal"
+      - name: user_first_name
+        description: "Nombre del usuario principal"
+      - name: user_last_name
+        description: "Apellido del usuario principal"
+      - name: user_nicename
+        description: "Nombre de usuario (nicename) del usuario principal"
+      - name: user_registered_at
+        description: "Fecha de registro del usuario principal"
+      - name: user_role
+        description: "Rol del usuario principal"
+      - name: phone_from_footer
+        description: "Teléfono desde el footer de la tienda"
+      - name: owner_phone_number
+        description: "Número de teléfono del dueño (sin formatear)"
+      - name: phone_whatsapp_button
+        description: "Número de WhatsApp del botón de contacto"
+      - name: owner_phone
+        description: "Teléfono del dueño formateado con código de país"
+      - name: doc_type
+        description: "Tipo de documento fiscal (ej: CPF, CNPJ)"
+      - name: doc_number
+        description: "Número de documento fiscal"
+      - name: instagram
+        description: "Usuario de Instagram de la tienda"
+      - name: facebook
+        description: "URL o usuario de Facebook de la tienda"
+      - name: twitter
+        description: "Usuario de Twitter de la tienda"
+      - name: tiktok
+        description: "Usuario de TikTok de la tienda"
+      - name: pinterest
+        description: "Usuario de Pinterest de la tienda"
+      - name: active_theme
+        description: "Nombre del tema activo actual (ej: 'sydney', 'tokyo')"
+      - name: first_date_config_theme
+        description: "Fecha de la primera configuración de tema"
+      - name: last_date_config_theme
+        description: "Fecha de la última configuración de tema"
+      - name: tiendanube_app_installed_at
+        description: "Date when the nuvemshop/tendanube app was installed"
+      - name: sys_audit_created_on
+        description: "Timestamp of when this record was created in our data warehouse"
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "System identifier of the process that created this record"
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp of when this record was last updated in our data warehouse"
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "System identifier of the process that last updated this record"
+        tests:
+          - not_null
+
+
   - name: s__lifecycle__first_seller_date__ref
     description: "This data product identifies the first date on which a store qualified as a “seller”, based on sales performance, and aligns it with the store’s presence in the moltres_store_info. The main goal is to determine when each store first achieved at least 7 sales in a rolling 90-day window, according to data from company_metrics_paid_orders."
     config:
@@ -206,25 +285,25 @@ models:
           - accepted_values:
               values: [0, 1]
       - name: mkt_source_last_click
-        description: "Marketing source from the last click attribution."
+        description: "Marketing source from the last click attribution. 'not attributed yet' if no attribution found, because the store was created at current date."
         tests: [not_null]
       - name: mkt_subteam_last_click
-        description: "Marketing subteam from the last click attribution."
+        description: "Marketing subteam from the last click attribution. 'not attributed yet' if no attribution found, because the store was created at current date."
         tests: [not_null]
       - name: mkt_campaign_last_click
         description: "Marketing campaign from the last click attribution."
       - name: mkt_source_first_click
-        description: "Marketing source from the first click attribution."
+        description: "Marketing source from the first click attribution. 'not attributed yet' if no attribution found, because the store was created at current date."
         tests: [not_null]
       - name: mkt_subteam_first_click
-        description: "Marketing subteam from the first click attribution."
+        description: "Marketing subteam from the first click attribution. 'not attributed yet' if no attribution found, because the store was created at current date."
         tests: [not_null]
       - name: mkt_campaign_first_click
         description: "Marketing campaign from the first click attribution."
       - name: mkt_source_partner_click
-        description: "Marketing source from the partner click attribution."
+        description: "Marketing source from the partner click attribution. Tag indicating the affiliate owner of the store."
       - name: mkt_subteam_partner_click
-        description: "Marketing subteam from the partner click attribution."
+        description: "Marketing subteam from the partner click attribution. Tag indicating the affiliate classification of the store."
       - name: mkt_campaign_partner_click
         description: "Marketing campaign from the partner click attribution."
       - name: mkt_landing_page_domain_first_click
@@ -235,11 +314,11 @@ models:
         description: "Landing page path from the first click attribution."
       - name: mkt_landing_page_path_last_click
         description: "Landing page path from the last click attribution."
-      - name: flag_affiliate
-        description: "Flag indicating whether the store is an affiliate."
-        tests: [not_null]
       - name: ql_profile
         description: "Quality lead profile classification."
+        tests: [not_null]
+      - name: blocked_fraud_tag
+        description: "Tag indicating if the store is blocked or is attributed to a fraudulent partner."
         tests: [not_null]
       - name: sys_audit_created_on
         description: "Timestamp when the row was originally created."
