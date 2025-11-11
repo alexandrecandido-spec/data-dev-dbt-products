@@ -46,7 +46,7 @@ attribution_info AS (
         MAX(CASE WHEN trials_first_click = 1 THEN mkt_source ELSE NULL END) AS mkt_source_first_click,
         MAX(CASE WHEN trials_first_click = 1 THEN mkt_subteam ELSE NULL END) AS mkt_subteam_first_click,
         MAX(CASE WHEN trials_first_click = 1 THEN campaign ELSE NULL END) AS mkt_campaign_first_click,
-        MAX(CASE WHEN partner_id IS NOT NULL THEN campaign ELSE NULL END) AS mkt_campaign_partner_click,
+        MIN(CASE WHEN partner_id IS NOT NULL AND landing_page_path LIKE '%/partners/%' THEN campaign END) AS mkt_campaign_partner_click,
         MAX(CASE WHEN trials_first_click = 1 THEN landing_page_domain ELSE NULL END) AS mkt_landing_page_domain_first_click,
         MAX(CASE WHEN trials_last_click = 1 THEN landing_page_domain ELSE NULL END) AS mkt_landing_page_domain_last_click,
         MAX(CASE WHEN trials_first_click = 1 THEN landing_page_path ELSE NULL END) AS mkt_landing_page_path_first_click,
