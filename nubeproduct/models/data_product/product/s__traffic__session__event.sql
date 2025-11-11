@@ -6,7 +6,10 @@
    unique_key = 'unique_session_key',
    partition_by = 'base_date',
    on_schema_change = 'fail',
-   tags = ['daily-3am']
+   tags = ['daily-3am'],
+   pre_hook = [
+        "DELETE FROM {{ this }} WHERE base_date = DATE('2024-09-23')"
+    ]
 ) }}
 
 WITH swd AS (
