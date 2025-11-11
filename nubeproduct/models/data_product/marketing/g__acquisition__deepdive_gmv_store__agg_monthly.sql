@@ -2,7 +2,7 @@
     materialized         = 'incremental',
     incremental_strategy = 'merge',
     unique_key           = ['store_id','year_month_code'],
-    partition_by         = ['year_month_code'],   
+    partition_by         = ['year_month_code'],
     cluster_by           = ['store_id'],
     on_schema_change     = 'fail',
     tags                 = ["daily-9am-9pm"]
@@ -32,22 +32,42 @@ daily_changed as (
 {% endif %}
 
 /* ===========================================
-   2) Audit de STATUS + CORE por store (1 fila)
+   2) Audit de STATUS + CORE + MILESTONES
    =========================================== */
-status_audit_now as (
+status_core_audit_now as (
   select
     st.store_id,
     {{ marketing_mpt_greatest_ts([
       'st.sys_audit_updated_on',
       'core.sys_audit_updated_on'
-    ]) }} as status_audit_max_now
+    ]) }} as status_core_audit_max_now
   from {{ ref('s__lifecycle__store_status__ref') }} st
   left join {{ ref('s__attributes__store_core__ref') }} core
     on core.store_id = st.store_id
 ),
 
+milestones_audit_now as (
+  select
+    store_id,
+    cast(sys_audit_updated_on as timestamp) as milestones_audit_max_now
+  from {{ ref('s__lifecycle__store_sales_milestones__ref') }}
+),
+
+-- Audit unificado (mantenemos el alias que usa el DP aguas abajo)
+status_audit_now as (
+  select
+    coalesce(sc.store_id, ms.store_id) as store_id,
+    greatest(
+      coalesce(sc.status_core_audit_max_now, timestamp '1900-01-01'),
+      coalesce(ms.milestones_audit_max_now,  timestamp '1900-01-01')
+    ) as status_audit_max_now
+  from status_core_audit_now sc
+  full outer join milestones_audit_now ms
+    on ms.store_id = sc.store_id
+),
+
 /* ==================================================
-   3) Stores cuyo audit de status/core aumentó vs DP
+   3) Stores cuyo audit aumentó vs lo ya persistido
    ================================================== */
 {% if is_incremental() %}
 dp_prev_status_audit as (
@@ -69,11 +89,10 @@ stores_changed_status as (
 {% endif %}
 
 /* ======================================================
-   4) Meses a reescribir por cambio de status/core (store)
+   4) Meses a reescribir por cambio de status/core/milestones
    ====================================================== */
 months_for_changed_stores as (
   {% if is_incremental() %}
-    -- meses presentes hoy en la intermedia
     select c.reported_month
     from {{ ref('_int__deepdive_gmv__consolidated_monthly') }} c
     join stores_changed_status s using (store_id)
@@ -87,7 +106,7 @@ months_for_changed_stores as (
     join stores_changed_status s using (store_id)
     group by d.reported_month
   {% else %}
-    -- full-refresh: meses que estén en la intermedia
+    -- full-refresh: meses que estén en la consolidada
     select c.reported_month
     from {{ ref('_int__deepdive_gmv__consolidated_monthly') }} c
     join stores_changed_status s using (store_id)
@@ -96,14 +115,14 @@ months_for_changed_stores as (
 ),
 
 /* ===========================
-   5) Incluir siempre mes corriente
+   5) Siempre incluir el mes corriente
    =========================== */
 current_month as (
   select last_day(current_date) as reported_month
 ),
 
 /* =======================================================
-   6) Particiones objetivo = daily ∪ status/core ∪ corriente
+   6) Particiones objetivo = daily ∪ status/core/milestones ∪ corriente
    ======================================================= */
 months_to_overwrite as (
   select reported_month from daily_changed
@@ -114,8 +133,7 @@ months_to_overwrite as (
 ),
 
 /* ==========================================================
-   7) Fuente consolidada (ephemeral) filtrada a meses objetivo
-      + partición YYYYMM + audit de status/core
+   7) Fuente consolidada filtrada a meses objetivo + YYYYMM + audit
    ========================================================== */
 src_all as (
   select
@@ -218,7 +236,7 @@ select
   -- clasificación
   s.gmv_new_vs_churned,
 
-  -- plan / BU / histórico / segmento (nombres ORIGINALES)
+  -- nombres ORIGINALES de daily (no renombramos)
   s.current_plan,
   s.current_bu,
   s.historical_plan,
@@ -233,10 +251,10 @@ select
   s.months_from_new_seller,
 
   -- audits
-  ma.sys_audit_month_max,                -- audit mensual desde Daily
-  s.status_audit_max_now as status_audit_max,  -- audit de status/core
+  ma.sys_audit_month_max,                   
+  s.status_audit_max_now as status_audit_max,  
 
-  -- fingerprint mensual del payload expuesto
+  -- fingerprint mensual
   s.row_hash,
 
   -- auditoría DP (preserva created_on/by en updates)

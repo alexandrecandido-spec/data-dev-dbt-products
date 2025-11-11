@@ -5,9 +5,10 @@ with base as (
 ),
 
 fl as (
-  -- first/last + flags por (store_id, mes)
+  -- first/last + flags ahora con reported_month
   select
-    store_id, mes,
+    store_id,
+    reported_month,
     first_sale_date_all_time,
     first_sale_month_all_time,
     last_sale_date,
@@ -84,5 +85,7 @@ select
     else 'Ongoing'
   end as gmv_new_vs_churned
 from base b
-left join fl  using (store_id, mes)
+left join fl
+  on fl.store_id = b.store_id
+ and fl.reported_month = b.mes        
 left join lifecycle lc using (store_id)

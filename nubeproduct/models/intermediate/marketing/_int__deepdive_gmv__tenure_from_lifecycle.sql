@@ -13,8 +13,10 @@ with base as (
   left join {{ ref('s__attributes__store_core__ref') }} core
     on core.store_id = m.store_id
 ),
+
+
 fl as (
-  select store_id, mes, first_sale_date_all_time
+  select store_id, reported_month, first_sale_date_all_time
   from {{ ref('_int__deepdive_gmv__first_last_and_flags') }}
 )
 
@@ -30,7 +32,7 @@ select
   cast(months_between(date_trunc('month', b.mes),
                       date_trunc('month', b.first_seller_at)) as int) + 1 as months_from_first_seller,
 
-  -- first_sale viene de la intermedia (join a fl)
+  -- first_sale desde flags (join por reported_month vs mes)
   cast(months_between(date_trunc('month', b.mes),
                       date_trunc('month', f.first_sale_date_all_time)) as int) + 1
     as months_from_first_sale,
@@ -44,4 +46,4 @@ select
 from base b
 left join fl f
   on f.store_id = b.store_id
- and f.mes      = b.mes
+ and f.reported_month = b.mes  
