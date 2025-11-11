@@ -1558,6 +1558,8 @@ models:
         description: "Integration type used with the payment gateway"
       - name: status
         description: "Status of the order"
+      - name: order_traits
+        description: "Traits of the order (currently shows subscription_initial when the order is the first order from a subscription and subscription_recurrence for the subsequent orders within a subscription)"
       - name: has_open
         description: "Whether the order has an 'open' log, indicating that it was re-opened"
       - name: total_in_usd

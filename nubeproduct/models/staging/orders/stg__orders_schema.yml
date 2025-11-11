@@ -96,6 +96,8 @@ models:
         description: "Shipping cost on the owner side"
       - name: fulfillment_status
         description: "Fulfillment status of the order."
+      - name: order_traits
+        description: "Traits of the order (currently shows subscription_initial when the order is the first order from a subscription and subscription_recurrence for the subsequent orders within a subscription)"
       - name: is_paid_order
         description: "Indicates whether the order was successfully completed and paid (not cancelled, status is 'paid', and completed_at is not null)."
       - name: device
