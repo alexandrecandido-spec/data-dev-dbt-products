@@ -1882,7 +1882,17 @@ models:
           
   - name: s__general__ga4_all_pageviews__event
     description: "Daily page views data with acquisition information from GA4"
+    config:
+      meta:
+        owner: "yan.santos@nuvemshop.com.br"
+        business_owner: "Giselle Galli"
+        domain: "marketing"
     columns:
+      - name: hash_key
+        description: "Unique hash key generated from user_pseudo_id, unique_session, event_timestamp, env, event_source, event_medium, event_campaign, event_content, page"
+        tests:
+          - not_null
+          - unique
       - name: user_pseudo_id
         description: "Unique identifier for the user combining source and user_pseudo_id"
       - name: unique_session
