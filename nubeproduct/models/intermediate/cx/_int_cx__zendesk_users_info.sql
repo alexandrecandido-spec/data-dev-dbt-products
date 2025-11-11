@@ -8,7 +8,7 @@ with
             trim(lower(u.user_email)) as email,
             u.first_name,
             u.last_name,
-            row_number() over (partition by u.user_email order by u.id desc, u.store_id) as rn
+            row_number() over (partition by trim(lower(u.user_email)) order by u.id desc, u.store_id) as rn
         from {{ source("int_moltres", "wp_users") }} u
         inner join stores s on u.store_id = s.store_id
         where u.deleted = 0 and u.user_email is not null and u.user_email <> ''
