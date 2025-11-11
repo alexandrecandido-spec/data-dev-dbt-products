@@ -233,6 +233,8 @@ sources:
         description: "WBR (Success) snapshot from legacy Postgres."
       - name: stitchdata__mbr_success
         description: "MBR (Success) snapshot from legacy Postgres."
+      - name: stitchdata__success_deals_warning
+        description: "Success deals warning snapshot from legacy Postgres."
 
   - name: int_hubspot
     database: raw
