@@ -359,3 +359,61 @@ models:
       - name: sys_audit_updated_by
         description: "System or user that last updated the row."
         tests: [not_null]
+
+  - name: s__lifecycle__store_sales_milestones__ref
+    description: "Data Product silver that contains the sales milestones of each store, including the first and last sale date, payment method, shipping method, storefront and totals"
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "merchant"
+        business_owner: "Analytics Engineering"
+    columns:
+      - name: store_id
+        description: "Unique identifier for each store"
+        tests: [not_null, unique]
+      - name: payment_gateway_first_sale
+        description: "Payment gateway used for the first sale"
+      - name: shipping_gateway_first_sale
+        description: "Shipping gateway used for the first sale"
+      - name: payment_method_first_sale
+        description: "Payment method used for the first sale"
+      - name: shipping_method_first_sale
+        description: "Shipping method used for the first sale"
+      - name: storefront_first_sale
+        description: "Storefront used for the first sale"
+      - name: total_first_sale
+        description: "Total of the first sale"
+      - name: total_in_usd_first_sale
+        description: "Total in USD of the first sale"
+      - name: first_sale
+        description: "Date of the first sale"
+        tests: [not_null]
+      - name: payment_gateway_last_sale
+        description: "Payment gateway used for the last sale"
+      - name: shipping_gateway_last_sale
+        description: "Shipping gateway used for the last sale"
+      - name: payment_method_last_sale
+        description: "Payment method used for the last sale"
+      - name: shipping_method_last_sale
+        description: "Shipping method used for the last sale"
+      - name: storefront_last_sale
+        description: "Storefront used for the last sale"
+      - name: total_last_sale
+        description: "Total of the last sale"
+      - name: total_in_usd_last_sale
+        description: "Total in USD of the last sale"
+      - name: last_sale
+        description: "Date of the last sale"
+        tests: [not_null]
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created."
+        tests: [not_null]
+      - name: sys_audit_created_by
+        description: "System or user that created the row."
+        tests: [not_null]
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this table."
+        tests: [not_null]
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row."
+        tests: [not_null]
