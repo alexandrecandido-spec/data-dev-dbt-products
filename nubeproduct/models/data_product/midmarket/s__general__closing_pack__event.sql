@@ -1,6 +1,6 @@
 {{ config(
     materialized='table',
-    tags=['monthly-4th-2pm']
+    tags=['monthly-4th-12pm']
 ) }}
 
 -- Closing Pack consolidation: only includes closed/completed months

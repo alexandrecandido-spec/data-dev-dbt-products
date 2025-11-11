@@ -1,7 +1,7 @@
 {{ config(
   materialized='incremental',
   incremental_strategy='merge',
-  unique_key=['unique_session','event_timestamp'],
+  unique_key=['hash_key'],
   on_schema_change='fail',
   tags=['daily-7am','marketing']
 ) }}
@@ -38,6 +38,27 @@ with_session AS (
 ),
 final AS (
   SELECT DISTINCT
+    MD5(
+      CONCAT(
+        COALESCE(CAST(user_pseudo_id AS STRING), ''),
+        '-',
+        COALESCE(CAST(unique_session AS STRING), ''),
+        '-',
+        COALESCE(CAST(event_timestamp AS STRING), ''),
+        '-',
+        COALESCE(CAST(env AS STRING), ''),
+        '-',
+        COALESCE(CAST(event_source AS STRING), ''),
+        '-',
+        COALESCE(CAST(event_medium AS STRING), ''),
+        '-',
+        COALESCE(CAST(event_campaign AS STRING), ''),
+        '-',
+        COALESCE(CAST(event_content AS STRING), ''),
+        '-',
+        COALESCE(CAST(page AS STRING), '')
+      )
+    ) AS hash_key,
     user_pseudo_id,
     unique_session,
     source,

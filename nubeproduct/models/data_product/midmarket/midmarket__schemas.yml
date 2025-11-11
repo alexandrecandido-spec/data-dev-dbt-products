@@ -1577,3 +1577,42 @@ models:
         description: "Cost per transaction (transaction fee). Populated for Sales New Contracts, Onboarding metrics, Upsell/Renewal, and Success deal-based events. Null for Sales SQLs/Opportunities and Success merchant snapshots."
       - name: potential_gross_profit_perc
         description: "Potential gross profit percentage from HubSpot deal properties. Populated for Sales New Contracts, Onboarding metrics, Upsell/Renewal, and Success deal-based events. Null for Sales SQLs/Opportunities and Success merchant snapshots."
+
+  - name: g__success__warnings__agg_snapshot_weekly
+    config:
+      meta:
+        tech_steward: "guillermo.defelice@tiendanube.com"
+        domain: "midmarket"
+        business_owner: "Franco Tiberti"
+    description: "Snapshot of warnings for Success stores aggregated weekly."
+    columns:
+      - name: date_from
+        description: "Start date of the reference week."
+        tests:
+          - not_null
+      - name: date_to
+        description: "End date of the reference week."
+        tests:
+          - not_null
+      - name: deal_id
+        description: "Unique identifier of the HubSpot deal."
+        tests:
+          - not_null
+      - name: store_id
+        description: "Unique identifier of the store."
+        tests:
+          - not_null
+      - name: warning_root_cause_1
+        description: "Root cause of the warning."
+      - name: warning_root_cause_2
+        description: "Root cause of the warning."
+      - name: warning_summary
+        description: "Summary of the warning."
+      - name: warning_type
+        description: "Type of the warning."
+      - name: competitor_identified
+        description: "Whether a competitor was identified."
+      - name: date_entered_warning
+        description: "Date when the warning was entered."
+      - name: date_exited_warning
+        description: "Date when the warning was exited."

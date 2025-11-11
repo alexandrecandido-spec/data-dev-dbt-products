@@ -112,31 +112,31 @@ WHERE row_num = 1
 )
 
 SELECT
-   dds.unique_session_key
-   , dds.session_timestamp
-   , dds.base_date
-   , dds.session_id
-   , dds.consumer_id
-   , dds.store_id
-   , dds.visitor_country
-   , dds.device
-   , dds.theme
-   , dds.user_agent
-   , dds.ip_address
-   , dds.utm_source
-   , dds.utm_medium
-   , dds.utm_campaign
-   , dds.utm_term
-   , dds.utm_content
-   , dds.landing_page
-   , dds.http_referral
-   , dds.ref_domain
-   , dds.land_domain
-   , dds.source_name
-   , dds.source_group
-   , dds.google_subchannel
-   , dds.traffic_type
-   , dds.is_end_user
+    unique_session_key
+    , session_timestamp
+    , base_date
+    , session_id
+    , consumer_id
+    , store_id
+    , visitor_country
+    , device
+    , theme
+    , user_agent
+    , ip_address
+    , utm_source
+    , utm_medium
+    , utm_campaign
+    , utm_term
+    , utm_content
+    , landing_page
+    , http_referral
+    , ref_domain
+    , land_domain
+    , source_name
+    , source_group
+    , google_subchannel
+    , traffic_type
+    , is_end_user
     , CURRENT_TIMESTAMP AS sys_audit_created_on
     , 'data-dev-dbt-products' AS sys_audit_created_by
     , CURRENT_TIMESTAMP AS sys_audit_updated_on
