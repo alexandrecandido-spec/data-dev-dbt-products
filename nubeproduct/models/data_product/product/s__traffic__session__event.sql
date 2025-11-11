@@ -2,15 +2,28 @@
 
 {{ config(
    materialized = 'incremental',
-   incremental_strategy = 'merge',
-   unique_key = 'unique_session_key',
+   unique_key = ['base_date', 'unique_session_key'],
    partition_by = 'base_date',
    on_schema_change = 'fail',
-   tags = ['daily-3am'],
+   tags = ['product', 'daily-3am'],
    pre_hook = [
         "DELETE FROM {{ this }} WHERE base_date = DATE('2024-09-23')"
     ]
 ) }}
+
+{% set base_date_filter %}
+  {% if 1 == 1 %}
+    = DATE('2024-09-23')
+  {% else %}
+    {% if not is_incremental() %}
+        BETWEEN DATE('2024-01-01') AND DATE('2024-01-05')
+    {% else %}
+        {{ get_max_date(this, 'base_date', 2, 'week') }}
+    {% endif %}
+  {% endif %}
+{% endset %}
+
+{% set base_date_filter = base_date_filter | replace('\n',' ') | replace('\t',' ') | trim %}
 
 WITH swd AS (
 SELECT
@@ -18,11 +31,7 @@ SELECT
 FROM
     {{ ref('_int_product__session_with_domains') }}
 WHERE
-   {% if not is_incremental() %}
-   base_date BETWEEN DATE('2024-01-01') AND DATE('2024-01-05')
-   {% else %}
-   base_date = DATE('2024-09-23')
-   {% endif %}
+   base_date {{ base_date_filter }}
 )
 
 , stc AS (
@@ -31,11 +40,7 @@ SELECT
 FROM
     {{ ref('_int_product__session_traffic_classification')}}
 WHERE
-   {% if not is_incremental() %}
-   base_date BETWEEN DATE('2024-01-01') AND DATE('2024-01-05')
-   {% else %}
-   base_date = DATE('2024-09-23')
-   {% endif %}
+   base_date {{ base_date_filter }}
 )
 
 , suc AS (
@@ -44,11 +49,7 @@ SELECT
 FROM
     {{ ref('_int_product__session_user_classification') }}
 WHERE
-   {% if not is_incremental() %}
-   base_date BETWEEN DATE('2024-01-01') AND DATE('2024-01-05')
-   {% else %}
-   base_date = DATE('2024-09-23')
-   {% endif %}
+   base_date {{ base_date_filter }}
 )
 
 , raw_sessions AS (
@@ -102,35 +103,51 @@ FROM (
 WHERE row_num = 1
 )
 
+, existing_data as (
+    {{ get_existing_data_where(
+         this,
+         ['base_date','unique_session_key'],
+         "base_date " ~ base_date_filter
+    ) }}
+)
+
 SELECT
-    unique_session_key
-    , session_timestamp
-    , base_date
-    , session_id
-    , consumer_id
-    , store_id
-    , visitor_country
-    , device
-    , theme
-    , user_agent
-    , ip_address
-    , utm_source
-    , utm_medium
-    , utm_campaign
-    , utm_term
-    , utm_content
-    , landing_page
-    , http_referral
-    , ref_domain
-    , land_domain
-    , source_name
-    , source_group
-    , google_subchannel
-    , traffic_type
-    , is_end_user
+   dds.unique_session_key
+   , dds.session_timestamp
+   , dds.base_date
+   , dds.session_id
+   , dds.consumer_id
+   , dds.store_id
+   , dds.visitor_country
+   , dds.device
+   , dds.theme
+   , dds.user_agent
+   , dds.ip_address
+   , dds.utm_source
+   , dds.utm_medium
+   , dds.utm_campaign
+   , dds.utm_term
+   , dds.utm_content
+   , dds.landing_page
+   , dds.http_referral
+   , dds.ref_domain
+   , dds.land_domain
+   , dds.source_name
+   , dds.source_group
+   , dds.google_subchannel
+   , dds.traffic_type
+   , dds.is_end_user
     , CURRENT_TIMESTAMP AS sys_audit_created_on
     , 'data-dev-dbt-products' AS sys_audit_created_by
     , CURRENT_TIMESTAMP AS sys_audit_updated_on
     , 'data-dev-dbt-products' AS sys_audit_updated_by
 FROM
-   deduped_sessions 
+   deduped_sessions AS dds
+LEFT JOIN
+   existing_data
+   ON dds.unique_session_key = existing_data.unique_session_key
+   AND dds.base_date = existing_data.base_date
+WHERE
+    existing_data.unique_session_key IS NULL
+AND existing_data.base_date IS NULL
+AND dds.base_date {{ base_date_filter }}
