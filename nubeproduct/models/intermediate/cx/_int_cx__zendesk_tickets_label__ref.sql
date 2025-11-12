@@ -31,11 +31,13 @@ SELECT
   priority,
   problem_id,
   recipient,
-  get_json_object(satisfaction_rating, '$.score') AS satisfaction_rating_score,
-  satisfaction_rating,
+  get_json_object(satisfaction_rating, '$.score') AS satisfaction_score,
+  get_json_object(satisfaction_rating, '$.comment') AS satisfaction_comment,
+  get_json_object(satisfaction_rating, '$.reason') AS satisfaction_reason,
   sharing_agreement_ids,
   submitter_id,
   type,
+  get_json_object(via, '$.channel') AS via_channel,
   element_at(
   filter(
     from_json(custom_fields, 'array<struct<id: BIGINT, value: STRING>>'),
