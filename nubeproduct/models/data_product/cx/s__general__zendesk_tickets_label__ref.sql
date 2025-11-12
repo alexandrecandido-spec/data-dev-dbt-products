@@ -9,9 +9,8 @@
 
 WITH existing_data AS (
     {{ get_existing_data(this, ['macro_id', 'sys_audit_created_on', 'sys_audit_created_by']) }}
-)
-
-WITH tickets_labels AS 
+),
+tickets_labels AS 
 (
     SELECT 
         ticket_id,
