@@ -2,7 +2,7 @@
     config(
         materialized="incremental",
         unique_key="external_id",
-        on_schema_change="sync_all_columns",
+        on_schema_change="fail",
         incremental_strategy="merge",
         tags=["daily-4_30am"],
         partition_by=["year_month_day_code"],
@@ -35,7 +35,8 @@ with
             aux.has_associated_partner,
             aux.has_instagram,
             store_status.status,
-            mp.success_priority
+            mp.success_priority,
+            row_number() over (PARTITION BY aux.external_id ORDER BY coalesce(mp.created_at_org, current_date) DESC) AS rnk
         from {{ ref("hubspot_active_stores") }} active_stores
         left join
             {{ ref("_int_support_stores_merchant_profile") }} mp
@@ -55,7 +56,6 @@ with
         left join
             {{ ref("marketing_merchant_info_refined") }} mir
             on mir.store_id = active_stores.store_id
-
     )
 
 select
@@ -97,7 +97,7 @@ select
     current_timestamp as sys_audit_updated_on,
     cast(date_format(current_timestamp, 'yyyyMMdd') as int) as year_month_day_code,
     'data-dev-dbt-products' as sys_audit_updated_by
-from source_data as info
+from (select * from source_data where rnk = 1) as info
 {% if is_incremental() %}
     left join
         {{ this }} as existing_data on info.external_id = existing_data.external_id

@@ -8,20 +8,16 @@ SELECT
 FROM
    {{ ref('product__traffic__sessions__event') }}
 WHERE
-{% if 1 == 1 %}
-   base_date = DATE('2024-09-23')
-{% else %}
    base_date {{
     get_max_date_env_model(
       'product',
       's__traffic__session__event',
       'base_date',
-      2, 'week',
+      1, 'day',
       fallback_start='2024-01-01',
-      fallback_end='2024-01-05'
+      fallback_end='2024-01-02'
     )
   }}
-{% endif %}
 AND
    -- exclude: likely from merchants creating their own design
    (

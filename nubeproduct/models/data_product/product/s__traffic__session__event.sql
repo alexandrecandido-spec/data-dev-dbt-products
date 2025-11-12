@@ -1,29 +1,26 @@
 -- Brings sessions with enriched UTMs, user classification and traffic classification. SSOT
-
 {{ config(
-   materialized = 'incremental',
-   unique_key = ['base_date', 'unique_session_key'],
-   partition_by = 'base_date',
-   on_schema_change = 'fail',
-   tags = ['product', 'daily-3am'],
-   pre_hook = [
-        "DELETE FROM {{ this }} WHERE base_date = DATE('2024-09-23')"
-    ]
+    materialized = 'incremental',
+    unique_key = ['base_date', 'unique_session_key'],
+    incremental_predicates=[ 'DBT_INTERNAL_SOURCE.base_date = DBT_INTERNAL_DEST.base_date', 'DBT_INTERNAL_SOURCE.unique_session_key = DBT_INTERNAL_DEST.unique_session_key' ],
+    partition_by = 'base_date',
+    on_schema_change = 'fail',
+    post_hook=["OPTIMIZE {{ this }} ZORDER BY (unique_session_key)"],
+    tags = ['product', 'daily-3am']
 ) }}
 
 {% set base_date_filter %}
-  {% if 1 == 1 %}
-    = DATE('2024-09-23')
-  {% else %}
-    {% if not is_incremental() %}
-        BETWEEN DATE('2024-01-01') AND DATE('2024-01-05')
-    {% else %}
-        {{ get_max_date(this, 'base_date', 2, 'week') }}
-    {% endif %}
-  {% endif %}
+ {{
+    get_max_date_env_model(
+      'product',
+      's__traffic__session__event',
+      'base_date',
+      1, 'day',
+      fallback_start=None,
+      fallback_end=None
+    )
+  }}
 {% endset %}
-
-{% set base_date_filter = base_date_filter | replace('\n',' ') | replace('\t',' ') | trim %}
 
 WITH swd AS (
 SELECT
