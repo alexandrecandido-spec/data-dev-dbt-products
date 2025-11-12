@@ -2316,7 +2316,7 @@ models:
         description: "MD5 over exposed payload to detect content changes."
         tests: [not_null]
 
-  - name: g__acquisition__deepdive_gmv_store__agg_monthly
+  - name: g__general__deepdive_gmv_store__agg_monthly
     description: " One row per (store_id, reported_month). Aggregates GMV, orders, products, on/off-platform splits, 3-month closed averages, bands, first/last sale flags, lifecycle classification, and tenures. reported_month is the **calendar month end** (same for all stores in a given month)."
     config:
       meta:
