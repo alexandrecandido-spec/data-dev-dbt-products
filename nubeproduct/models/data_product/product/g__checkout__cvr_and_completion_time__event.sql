@@ -1,4 +1,4 @@
-
+-- depends_on: {{ ref('orders__mwp_orders') }}
 {{
     config(
         materialized='incremental',
@@ -34,11 +34,11 @@ WITH source AS (
     -- this filter will only be applied on an incremental run
     -- (uses >= to include records whose timestamp occurred since the last run of this model)
     -- (If event_time is NULL or the table is truncated, the condition will always be true and load all records)
-    o.started_checkout_at >= DATE_SUB( (SELECT COALESCE(MAX(fecha), DATE('1900-01-01')) FROM {{ this }}), 60 )
+    o.sys_audit_updated_on >= DATE_SUB( (SELECT COALESCE(MAX(fecha), DATE('1900-01-01')) FROM {{ this }}), 1 ) and o.started_checkout_at> DATE('2024-06-01')
 
     {% else %}
 
-    o.started_checkout_at> DATE('2025-01-01')
+    o.started_checkout_at> DATE('2024-06-01')
 
      {% endif %}
 )
