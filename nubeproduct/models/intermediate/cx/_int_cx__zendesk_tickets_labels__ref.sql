@@ -1,7 +1,7 @@
 WITH raw_tickets AS 
 (
 SELECT 
-  id,
+  id AS ticket_id,
   requester_id,
   external_id,
   created_at,
@@ -31,6 +31,7 @@ SELECT
   priority,
   problem_id,
   recipient,
+  get_json_object(satisfaction_rating, '$.score') AS satisfaction_rating_score,
   satisfaction_rating,
   sharing_agreement_ids,
   submitter_id,
@@ -115,11 +116,32 @@ SELECT
     element_at(
   filter(
     from_json(custom_fields, 'array<struct<id: BIGINT, value: STRING>>'),
-    x -> x.id IN('7553360536212','7060889383060')       -- ← el ID que buscás (numérico)
+    x -> x.id IN(7553360536212,7060889383060)       -- ← el ID que buscás (numérico)
   ),
   1
-  ).value AS main_topic
-FROM raw.zendesk_support_prod.tickets
+  ).value AS main_topic,
+    element_at(
+  filter(
+    from_json(custom_fields, 'array<struct<id: BIGINT, value: STRING>>'),
+    x -> x.id IN(7464628699028, 7061039051156)       -- ← el ID que buscás (numérico)
+  ),
+  1
+  ).value AS secondary_topic,
+    element_at(
+  filter(
+    from_json(custom_fields, 'array<struct<id: BIGINT, value: STRING>>'),
+    x -> x.id IN(7464653301908, 7061077300756)       -- ← el ID que buscás (numérico)
+  ),
+  1
+  ).value AS subtopic,
+  IF(tags LIKE('%cloud-humans-csat%'),TRUE,FALSE) AS is_bot,
+  IF(tags LIKE('%monitorear_consumers%') OR tags LIKE('%monitorar_consumers%'),TRUE,FALSE) AS is_automation,
+  IF(tags LIKE('%closed_by_merge%'),TRUE,FALSE) AS is_merged,
+  IF(tags LIKE('%spam%'),TRUE,FALSE) AS is_spam,
+  IF(tags LIKE('%prueba%'),TRUE,FALSE) AS is_test,
+  IF(external_id LIKE('%side_conversation%'),TRUE,FALSE) AS is_side_conversation,
+  REGEXP_EXTRACT(external_id, 'ticket:(\\d+)') AS parent_ticket_id
+FROM {{ source("int_zendesk_support_prod", "tickets") }}
 )
 SELECT 
   *,
@@ -128,5 +150,5 @@ SELECT
     WHEN sla LIKE '%h' THEN CAST(regexp_replace(sla, '[^0-9]', '') AS INT) * 60
     WHEN sla LIKE '%m' THEN CAST(regexp_replace(sla, '[^0-9]', '') AS INT)
   ELSE NULL
-END AS sla_minutos 
+END AS sla_min 
 FROM raw_tickets
