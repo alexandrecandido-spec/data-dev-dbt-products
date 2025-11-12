@@ -2,13 +2,13 @@
     config(
         materialized = 'incremental',
         incremental_strategy = 'merge',
-        unique_key = ['macro_id'],
+        unique_key = ['ticket_id'],
         on_schema_change = 'fail',
         tags = ['cx','daily-6am']
 ) }}    
 
 WITH existing_data AS (
-    {{ get_existing_data(this, ['macro_id', 'sys_audit_created_on', 'sys_audit_created_by']) }}
+    {{ get_existing_data(this, ['ticket_id', 'sys_audit_created_on', 'sys_audit_created_by']) }}
 ),
 tickets_labels AS 
 (
@@ -73,7 +73,7 @@ tickets_labels AS
     FROM {{ ref("_int_cx__zendesk_tickets_labels__ref") }}
 )
 SELECT 
-  *,
+  tickets_labels.*,
   COALESCE(e.sys_audit_created_on, current_timestamp) AS sys_audit_created_on,
   COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by,
   current_timestamp AS sys_audit_updated_on,
