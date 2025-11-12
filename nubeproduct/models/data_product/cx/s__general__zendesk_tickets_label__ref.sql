@@ -60,6 +60,7 @@ WITH tickets_labels AS
         squad_guru,
         bu_guru,
         sla,
+        sla_min,
         main_topic,
         secondary_topic,
         subtopic,
@@ -70,7 +71,6 @@ WITH tickets_labels AS
         is_test,
         is_side_conversation,
         parent_ticket_id
-        sla_minutos
     FROM {{ ref("_int_cx__zendesk_tickets_labels__ref") }}
 )
 SELECT 
