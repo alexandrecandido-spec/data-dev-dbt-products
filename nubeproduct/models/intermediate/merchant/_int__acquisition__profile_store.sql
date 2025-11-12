@@ -22,13 +22,6 @@ ranked_store_info_ql AS (
                                                                                     AND np.model_id = tb_cff.model_id 
                                                                                     AND (tb_cff.device = si.device OR tb_cff.device IS NULL)
 ),
-store_status_info AS (
-    SELECT
-        store_id,
-        is_store_blocked,
-        sys_audit_updated_on
-    FROM {{ ref('s__lifecycle__store_status__ref') }}
-),
 tags_info AS (
     SELECT
         store_id,
@@ -62,7 +55,6 @@ partner_info AS (
         partner_team,
         mkt_exclusion,
         affiliate_classification,
-        fraude,
         sys_audit_updated_on
     FROM {{ ref('s__general__partners_info__ref') }}
 ),
@@ -109,13 +101,11 @@ SELECT
 
     COALESCE(ql_p.profile, 'not informed') AS ql_profile,
 
-    ssi.is_store_blocked,
 
-    greatest(ss.sys_audit_updated_on, ti.sys_audit_updated_on, att.sys_audit_updated_on, pi.sys_audit_updated_on, ssi.sys_audit_updated_on) AS change_timestamp
+    greatest(ss.sys_audit_updated_on, ti.sys_audit_updated_on, att.sys_audit_updated_on, pi.sys_audit_updated_on) AS change_timestamp
 FROM ranked_store_info_ql ss
 LEFT JOIN tags_info ti ON ss.store_id = ti.store_id
 LEFT JOIN attribution_info att ON ss.store_id = att.store_id
 LEFT JOIN partner_info pi ON ss.partner_id = pi.partner_id
 LEFT JOIN ql_profile ql_p ON ss.store_id = ql_p.store_id
-LEFT JOIN store_status_info ssi ON ss.store_id = ssi.store_id
 WHERE ss.rownumber = 1
