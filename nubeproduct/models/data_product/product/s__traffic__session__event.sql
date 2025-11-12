@@ -1,29 +1,27 @@
 -- Brings sessions with enriched UTMs, user classification and traffic classification. SSOT
-
-{{ config(
-   materialized = 'incremental',
-   unique_key = ['base_date', 'unique_session_key'],
-   partition_by = 'base_date',
-   on_schema_change = 'fail',
-   tags = ['product', 'daily-3am'],
-   pre_hook = [
-        "DELETE FROM {{ this }} WHERE base_date = DATE('2024-09-23')"
-    ]
-) }}
-
 {% set base_date_filter %}
-  {% if 1 == 1 %}
-    = DATE('2024-09-23')
-  {% else %}
-    {% if not is_incremental() %}
-        BETWEEN DATE('2024-01-01') AND DATE('2024-01-05')
-    {% else %}
-        {{ get_max_date(this, 'base_date', 2, 'week') }}
-    {% endif %}
-  {% endif %}
+ {{
+    get_max_date_env_model(
+      'product',
+      's__traffic__session__event',
+      'base_date',
+      1, 'day',
+      fallback_start='2024-01-01',
+      fallback_end='2024-01-02'
+    )
+  }}
 {% endset %}
 
 {% set base_date_filter = base_date_filter | replace('\n',' ') | replace('\t',' ') | trim %}
+
+
+{{ config(
+    materialized = 'incremental',
+    unique_key = ['base_date', 'unique_session_key'],
+    partition_by = 'base_date',
+    on_schema_change = 'fail',
+    tags = ['product', 'daily-3am']
+) }}
 
 WITH swd AS (
 SELECT
