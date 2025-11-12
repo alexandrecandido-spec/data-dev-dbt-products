@@ -297,6 +297,8 @@ sources:
         description: "Contains a record of Hubspot dealbreakers that were archived (only last 90 days)"
       - name: dealbreakers_base_association
         description: "Contains all the active dealbreakers and its association to a company in Hubspot"
+      - name: deals 
+        description: "Contains a record of Hubspot deals."
 
 
   - name: stg_third_party

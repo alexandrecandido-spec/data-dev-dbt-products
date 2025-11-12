@@ -14,6 +14,9 @@ select
     d.date_entered_churn_onboarding_ar,
     d.date_entered_churn_onboarding_br,
     d.date_entered_churn_onboarding_mx,
+    d.date_entered_warning_onboarding_ar,
+    d.date_entered_warning_onboarding_br,
+    d.date_entered_warning_onboarding_mx,
     d.date_entered_downgrade_onboarding_ar,
     d.date_entered_downgrade_onboarding_br,
     d.date_entered_downgrade_onboarding_mx,
@@ -30,6 +33,9 @@ select
     d.where_did_the_lead_came_from_,
     d.cidade_territorio_sales,
     d.vertical,
+    d.segmento_nuvemshop,
+    d.produto_nuvemshop,
+    d.associated_deal_ids,
     
     CASE WHEN d.data_go_live IS NOT NULL
       THEN DATEDIFF(d.data_go_live, d.kickoff_date)

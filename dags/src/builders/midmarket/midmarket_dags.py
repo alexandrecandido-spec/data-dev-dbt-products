@@ -102,10 +102,18 @@ dag = create_dbt_dag(
     tags=['midmarket', 'daily-6am']
 )
 
-# Crear  DAG frecuencia diaria 6am
+# Crear  DAG frecuencia diaria 7am
 dag = create_dbt_dag(
     dag_id='dbt_midmarket_daily-7am',
     schedule_interval_tag='daily-7am',
     default_args=default_args_renan,
     tags=['midmarket', 'daily-7am']
+)
+
+# Crear  DAG frecuencia diaria 8am
+dag = create_dbt_dag(
+    dag_id='dbt_midmarket_daily-8am',
+    schedule_interval_tag='daily-8am',
+    default_args=default_args_renan,
+    tags=['midmarket', 'daily-8am']
 )
