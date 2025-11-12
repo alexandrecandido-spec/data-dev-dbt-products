@@ -2306,7 +2306,7 @@ models:
         description: "MD5 over exposed payload to detect content changes."
         tests: [not_null]
 
-  - name: s__general__mkt_attribution_model__agg_daily
+  - name: s__general__mkt_attribution_model__event
     description: "data product contains granular click-level data used in the marketing attribution model. Each click is linked to the responsible marketing team or source, enabling the attribution of acquisition results—such as store creation—to specific marketing efforts. This dataset supports performance analysis, reporting, and decision-making across acquisition channels"
     config:
       meta:
@@ -2368,15 +2368,6 @@ models:
           - not_null        
       - name: register_url
         description: "URL of the store's registration page."
-      - name: partner_id
-        description: "ID of the store's partner, if a partner was involved in the store's creation."        
-      - name: partnership_type
-        description: "Type of partnership, if a partner was involved in the store's creation."
-      - name: blocked_fraud_tag
-        description: "Flag indicating if the store is blocked or fraudulent"
-        tests:
-          - accepted_values:
-              values: [0, 1]
       - name: mkt_source
         description: "Team responsible for the acquisition efforts and results attribution"
         tests:

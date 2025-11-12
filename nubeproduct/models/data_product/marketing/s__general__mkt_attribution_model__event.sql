@@ -33,12 +33,9 @@ SELECT
 , main_source.landing_page_domain
 , main_source.landing_page_path
 , main_source.attribution_source
-, main_source.country
+, main_source.country_code
 , main_source.year_month_day_code
 , main_source.register_url
-, main_source.partner_id
-, main_source.partnership_type
-, main_source.blocked_fraud_tag
 , main_source.mkt_source
 , main_source.mkt_subteam
 --, main_source.channel
@@ -54,7 +51,7 @@ SELECT
 , COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by
 , current_timestamp AS sys_audit_updated_on
 , 'data-dev-dbt-products' AS sys_audit_updated_by
-FROM {{ ref('_int_marketing_store_attribution__get_mkt_source_classification') }} main_source
+FROM {{ ref('_int_marketing_attribution_model__get_final_classification') }} main_source
 LEFT JOIN existing_data e
                           ON main_source.click_id = e.click_id AND main_source.store_id = e.store_id
 WHERE
