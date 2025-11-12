@@ -3783,6 +3783,11 @@ models:
         domain: "product"
         business_owner: "Nicolas Loreti"
     columns:
+      - name: unique_id
+        description: "Unique identifier of the subscription store information."
+        tests:
+          - not_null
+          - unique
       - name: registered_date
         description: "Date when the subscription store information was registered."
         tests:

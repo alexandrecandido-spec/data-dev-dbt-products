@@ -24,5 +24,5 @@ SELECT
 from metaplans m 
 {% if is_incremental() %}
   WHERE
-  created_date >= (select coalesce(max(created_date),'1900-01-01') from {{ this }} )
+  metaplan_id not in (select metaplan_id from {{ this }} )
 {% endif %}

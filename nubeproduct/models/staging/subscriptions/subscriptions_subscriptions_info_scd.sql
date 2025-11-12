@@ -1,7 +1,7 @@
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'merge',
-    unique_key = ['subscription_id'],
+    unique_key = ['unique_id'],
     on_schema_change = 'fail',
     tags = ['product','daily-8am']
 ) }}
@@ -21,7 +21,8 @@ with subscriptions as (
   from {{ source('stg_subscriptions', 'subscriptions') }}
 )
 SELECT
-    s.*
+    concat(cast(subscription_id as string), '_', cast(subscription_status as string)) as unique_id
+    ,s.*
     ,current_timestamp as sys_audit_created_on
     ,'data-dev-dbt-products' as sys_audit_created_by
     ,current_timestamp as sys_audit_updated_on
