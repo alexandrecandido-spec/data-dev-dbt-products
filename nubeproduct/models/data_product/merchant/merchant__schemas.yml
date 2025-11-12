@@ -344,8 +344,8 @@ models:
       - name: ql_profile
         description: "Quality lead profile classification."
         tests: [not_null]
-      - name: blocked_fraud_tag
-        description: "Tag indicating if the store is blocked or is attributed to a fraudulent partner."
+      - name: is_store_blocked
+        description: "Whether the store is blocked or not"
         tests: [not_null]
       - name: sys_audit_created_on
         description: "Timestamp when the row was originally created."

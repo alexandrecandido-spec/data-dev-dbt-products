@@ -42,7 +42,7 @@ source_data AS (
 
         main_source.ql_profile,
 
-        main_source.blocked_fraud_tag,
+        main_source.is_store_blocked,
 
         main_source.change_timestamp
     FROM {{ ref('_int__acquisition__profile_store') }} AS main_source

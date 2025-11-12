@@ -108,8 +108,8 @@ SELECT
     END AS affiliate_owner,
 
     COALESCE(ql_p.profile, 'not informed') AS ql_profile,
-    
-    CASE WHEN ssi.is_store_blocked = TRUE OR pi.fraude = 1 THEN TRUE ELSE FALSE END AS blocked_fraud_tag,
+
+    ssi.is_store_blocked,
 
     greatest(ss.sys_audit_updated_on, ti.sys_audit_updated_on, att.sys_audit_updated_on, pi.sys_audit_updated_on, ssi.sys_audit_updated_on) AS change_timestamp
 FROM ranked_store_info_ql ss
