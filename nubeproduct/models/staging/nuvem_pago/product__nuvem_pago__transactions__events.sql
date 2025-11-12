@@ -23,3 +23,7 @@ select
     ,current_timestamp as sys_audit_updated_on
     ,'data-dev-dbt-products' as sys_audit_updated_by
 from transactions t
+{% if is_incremental() %}
+  WHERE
+  transaction_id not in (select transaction_id from {{ this }} )
+{% endif %}

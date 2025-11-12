@@ -23,3 +23,7 @@ SELECT
     ,current_timestamp as sys_audit_updated_on
     ,'data-dev-dbt-products' as sys_audit_updated_by
 from runs r
+{% if is_incremental() %}
+  WHERE
+  next_attempt_date >= (select coalesce(max(next_attempt_date),'1900-01-01') from {{ this }} )
+{% endif %}

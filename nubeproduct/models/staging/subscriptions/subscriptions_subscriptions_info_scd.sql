@@ -27,7 +27,7 @@ SELECT
     ,current_timestamp as sys_audit_updated_on
     ,'data-dev-dbt-products' as sys_audit_updated_by
 from subscriptions s
-WHERE
 {% if is_incremental() %}
+  WHERE
   initial_subscription_date >= (select coalesce(max(initial_subscription_date),'1900-01-01') from {{ this }} )
 {% endif %}

@@ -1,7 +1,7 @@
 WITH
 subs_orders as (
   select
-      date(created_at) as registered_date
+      registered_date
       ,store_id
       ,customer_id
       ,order_id
@@ -15,25 +15,25 @@ subs_orders as (
 ),
 orders as (
 SELECT 
-  t.externalorderid as order_id
+  t.order_id
   ,o.total_ammount 
   ,o.total_ammount_usd
   ,order_traits
-  ,count(distinct t.id) as total_transactions
-  ,count(distinct case when status = 'failed' then t.id end) as failed_transactions
-  ,count(distinct case when status = 'paid' then t.id end) as paid_transactions
+  ,count(distinct t.transaction_id) as total_transactions
+  ,count(distinct case when status = 'failed' then t.transaction_id end) as failed_transactions
+  ,count(distinct case when status = 'paid' then t.transaction_id end) as paid_transactions
 FROM {{ ref('product__nuvem_pago__transactions__events') }} t
 inner join (
             select 
               id as order_id
-              ,total_in_local_currency as total_ammount
+              ,total as total_ammount
               ,total_in_usd as total_ammount_usd
               ,order_traits
-          from {{ ref('s__orders__carts_orders_heads__events') }}
+          from {{ source('stg_orders', 'mwp_orders') }}
           where created_at >= date('2025-09-01')
           and order_traits is not null
           ) o
-  on t.externalorderid = o.order_id
+  on t.order_id = o.order_id
 group by 1,2,3,4
 ),
 subs_orders_final as (
@@ -50,7 +50,6 @@ subs_orders_final as (
     ,o.total_transactions
     ,o.failed_transactions
     ,o.paid_transactions
-    ,o.failed_transactions_percentage
     ,o.total_ammount as gmv_local
     ,o.total_ammount_usd as gmv_usd
   from subs_orders so 

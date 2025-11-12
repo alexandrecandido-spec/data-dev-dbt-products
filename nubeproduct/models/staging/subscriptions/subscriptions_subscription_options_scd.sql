@@ -24,3 +24,7 @@ SELECT
     ,current_timestamp as sys_audit_updated_on
     ,'data-dev-dbt-products' as sys_audit_updated_by
 from options o
+{% if is_incremental() %}
+  WHERE
+  creation_date >= (select coalesce(max(creation_date),'1900-01-01') from {{ this }} )
+{% endif %}

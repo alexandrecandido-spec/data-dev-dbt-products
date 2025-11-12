@@ -19,37 +19,37 @@ stores as (
 ),
 metaplans (
   select 
-    date(created_at) as created_date
+    created_date as metaplan_created_date
     ,store_id
     ,promotion_id
-    ,id as metaplan_id
-    ,name as metaplan_name
-    ,deleted as is_metaplan_deleted
+    ,metaplan_id
+    ,metaplan_name
+    ,is_metaplan_deleted
   from {{ ref('subscriptions_metaplans_scd') }}
 ),
 subscription as (
   select
-      id as subscription_id
+      subscription_id
       ,subscription_option_id
       ,store_id
       ,customer_id
       ,initial_order_id
-      ,email as customer_mail
-      ,status as subscription_status
-      ,date(initial_date) as initial_subscription_date
-      ,date(created_at) as subscription_created_date
-      ,date(cancellation_date) as subscription_cancellation_date
+      ,customer_mail
+      ,subscription_status
+      ,initial_subscription_date
+      ,subscription_created_date
+      ,subscription_cancellation_date
   from {{ ref('subscriptions_subscriptions_info_scd') }}
 ),
 subs_option as (
     select
-      date(created_at) as creation_date
-      ,id as subs_option_id
+      creation_date as subs_option_creation_date
+      ,subs_option_id
       ,metaplan_id
       ,frequency_type
       ,frequency_param
       ,discount_percentage
-      ,deleted as is_subs_option_deleted
+      ,is_subs_option_deleted
     from {{ ref('subscriptions_subscription_options_scd') }}
 ),
 subs_runs as (
@@ -57,9 +57,9 @@ subs_runs as (
         subscription_id
         ,instance_number
         ,attempt
-        ,status
-        ,date(next_attempt_date) as next_attempt_date
-        ,date(next_instance_date) as next_instance_date
+        ,status as subs_run_status
+        ,next_attempt_date
+        ,next_instance_date
     from {{ ref('subscriptions_runs_upcoming_scd') }}
 ),
 subscription_final as (
@@ -67,14 +67,14 @@ subscription_final as (
       s.subscription_id
       ,subscription_status
       ,m.metaplan_id
-      ,m.created_date as metaplan_created_date
+      ,m.metaplan_created_date
       ,is_metaplan_deleted
       ,m.store_id
       ,st.store_name
       ,st.vertical_name
       ,st.segment
       ,customer_id
-      ,s.created_date as subs_creation_date
+      ,s.subscription_created_date
       ,initial_subscription_date
       ,subscription_cancellation_date
       ,initial_order_id
@@ -83,8 +83,9 @@ subscription_final as (
       ,discount_percentage
       ,sr.instance_number
       ,sr.attempt
-      ,sr.status as subs_run_status
+      ,sr.subs_run_status
       ,sr.next_attempt_date
+      ,sr.next_instance_date
   from metaplans m
   left join stores st
     on m.store_id = st.store_id

@@ -9,8 +9,8 @@
 
 with subscriptions_store_info as (
   select
-    registered_date
-    ,store_id
+    s.registered_date
+    ,s.store_id
     ,store_name
     ,vertical_name
     ,segment
@@ -50,8 +50,8 @@ select
   ,'data-dev-dbt-products' as sys_audit_created_by
   ,current_timestamp as sys_audit_updated_on
   ,'data-dev-dbt-products' as sys_audit_updated_by
-from subscriptions_store_info s 
-where 
+from subscriptions_store_info s  
 {% if is_incremental() %}
+  WHERE
   registered_date >= (select coalesce(max(registered_date),'1900-01-01') from {{ this }} )
 {% endif %}
