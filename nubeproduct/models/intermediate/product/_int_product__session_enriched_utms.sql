@@ -1,10 +1,9 @@
 -- Enriches filtered user sessions with fallback UTM parameters and referring/landing domains
 -- UTM values are extracted from http_referral and landing_page if original UTMs are missing
 
-
 WITH base_sessions AS (
 SELECT
-   unique_session_key
+    unique_session_key
    , session_timestamp
    , base_date
    , session_id
@@ -24,13 +23,23 @@ SELECT
    , http_referral
 FROM
    {{ ref('product__traffic__sessions__event') }}
+WHERE
+   base_date {{
+    get_max_date_env_model(
+      'product',
+      's__traffic__session__event',
+      'base_date',
+      1, 'day',
+      fallback_start='2024-01-01',
+      fallback_end='2024-01-02'
+    )
+  }}
 )
-
 
 , utm_extracts AS (
 SELECT
    unique_session_key
-
+   , base_date
 
    -- UTMs from utm_source (quando o campo contém URL com parâmetros)
    , NULLIF(REGEXP_EXTRACT(utm_source, 'utm_source=([^&]+)', 1), '')   AS source_utm_source
@@ -90,3 +99,4 @@ FROM
 LEFT JOIN
    utm_extracts AS ue
    ON bs.unique_session_key = ue.unique_session_key
+   AND bs.base_date = ue.base_date
