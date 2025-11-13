@@ -10,7 +10,7 @@ WITH churns AS (
         AGT.new_seller,
         CAST(CM.store_first_payment AS DATE) AS first_payment,
         MIN(CAST(CM.date AS DATE)) AS churn_date
-    FROM {{ ref('_int__affiliates_general_tabla') }} AS AGT 
+    FROM {{ ref('_int_affiliates_general_tabla') }} AS AGT 
     INNER JOIN {{ source('int_finance', 'churns_merchants') }} AS CM
         ON AGT.store_id = CM.store_id
     WHERE CM.store_first_payment IS NOT NULL

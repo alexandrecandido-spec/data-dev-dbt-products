@@ -23,7 +23,7 @@ WITH base_general AS (
         COUNT(DISTINCT CASE WHEN is_quality_lead = 1 THEN store_id END) AS qls,
         COUNT(DISTINCT CASE WHEN churned_at IS NOT NULL THEN store_id END) AS current_churn_stores_created_at,
         0 AS new_sellers_first_payment
-    FROM {{ ref('_int__affiliates_general_tabla') }}
+    FROM {{ ref('_int_affiliates_general_tabla') }}
     WHERE created_at >= '2023-01-01'
     GROUP BY 1, 2, 3, 4, 5
 ),
@@ -50,7 +50,7 @@ base_first_payment AS (
         0 AS qls,
         0 AS current_churn_stores_created_at,
         COUNT(DISTINCT CASE WHEN new_seller = TRUE THEN store_id END) AS new_sellers_first_payment
-    FROM {{ ref('_int__affiliates_general_tabla') }}
+    FROM {{ ref('_int_affiliates_general_tabla') }}
     WHERE first_payment >= '2020-01-01'
     GROUP BY 1, 2, 3, 4, 5
 ),
@@ -77,7 +77,7 @@ base_new_sellers AS (
         0 AS qls,
         0 AS current_churn_stores_created_at,
         0 AS new_sellers_first_payment
-    FROM {{ ref('_int__affiliates_general_tabla') }}
+    FROM {{ ref('_int_affiliates_general_tabla') }}
     WHERE new_seller = TRUE
       AND first_seller_at >= '2023-01-01'
     GROUP BY 1, 2, 3, 4, 5
@@ -105,7 +105,7 @@ base_current_churn AS (
         0 AS qls,
         0 AS current_churn_stores_created_at,
         0 AS new_sellers_first_payment
-    FROM {{ ref('_int__affiliates_general_tabla') }}
+    FROM {{ ref('_int_affiliates_general_tabla') }}
     WHERE churned_at IS NOT NULL
       AND churned_at >= '2023-01-01'
     GROUP BY 1, 2, 3, 4, 5
@@ -133,7 +133,7 @@ base_gmv AS (
         0 AS qls,
         0 AS current_churn_stores_created_at,
         0 AS new_sellers_first_payment
-    FROM {{ ref('_int__affiliates_general_tabla') }} AS t
+    FROM {{ ref('_int_affiliates_general_tabla') }} AS t
     INNER JOIN {{ ref('g__operations__orders_gmv_store__agg_daily') }} AS g
         ON t.store_id = g.store_id
     WHERE g.date >= '2023-01-01'
