@@ -1,5 +1,7 @@
 {{ config(
     materialized = 'incremental',
+    incremental_predicates=[ 'DBT_INTERNAL_SOURCE.base_date = DBT_INTERNAL_DEST.base_date', 
+        'DBT_INTERNAL_SOURCE.unique_session_key = DBT_INTERNAL_DEST.unique_session_key' ],
     unique_key = 'unique_session_key',
     partition_by = 'base_date',
     on_schema_change = 'fail',
@@ -32,7 +34,7 @@ WHERE
     {% if not is_incremental() %}
     TO_DATE(date_id, 'yyyyMMdd') BETWEEN DATE('2024-01-01') AND DATE('2024-01-05')
     {% else %}
-    TO_DATE(date_id, 'yyyyMMdd') {{ get_max_date(this, 'base_date', 1, 'month') }}
+    TO_DATE(date_id, 'yyyyMMdd') {{ get_max_date(this, 'base_date', 1, 'week') }}
     {% endif %}
 )
 
@@ -49,7 +51,14 @@ WHERE row_num = 1
 )
 
 , existing_data AS (
-    {{ get_existing_data(this, ['unique_session_key'])}}
+    {{ get_existing_data_where(
+         this,
+         ['unique_session_key'],
+         "base_date " ~ (
+            "BETWEEN DATE('2024-01-01') AND DATE('2024-01-05')" if not is_incremental() 
+            else get_max_date(this, 'base_date', 1, 'week')
+         )
+    ) }}
 )
 
 SELECT
