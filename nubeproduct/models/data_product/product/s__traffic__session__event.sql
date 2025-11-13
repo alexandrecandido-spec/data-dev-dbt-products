@@ -6,7 +6,7 @@
     partition_by = 'base_date',
     on_schema_change = 'fail',
     post_hook=["OPTIMIZE {{ this }} ZORDER BY (unique_session_key)"],
-    tags = ['product', 'daily-3am']
+    tags = ['daily-2am']
 ) }}
 
 {% set base_date_filter %}
