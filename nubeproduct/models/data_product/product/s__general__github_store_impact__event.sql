@@ -14,6 +14,7 @@
       WHERE d.sys_audit_is_deleted = 1
         AND d.repo_name   = {{ this }}.repo_name
         AND d.issue_number = {{ this }}.issue_number
+        AND is_latest_by_repo_and_number = TRUE
     );
     ",
       "
@@ -24,6 +25,7 @@
         WHERE d.sys_audit_is_deleted = 1
           AND d.repo_name   = {{ this }}.repo_name
           AND d.issue_number = {{ this }}.issue_number
+          AND is_latest_by_repo_and_number = TRUE
     );
       "]
   )
