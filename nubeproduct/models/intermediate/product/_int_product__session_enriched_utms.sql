@@ -3,7 +3,7 @@
 
 WITH base_sessions AS (
 SELECT
-   unique_session_key
+    unique_session_key
    , session_timestamp
    , base_date
    , session_id
@@ -24,20 +24,16 @@ SELECT
 FROM
    {{ ref('product__traffic__sessions__event') }}
 WHERE
-{% if 1 == 1 %}
-   base_date = DATE('2024-09-23')
-{% else %}
    base_date {{
     get_max_date_env_model(
       'product',
       's__traffic__session__event',
       'base_date',
-      2, 'week',
-      fallback_start='2024-01-01',
-      fallback_end='2024-01-05'
+      1, 'day',
+      fallback_start=None,
+      fallback_end=None
     )
   }}
-{% endif %}
 )
 
 , utm_extracts AS (

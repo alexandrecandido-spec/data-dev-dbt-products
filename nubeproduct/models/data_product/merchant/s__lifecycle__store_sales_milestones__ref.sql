@@ -35,8 +35,8 @@ sale_ranks AS (
             WHEN i.country_code = 'CO' THEN TO_DATE(CONVERT_TIMEZONE( 'UTC', 'America/Bogota',  o.completed_at),'YYYY-MM-DD')
             ELSE TO_DATE(o.completed_at,'YYYY-MM-DD') 
         END as completed_at,
-        row_number() over(partition by o.store_id order by o.id asc) as index_asc,
-        row_number() over(partition by o.store_id order by o.id desc) as index_desc
+        row_number() over(partition by o.store_id order by o.completed_at asc) as index_asc,
+        row_number() over(partition by o.store_id order by o.completed_at desc) as index_desc
     FROM {{ ref('company_metrics_paid_orders') }} o
     LEFT JOIN {{ ref('s__attributes__store_core__ref') }} i ON o.store_id = i.store_id
     WHERE 
