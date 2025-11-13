@@ -4,10 +4,10 @@
 {{ config(
    materialized = 'incremental',
    incremental_strategy='merge',
-   unique_key = ['base_date', 'store_id', 'country_code', 'vertical_name', 'current_plan_type', 'current_segment'
+   unique_key = ['base_month', 'store_id', 'country_code', 'vertical_name', 'current_plan_type', 'current_segment'
         , 'is_store_blocked' , 'visitor_country', 'device', 'theme', 'source_name', 'source_group'  
         , 'google_subchannel', 'traffic_type', 'is_end_user', 'storefront'],
-   partition_by = 'base_date',
+   partition_by = 'base_month',
    on_schema_change = 'fail',
    tags = ['daily-2am']
 ) }}
@@ -33,7 +33,7 @@ WHERE
 
 , agg_1 AS (
 SELECT
-    base_date
+    DATE_TRUNC('month', base_date) AS base_month
     , store_id
     , country_code
     , vertical_name
