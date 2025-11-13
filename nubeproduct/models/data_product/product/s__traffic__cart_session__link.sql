@@ -5,7 +5,7 @@
     unique_key = 'cart_id',
     partition_by = 'event_base_date',
     on_schema_change = 'fail',
-    tags = ['product', 'daily-4am']
+    tags = ['daily-2am']
 ) }}
 
 WITH cart_add AS (

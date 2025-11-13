@@ -297,6 +297,8 @@ sources:
         description: "Contains a record of Hubspot dealbreakers that were archived (only last 90 days)"
       - name: dealbreakers_base_association
         description: "Contains all the active dealbreakers and its association to a company in Hubspot"
+      - name: deals 
+        description: "Contains a record of Hubspot deals."
 
 
   - name: stg_third_party
@@ -317,6 +319,12 @@ sources:
         description: "Results from the Google Search Console URLs report"
       - name: marketing_google_search_console_urls_unsplit_results
         description: "Results from the Google Search Console URLs unsplit report"
+      - name: product_github_issues
+      - name: product_github_issues_events
+      - name: product_github_issues_comments
+      - name: product_github_problems
+      - name: product_github_problems_events
+      - name: product_github_problems_comments
 
   - name: stg_nuvemchat
     database: hive_metastore

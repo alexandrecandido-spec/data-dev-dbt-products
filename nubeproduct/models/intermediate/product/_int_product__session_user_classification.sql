@@ -8,6 +8,17 @@ SELECT
 FROM
    {{ ref('product__traffic__sessions__event') }}
 WHERE
+   base_date {{
+    get_max_date_env_model(
+      'product',
+      's__traffic__session__event',
+      'base_date',
+      1, 'day',
+      fallback_start=None,
+      fallback_end=None
+    )
+  }}
+AND
    -- exclude: likely from merchants creating their own design
    (
        http_referral LIKE '%conekta-tiendanube%'
