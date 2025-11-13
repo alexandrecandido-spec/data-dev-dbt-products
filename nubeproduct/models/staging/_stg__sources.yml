@@ -58,7 +58,10 @@ sources:
         description: "Table with shipping carrier options and settings"
       - name: mwp_store_access
         description: "Table with store admin access events"
-
+      - name: mwp_discount_coupons
+        description: "Table with coupons from merchants"
+      - name: mwp_promotional_discounts
+        description: "Table with promotional discounts from merchants"
 
   - name: stg_orders
     description: "Source containing tables related to order movements"

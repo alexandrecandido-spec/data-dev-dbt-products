@@ -4415,3 +4415,69 @@ models:
         description: "Actor/system that last updated the row in this model (fixed to 'data-dev-dbt-products')."
         tests:
           - not_null
+
+  - name: product__coupon__discount_coupons__event
+    description: "Event table with discount coupons from merchants"
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: coupon_id
+        description: "Primary key of the discount coupon"
+        tests:
+          - not_null
+          - unique
+      - name: store_id
+        description: "Store id"
+        tests:
+          - not_null
+      - name: coupon_code
+        description: "Code of the discount coupon"
+        tests:
+          - not_null
+      - name: coupon_type
+        description: "Type of the discount coupon (percentage, absolute)"
+      - name: coupon_valid
+        description: "Validity of the discount coupon (true, false)"
+      - name: coupon_start_date
+        description: "Start date of the discount coupon"
+      - name: coupon_used
+        description: "Has discount coupon been used?"
+      - name: coupon_max_uses
+        description: "Max uses of the discount coupon"
+      - name: coupon_end_date
+        description: "End date of the discount coupon"
+      - name: coupon_deleted_at
+        description: "Deleted date of the discount coupon"
+      - name: coupon_value
+        description: "Value of the discount coupon"
+      - name: coupon_restrictions
+        description: "Restriction of the discount coupon"
+      - name: coupon_apply_total_amount
+        description: "Apply total amount of the discount coupon"
+      - name: coupon_created_at
+        description: "Created date of the discount coupon"
+      - name: coupon_updated_at
+        description: "Updated date of the discount coupon"
+      - name: coupon_created_by_app_id
+        description: "App id of the app the coupon was created from"
+      - name: coupon_first_consumer_purchase
+        description: "If the coupon is only valid for the first consumer purchase"
+      - name: coupon_max_uses_per_client
+        description: "Max uses per client of the discount coupon"
+      - name: coupon_combines_with_other_discounts
+        description: "If the coupon can be used with other discounts"
+      - name: coupon_only_cheapest_shipping
+        description: "If the coupon is only valid for the cheapest shipping"
+      - name: year_month_day_code
+        description: "Year month day code"
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model. Defaults to current_timestamp if not available."
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model. Defaults to 'data-dev-dbt-products'."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed."
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
