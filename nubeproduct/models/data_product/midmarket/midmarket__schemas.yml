@@ -847,6 +847,467 @@ models:
         tests:
           - not_null
 
+  - name: s__success__pipeline__snapshot
+    description: >
+      Midmarket Success pipeline data product. Consolidates staging deals with standardized business logic, country derivation (AR/BR/MX), and unified date fields for Success operations. Includes key lifecycle metrics (churn, downgrade, warnings) and success management indicators.
+    config:
+      meta:
+        owner: "renan.ferrari@nuvemshop.com.br"
+        domain: "midmarket"
+        business_owner: "Franco Tiberti"
+    columns:
+      - name: deal_id
+        description: "Unique identifier for the HubSpot deal. Primary key."
+        tests:
+          - unique
+          - not_null
+      - name: stage
+        description: "Current HubSpot deal stage within the Success pipeline."
+        tests:
+          - not_null
+      - name: pipeline
+        description: "HubSpot pipeline name (Success | AR, Success | BR, or Success | MX)."
+        tests:
+          - accepted_values:
+              values: ["Success | BR","Success | AR","Success | MX"]
+      - name: hs_is_closed_won
+        description: "Boolean flag indicating if the deal is marked as 'Closed Won' in HubSpot."
+      - name: last_modified_date
+        description: "Timestamp of the last update made to the deal record in HubSpot."
+      - name: pipeline_creation_date
+        description: "Original deal creation date in HubSpot."
+        tests:
+          - not_null
+      - name: dealname
+        description: "Deal name or title as defined in HubSpot."
+      - name: deal_owner
+        description: "HubSpot owner (user) assigned to the deal."
+      - name: country
+        description: "Country derived from the Success pipeline (AR/BR/MX)."
+        tests:
+          - accepted_values:
+              values: ["AR","BR","MX"]
+      - name: agency_that_referred
+        description: "Agency that referred the merchant, if applicable."
+      - name: amount
+        description: "Deal amount or estimated value in local currency."
+      - name: associated_deal_ids
+        description: "List of related deals associated with the same company or merchant."
+      - name: business_model_sales
+        description: "Business model classification for the merchant (e.g., B2C, B2B, Hybrid)."
+      - name: city_state_sales
+        description: "City and state or sales territory linked to the deal."
+      - name: close_date_sales
+        description: "Date recorded by Success as the official close date for the deal."
+      - name: closed_won_notes_sales
+        description: "Notes entered by Success when the deal is marked as won."
+      - name: closed_won_reason_1_upsell
+        description: "Primary reason selected when the deal is marked as an upsell."
+      - name: closed_won_reason__1__nuevmshop_
+        description: "Primary reason selected when the deal is won (custom HubSpot field)."
+      - name: closed_won_reason__2__nuevmshop_
+        description: "Secondary reason selected when the deal is won (custom HubSpot field)."
+      - name: closedate
+        description: "Date when the deal was closed (won or lost)."
+      - name: company_name
+        description: "Company or merchant name associated with the deal."
+      - name: competitor_identified
+        description: "Competitor identified during the Success process, if any."
+      - name: consider_unknown
+        description: "Boolean flag indicating deals marked as 'unknown consideration'."
+      - name: cpt
+        description: "Cost per transaction (CPT) associated with the merchant."
+      - name: data_go_live
+        description: "Date when the store went live, as recorded by Success."
+      - name: deal_stage_before_closed
+        description: "Deal stage immediately prior to being marked as closed."
+      - name: deal_tags
+        description: "Tags applied to the deal for classification or segmentation."
+      - name: e_commerce
+        description: "E-commerce platform used by the merchant."
+      - name: effective_churn_at
+        description: "Effective churn date (raw HubSpot field)."
+      - name: effective_churn_one_liner
+        description: "Summary description of the churn reason."
+      - name: effective_churn_root_cause
+        description: "Primary root cause of churn."
+      - name: effective_churn_root_cause_2
+        description: "Secondary or complementary root cause of churn."
+      - name: erp
+        description: "ERP system used by the merchant."
+      - name: forecast
+        description: "Forecasted revenue or likelihood classification for the deal."
+      - name: forecast_category
+        description: "Forecast category label in HubSpot."
+      - name: gmv_last_90_days_in_local_currency
+        description: "Gross merchandise value over the last 90 days in local currency."
+      - name: gmv_potencial
+        description: "Potential GMV estimated for this merchant."
+      - name: go_live_forecast_date
+        description: "Forecasted go-live date of the merchant."
+      - name: hs_analytics_latest_source
+        description: "Most recent analytics source attributed by HubSpot."
+      - name: hs_analytics_latest_source_data_1
+        description: "Additional data layer 1 for latest analytics source."
+      - name: hs_analytics_latest_source_data_2
+        description: "Additional data layer 2 for latest analytics source."
+      - name: hs_analytics_source
+        description: "Original source of the deal according to HubSpot analytics."
+      - name: hs_analytics_source_data_1
+        description: "Additional data layer 1 for original analytics source."
+      - name: hs_analytics_source_data_2
+        description: "Additional data layer 2 for original analytics source."
+      - name: hubspot_team_id
+        description: "HubSpot team identifier assigned to the deal owner."
+      - name: kickoff_date
+        description: "Kick-off date for the Success follow-up process."
+      - name: last_survey_answered
+        description: "Date or identifier of the last survey answered by the merchant."
+      - name: lead_gen_campaign_id
+        description: "Campaign ID from which the lead originated."
+      - name: merged_deal_ids
+        description: "IDs of deals merged into this deal record."
+      - name: need_professional_services
+        description: "Flag indicating if professional services are needed for this merchant."
+      - name: ne_status
+        description: "Status of Nuvem Envio / Envío Nube for the merchant."
+      - name: notes_last_updated
+        description: "Timestamp of the last note update on the deal."
+      - name: not_unknown_reason
+        description: "Indicator for deals not flagged as 'unknown' in reason fields."
+      - name: other_relevant_pains
+        description: "Other relevant pains or issues identified by the Success team."
+      - name: out_of_portfolio_one_liner
+        description: "Summary reason for the merchant being out of portfolio."
+      - name: out_of_portfolio_root_cause
+        description: "Primary root cause for out-of-portfolio classification."
+      - name: out_of_portfolio_root_cause_2
+        description: "Secondary root cause for out-of-portfolio classification."
+      - name: payment_method_actual_operation
+        description: "Payment method currently used by the merchant."
+      - name: post_mortem_file_url
+        description: "URL link to the post-mortem file if available."
+      - name: potential_average_ticket
+        description: "Average ticket value potential estimated for the merchant."
+      - name: potential_cvr
+        description: "Potential conversion rate for the merchant or campaign."
+      - name: potential_gross_profit
+        description: "Potential gross profit estimated for the merchant."
+      - name: potential_gross_profit_perc
+        description: "Gross profit percentage estimated for the merchant."
+      - name: potential_payback_months
+        description: "Expected payback period in months."
+      - name: potential_take_rate_perc
+        description: "Expected take rate percentage for the merchant."
+      - name: pre_mortem_file_url
+        description: "URL link to the pre-mortem file if available."
+      - name: produto_nuvemshop
+        description: "Primary Nuvemshop product linked to the merchant."
+      - name: responsavel_da_nuvem_pelo_fechamento_da_venda
+        description: "Internal Nuvemshop user responsible for the deal closure."
+      - name: responsavel_marketing
+        description: "Marketing representative associated with the deal."
+      - name: sales_cycle
+        description: "Sales cycle duration or classification in days or label."
+      - name: shipping_method_actual_operation
+        description: "Shipping method currently used by the merchant."
+      - name: special_condition
+        description: "Flag indicating if the deal has a special commercial condition."
+      - name: special_condition___reason
+        description: "Reason or justification for the special condition."
+      - name: store_id
+        description: "Internal store identifier linked to the merchant or deal."
+      - name: subscription
+        description: "Subscription plan type or related field (if applicable)."
+      - name: success_priority
+        description: "Priority flag indicating strategic or operational importance."
+      - name: top_pain_1_github_id
+        description: "GitHub issue ID associated with the primary merchant pain point."
+      - name: top_pain_1_type
+        description: "Type/category of the primary merchant pain point."
+      - name: top_pain_2_github_id
+        description: "GitHub issue ID associated with the secondary merchant pain point."
+      - name: top_pain_2_type
+        description: "Type/category of the secondary merchant pain point."
+      - name: type_of_onboarding
+        description: "Type/category of onboarding or success process."
+      - name: vertical
+        description: "Vertical or industry segment of the merchant."
+      - name: warning_summary
+        description: "Summary or explanation of the warning event for the merchant."
+      - name: warning_type
+        description: "Type/category of the warning (e.g., performance, risk)."
+      - name: acquisition_channel
+        description: "Lead acquisition channel (from where_did_the_lead_came_from_)."
+      - name: date_entered_downgrade
+        description: "Date when the deal entered the Downgrade stage. Unified across AR, BR, and MX."
+      - name: date_entered_effective_churn
+        description: "Date when the deal entered the Effective Churn stage. Unified across AR, BR, and MX."
+      - name: date_entered_warning
+        description: "Date when the deal entered the Warning stage. Unified across AR, BR, and MX."
+      - name: date_exited_warning
+        description: "Date when the deal exited the Warning stage. Unified across AR, BR, and MX."
+      - name: date_exited_effective_churn
+        description: "Date when the deal exited the Effective Churn stage. Unified across AR, BR, and MX."
+      - name: date_entered_transition_to_customer_success_onboarding
+        description: "Date when the deal entered the Transition to Customer Success Onboarding stage. Unified across AR and BR."
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when the record was last processed or refreshed."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run."
+        tests:
+          - not_null
+
+  - name: s__upsell__renewal__pipeline__snapshot
+    description: >
+      Midmarket Upsell & Renewal pipeline data product. Consolidates staging deals from the Upsell Success pipelines 
+      with standardized business logic, status mapping, and unified date fields across countries (AR/BR/MX).
+    config:
+      meta:
+        owner: "pedro.fregonese@tiendanube.com"
+        domain: "midmarket"
+        business_owner: "Franco Tiberti"
+    columns:
+      - name: deal_id
+        description: "Unique identifier for the HubSpot deal. Primary key."
+        tests:
+          - unique
+          - not_null
+      - name: store_id
+        description: "Internal store identifier linked to the deal."
+      - name: stage
+        description: "Current HubSpot deal stage within the Upsell & Renewal pipeline."
+        tests:
+          - not_null
+      - name: deal_status
+        description: "Business status derived from stage. Possible values: 'On-going' (Suspect, Prospect, Scheduled Meeting, Negotiation, In Signature), 'Lost', or 'Won' (Won, Upsell, NEXT Renewal)."
+        tests:
+          - accepted_values:
+              values: ["On-going", "Lost", "Won"]
+      - name: dealname
+        description: "Deal name or title as defined in HubSpot."
+      - name: deal_owner
+        description: "HubSpot owner (Deal owner) assigned to the deal."
+      - name: sales_dev_owner
+        description: "Sales Development team member responsible for the lead or initial contact."
+      - name: pipeline_creation_date
+        description: "Deal creation date in HubSpot."
+        tests:
+          - not_null
+      - name: closedate
+        description: "Deal close date when the deal was successfully won or lost."
+      - name: country
+        description: "Country derived from the Upsell Success pipeline (AR/BR/MX)."
+        tests:
+          - accepted_values:
+              values: ["AR", "BR", "MX"]
+      - name: pipeline
+        description: "HubSpot pipeline name (Upsell Success | AR, Upsell Success | BR, or Upsell Success | MX)."
+        tests:
+          - accepted_values:
+              values: ["Upsell Success | AR", "Upsell Success | BR", "Upsell Success | MX"]
+      - name: client_upsell_motive
+        description: "Whether the deal is an upsell or a renewal opportunity."
+      - name: potential_gmv
+        description: "Potential GMV (Gross Merchandise Value) estimated for this renewal or upsell opportunity."
+      - name: potential_gross_profit_perc
+        description: "Gross profit percentage estimated for the upsell or renewal deal."
+      - name: potential_gross_profit
+        description: "Potential gross profit value derived from deal estimates."
+      - name: subscription
+        description: "Monthly subscription fee amount for the upsell or renewal plan."
+      - name: cpt
+        description: "Cost per transaction (transaction fee) for the deal."
+      - name: success_priority
+        description: "Priority flag indicating strategic importance or success level (e.g., Level 1, Level 2, Level 3)."
+      - name: vertical
+        description: "Vertical or industry segment of the merchant."
+      - name: closed_lost_reason_1
+        description: "Primary reason selected when the deal is lost (custom field)."
+      - name: closed_lost_reason_2
+        description: "Secondary reason selected when the deal is lost (custom field)."
+      - name: closed_won_reason_1
+        description: "Primary reason selected when the deal is won (custom field)."
+      - name: closed_won_reason_2
+        description: "Secondary reason selected when the deal is won (custom field)."
+      - name: closed_lost_notes_sales
+        description: "Notes entered by the Success team when a deal is marked as lost."
+      - name: notes_last_updated
+        description: "Timestamp of the last note update on the deal."
+      - name: company_name
+        description: "Company or merchant name associated with the deal."
+      - name: date_entered_negotiation_upsell_success
+        description: "Date when the deal entered the 'Negotiation' stage in the Upsell/Renewal pipeline. Unified across AR and BR (MX currently null)."
+      - name: forecast_category
+        description: "HubSpot's forecast category label for the deal."
+      - name: stage_before_closing_deal
+        description: "Deal stage before closure or disqualification."
+      - name: city_state_sales
+        description: "City and state or sales territory linked to the deal."
+      - name: deal_tags
+        description: "Tags applied to the deal for classification or segmentation."
+      - name: aspirational_brand
+        description: "Binary flag (1/0) indicating if the deal is tagged as 'Aspirational brand'."
+        tests:
+          - accepted_values:
+              values: [0, 1]
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when the record was last processed or refreshed."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run."
+        tests:
+          - not_null
+
+  - name: g__aspirational__brands__lifecycle__snapshot
+    description: >
+      Aspirational Brands lifecycle snapshot data product. Consolidates Sales, Sales Dev, Onboarding, and Success pipeline data to represent the full merchant lifecycle across HubSpot pipelines. 
+      It identifies funnel progression (Suspect → Opportunity → Won → Onboarding → Success) and assigns lifecycle statuses (e.g., Churn, Downgrade, Warning, OK) with store-level enrichment.
+    config:
+      meta:
+        owner: "renan.ferrari@nuvemshop.com.br"
+        domain: "midmarket"
+        business_owner: "Franco Tiberti"
+    columns:
+      - name: deal_id
+        description: "Unique identifier for the HubSpot deal. Primary key representing the Sales or Sales Dev deal record."
+        tests:
+          - unique
+          - not_null
+      - name: country
+        description: "Country associated with the deal, derived from the source pipeline (AR, BR, MX)."
+        tests:
+          - accepted_values:
+              values: ["AR", "BR", "MX"]
+      - name: company_name
+        description: "Name of the company or merchant linked to the deal in HubSpot."
+      - name: dealname
+        description: "Deal title or name as defined in HubSpot."
+      - name: vertical
+        description: "Industry vertical classification of the merchant."
+      - name: deal_owner
+        description: "HubSpot owner (user) assigned to the deal."
+      - name: pipeline
+        description: "HubSpot pipeline name, e.g., 'Sales | BR', 'Sales | AR', 'Sales | MX'."
+        tests:
+          - not_null
+      - name: stage
+        description: "Current HubSpot deal stage within the pipeline (e.g., Problem Discovery, Won, Lost, etc.)."
+        tests:
+          - not_null
+      - name: e_commerce
+        description: "E-commerce platform used by the merchant, when available."
+      - name: pipeline_creation_date
+        description: "Original HubSpot deal creation date."
+      - name: closedate
+        description: "Date when the deal was closed (won or lost)."
+      - name: gmv_potencial
+        description: "Potential GMV (Gross Merchandise Value) estimated for the merchant."
+      - name: acquisition_channel
+        description: "Lead acquisition channel (e.g., Paid Media, Referral, Aspirational Brands)."
+      - name: segmento_nuvemshop
+        description: "Merchant segment or tier according to Nuvemshop classification."
+      - name: produto_nuvemshop
+        description: "Primary Nuvemshop product associated with the deal (e.g., Escala, Enterprise)."
+      - name: date_entered_won
+        description: "Date when the deal entered the Won stage."
+      - name: store_id
+        description: "Internal store identifier linked to the merchant."
+      - name: dealid_sales_dev
+        description: "Deal ID from the Sales Development pipeline associated with this root Sales deal."
+      - name: dealstage_sales_dev
+        description: "Current stage of the associated Sales Development deal."
+      - name: date_entered_sales_dev
+        description: "Date when the Sales Development deal was created or entered the pipeline."
+      - name: date_entered_problem_discovery_sales_dev
+        description: "Date when the Sales Dev deal entered the Problem Discovery stage."
+      - name: date_entered_prospect_mkt
+        description: "Date when the Sales Dev deal entered the Prospect Marketing stage."
+      - name: dealid_onboarding
+        description: "Deal ID from the Onboarding pipeline associated with this merchant."
+      - name: dealstage_onboarding
+        description: "Current stage of the Onboarding deal."
+      - name: date_entered_onboarding
+        description: "Date when the merchant entered the Onboarding process."
+      - name: date_entered_churn_onboarding
+        description: "Date when the merchant churned during Onboarding."
+      - name: date_entered_warning_onboarding
+        description: "Date when a warning event occurred during Onboarding."
+      - name: dealid_success
+        description: "Deal ID from the Success pipeline associated with this merchant."
+      - name: dealstage_success
+        description: "Current stage of the Success deal."
+      - name: date_entered_success
+        description: "Date when the merchant entered the Success process."
+      - name: date_entered_churn_success
+        description: "Date when the merchant churned during the Success phase."
+      - name: date_entered_warning_success
+        description: "Date when a warning event occurred in the Success phase."
+      - name: suspect
+        description: "Flag indicating if the record is classified as a Suspect (always 1 for this dataset)."
+        tests:
+          - accepted_values:
+              values: [1]
+      - name: opportunity
+        description: "Flag indicating if the deal represents an Opportunity (1 if pipeline is Sales)."
+        tests:
+          - accepted_values:
+              values: [0, 1]
+      - name: won
+        description: "Flag indicating if the deal is Won in HubSpot."
+        tests:
+          - accepted_values:
+              values: [0, 1]
+      - name: onboarding
+        description: "Flag indicating if the merchant has an associated Onboarding deal."
+        tests:
+          - accepted_values:
+              values: [0, 1]
+      - name: success
+        description: "Flag indicating if the merchant has an associated Success deal."
+        tests:
+          - accepted_values:
+              values: [0, 1]
+      - name: store_info_churned_at
+        description: "Date when the store was churned according to lifecycle store status."
+      - name: current_plan
+        description: "Current subscription plan of the merchant (e.g., Escala, Enterprise)."
+      - name: current_state
+        description: "Current operational state of the store (e.g., active, paused, closed)."
+      - name: status_hubspot
+        description: >
+          Consolidated lifecycle status derived from HubSpot and store data.
+          Possible values: Churn, Downgrade, Paused, Warning Success, Warning Onboarding, Pre-Onboarding, OK, NOK.
+        tests:
+          - accepted_values:
+              values: ["Churn", "Downgrade", "Paused", "Warning Success", "Warning Onboarding", "Pre-Onboarding", "OK", "NOK"]
+      - name: company_id
+        description: "Unique company identifier from HubSpot, extracted from the associated deal."
+      - name: lifecyclestage
+        description: "HubSpot company lifecycle stage classification."
+      - name: hs_is_target_account
+        description: "Boolean flag indicating if the company is marked as a target account in HubSpot."
+      - name: hs_ideal_customer_profile
+        description: "Boolean flag indicating if the company fits the Ideal Customer Profile (ICP) criteria in HubSpot."
 
   - name: g__success__business_review_enriched__agg_snapshot_weekly
     config:
@@ -1247,3 +1708,42 @@ models:
         description: "Cost per transaction (transaction fee). Populated for Sales New Contracts, Onboarding metrics, Upsell/Renewal, and Success deal-based events. Null for Sales SQLs/Opportunities and Success merchant snapshots."
       - name: potential_gross_profit_perc
         description: "Potential gross profit percentage from HubSpot deal properties. Populated for Sales New Contracts, Onboarding metrics, Upsell/Renewal, and Success deal-based events. Null for Sales SQLs/Opportunities and Success merchant snapshots."
+
+  - name: g__success__warnings__agg_snapshot_weekly
+    config:
+      meta:
+        tech_steward: "guillermo.defelice@tiendanube.com"
+        domain: "midmarket"
+        business_owner: "Franco Tiberti"
+    description: "Snapshot of warnings for Success stores aggregated weekly."
+    columns:
+      - name: date_from
+        description: "Start date of the reference week."
+        tests:
+          - not_null
+      - name: date_to
+        description: "End date of the reference week."
+        tests:
+          - not_null
+      - name: deal_id
+        description: "Unique identifier of the HubSpot deal."
+        tests:
+          - not_null
+      - name: store_id
+        description: "Unique identifier of the store."
+        tests:
+          - not_null
+      - name: warning_root_cause_1
+        description: "Root cause of the warning."
+      - name: warning_root_cause_2
+        description: "Root cause of the warning."
+      - name: warning_summary
+        description: "Summary of the warning."
+      - name: warning_type
+        description: "Type of the warning."
+      - name: competitor_identified
+        description: "Whether a competitor was identified."
+      - name: date_entered_warning
+        description: "Date when the warning was entered."
+      - name: date_exited_warning
+        description: "Date when the warning was exited."

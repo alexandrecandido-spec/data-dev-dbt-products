@@ -33,6 +33,7 @@ FROM
 , cleaned_domains AS (
 SELECT
    unique_session_key
+   , base_date
    , REGEXP_REPLACE(ref_domain_raw, '(\\.[a-z]{2,3}){1,2}$', '') AS ref_domain_no_tld
    , REGEXP_REPLACE(land_domain_raw, '(\\.[a-z]{2,3}){1,2}$', '') AS land_domain_no_tld
 FROM
@@ -44,6 +45,7 @@ FROM
 , normalized_domains AS (
 SELECT
    unique_session_key
+   , base_date
    , REGEXP_REPLACE(ref_domain_no_tld, '^(www\\.|m\\.|l\\.|lm\\.)', '') AS ref_domain_clean
    , REGEXP_REPLACE(land_domain_no_tld, '^(www\\.|m\\.|l\\.|lm\\.)', '') AS land_domain_clean
 FROM
@@ -77,3 +79,4 @@ FROM
 LEFT JOIN
    normalized_domains AS nd
    ON bd.unique_session_key = nd.unique_session_key
+   AND bd.base_date = nd.base_date

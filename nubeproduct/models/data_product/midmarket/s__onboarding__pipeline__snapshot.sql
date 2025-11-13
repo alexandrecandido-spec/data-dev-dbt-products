@@ -2,7 +2,7 @@
     materialized='table',
     on_schema_change='fail',
     unique_key=['deal_id'],
-    tags=['daily-6am']
+    tags=['midmarket','daily-7am']
 ) }}
 
 select distinct
@@ -47,6 +47,9 @@ select distinct
     then cast(coalesce(date_entered_downgrade_onboarding_ar, date_entered_downgrade_onboarding_br, date_entered_downgrade_onboarding_mx) as date)
   end                                    as downgrade_date,
 
+  cast(coalesce(date_entered_warning_onboarding_ar, date_entered_warning_onboarding_br, date_entered_warning_onboarding_mx) as date)
+  as warning_date,
+
   effective_out_of_portfolio_at,
 
   /* lead times (calculados en intermediate) */
@@ -80,6 +83,9 @@ select distinct
   where_did_the_lead_came_from_          as acquisition_channel,
   vertical,
   cidade_territorio_sales                as city_state_sales,
+  segmento_nuvemshop,
+  produto_nuvemshop,
+  associated_deal_ids,
 
   current_timestamp AS sys_audit_created_on,
   'data-dev-dbt-products' AS sys_audit_created_by,

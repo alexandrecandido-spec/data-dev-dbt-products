@@ -53,13 +53,22 @@ select
     CAST(msi.created_at AS DATE) AS created_at,
     CAST(msi.churned_at AS DATE) AS churned_at,
     GREATEST(
-        spv.sh_max_sys_audit_updated_on,
-        combined.c_max_sys_audit_updated_on,
-        mf.mf_max_sys_audit_updated_on
+        COALESCE(spv.sh_max_sys_audit_updated_on, '1900-01-01'),
+        COALESCE(combined.c_max_sys_audit_updated_on, '1900-01-01'),
+        COALESCE(mf.mf_max_sys_audit_updated_on, '1900-01-01')
     ) AS max_sys_audit_updated_on
 FROM {{ ref('moltres__mwp_store_info') }} msi
 LEFT JOIN {{ ref('operations_grouping_plans') }} gp on gp.plan = msi.plan
-LEFT JOIN {{ source('int_moltres', 'mwp_options') }} o on o.store_id = msi.store_id AND o.option_name = 'twig_template'
+LEFT JOIN 
+    (
+        SELECT
+            store_id,
+            option_value
+        FROM {{ source('int_moltres', 'mwp_options') }}
+        WHERE option_name = 'twig_template'
+        QUALIFY ROW_NUMBER() OVER (PARTITION BY store_id ORDER BY created_at DESC) = 1
+    ) o 
+ON o.store_id = msi.store_id
 LEFT JOIN {{ ref('_int_product__catalog_features_stock_history_variants') }} spv on spv.store_id = msi.store_id
 LEFT JOIN {{ ref('_int_product__catalog_features_categories_lang_cd_gmv') }} combined on combined.store_id = msi.store_id
 LEFT JOIN {{ ref('_int_product__catalog_features_metafields_combined') }} mf on mf.store_id = msi.store_id
