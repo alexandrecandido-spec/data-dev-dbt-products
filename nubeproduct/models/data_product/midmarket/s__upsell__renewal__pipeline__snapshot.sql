@@ -34,6 +34,7 @@ select
     d.cpt,
     d.success_priority,
     d.vertical,
+    d.acquisition_channel,
     d.closed_lost_reason__1__nuevmshop_ as closed_lost_reason_1,
     d.closed_lost_reason__2__nuevmshop_ as closed_lost_reason_2,
     d.closed_won_reason__1__nuevmshop_ as closed_won_reason_1,
