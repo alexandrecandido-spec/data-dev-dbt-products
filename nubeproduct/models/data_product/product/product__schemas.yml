@@ -3775,6 +3775,734 @@ models:
           column_B: total_sessions_with_carts
 
 
+  - name: s__general__github_issue__event
+    description: 
+      "Canonical **Issues/Problems** surface that unifies GitHub issues and problems
+      from `_int__product__general__github_issues_and_problems_union`, keeps only the
+      latest record per (`repo_name`, `issue_number`), aggregates labels, and exposes
+      a boolean `is_test` derived from label patterns. The model is **incremental**
+      (merge on `id`). Post-hooks remove rows whose upstream label-link models mark
+      them as logically deleted."
+    config:
+      meta:
+        owner: "fabricio.crivella@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: ["repo_name", "issue_number"]
+    columns:
+      - name: repo_name
+        description: "Repository namespace; lowercased (e.g., 'issues', 'problems')."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['issues', 'problems']
+      - name: id
+        description: "Primary key for the issue/problem record (bigint). Merge key for the incremental model."
+        tests:
+          - not_null
+          - unique
+      - name: issue_number
+        description: "Issue/Problem number within the repository (int)."
+        tests:
+          - not_null
+      - name: node_id
+        description: "Global GraphQL node identifier."
+      - name: github_created_at
+        description: "UTC timestamp when the issue/problem was created on GitHub (aliased from created_at)."
+        tests:
+          - not_null
+      - name: github_updated_at
+        description: "UTC timestamp of the latest update on GitHub (aliased from updated_at)."
+        tests:
+          - not_null
+      - name: github_closed_at
+        description: "UTC timestamp when the issue/problem was closed, if applicable."
+      - name: labels_name
+        description: >
+          Comma-separated list of label names aggregated from the latest extract per
+          (`repo_name`, `issue_number`). Uses normalized labels (e.g., `__no_label__` when absent).
+      - name: is_test
+        description: >
+          Heuristic flag set to TRUE when any label matches the case-insensitive
+          regex '(not a problem|not an issue)'; FALSE otherwise.
+        tests:
+          - not_null
+      - name: title
+        description: "Current title at the time of selection (latest per repo + number)."
+        tests:
+          - not_null
+      - name: body
+        description: "Markdown body/description."
+      - name: author
+        description: "GitHub login (username) of the author (aliased from user_login)."
+      - name: state
+        description: "Record state on GitHub (e.g., open, closed)."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['open', 'closed']
+      - name: state_reason
+        description: "Reason for the current state when provided by GitHub (e.g., completed, not_planned)."
+      - name: comments
+        description: "Number of comments (int)."
+      - name: comments_url
+        description: "API URL for the comments collection."
+      - name: locked
+        description: "Boolean flag indicating whether conversation is locked."
+      - name: active_lock_reason
+        description: "Reason provided by GitHub when the conversation is locked."
+      - name: url
+        description: "API URL of the issue/problem resource."
+      - name: events_url
+        description: "API URL for events collection."
+      - name: html_url
+        description: "Web URL of the issue/problem page."
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was first inserted into this model (defaults to now for new rows)."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "Actor/system that first created the row in this model (defaults to 'data-dev-dbt-products')."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this model."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "Actor/system that last updated the row in this model (fixed to 'data-dev-dbt-products')."
+        tests:
+          - not_null
+  
+
+  - name: s__general__github_issue_assignee__link
+    description:
+      "Link table between **GitHub issues/problems** and their **current assignee**.
+      Built from the latest snapshot in `_int__product__general__github_issues_and_problems_union`
+      and matched with `_int__product__general__github_issues_and_problems_events_union` to
+      capture the latest assignee-related event. One row per (repo_name, issue_number, login)."
+    config:
+      meta:
+        owner: "fabricio.crivella@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: ["repo_name", "issue_number", "login"]
+    columns:
+      - name: repo_name
+        description: "Lowercased repository label from source union. Typically 'issues' or 'problems'."
+        tests:
+          - not_null
+      - name: id
+        description: >
+          Surrogate identifier for the link row. Uses the event id when available; otherwise
+          a generated bigint as fallback.
+        tests:
+          - not_null
+          - unique
+      - name: issue_number
+        description: "Issue/Problem number within the repository."
+        tests:
+          - not_null
+      - name: login
+        description: "GitHub login (username) of the assignee."
+        tests:
+          - not_null
+      - name: url
+        description: "API URL for the assignee entity."
+      - name: type
+        description: "Assignee entity type (e.g., User, Bot, Organization). Filtered to exclude null/'nan'."
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was first inserted into this model."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "Actor/system that first created the row in this model."
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this model."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "Actor/system that last updated the row in this model."
+        tests:
+          - not_null
+
+  
+  - name: s__general__github_issue_events__event
+    description:
+      "Canonical stream of **GitHub issue/problem events** coming from the unified
+      `_int__product__general__github_issues_and_problems_events_union`. One row
+      per event `id`. The model normalizes core fields, derives a generic `content`
+      field based on the event type, and is **incremental** (merge on `id`)."
+    config:
+      meta:
+        owner: "fabricio.crivella@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: ["id"]
+    columns:
+      - name: id
+        description: "Primary key for the event (bigint), unique across issues/problems. Merge key."
+        tests:
+          - not_null
+          - unique
+      - name: issue_number
+        description: "Issue/Problem number within the repository (int)."
+        tests:
+          - not_null
+      - name: repo_name
+        description: "Lowercased repository label for the event. Typically 'issues' or 'problems'."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["issues", "problems"]
+      - name: event
+        description: >
+          Event type emitted by GitHub (e.g., opened, closed, reopened, assigned, unassigned,
+          labeled, unlabeled, milestoned, demilestoned, renamed, locked, unlocked, etc.).
+        tests:
+          - not_null
+      - name: github_created_at
+        description: "UTC timestamp when the event occurred on GitHub."
+        tests:
+          - not_null
+      - name: actor
+        description: "GitHub login (username) of the actor who triggered the event."
+      - name: content
+        description: >
+          Event-specific payload mapped to a generic string:
+          - reopened → state_reason
+          - assigned/unassigned → assignee_login
+          - milestoned/demilestoned → milestone_title
+          - labeled/unlabeled → label_name
+          - otherwise → NULL.
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was first inserted into this model (for lineage)."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "Actor/system that created the row in this model (defaults to 'data-dev-dbt-products')."
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this model."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "Actor/system that last updated the row (fixed to 'data-dev-dbt-products')."
+        tests:
+          - not_null
+
+
+  - name: s__general__github_issue_label__link
+    description:
+      "Link table between **GitHub issues/problems** and their **labels**. Built from the
+      latest snapshot in `_int__product__general__github_issues_and_problems_union` and
+      matched with `_int__product__general__github_issues_and_problems_events_union` to
+      obtain a stable identifier (prefer the event id when available). One row per
+      (repo_name, issue_number, label name)."
+    config:
+      meta:
+        owner: "fabricio.crivella@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: ["repo_name", "issue_number", "name"]
+    columns:
+      - name: id
+        description: >
+          Surrogate identifier for the link row. Uses the label event `id` when available;
+          otherwise a generated bigint as fallback.
+        tests:
+          - not_null
+          - unique
+      - name: repo_name
+        description: "Lowercased repository label. Typically 'issues' or 'problems'."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["issues", "problems"]
+      - name: issue_number
+        description: "Issue/Problem number within the repository (int)."
+        tests:
+          - not_null
+      - name: name
+        description: "Label name as captured in the latest snapshot for the ticket."
+        tests:
+          - not_null
+      - name: description
+        description: "Label description text, if provided by GitHub."
+      - name: color
+        description: "Hex color string (without '#') for the label, as returned by GitHub."
+      - name: github_created_at
+        description: "UTC timestamp when the issue/problem was created on GitHub."
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was first inserted into this model."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "Actor/system that created the row in this model (defaults to 'data-dev-dbt-products')."
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this model."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "Actor/system that last updated the row (fixed to 'data-dev-dbt-products')."
+        tests:
+          - not_null
+
+
+  - name: s__general__github_issue_comment__event
+    description: 
+      "Canonical stream of **GitHub issue/problem comments** from
+      `_int__product__general__github_issues_and_problems_comments_union`.
+      One row per comment `id`. The model standardizes core fields, derives a
+      simple engagement flag (`is_relevant`), and is **incremental** (merge on `id`).
+      Post-hooks remove rows for tickets that are soft-deleted upstream in label link models."
+    config:
+      meta:
+        owner: "fabricio.crivella@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: ["id"]
+    columns:
+      - name: repo_name
+        description: "Lowercased repository label. Typically 'issues' or 'problems'."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["issues", "problems"]
+      - name: id
+        description: "Primary key for the comment (bigint). Merge key for incremental loads."
+        tests:
+          - not_null
+          - unique
+      - name: issue_number
+        description: "Issue/Problem number within the repository (int)."
+        tests:
+          - not_null
+      - name: node_id
+        description: "Global GraphQL node identifier for the comment."
+      - name: body
+        description: "Raw Markdown text of the comment."
+      - name: author
+        description: "GitHub login (username) of the comment author."
+      - name: url
+        description: "API URL of the comment resource."
+      - name: html_url
+        description: "Web URL of the comment page."
+      - name: github_created_at
+        description: "UTC timestamp when the comment was created on GitHub."
+        tests:
+          - not_null
+      - name: github_updated_at
+        description: "UTC timestamp when the comment was last updated on GitHub."
+        tests:
+          - not_null
+      - name: is_relevant
+        description: >
+          Boolean flag set to true when the normalized comment body begins with “+1”
+          (after trimming non-alphanumeric/plus prefixes and collapsing whitespace).
+          Serves as a simple engagement signal.
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was first inserted into this model."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "Actor/system that created the row in this model (defaults to 'data-dev-dbt-products')."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this model."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "Actor/system that last updated the row in this model (fixed to 'data-dev-dbt-products')."
+        tests:
+          - not_null
+
+
+  - name: s__general__github_issue_milestone__link
+    description: 
+      "Link table between **GitHub issues/problems** and their **milestone** at the latest
+      snapshot. Built from `_int__product__general__github_issues_and_problems_union`
+      filtering only the most recent row per (`repo_name`, `issue_number`) and keeping
+      issues that currently have a milestone (`milestone_id is not null`). One row per
+      (`repo_name`, `issue_number`, `milestone_id`)."
+    config:
+      meta:
+        owner: "fabricio.crivella@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: ["repo_name", "issue_number", "id"]
+    columns:
+      - name: repo_name
+        description: "Lowercased repository label. Typically 'issues' or 'problems'."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["issues", "problems"]
+      - name: id
+        description: "Milestone identifier (`milestone_id`) as provided by GitHub (bigint)."
+        tests:
+          - not_null
+      - name: issue_number
+        description: "Issue/Problem number within the repository (int)."
+        tests:
+          - not_null
+      - name: node_id
+        description: "GraphQL node id of the milestone."
+      - name: html_url
+        description: "Web URL of the milestone page."
+      - name: title
+        description: "Milestone title at the latest snapshot."
+      - name: description
+        description: "Milestone description text."
+      - name: state
+        description: "Milestone state (e.g., open, closed)."
+      - name: github_created_at
+        description: "UTC timestamp when the milestone was created on GitHub."
+      - name: github_updated_at
+        description: "UTC timestamp of the latest update to the milestone on GitHub."
+      - name: github_due_on
+        description: "UTC due date/time for the milestone, if defined."
+      - name: github_closed_at
+        description: "UTC timestamp when the milestone was closed, if applicable."
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was first inserted into this model."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "Actor/system that created the row in this model (defaults to 'data-dev-dbt-products')."
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this model."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "Actor/system that last updated the row in this model (fixed to 'data-dev-dbt-products')."
+        tests:
+          - not_null
+
+
+  - name: s__general__github_issue_partner__link
+    description: 
+      "Link table between **GitHub issues/problems** and referenced **partner_id**s
+      extracted from issue bodies and comments. The model scans the latest snapshot
+      of `_int__product__general__github_issues_and_problems_union` and the comments
+      union `_int__product__general__github_issues_and_problems_comments_union`,
+      parsing partner ids from two URL patterns:
+      - `radian.linkedstore.com/partners/{id}`
+      - `stats.tiendanube.com/partner/profile?id={id}`
+      It deduplicates by (repo, issue_number, partner_id, comment_id, issue_id) and
+      generates a stable surrogate `id` as a hash of those fields. Incremental loads
+      use a 24h safety window. Post-hooks remove rows for tickets soft-deleted upstream."
+    config:
+      meta:
+        owner: "fabricio.crivella@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: ["id"]
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: ["repo_name", "issue_number", "partner_id", "comment_id", "issue_id"]
+    columns:
+      - name: id
+        description: >
+          Deterministic surrogate key computed as a hash of
+          (repo_name, issue_number, partner_id, comment_id, issue_id).
+        tests:
+          - not_null
+          - unique
+      - name: repo_name
+        description: "Lowercased repository label. Typically 'issues' or 'problems'."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["issues", "problems"]
+      - name: issue_number
+        description: "Issue/Problem number within the repository (int)."
+        tests:
+          - not_null
+      - name: partner_id
+        description: >
+          Numeric id captured from URLs in the issue body or comments.
+          Parsed as BIGINT and represents a partner entity in external systems.
+        tests:
+          - not_null
+      - name: comment_id
+        description: >
+          GitHub comment id where the partner reference was found (string).
+          Null when extracted from the issue body.
+      - name: issue_id
+        description: >
+          Issue id (string) when the partner reference was found in the issue body.
+          Null when extracted from a comment.
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was first inserted into this model."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "Actor/system that created the row (defaults to 'data-dev-dbt-products')."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this model."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "Actor/system that last updated the row (fixed to 'data-dev-dbt-products')."
+        tests:
+          - not_null
+
+
+  - name: s__general__github_issue_store__link
+    description: 
+      "Link table between **GitHub issues/problems** and referenced **store_id**s
+      extracted from issue bodies and comments. The model scans the latest snapshot
+      of `_int__product__general__github_issues_and_problems_union` and the comments
+      union `_int__product__general__github_issues_and_problems_comments_union`,
+      parsing store ids from two URL patterns:
+      - `radian.linkedstore.com/stores/{id}`
+      - `stats.tiendanube.com/store/profile?store_id={id}`
+      It deduplicates by (repo, issue_number, store_id, comment_id, issue_id) and
+      generates a **deterministic** surrogate `id` as a SHA-256 hash of those fields.
+      Incremental loads use a 24h safety window. Post-hooks remove rows for tickets
+      soft-deleted upstream."
+    config:
+      meta:
+        owner: "fabricio.crivella@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: ["id"]
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: ["repo_name", "issue_number", "store_id", "comment_id", "issue_id"]
+    columns:
+      - name: id
+        description: >
+          Deterministic surrogate key computed as
+          SHA-256 of (repo_name, issue_number, store_id, comment_id, issue_id).
+        tests:
+          - not_null
+          - unique
+      - name: repo_name
+        description: "Lowercased repository label. Typically 'issues' or 'problems'."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["issues", "problems"]
+      - name: issue_number
+        description: "Issue/Problem number within the repository (int)."
+        tests:
+          - not_null
+      - name: store_id
+        description: >
+          Numeric id captured from URLs in the issue body or comments. Parsed as BIGINT
+          and represents a store entity in external systems.
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: bigint
+      - name: comment_id
+        description: >
+          GitHub comment id where the store reference was found (string).
+          Null when extracted from the issue body.
+      - name: issue_id
+        description: >
+          Issue id (string) when the store reference was found in the issue body.
+          Null when extracted from a comment.
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was first inserted into this model."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "Actor/system that created the row (defaults to 'data-dev-dbt-products')."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this model."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "Actor/system that last updated the row in this model (fixed to 'data-dev-dbt-products')."
+        tests:
+          - not_null
+
+    
+  - name: s__general__github_store_impact__event
+    description:
+      "Impact flags extracted from **GitHub issues/problems** and their **comments**
+      based on checkbox patterns in the template. One row per (`repo_name`,
+      `issue_number`, `comment_id`) indicating the impact level checked in either
+      the issue body (`comment_id = '-1'`) or a specific comment (`comment_id = <id>`).
+      The model is **incremental** (merge on composite key) and removes rows for
+      tickets soft-deleted upstream via post-hooks."
+    config:
+      meta:
+        owner: "fabricio.crivella@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: ["repo_name", "issue_number", "comment_id"]
+    columns:
+      - name: id
+        description: >
+          Deterministic bigint built with `xxhash64(repo_name, issue_number, comment_id)`.
+          Serves as a stable surrogate key for downstream joins.
+        tests:
+          - not_null
+          - unique
+      - name: repo_name
+        description: "Repository label (typically 'issues' or 'problems') coming from upstream."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["issues", "problems"]
+      - name: issue_number
+        description: "Issue/Problem number within the repository (int)."
+        tests:
+          - not_null
+      - name: impact
+        description: >
+          Impact level parsed from checkbox markers in body/comments.
+          Supported values: 'dealbreaker', 'high', 'medium', 'low'.
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["dealbreaker", "high", "medium", "low"]
+      - name: comment_id
+        description: >
+          Comment id when the impact is found in a comment; '-1' when it comes
+          from the issue body snapshot.
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was first inserted into this model."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "Actor/system that created the row (defaults to 'data-dev-dbt-products')."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this model."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "Actor/system that last updated the row (fixed to 'data-dev-dbt-products')."
+        tests:
+          - not_null
+
+  
+  - name: s__general__github_issue_summary_data__event
+    description: 
+      "Final summary table with **RICE features** and structural attributes extracted
+      from GitHub issues and problems.  
+      Combines indicators of Impact, Confidence, and Effort from the RICE block,
+      plus structural flags identifying whether the issue includes steps, logs, and
+      quick-fix information.  
+      This model merges all enriched features from
+      `_int__product__general__issues_summary_data_features` and persists audit fields
+      for incremental loads.  
+      Post-hooks ensure alignment with soft-deletions in label link models."
+    config:
+      meta:
+        owner: "fabricio.crivella@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: ["repo_name", "issue_number"]
+    columns:
+      - name: id
+        description: "Internal identifier of the issue/problem record (GitHub issue id)."
+        tests:
+          - not_null
+      - name: repo_name
+        description: "Repository label (lowercased). Usually 'issues' or 'problems'."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["issues", "problems"]
+      - name: issue_number
+        description: "Issue/Problem number within the repository."
+        tests:
+          - not_null
+      - name: issue_type
+        description: >
+          Derived classification based on labels:
+          - contains 'api' → API
+          - contains 'platform' → Platform Development
+          - otherwise → Native.
+        tests:
+          - not_null
+      - name: impact
+        description: >
+          Numeric value extracted from the RICE section (Impact field). Defaults to 0.0
+          when missing or unparseable.
+        tests:
+          - not_null
+      - name: confidence
+        description: >
+          Numeric value extracted from the RICE section (Confidence/Confiança). Converted
+          to a percentage (0–100). Defaults to 0.0 when missing or unparseable.
+        tests:
+          - not_null
+      - name: effort
+        description: >
+          Numeric value extracted from the RICE section (Effort/Esforço). Defaults to 0.0
+          when missing or unparseable.
+        tests:
+          - not_null
+      - name: has_steps
+        description: >
+          Boolean flag set to true when the “Steps to reproduce” section is present and
+          contains meaningful text (>10 chars, not placeholder). Filters out default
+          instructions for Tech Support.
+        tests:
+          - not_null
+      - name: has_logs
+        description: >
+          Boolean flag set to true when the “Logs” section exists and contains meaningful
+          content (>10 chars, not placeholder). Filters out Tech Support placeholders.
+        tests:
+          - not_null
+      - name: has_quickfix
+        description: >
+          Boolean flag set to true when any label includes 'quick fix' (case-insensitive)
+          and not 'no quick fix'.
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was first created in this model."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "Actor/system that first created the row (defaults to 'data-dev-dbt-products')."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this model."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "Actor/system that last updated the row (fixed to 'data-dev-dbt-products')."
+        tests:
+          - not_null
+
   - name: g__checkout__funnel_completion_time__event
     description: >
       Gold layer table with funnel and completion time for Checkout domain.
