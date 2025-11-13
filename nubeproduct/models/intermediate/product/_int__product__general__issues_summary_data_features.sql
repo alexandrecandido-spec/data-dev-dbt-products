@@ -1,9 +1,3 @@
-{{
-  config(
-    materialized='view'
-  )
-}}
-
 WITH rs AS (
   SELECT * FROM {{ ref('_int__product__general__issues_summary_data_rice_sections') }}
 )
