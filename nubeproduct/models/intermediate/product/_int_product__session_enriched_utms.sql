@@ -30,8 +30,8 @@ WHERE
       's__traffic__session__event',
       'base_date',
       1, 'day',
-      fallback_start='2024-01-01',
-      fallback_end='2024-01-02'
+      fallback_start=None,
+      fallback_end=None
     )
   }}
 )
