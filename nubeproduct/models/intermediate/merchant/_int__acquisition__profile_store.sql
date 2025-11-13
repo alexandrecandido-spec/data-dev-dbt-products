@@ -59,7 +59,7 @@ partner_info AS (
     SELECT
         partner_id,
         partner_code,
-        partner_team,
+        partner_exception_team,
         mkt_exclusion,
         affiliate_classification,
         fraude,
@@ -101,7 +101,7 @@ SELECT
     att.mkt_landing_page_path_last_click,
 
     CASE 
-        WHEN ss.partner_id IS NOT NULL AND pi.partner_code = pi.mkt_exclusion THEN CONCAT('Affiliates - ', pi.partner_team)
+        WHEN ss.partner_id IS NOT NULL AND pi.partner_code = pi.mkt_exclusion THEN CONCAT('Affiliates - ', pi.partner_exception_team)
         WHEN ss.partner_id IS NOT NULL AND ss.partnership_type = 'affiliate' THEN 'Affiliates'
         WHEN ss.partner_id IS NOT NULL AND ss.partnership_type = 'store_development' THEN 'Partners'
         ELSE 'No affiliate'
