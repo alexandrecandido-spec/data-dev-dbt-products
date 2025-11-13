@@ -2315,3 +2315,110 @@ models:
       - name: row_hash
         description: "MD5 over exposed payload to detect content changes."
         tests: [not_null]
+
+  - name: g__general__deepdive_gmv_store__agg_monthly
+    description: " One row per (store_id, reported_month). Aggregates GMV, orders, products, on/off-platform splits, 3-month closed averages, bands, first/last sale flags, lifecycle classification, and tenures. reported_month is the **calendar month end** (same for all stores in a given month)."
+    config:
+      meta:
+        owner: "sofia.torres@tiendanube.com"
+        domain: "marketing"
+        business_owner: "Giselle Galli"
+    columns:
+      - name: store_id
+        description: "Unique store identifier."
+        tests: [not_null]
+      - name: reported_month
+        description: "Month end date used as period label."
+        tests: [not_null]
+      - name: year_month_code
+        description: "YYYYMM integer derived from reported_month. Partition column."
+        tests: [not_null]
+      - name: gmv
+        description: "Monthly GMV in local currency."
+      - name: gmv_usd
+        description: "Monthly GMV converted to USD."
+      - name: orders
+        description: "Monthly orders."
+      - name: product_quantity
+        description: "Monthly products sold."
+      - name: avg_ticket
+        description: "GMV / Orders (local). May be NULL if orders=0."
+      - name: avg_ticket_usd
+        description: "GMV_USD / Orders. May be NULL if orders=0."
+      - name: orders_on_platform
+        description: "Orders placed on platform."
+      - name: orders_off_platform
+        description: "Orders placed off platform."
+      - name: gmv_on_platform
+        description: "GMV on platform (local)."
+      - name: gmv_off_platform
+        description: "GMV off platform (local)."
+      - name: gmv_usd_on_platform
+        description: "GMV on platform (USD)."
+      - name: gmv_usd_off_platform
+        description: "GMV off platform (USD)."
+      - name: avg_gmv_last_3_months
+        description: "Average GMV (local) over the last 3 closed months."
+      - name: avg_gmv_usd_last_3_months
+        description: "Average GMV (USD) over the last 3 closed months."
+      - name: gmv_local_monthly_range
+        description: "Local GMV band for the reported month."
+      - name: gmv_usd_monthly_range
+        description: "USD GMV band for the reported month."
+      - name: gmv_local_current_range
+        description: "Local GMV band from 3M closed average."
+      - name: gmv_usd_current_range
+        description: "USD GMV band from 3M closed average."
+      - name: first_sale_date_all_time
+        description: "First sale date ever for the store."
+      - name: first_sale_month_all_time
+        description: "Month end of the first sale."
+      - name: last_sale_date
+        description: "Last sale date observed."
+      - name: last_sale_month
+        description: "Month end of the last sale."
+      - name: is_first_sale_month
+        description: "1 if reported_month equals first_sale_month_all_time; else 0."
+      - name: is_last_sale_month
+        description: "1 if reported_month equals last_sale_month; else 0."
+      - name: gmv_new_vs_churned
+        description: "Lifecycle label based on first/last sale and churn."
+      - name: current_plan
+        description: "Current plan from daily LOM snapshot."
+      - name: current_bu
+        description: "Current BU from daily LOM snapshot."
+      - name: historical_plan
+        description: "Historical plan from daily LOM snapshot."
+      - name: historical_bu
+        description: "Historical BU from daily LOM snapshot."
+      - name: current_seller_segment
+        description: "Current seller segment from daily LOM snapshot."
+      - name: months_from_creation
+        description: "Months since store creation (month-to-month + 1)."
+      - name: months_from_first_payment
+        description: "Months since first payment (month-to-month + 1)."
+      - name: months_from_first_seller
+        description: "Months since first_seller_at (month-to-month + 1)."
+      - name: months_from_first_sale
+        description: "Months since first sale (month-to-month + 1)."
+      - name: months_from_new_seller
+        description: "Months since first_seller_at when new_seller=1."
+      - name: sys_audit_month_max
+        description: "Max daily sys_audit_updated_on within reported_month."
+      - name: status_audit_max
+        description: "Max(sys_audit_updated_on) across status/core for that store at build time."
+      - name: row_hash
+        description: "MD5 over exposed payload to detect content changes."
+        tests: [not_null]
+      - name: sys_audit_created_on
+        description: "Creation timestamp in the target."
+        tests: [not_null]
+      - name: sys_audit_created_by
+        description: "Process/user that created the record."
+        tests: [not_null]
+      - name: sys_audit_updated_on
+        description: "Last update timestamp in the target."
+        tests: [not_null]
+      - name: sys_audit_updated_by
+        description: "Process/user that last updated the record."
+        tests: [not_null]
