@@ -4503,7 +4503,7 @@ models:
         tests:
           - not_null
 
-  - name: g__checkout__funnel_completion_time__event
+  - name: g__checkout__cvr_and_completion_time__event
     description: >
       Gold layer table with funnel and completion time for Checkout domain.
     config:
@@ -4547,3 +4547,61 @@ models:
         description: Time elapsed between Contact information completion and cart completion.
       - name: started_checkout_to_completed_contact
         description: Time elapsed between cart initiation and completed Contact information.
+
+  - name: g__checkout__carts__event_daily
+    description: >
+      Gold layer table with a summary of each Checkout step with the amount of carts.
+    config:
+      meta:
+        owner: "fabrizio.crivella@tiendanube.com"
+        business_owner: "Rocio Diez"
+        openmetadata:
+          domain: "product"
+    columns:
+      - name: step
+        description: Checkout step. Checkout start, Completed Contact, Completed Order, Paid Order.
+        tests:
+          - not_null
+      - name: fecha
+        description: started_checkout casted as date.
+        tests:
+          - not_null
+      - name: store_id
+        description: Unique identifier of store.
+      - name: storefront
+        description: Storefront where the cart was originated.
+      - name: device_type
+        description: Device used by the Consumer.
+      - name: gateway_method
+        description: Gateway used by the Consumer.
+      - name: current_segment_name
+        description: Segment associated to the store.
+      - name: country_code
+        description: Country associated to the store.
+      - name: orders
+        description: Count distinct cart_id.
+
+  - name: g__checkout__carts_cvr__daily
+    description: >
+      Gold layer table with a daily summary of the amount of carts.
+    config:
+      meta:
+        owner: "fabrizio.crivella@tiendanube.com"
+        business_owner: "Rocio Diez"
+        openmetadata:
+          domain: "product"
+    columns:
+      - name: fecha
+        description: started_checkout casted as date.
+        tests:
+          - not_null
+      - name: store_id
+        description: Unique identifier of store.
+      - name: started_checkouts
+        description: amount of started checkouts.
+      - name: completed_contacts
+        description: amount of completed contacts.
+      - name: completed_ats
+        description: amount of completed carts.
+      - name: paid_orders
+        description: amount of paid orders.

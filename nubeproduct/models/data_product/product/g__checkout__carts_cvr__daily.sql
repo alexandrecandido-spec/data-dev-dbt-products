@@ -3,7 +3,7 @@
     config(
         materialized='incremental',
         incremental_strategy='merge',
-        unique_key=['fecha','step','store_id','storefront','device_type','gateway_method'],
+        unique_key=['fecha','store_id','current_segment_name','country_code','storefront','device_type','gateway_method'],
         on_schema_change='fail',
         partition_by = 'fecha',
         tags=["daily-8am"]
