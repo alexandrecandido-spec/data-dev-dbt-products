@@ -3773,3 +3773,49 @@ models:
       - dbt_expectations.expect_column_pair_values_to_be_equal:
           column_A: total_sessions_with_unique_carts
           column_B: total_sessions_with_carts
+
+
+  - name: g__checkout__funnel_completion_time__event
+    description: >
+      Gold layer table with funnel and completion time for Checkout domain.
+    config:
+      meta:
+        owner: "fabrizio.crivella@tiendanube.com"
+        business_owner: "Rocio Diez"
+        openmetadata:
+          domain: "product"
+    columns:
+      - name: cart_id
+        description: Unique identifier of cart.
+        tests:
+          - not_null
+      - name: fecha
+        description: started_checkout casted as date.
+        tests:
+          - not_null
+      - name: store_id
+        description: Unique identifier of store.
+      - name: current_segment_name
+        description: Segment associated to the store.
+      - name: country_code
+        description: Country associated to the store.
+      - name: cart_id
+        description: Unique identifier of cart.
+      - name: storefront
+        description: Storefront where the cart was originated.
+      - name: device_type
+        description: Device used by the Consumer.
+      - name: gateway_method
+        description: Gateway used by the Consumer.
+      - name: started_checkout_at
+        description: Timestamp when the Checkout was initiated.
+      - name: completed_contact_at
+        description: Timestamp when the Consumer completed contact information.
+      - name: completed_at
+        description: Timestamp when the Cart was completed.
+      - name: total_checkout_time
+        description: Time elapsed between Checkout initiation and completion.
+      - name: completed_contact_to_completed_at
+        description: Time elapsed between Contact information completion and cart completion.
+      - name: started_checkout_to_completed_contact
+        description: Time elapsed between cart initiation and completed Contact information.
