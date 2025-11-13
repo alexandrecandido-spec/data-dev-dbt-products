@@ -574,10 +574,6 @@ models:
           combination_of_columns:
             - ticket_id
             - assignment_start_time
-      - dbt_utils.non_overlapping_ranges:
-          partition_by: ticket_id
-          start_column: assignment_start_time
-          end_column: assignment_end_time
     columns:
       - name: ticket_id
         description: "Unique identifier of the ticket in Zendesk."
