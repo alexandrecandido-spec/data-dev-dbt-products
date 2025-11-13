@@ -1882,7 +1882,17 @@ models:
           
   - name: s__general__ga4_all_pageviews__event
     description: "Daily page views data with acquisition information from GA4"
+    config:
+      meta:
+        owner: "yan.santos@nuvemshop.com.br"
+        business_owner: "Giselle Galli"
+        domain: "marketing"
     columns:
+      - name: hash_key
+        description: "Unique hash key generated from user_pseudo_id, unique_session, event_timestamp, env, event_source, event_medium, event_campaign, event_content, page"
+        tests:
+          - not_null
+          - unique
       - name: user_pseudo_id
         description: "Unique identifier for the user combining source and user_pseudo_id"
       - name: unique_session
@@ -2024,6 +2034,130 @@ models:
       - name: sys_audit_updated_by
         description: "System identifier of the process that last updated this record" 
 
+  - name: g__acquisition__affiliates_performance__agg_daily
+    description: "Daily aggregated performance metrics by partner, combining GA4 acquisition data and partner attributes for comprehensive performance analysis"
+    config:
+      meta:
+        owner: "yan.santos@nuvemshop.com.br"
+        business_owner: "Giselle Galli"
+        domain: "marketing"
+    columns:
+      - name: hash_partner_key
+        description: "Unique hash key generated from partner_id and date for deduplication."
+        tests:
+          - not_null
+          - unique
+      - name: partner_id
+        description: "Unique identifier of the partner."
+        tests:
+          - not_null
+      - name: country_code
+        description: "Country code of the partner."
+        tests:
+          - not_null
+      - name: is_store_blocked
+        description: "Flag indicating if the store is blocked."
+      - name: new_seller
+        description: "Flag indicating new sellers."
+      - name: date
+        description: "Date of the performance metrics."
+        tests:
+          - not_null
+      - name: partner_code
+        description: "Code of the partner."
+      - name: affiliate_tier
+        description: "Tier of the affiliate."
+      - name: affiliate_classification
+        description: "Classification of the affiliate."
+      - name: affiliate_main_platform
+        description: "Main platform of the affiliate."
+      - name: affiliate_classification
+        description: "Classification of the affiliate."
+      - name: partner_utm_campaign
+        description: "UTM campaign of the partner."
+      - name: partner_utm_source
+        description: "UTM source of the partner."
+      - name: partner_utm_medium
+        description: "UTM medium of the partner."
+      - name: partner_utm_content
+        description: "UTM content of the partner."
+      - name: mkt_exclusion
+        description: "Flag indicating if the partner is excluded from marketing."
+      - name: flag_partner_exception
+        description: "Flag indicating if the partner is an exception."
+      - name: trials
+        description: "Number of trials for the partner."
+        tests:
+          - not_null
+      - name: new_payments
+        description: "Number of new payments for the partner."
+        tests:
+          - not_null
+      - name: payments
+        description: "Number of payments for the partner."
+        tests:
+          - not_null
+      - name: new_sellers
+        description: "Number of new sellers for the partner."
+        tests:
+          - not_null
+      - name: current_churn_stores
+        description: "Number of current churn stores for the partner."
+        tests:
+          - not_null
+      - name: qls
+        description: "Number of quality leads for the partner."
+        tests:
+          - not_null
+      - name: current_churn_stores_created_at
+        description: "Number of current churn stores created at for the partner."
+        tests:
+          - not_null
+      - name: new_sellers_first_payment
+        description: "Number of new sellers first payment for the partner."
+        tests:
+          - not_null
+      - name: first_churn_30d
+        description: "Number of first churn 30d for the partner."
+        tests:
+          - not_null
+      - name: first_churn_60d
+        description: "Number of first churn 60d for the partner."
+        tests:
+          - not_null
+      - name: first_churn_90d
+        description: "Number of first churn 90d for the partner."
+        tests:
+          - not_null
+      - name: first_churn_post_90d
+        description: "Number of first churn post 90d for the partner."
+        tests:
+          - not_null
+      - name: total_gmv
+        description: "Total GMV for the partner."
+        tests:
+          - not_null
+      - name: total_orders
+        description: "Total orders for the partner."
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was created in this table."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "System or user that created the row."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this table."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row."
+        tests:
+          - not_null
+
   - name: s__product_marketing__shipping__ref
     description: "**Data Product SILVER REF: Shipping Configuration Metrics**\n\nMétricas de configuración de métodos de envío por tienda durante el onboarding.\nCompleto cuando la tienda activó un carrier con status activo.\n\n**Domain:** marketing\n**Granularity:** ref (one row per store)"
     meta:
@@ -2054,4 +2188,361 @@ models:
         description: "Timestamp of when this record was last updated in our data warehouse"
       - name: sys_audit_updated_by
         description: "System identifier of the process that last updated this record"
+  - name: g__product_marketing__admin_access_store__agg
+    description: "**Data Product GOLD: Admin Access Metrics by Store**\n\nMétricas de accesos al panel de administración por tienda en diferentes períodos de tiempo.\nAgrega eventos de acceso usando SUM para calcular métricas por ventanas temporales (7d, 15d, 30d, 60d).\n\n**Domain:** marketing\n**Granularity:** agg (one row per store)"
+    meta:
+      owner: "jhu.boggio@tiendanube.com"
+      domain: "marketing"
+      business_owner: "Giselle Galli"
+    columns:
+      - name: store_id
+        description: "ID único de la tienda"
+        tests:
+          - not_null
+          - unique
+      - name: qty_admin_access_7d
+        description: "Cantidad total de accesos al admin en los primeros 7 días desde creación de la tienda"
+      - name: qty_admin_access_15d
+        description: "Cantidad total de accesos al admin en los primeros 15 días desde creación de la tienda"
+      - name: qty_admin_access_30d
+        description: "Cantidad total de accesos al admin en los primeros 30 días desde creación de la tienda"
+      - name: qty_admin_access_60d
+        description: "Cantidad total de accesos al admin en los primeros 60 días desde creación de la tienda"
+      - name: first_date_admin_access
+        description: "Fecha del primer acceso al admin"
+      - name: last_date_admin_access
+        description: "Fecha del último acceso al admin"
+      - name: sys_audit_created_on
+        description: "Timestamp of when this record was created in our data warehouse"
+      - name: sys_audit_created_by
+        description: "System identifier of the process that created this record"
+      - name: sys_audit_updated_on
+        description: "Timestamp of when this record was last updated in our data warehouse"
+      - name: sys_audit_updated_by
+        description: "System identifier of the process that last updated this record"
+  - name: s__product_marketing__products__ref
+    description: "**Data Product SILVER REF: Products Configuration Metrics**\n\nMétricas de configuración de productos por tienda durante el onboarding.\nCompleto cuando la tienda tiene al menos 6 productos válidos (con descripción y al menos 1 imagen).\n\n**Domain:** marketing\n**Granularity:** ref (one row per store)"
+    meta:
+      owner: "jhu.boggio@tiendanube.com"
+      domain: "marketing"
+      business_owner: "Giselle Galli"
+    columns:
+      - name: store_id
+        description: "ID único de la tienda"
+        tests:
+          - not_null
+          - unique
+      - name: config_products
+        description: "Indica si la tienda configuró productos. 1 = configurado (6+ productos válidos), 0 = no configurado"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [0, 1]
+      - name: first_date_config_products
+        description: "Fecha del primer producto válido creado"
+      - name: last_date_config_products
+        description: "Fecha del sexto producto válido (fecha de completitud) si tiene 6+, sino fecha del último producto válido"
+      - name: sys_audit_created_on
+        description: "Timestamp of when this record was created in our data warehouse"
+      - name: sys_audit_created_by
+        description: "System identifier of the process that created this record"
+      - name: sys_audit_updated_on
+        description: "Timestamp of when this record was last updated in our data warehouse"
+      - name: sys_audit_updated_by
+        description: "System identifier of the process that last updated this record"
 
+  - name: s__acquisition__project_ms__ref
+    description: "Marketing Project Tagging - Merchant Sellers (Project). One row per store_id with tag decision, contact date, core/lifecycle fields, representative Merchant Sellers base fields, first visit signals, and dependency audit timestamps."
+    config:
+      meta:
+        owner: "sofia.torres@tiendanube.com"
+        domain: "marketing"
+        business_owner: "Giselle Galli"
+    columns:
+      - name: store_id
+        description: "Store unique identifier."
+        tests: [not_null, unique]
+      - name: has_ms_tag
+        description: "Flag (1/0) indicating Merchant Sellers tag by project logic."
+        tests:
+          - accepted_values: {values: [0,1]}
+      - name: ms_reason
+        description: "Reason: 'external_disparo', 'pre_creation_visit', or 'both'."
+        tests:
+          - accepted_values:
+              values: ['external_disparo','pre_creation_visit','both']
+      - name: ms_contact_date
+        description: "Contact date used for the tag (first_disparo_date or first_visit_date)."
+      - name: created_at
+        description: "Store creation timestamp (from store core)."
+      - name: partner_code
+        description: "Partner code (from store core)."
+      - name: new_seller_at
+        description: "First seller date when new_seller=1 (from lifecycle)."
+      - name: first_payment
+        description: "First payment date (from lifecycle)."
+      - name: churned_at
+        description: "Churn date (from lifecycle)."
+      - name: domain
+        description: "Representative domain from Merchant Sellers base (per store)."
+      - name: emails
+        description: "Emails captured in Merchant Sellers base."
+      - name: phones
+        description: "Phones captured in Merchant Sellers base."
+      - name: instagram_url
+        description: "Instagram URL captured in Merchant Sellers base."
+      - name: platform
+        description: "Normalized platform from Merchant Sellers base."
+      - name: estimated_monthly_sales
+        description: "Estimated monthly sales from Merchant Sellers base."
+      - name: peso
+        description: "Weight/score from Merchant Sellers base."
+      - name: repeated_domain
+        description: "Repeated domain note from Merchant Sellers base."
+      - name: disparos
+        description: "Message/trigger notes from Merchant Sellers base."
+      - name: disparo_date
+        description: "Trigger/first contact date from Merchant Sellers base."
+      - name: mapping_method
+        description: "Domain mapping method: domain_exact, domain_clean, or none."
+      - name: first_disparo_date
+        description: "Earliest disparo_date among Merchant Sellers rows for the store."
+      - name: first_visit_ts
+        description: "Timestamp of first visit to /empreendedores/crescer%."
+      - name: first_visit_date
+        description: "Date of first visit to /empreendedores/crescer%."
+      - name: deps_ms_updated_on
+        description: "Max sys_audit_updated_on from Merchant Sellers staging."
+      - name: deps_sc_updated_on
+        description: "sys_audit_updated_on from store core ref."
+      - name: deps_lc_updated_on
+        description: "sys_audit_updated_on from lifecycle ref."
+      - name: deps_at_updated_on
+        description: "Max sys_audit_updated_on from attribution model."
+      - name: deps_last_updated_on
+        description: "Greatest timestamp across dependency audits (scoping incremental)."
+      - name: partition_date
+        description: "Best available date used for partitioning (prefers ms_contact_date)."
+      - name: year_month_day_code
+        description: "YYYYMMDD partition code derived from partition_date."
+        tests: [not_null]
+      - name: sys_audit_created_on
+        description: "Row creation timestamp (preserved)."
+        tests: [not_null]
+      - name: sys_audit_created_by
+        description: "Creator process/user (preserved)."
+        tests: [not_null]
+      - name: sys_audit_updated_on
+        description: "Last update timestamp."
+        tests: [not_null]
+      - name: sys_audit_updated_by
+        description: "Last updater process/user."
+        tests: [not_null]
+      - name: row_hash
+        description: "MD5 over business columns to detect content changes."
+        tests: [not_null]
+
+  - name: s__acquisition__project_tags__ref
+    description: "Silver REF table for Marketing Project Tagging at store grain. Exposes three boolean flags (Merchant Sellers, Drop Sellers, Webinars), their tag names, a concatenated tag string, the three relevant dates, and audit fields. Only stores with at least one tag are included."
+    config:
+      meta:
+        owner: "sofia.torres@tiendanube.com"
+        domain: "marketing"
+        business_owner: "Giselle Galli"
+    columns:
+      - name: store_id
+        description: "Unique store identifier."
+        tests: [not_null, unique]
+
+  - name: g__product_marketing__storefront_sessions_store__agg
+    description: "**Data Product GOLD: Storefront Sessions Metrics by Store**\n\nMétricas de sesiones reales de usuarios finales en storefronts por tienda durante el onboarding.\nCuenta sesiones únicas en ventanas de tiempo (7d, 15d, 30d, 60d, 90d) desde creación de la tienda.\nExcluye merchants, bots y tráfico no-humano.\n\n**Domain:** marketing\n**Granularity:** agg (one row per store)"
+    meta:
+      owner: "jhu.boggio@tiendanube.com"
+      domain: "marketing"
+      business_owner: "Giselle Galli"
+    columns:
+      - name: store_id
+        description: "ID único de la tienda"
+        tests:
+          - not_null
+          - unique
+      - name: first_store_session
+        description: "Fecha de la primera sesión registrada en la tienda"
+      - name: store_sessions_7d
+        description: "Cantidad de sesiones únicas en los primeros 7 días desde creación de la tienda"
+      - name: store_sessions_15d
+        description: "Cantidad de sesiones únicas en los primeros 15 días desde creación de la tienda"
+      - name: store_sessions_30d
+        description: "Cantidad de sesiones únicas en los primeros 30 días desde creación de la tienda"
+      - name: store_sessions_60d
+        description: "Cantidad de sesiones únicas en los primeros 60 días desde creación de la tienda"
+      - name: store_sessions_90d
+        description: "Cantidad de sesiones únicas en los primeros 90 días desde creación de la tienda"
+      - name: total_store_sessions
+        description: "Total de sesiones únicas (sin límite de tiempo)"
+      - name: last_store_session
+        description: "Fecha de la última sesión registrada"
+      - name: last_processed_date
+        description: "Última fecha de datos procesados (para próximo incremental)"
+      - name: sys_audit_created_on
+        description: "Timestamp of when this record was created in our data warehouse"
+      - name: sys_audit_created_by
+        description: "System identifier of the process that created this record"
+      - name: sys_audit_updated_on
+        description: "Timestamp of when this record was last updated in our data warehouse"
+      - name: sys_audit_updated_by
+        description: "System identifier of the process that last updated this record"
+      - name: has_ms_tag
+        description: "Boolean (0/1). 1 when the store satisfies Merchant Sellers logic."
+        tests:
+          - not_null
+          - accepted_values: {values: [0,1]}
+      - name: has_ds_tag
+        description: "Boolean (0/1). 1 when the store has Drop Sellers tag."
+        tests:
+          - not_null
+          - accepted_values: {values: [0,1]}
+      - name: has_wb_tag
+        description: "Boolean (0/1). 1 when the store attended at least one webinar."
+        tests:
+          - not_null
+          - accepted_values: {values: [0,1]}
+      - name: tag_ms_name
+        description: "Literal 'Merchant Sellers' when has_ms_tag = 1; else NULL."
+      - name: tag_ds_name
+        description: "Literal 'Drop Sellers' when has_ds_tag = 1; else NULL."
+      - name: tag_wb_name
+        description: "When has_wb_tag = 1: 'Webinars MM-YY' derived from first_webinar_at; else NULL."
+      - name: marketing_projects_tag
+        description: "Concatenation in stable order: Merchant Sellers, Drop Sellers, Webinars MM-YY. Separator: ' + '."
+      - name: ms_contact_date
+        description: "MS contact date (first_disparo_date or first_visit_date)."
+      - name: ds_tag_created_date
+        description: "Drop Sellers tag creation date."
+      - name: first_webinar_at
+        description: "First webinar attendance date (live/on-demand)."
+      - name: year_month_day_code
+        description: "Partition code (YYYYMMDD) from the first available date among the three (fallback today)."
+        tests: [not_null]
+      - name: sys_audit_created_on
+        description: "Creation timestamp in the target."
+        tests: [not_null]
+      - name: sys_audit_created_by
+        description: "User/process that created the record."
+        tests: [not_null]
+      - name: sys_audit_updated_on
+        description: "Last update timestamp in the target."
+        tests: [not_null]
+      - name: sys_audit_updated_by
+        description: "User/process that made the last update."
+        tests: [not_null]
+      - name: row_hash
+        description: "MD5 over exposed payload to detect content changes."
+        tests: [not_null]
+
+  - name: g__general__deepdive_gmv_store__agg_monthly
+    description: " One row per (store_id, reported_month). Aggregates GMV, orders, products, on/off-platform splits, 3-month closed averages, bands, first/last sale flags, lifecycle classification, and tenures. reported_month is the **calendar month end** (same for all stores in a given month)."
+    config:
+      meta:
+        owner: "sofia.torres@tiendanube.com"
+        domain: "marketing"
+        business_owner: "Giselle Galli"
+    columns:
+      - name: store_id
+        description: "Unique store identifier."
+        tests: [not_null]
+      - name: reported_month
+        description: "Month end date used as period label."
+        tests: [not_null]
+      - name: year_month_code
+        description: "YYYYMM integer derived from reported_month. Partition column."
+        tests: [not_null]
+      - name: gmv
+        description: "Monthly GMV in local currency."
+      - name: gmv_usd
+        description: "Monthly GMV converted to USD."
+      - name: orders
+        description: "Monthly orders."
+      - name: product_quantity
+        description: "Monthly products sold."
+      - name: avg_ticket
+        description: "GMV / Orders (local). May be NULL if orders=0."
+      - name: avg_ticket_usd
+        description: "GMV_USD / Orders. May be NULL if orders=0."
+      - name: orders_on_platform
+        description: "Orders placed on platform."
+      - name: orders_off_platform
+        description: "Orders placed off platform."
+      - name: gmv_on_platform
+        description: "GMV on platform (local)."
+      - name: gmv_off_platform
+        description: "GMV off platform (local)."
+      - name: gmv_usd_on_platform
+        description: "GMV on platform (USD)."
+      - name: gmv_usd_off_platform
+        description: "GMV off platform (USD)."
+      - name: avg_gmv_last_3_months
+        description: "Average GMV (local) over the last 3 closed months."
+      - name: avg_gmv_usd_last_3_months
+        description: "Average GMV (USD) over the last 3 closed months."
+      - name: gmv_local_monthly_range
+        description: "Local GMV band for the reported month."
+      - name: gmv_usd_monthly_range
+        description: "USD GMV band for the reported month."
+      - name: gmv_local_current_range
+        description: "Local GMV band from 3M closed average."
+      - name: gmv_usd_current_range
+        description: "USD GMV band from 3M closed average."
+      - name: first_sale_date_all_time
+        description: "First sale date ever for the store."
+      - name: first_sale_month_all_time
+        description: "Month end of the first sale."
+      - name: last_sale_date
+        description: "Last sale date observed."
+      - name: last_sale_month
+        description: "Month end of the last sale."
+      - name: is_first_sale_month
+        description: "1 if reported_month equals first_sale_month_all_time; else 0."
+      - name: is_last_sale_month
+        description: "1 if reported_month equals last_sale_month; else 0."
+      - name: gmv_new_vs_churned
+        description: "Lifecycle label based on first/last sale and churn."
+      - name: current_plan
+        description: "Current plan from daily LOM snapshot."
+      - name: current_bu
+        description: "Current BU from daily LOM snapshot."
+      - name: historical_plan
+        description: "Historical plan from daily LOM snapshot."
+      - name: historical_bu
+        description: "Historical BU from daily LOM snapshot."
+      - name: current_seller_segment
+        description: "Current seller segment from daily LOM snapshot."
+      - name: months_from_creation
+        description: "Months since store creation (month-to-month + 1)."
+      - name: months_from_first_payment
+        description: "Months since first payment (month-to-month + 1)."
+      - name: months_from_first_seller
+        description: "Months since first_seller_at (month-to-month + 1)."
+      - name: months_from_first_sale
+        description: "Months since first sale (month-to-month + 1)."
+      - name: months_from_new_seller
+        description: "Months since first_seller_at when new_seller=1."
+      - name: sys_audit_month_max
+        description: "Max daily sys_audit_updated_on within reported_month."
+      - name: status_audit_max
+        description: "Max(sys_audit_updated_on) across status/core for that store at build time."
+      - name: row_hash
+        description: "MD5 over exposed payload to detect content changes."
+        tests: [not_null]
+      - name: sys_audit_created_on
+        description: "Creation timestamp in the target."
+        tests: [not_null]
+      - name: sys_audit_created_by
+        description: "Process/user that created the record."
+        tests: [not_null]
+      - name: sys_audit_updated_on
+        description: "Last update timestamp in the target."
+        tests: [not_null]
+      - name: sys_audit_updated_by
+        description: "Process/user that last updated the record."
+        tests: [not_null]

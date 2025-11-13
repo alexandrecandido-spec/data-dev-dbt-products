@@ -1,12 +1,26 @@
 -- Brings sessions with enriched UTMs, user classification and traffic classification. SSOT
-
 {{ config(
-   materialized = 'incremental',
-   unique_key = 'unique_session_key',
-   partition_by = 'base_date',
-   on_schema_change = 'fail',
-   tags = ['product', 'daily-3am']
+    materialized = 'incremental',
+    unique_key = ['base_date', 'unique_session_key'],
+    incremental_predicates=[ 'DBT_INTERNAL_SOURCE.base_date = DBT_INTERNAL_DEST.base_date', 'DBT_INTERNAL_SOURCE.unique_session_key = DBT_INTERNAL_DEST.unique_session_key' ],
+    partition_by = 'base_date',
+    on_schema_change = 'fail',
+    post_hook=["OPTIMIZE {{ this }} ZORDER BY (unique_session_key)"],
+    tags = ['product', 'daily-3am']
 ) }}
+
+{% set base_date_filter %}
+ {{
+    get_max_date_env_model(
+      'product',
+      's__traffic__session__event',
+      'base_date',
+      1, 'day',
+      fallback_start=None,
+      fallback_end=None
+    )
+  }}
+{% endset %}
 
 WITH swd AS (
 SELECT
@@ -14,11 +28,7 @@ SELECT
 FROM
     {{ ref('_int_product__session_with_domains') }}
 WHERE
-   {% if not is_incremental() %}
-   base_date BETWEEN DATE('2024-01-01') AND DATE('2024-01-05')
-   {% else %}
-   base_date {{ get_max_date(this, 'base_date', 2, 'week') }}
-   {% endif %}
+   base_date {{ base_date_filter }}
 )
 
 , stc AS (
@@ -27,11 +37,7 @@ SELECT
 FROM
     {{ ref('_int_product__session_traffic_classification')}}
 WHERE
-   {% if not is_incremental() %}
-   base_date BETWEEN DATE('2024-01-01') AND DATE('2024-01-05')
-   {% else %}
-   base_date {{ get_max_date(this, 'base_date', 2, 'week') }}
-   {% endif %}
+   base_date {{ base_date_filter }}
 )
 
 , suc AS (
@@ -40,11 +46,7 @@ SELECT
 FROM
     {{ ref('_int_product__session_user_classification') }}
 WHERE
-   {% if not is_incremental() %}
-   base_date BETWEEN DATE('2024-01-01') AND DATE('2024-01-05')
-   {% else %}
-   base_date {{ get_max_date(this, 'base_date', 2, 'week') }}
-   {% endif %}
+   base_date {{ base_date_filter }}
 )
 
 , raw_sessions AS (
@@ -98,8 +100,12 @@ FROM (
 WHERE row_num = 1
 )
 
-, existing_data AS (
-    {{ get_existing_data(this, ['unique_session_key'])}}
+, existing_data as (
+    {{ get_existing_data_where(
+         this,
+         ['base_date','unique_session_key'],
+         "base_date " ~ base_date_filter
+    ) }}
 )
 
 SELECT
@@ -137,5 +143,8 @@ FROM
 LEFT JOIN
    existing_data
    ON dds.unique_session_key = existing_data.unique_session_key
+   AND dds.base_date = existing_data.base_date
 WHERE
     existing_data.unique_session_key IS NULL
+AND existing_data.base_date IS NULL
+AND dds.base_date {{ base_date_filter }}

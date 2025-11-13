@@ -37,15 +37,42 @@ main_source.store_id
 , main_source.disabled
 , main_source.custom_theme
 , main_source.new_payment
+, main_source.is_active_merchant
+, main_source.business_unit
+, main_source.cancellation_reason
+, main_source.cancellation_comment
+, main_source.cancellation_comment_at
 , main_source.change_timestamp
 FROM {{ ref('_int__lifecycle__store_status') }} main_source
-WHERE
-main_source.state != 4
 {% if not is_incremental() %}
+  WHERE main_source.state != 4
   AND main_source.created_at >= DATE '1900-01-01'
 {% endif %}
+
 {% if is_incremental() %}
-  AND main_source.change_timestamp > ( SELECT COALESCE(MAX(sys_audit_updated_on), DATE '1900-01-01') FROM {{ this }} )
+  -- En modo incremental: solo filas nuevas o con cambios relevantes
+  LEFT JOIN {{ this }} AS current_data ON main_source.store_id = current_data.store_id
+
+  {% set monitored_cols = [
+            "is_active_merchant",
+            "churned_at",
+            "cancellation_reason",
+            "cancellation_comment",
+            "cancellation_comment_at",
+            "business_unit"
+        ] %}
+
+  WHERE main_source.state != 4
+  
+  AND current_data.store_id IS NULL
+    OR (
+        -- cambios en upstream detectados por timestamps
+        main_source.change_timestamp > current_data.sys_audit_updated_on
+        -- cambios lógicos reversibles
+        {%- for col in monitored_cols %}
+            OR (main_source.{{ col }} IS DISTINCT FROM current_data.{{ col }})
+        {%- endfor %}
+              )
 {% endif %}
 )
 
@@ -57,5 +84,4 @@ sd.* EXCEPT(sd.change_timestamp)
 , current_timestamp AS sys_audit_updated_on
 , 'data-dev-dbt-products' AS sys_audit_updated_by 
 FROM source_data sd
-LEFT JOIN existing_data e
-                          ON sd.store_id = e.store_id
+LEFT JOIN existing_data e ON sd.store_id = e.store_id

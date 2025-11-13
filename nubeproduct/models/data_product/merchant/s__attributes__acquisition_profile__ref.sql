@@ -3,7 +3,7 @@
     incremental_strategy = 'merge',
     unique_key = ['store_id'],
     on_schema_change = 'fail',
-    tags = ['daily-8am-8pm'],
+    tags = ['daily-10am-10pm'],
     post_hook=[
             "DELETE FROM {{ this }}
                     WHERE store_id IN (
@@ -32,15 +32,13 @@ source_data AS (
         main_source.mkt_source_first_click,
         main_source.mkt_subteam_first_click,
         main_source.mkt_campaign_first_click,
-        main_source.mkt_source_partner_click,
+        main_source.affiliate_owner AS mkt_source_partner_click,
         main_source.mkt_subteam_partner_click,
         main_source.mkt_campaign_partner_click,
         main_source.mkt_landing_page_domain_first_click,
         main_source.mkt_landing_page_domain_last_click,
         main_source.mkt_landing_page_path_first_click,
         main_source.mkt_landing_page_path_last_click,
-
-        main_source.flag_affiliate,
 
         main_source.ql_profile,
 

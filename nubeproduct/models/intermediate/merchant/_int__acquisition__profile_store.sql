@@ -21,7 +21,7 @@ ranked_store_info_ql AS (
   LEFT JOIN {{ source('int_data_predictors', 'marketing_cutoffs_table') }} tb_cff ON si.country_code = tb_cff.country 
                                                                                     AND np.model_id = tb_cff.model_id 
                                                                                     AND (tb_cff.device = si.device OR tb_cff.device IS NULL)
-), 
+),
 tags_info AS (
     SELECT
         store_id,
@@ -39,9 +39,7 @@ attribution_info AS (
         MAX(CASE WHEN trials_first_click = 1 THEN mkt_source ELSE NULL END) AS mkt_source_first_click,
         MAX(CASE WHEN trials_first_click = 1 THEN mkt_subteam ELSE NULL END) AS mkt_subteam_first_click,
         MAX(CASE WHEN trials_first_click = 1 THEN campaign ELSE NULL END) AS mkt_campaign_first_click,
-        MAX(CASE WHEN partner_id IS NOT NULL THEN mkt_source ELSE NULL END) AS mkt_source_partner_click,
-        MAX(CASE WHEN partner_id IS NOT NULL THEN mkt_subteam ELSE NULL END) AS mkt_subteam_partner_click,
-        MAX(CASE WHEN partner_id IS NOT NULL THEN campaign ELSE NULL END) AS mkt_campaign_partner_click,
+        MIN(CASE WHEN partner_id IS NOT NULL AND landing_page_path LIKE '%/partners/%' THEN campaign END) AS mkt_campaign_partner_click,
         MAX(CASE WHEN trials_first_click = 1 THEN landing_page_domain ELSE NULL END) AS mkt_landing_page_domain_first_click,
         MAX(CASE WHEN trials_last_click = 1 THEN landing_page_domain ELSE NULL END) AS mkt_landing_page_domain_last_click,
         MAX(CASE WHEN trials_first_click = 1 THEN landing_page_path ELSE NULL END) AS mkt_landing_page_path_first_click,
@@ -54,8 +52,9 @@ partner_info AS (
     SELECT
         partner_id,
         partner_code,
-        partner_team,
+        partner_exception_team,
         mkt_exclusion,
+        affiliate_classification,
         sys_audit_updated_on
     FROM {{ ref('s__general__partners_info__ref') }}
 ),
@@ -79,14 +78,14 @@ SELECT
 
     ss.quality_lead_flag,
 
-    att.mkt_source_last_click,
-    att.mkt_subteam_last_click,
+    COALESCE(att.mkt_source_last_click, 'not attributed yet') AS mkt_source_last_click,
+    COALESCE(att.mkt_subteam_last_click, 'not attributed yet') AS mkt_subteam_last_click,
     att.mkt_campaign_last_click,
-    att.mkt_source_first_click,
-    att.mkt_subteam_first_click,
+    COALESCE(att.mkt_source_first_click, 'not attributed yet') AS mkt_source_first_click,
+    COALESCE(att.mkt_subteam_first_click, 'not attributed yet') AS mkt_subteam_first_click,
     att.mkt_campaign_first_click,
-    att.mkt_source_partner_click,
-    att.mkt_subteam_partner_click,
+
+    pi.affiliate_classification AS mkt_subteam_partner_click,
     att.mkt_campaign_partner_click,
     att.mkt_landing_page_domain_first_click,
     att.mkt_landing_page_domain_last_click,
@@ -94,13 +93,14 @@ SELECT
     att.mkt_landing_page_path_last_click,
 
     CASE 
-        WHEN ss.partner_id IS NOT NULL AND pi.partner_code = pi.mkt_exclusion THEN CONCAT('Affiliates - ' ,pi.partner_team)					
-        WHEN ss.partner_id IS NOT NULL AND ss.partnership_type = 'affiliate' THEN 'Affiliates'				
-        WHEN ss.partner_id IS NOT NULL AND ss.partnership_type = 'store_development' THEN 'Partners' 
-        ELSE 'No' 
-    END AS flag_affiliate,
+        WHEN ss.partner_id IS NOT NULL AND pi.partner_code = pi.mkt_exclusion THEN CONCAT('Affiliates - ', pi.partner_exception_team)
+        WHEN ss.partner_id IS NOT NULL AND ss.partnership_type = 'affiliate' THEN 'Affiliates'
+        WHEN ss.partner_id IS NOT NULL AND ss.partnership_type = 'store_development' THEN 'Partners'
+        ELSE 'No affiliate'
+    END AS affiliate_owner,
 
     COALESCE(ql_p.profile, 'not informed') AS ql_profile,
+
 
     greatest(ss.sys_audit_updated_on, ti.sys_audit_updated_on, att.sys_audit_updated_on, pi.sys_audit_updated_on) AS change_timestamp
 FROM ranked_store_info_ql ss
