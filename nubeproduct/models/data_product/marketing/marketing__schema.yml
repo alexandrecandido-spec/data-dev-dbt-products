@@ -2034,6 +2034,130 @@ models:
       - name: sys_audit_updated_by
         description: "System identifier of the process that last updated this record" 
 
+  - name: g__acquisition__affiliates_performance__agg_daily
+    description: "Daily aggregated performance metrics by partner, combining GA4 acquisition data and partner attributes for comprehensive performance analysis"
+    config:
+      meta:
+        owner: "yan.santos@nuvemshop.com.br"
+        business_owner: "Giselle Galli"
+        domain: "marketing"
+    columns:
+      - name: hash_partner_key
+        description: "Unique hash key generated from partner_id and date for deduplication."
+        tests:
+          - not_null
+          - unique
+      - name: partner_id
+        description: "Unique identifier of the partner."
+        tests:
+          - not_null
+      - name: country_code
+        description: "Country code of the partner."
+        tests:
+          - not_null
+      - name: is_store_blocked
+        description: "Flag indicating if the store is blocked."
+      - name: new_seller
+        description: "Flag indicating new sellers."
+      - name: date
+        description: "Date of the performance metrics."
+        tests:
+          - not_null
+      - name: partner_code
+        description: "Code of the partner."
+      - name: affiliate_tier
+        description: "Tier of the affiliate."
+      - name: affiliate_classification
+        description: "Classification of the affiliate."
+      - name: affiliate_main_platform
+        description: "Main platform of the affiliate."
+      - name: affiliate_classification
+        description: "Classification of the affiliate."
+      - name: partner_utm_campaign
+        description: "UTM campaign of the partner."
+      - name: partner_utm_source
+        description: "UTM source of the partner."
+      - name: partner_utm_medium
+        description: "UTM medium of the partner."
+      - name: partner_utm_content
+        description: "UTM content of the partner."
+      - name: mkt_exclusion
+        description: "Flag indicating if the partner is excluded from marketing."
+      - name: flag_partner_exception
+        description: "Flag indicating if the partner is an exception."
+      - name: trials
+        description: "Number of trials for the partner."
+        tests:
+          - not_null
+      - name: new_payments
+        description: "Number of new payments for the partner."
+        tests:
+          - not_null
+      - name: payments
+        description: "Number of payments for the partner."
+        tests:
+          - not_null
+      - name: new_sellers
+        description: "Number of new sellers for the partner."
+        tests:
+          - not_null
+      - name: current_churn_stores
+        description: "Number of current churn stores for the partner."
+        tests:
+          - not_null
+      - name: qls
+        description: "Number of quality leads for the partner."
+        tests:
+          - not_null
+      - name: current_churn_stores_created_at
+        description: "Number of current churn stores created at for the partner."
+        tests:
+          - not_null
+      - name: new_sellers_first_payment
+        description: "Number of new sellers first payment for the partner."
+        tests:
+          - not_null
+      - name: first_churn_30d
+        description: "Number of first churn 30d for the partner."
+        tests:
+          - not_null
+      - name: first_churn_60d
+        description: "Number of first churn 60d for the partner."
+        tests:
+          - not_null
+      - name: first_churn_90d
+        description: "Number of first churn 90d for the partner."
+        tests:
+          - not_null
+      - name: first_churn_post_90d
+        description: "Number of first churn post 90d for the partner."
+        tests:
+          - not_null
+      - name: total_gmv
+        description: "Total GMV for the partner."
+        tests:
+          - not_null
+      - name: total_orders
+        description: "Total orders for the partner."
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was created in this table."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "System or user that created the row."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this table."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row."
+        tests:
+          - not_null
+
   - name: s__product_marketing__shipping__ref
     description: "**Data Product SILVER REF: Shipping Configuration Metrics**\n\nMétricas de configuración de métodos de envío por tienda durante el onboarding.\nCompleto cuando la tienda activó un carrier con status activo.\n\n**Domain:** marketing\n**Granularity:** ref (one row per store)"
     meta:
