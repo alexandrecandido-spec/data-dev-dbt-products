@@ -12,15 +12,16 @@ calculations AS
 (
     SELECT 
         partner_id,
+        MIN(CASE WHEN A.payment_lifecycle_status = 'Paying' AND A.business_unit = 'MM' THEN 'MM' ELSE 'SMB' END) AS partner_business_unit,
         CAST(MAX(CASE WHEN payment_lifecycle_status = 'Paying' THEN 1 ELSE 0 END) AS BOOLEAN) AS active_paying_stores_flg,
         CAST(MAX(CASE WHEN first_payment BETWEEN TRUNC(ADD_MONTHS(CURRENT_DATE,-3), 'month') AND CURRENT_DATE() THEN 1 ELSE 0 END) AS BOOLEAN) AS new_payments_lm3_flg,
-        MIN(DATE(created_at)) AS first_store_trial_date,
-        MIN(CASE WHEN acquired_by = 'Partner' THEN DATE(first_payment) ELSE NULL END) AS first_store_payment_date,
-        MIN(CASE WHEN first_seller_flg = TRUE THEN DATE(first_seller_at) ELSE NULL END) AS first_store_seller_date,
-        MAX(DATE(created_at)) AS last_store_trial_date,
-        MAX(CASE WHEN acquired_by = 'Partner' THEN DATE(first_payment) ELSE NULL END) AS last_store_payment_date,
-        MAX(CASE WHEN first_seller_flg = TRUE THEN DATE(first_seller_at) ELSE NULL END) AS last_store_seller_date
-    FROM  {{ ref('s__general__partners_stores__ref')}}
+        MIN(CASE WHEN tag_acquired_by = 'Partner' THEN DATE(created_at) ELSE NULL END) AS first_store_trial_date,
+        MIN(CASE WHEN tag_acquired_by = 'Partner' THEN DATE(first_payment) ELSE NULL END) AS first_store_payment_date,
+        MIN(CASE WHEN tag_acquired_by = 'Partner' AND new_seller = TRUE THEN DATE(first_seller_at) ELSE NULL END) AS first_store_seller_date,
+        MAX(CASE WHEN tag_acquired_by = 'Partner' THEN DATE(created_at) ELSE NULL END) AS last_store_trial_date,
+        MAX(CASE WHEN tag_acquired_by = 'Partner' THEN DATE(first_payment) ELSE NULL END) AS last_store_payment_date,
+        MAX(CASE WHEN tag_acquired_by = 'Partner' AND new_seller = TRUE THEN DATE(first_seller_at) ELSE NULL END) AS last_store_seller_date
+    FROM  {{ ref('_int_partnerships__partners_stores__table_merchant_domain')}}
     WHERE partnership_type = 'store_development'
     GROUP BY partner_id
 )
