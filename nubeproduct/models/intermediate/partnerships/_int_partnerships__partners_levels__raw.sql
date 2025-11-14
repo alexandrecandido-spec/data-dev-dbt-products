@@ -83,21 +83,21 @@ base_metrics AS
         PI.partner_country_code,
         PI.snapshot_date,
         SUM(CASE WHEN 
-            BM.first_payment IS NOT NULL 
-            AND BM.first_payment <= BM.snapshot_date 
-            AND (BM.churned_at IS NULL OR BM.churned_at > BM.snapshot_date)
-            AND BM.plan_group != 'freemium'  
+            CR.first_payment IS NOT NULL 
+            AND CR.first_payment <= PI.snapshot_date 
+            AND (CR.churned_at IS NULL OR CR.churned_at > PI.snapshot_date)
+            AND CR.plan_group != 'freemium'  
         THEN 1 ELSE 0 END)
         AS active_paying_stores,
         SUM(CASE WHEN 
-            BM.tag_acquired_by = 'Partner'
-            AND BM.first_payment IS NOT NULL
-            AND DATE_TRUNC('QUARTER', BM.first_payment) = DATE_TRUNC('QUARTER', ADD_MONTHS(BM.snapshot_date, -3))
+            CR.tag_acquired_by = 'Partner'
+            AND CR.first_payment IS NOT NULL
+            AND DATE_TRUNC('QUARTER', CR.first_payment) = DATE_TRUNC('QUARTER', ADD_MONTHS(PI.snapshot_date, -3))
         THEN 1 ELSE 0 END) AS new_payments_last_quarter,
         SUM(CASE WHEN 
-            BM.tag_acquired_by = 'Partner'
-            AND BM.first_payment IS NOT NULL
-            AND BM.first_payment BETWEEN DATE_SUB(BM.snapshot_date, 365) AND BM.snapshot_date THEN 1 ELSE 0 END) 
+            CR.tag_acquired_by = 'Partner'
+            AND CR.first_payment IS NOT NULL
+            AND CR.first_payment BETWEEN DATE_SUB(PI.snapshot_date, 365) AND PI.snapshot_date THEN 1 ELSE 0 END) 
         AS new_payments_last_365d
     FROM partners_info AS PI
     LEFT JOIN contracts_ranks AS CR
