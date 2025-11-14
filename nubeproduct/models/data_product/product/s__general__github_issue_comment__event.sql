@@ -71,7 +71,7 @@ LEFT JOIN existing_data e
   ON pre.id = e.id
 {% if is_incremental() %}
 WHERE github_updated_at > (
-  SELECT COALESCE(MAX(sys_audit_updated_on), TIMESTAMP('1900-01-01 00:00:00')) - INTERVAL 24 HOURS
+  SELECT COALESCE(MAX(sys_audit_updated_on), TIMESTAMP('1900-01-01 00:00:00')) - INTERVAL 1 HOURS
   FROM {{ this }}
 )
 {% endif %}
