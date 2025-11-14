@@ -22,7 +22,8 @@ with daily as (
   from {{ ref('g__operations__orders_gmv_store__agg_daily') }} d
 ),
 
-agg_monthly as (   -- 1 fila por (store_id, mes): totales + pivot on/off
+-- 1 fila por (store_id, mes): totales + pivot on/off
+agg_monthly as (   
   select
     store_id,
     mes,
@@ -65,6 +66,12 @@ select
   m.orders_on_platform, m.orders_off_platform,
   m.gmv_on_platform, m.gmv_off_platform,
   m.gmv_usd_on_platform, m.gmv_usd_off_platform,
+
+  -- indicadores on/off
+  case when m.orders_on_platform  > 0 and coalesce(m.orders_off_platform,0) = 0 then 1 else 0 end as sales_on_platform,
+  case when m.orders_off_platform > 0 and coalesce(m.orders_on_platform,0)  = 0 then 1 else 0 end as sales_off_platform,
+  case when m.orders_on_platform  > 0 and m.orders_off_platform > 0 then 1 else 0 end as sales_onoff_platform,
+
   -- apoyo incrementalidad
   m.max_sys_audit_updated_on_in_month,
   -- snapshot LOM tomado de daily
