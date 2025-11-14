@@ -36,7 +36,7 @@ SELECT
     COALESCE(e.sys_audit_created_on, current_timestamp) AS sys_audit_created_on,
     COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by,
     current_timestamp AS sys_audit_updated_on,
-    'data-dev-dbt-products' AS sys_audit_updated_by,
+    'data-dev-dbt-products' AS sys_audit_updated_by
 FROM status AS S
 LEFT JOIN existing_data AS e
     ON S.partner_id = e.partner_id
