@@ -2630,7 +2630,7 @@ models:
         description: "Path of the landing page URL, capturing the specific page or content that the user landed on. Useful for mapping custom campaigns or tracking user entry points."
       - name: attribution_source
         description: "Indicates the source system from which the attribution click data was retrieved. Possible values include local_db, amplitude, or empty (when no click data was available). This field helps track data lineage and diagnose attribution completeness."
-      - name: country
+      - name: country_code
         description: "Country associated with each store, based on registration data."
       - name: year_month_day_code
         description: Date in YYYYMMDD integer format used for partitioning.
