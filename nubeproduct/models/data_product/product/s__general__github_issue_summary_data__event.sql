@@ -63,7 +63,7 @@ SELECT *
 FROM final
 {% if is_incremental() %}
 WHERE sys_audit_updated_on > (
-  SELECT COALESCE(MAX(sys_audit_updated_on), TIMESTAMP '1900-01-01 00:00:00') - INTERVAL '24 hours'
+  SELECT COALESCE(MAX(sys_audit_updated_on), TIMESTAMP '1900-01-01 00:00:00') - INTERVAL '1 Hours'
   FROM {{ this }}
 )
 {% endif %}
