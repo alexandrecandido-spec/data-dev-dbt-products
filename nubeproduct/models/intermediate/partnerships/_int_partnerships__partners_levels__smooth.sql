@@ -6,7 +6,7 @@ WITH seq_by_partner AS
     sort_array(
       collect_list(named_struct('snapshot_date', snapshot_date, 'raw_rank', raw_rank))
     ) AS seq
-  FROM {{ ref('int_partnerships__partners_levels__raw') }} AS RL
+  FROM {{ ref('_int_partnerships__partners_levels__raw') }} AS RL
   GROUP BY partner_id
 ),
 seq_arrays AS 
@@ -68,7 +68,7 @@ final_levels AS
     RL.raw_rank,
     SE.smooth_rank
   FROM seq_exploded SE
-  INNER JOIN {{ ref('int_partnerships__partners_levels__raw') }} AS RL
+  INNER JOIN {{ ref('_int_partnerships__partners_levels__raw') }} AS RL
     ON RL.partner_id     = SE.partner_id
    AND RL.snapshot_date  = SE.snapshot_date
 )
@@ -84,6 +84,6 @@ SELECT
     IF(LR.level IS NOT NULL, LR.level, 'Rules undefined for partners country') AS partner_level,
     FL.smooth_rank
 FROM final_levels AS FL
-LEFT JOIN {{ ref('int_partnerships__partners_levels__rules') }} AS LR
+LEFT JOIN {{ ref('_int_partnerships__partners_levels__rules') }} AS LR
     ON LR.country_code = FL.partner_country_code
      AND FL.smooth_rank = LR.raw_rank
