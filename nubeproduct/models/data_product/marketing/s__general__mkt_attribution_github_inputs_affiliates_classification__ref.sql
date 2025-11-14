@@ -9,7 +9,7 @@
             DELETE FROM {{ this }}
             WHERE id IN (
               SELECT id
-              FROM {{ ref('s__general__mkt_attribution_inputs_all__ref') }}
+              FROM {{ ref('s__general__mkt_attribution_github_inputs_all__ref') }}
               WHERE state = 'closed'
               )
             """
@@ -38,7 +38,7 @@ source AS (
     , current_timestamp AS sys_audit_updated_on
     , 'data-dev-dbt-products' AS sys_audit_updated_by
     , ROW_NUMBER() OVER (PARTITION BY ai.affiliate_code ORDER BY ai.affiliate_classification  ASC) AS rownumber						
-  FROM {{ ref('s__general__mkt_attribution_inputs_all__ref') }} ai	
+  FROM {{ ref('s__general__mkt_attribution_github_inputs_all__ref') }} ai	
   --Includes only records associated with affiliate classification
   LEFT JOIN existing_data e ON ai.id = e.id                      
   WHERE

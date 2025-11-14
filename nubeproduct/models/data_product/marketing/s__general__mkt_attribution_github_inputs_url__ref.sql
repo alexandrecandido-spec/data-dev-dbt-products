@@ -9,7 +9,7 @@
             DELETE FROM {{ this }}
             WHERE id IN (
               SELECT id
-              FROM {{ ref('s__general__mkt_attribution_inputs_all__ref') }}
+              FROM {{ ref('s__general__mkt_attribution_github_inputs_all__ref') }}
               WHERE state = 'closed'
               )
             """
@@ -26,8 +26,10 @@ SELECT
     , ai.input_title
     , ai.input_type
     , ai.state
-    , ai.partner_code				
-    , ai.team				
+    , ai.url
+    , ai.landing_page_domain			
+    , ai.landing_page_path				
+    , ai.team
     , ai.subteam
     , ai.created_at
     , ai.updated_at
@@ -35,9 +37,9 @@ SELECT
     , COALESCE(e.sys_audit_created_on, current_timestamp) AS sys_audit_created_on
     , COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by
     , current_timestamp AS sys_audit_updated_on
-    , 'data-dev-dbt-products' AS sys_audit_updated_by	
-FROM {{ ref('s__general__mkt_attribution_inputs_all__ref') }} ai					
---Includes only records associated with partners not related to affiliate team
+    , 'data-dev-dbt-products' AS sys_audit_updated_by		
+FROM {{ ref('s__general__mkt_attribution_github_inputs_all__ref') }} ai	
+--Includes only records associated with URLs landing pages
 LEFT JOIN existing_data e ON ai.id = e.id                      
 WHERE
     {% if not is_incremental() %}
@@ -49,5 +51,5 @@ WHERE
         FROM {{ this }}
       )
     {% endif %}
-AND ai.input_type = 'PARTNER_CODE'			
+AND ai.input_type = 'URL'	
 AND ai.state = 'open'

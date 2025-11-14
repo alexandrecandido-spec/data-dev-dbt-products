@@ -38,14 +38,13 @@ SELECT
 , main_source.register_url
 , main_source.mkt_source
 , main_source.mkt_subteam
---, main_source.channel
---, main_source.subchannel    
---, main_source.page_groups
---, main_source.subpage_groups
+--, main_source.channel --- pendiente para agregar cuando se incorpore en inputs_utms
+--, main_source.subchannel    --- pendiente para agregar cuando se incorpore en inputs_utms
+--, main_source.page_groups --- pendiente para agregar (lógica según landings)
+--, main_source.subpage_groups --- pendiente para agregar (lógica según landings)
 , main_source.trials_last_click
 , main_source.trials_first_click
 , main_source.trials_mean_click
---, main_source.trials_partner_click -- nueva
 , main_source.input_sources
 , COALESCE(e.sys_audit_created_on, current_timestamp) AS sys_audit_created_on
 , COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by
@@ -56,7 +55,8 @@ LEFT JOIN existing_data e
                           ON main_source.click_id = e.click_id AND main_source.store_id = e.store_id
 WHERE
     {% if not is_incremental() %}
-      main_source.created_at >= DATE '2010-01-01'
+    --  main_source.created_at >= DATE '2010-01-01'
+    main_source.created_at >= DATE '2025-01-01'
     {% endif %}
     {% if is_incremental() %}
     (

@@ -9,7 +9,7 @@
             DELETE FROM {{ this }}
             WHERE id IN (
               SELECT id
-              FROM {{ ref('s__general__mkt_attribution_inputs_all__ref') }}
+              FROM {{ ref('s__general__mkt_attribution_github_inputs_all__ref') }}
               WHERE state = 'closed'
               )
             """
@@ -20,16 +20,13 @@ WITH existing_data AS (
   {{ get_existing_data(this, ['id', 'sys_audit_created_on', 'sys_audit_created_by']) }}
 )
 
-SELECT				
+SELECT	
     ai.id
     , ai.input_number
     , ai.input_title
     , ai.input_type
     , ai.state
-    , ai.utm_source			
-    , ai.utm_medium
-    , ai.utm_campaign							
-    , ai.utm_content				
+    , referrer		
     , ai.team				
     , ai.subteam
     , ai.created_at
@@ -38,9 +35,9 @@ SELECT
     , COALESCE(e.sys_audit_created_on, current_timestamp) AS sys_audit_created_on
     , COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by
     , current_timestamp AS sys_audit_updated_on
-    , 'data-dev-dbt-products' AS sys_audit_updated_by			
-FROM {{ ref('s__general__mkt_attribution_inputs_all__ref') }} ai					
---Includes only records associated with subteams
+    , 'data-dev-dbt-products' AS sys_audit_updated_by		
+FROM {{ ref('s__general__mkt_attribution_github_inputs_all__ref') }} ai					
+--Includes only records associated with referrers landing pages
 LEFT JOIN existing_data e ON ai.id = e.id                      
 WHERE
     {% if not is_incremental() %}
@@ -52,5 +49,5 @@ WHERE
         FROM {{ this }}
       )
     {% endif %}
-AND ai.input_type = 'SUBTEAM_MKT'			
+AND ai.input_type = 'REFERRER'			
 AND ai.state = 'open'
