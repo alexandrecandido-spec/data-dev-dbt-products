@@ -19,7 +19,7 @@ Spec:
 - Incluye métricas de órdenes/GMV desde data_operations
 - Incluye información de tienda desde data_operations
 - Incluye lógica de upgrade/downgrade de planes
-- Incluye attribution, tags de onboarding, QLs
+- Incluye attribution desde s__attributes__acquisition_profile__ref (domain merchant), tags de onboarding, QLs
 - Una fila por store_id
 
 ✅ Materialización INCREMENTAL OPTIMIZADA CON COMPARACIÓN DE VALORES:
@@ -122,7 +122,7 @@ stores_with_changes AS (
         UNION DISTINCT
         
         -- Cambios en attribution
-        SELECT store_id FROM {{ ref('marketing_merchant_info_refined') }}
+        SELECT store_id FROM {{ ref('s__attributes__acquisition_profile__ref') }}
         WHERE sys_audit_updated_on > (SELECT max_updated_on FROM last_update_time)
         
         UNION DISTINCT
@@ -321,7 +321,7 @@ blocked_fraud AS (
 
 -- ============================================
 -- ATTRIBUTION: Información de atribución de marketing
--- Consumido desde marketing_merchant_info_refined
+-- Consumido desde s__attributes__acquisition_profile__ref (domain merchant)
 -- ============================================
 attribution AS (
     SELECT 
@@ -333,7 +333,7 @@ attribution AS (
         -- active_merchant_probability: Usamos is_active_merchant de s__lifecycle__store_status__ref como probabilidad (0 o 1)
         -- Si necesitas una probabilidad real (0-1), habría que usar un modelo de ML específico
         COALESCE(ls.is_active_merchant, 0) AS active_merchant_probability
-    FROM {{ ref('marketing_merchant_info_refined') }} att
+    FROM {{ ref('s__attributes__acquisition_profile__ref') }} att
     LEFT JOIN {{ ref('s__lifecycle__store_status__ref') }} ls
         ON att.store_id = ls.store_id
 ),

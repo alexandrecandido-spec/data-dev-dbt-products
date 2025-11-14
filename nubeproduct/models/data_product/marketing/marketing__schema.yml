@@ -2394,7 +2394,7 @@ models:
         description: "System identifier of the process that last updated this record"
 
   - name: g__product_marketing__onboarding_4_steps_store__agg
-    description: "**Data Product GOLD: Onboarding 4 Steps Consolidated Metrics by Store**\n\nModelo consolidado con todas las métricas de onboarding y 4 steps por tienda.\nConsolida información de múltiples data products: admin access, storefront sessions, layout, products, payments, shipping, orders/GMV, plan movements, attribution, QLs y tags de onboarding.\n\n**Domain:** marketing\n**Granularity:** agg (one row per store)"
+    description: "**Data Product GOLD: Onboarding 4 Steps Consolidated Metrics by Store**\n\nModelo consolidado con todas las métricas de onboarding y 4 steps por tienda.\nConsolida información de múltiples data products: admin access, storefront sessions, layout, products, payments, shipping, orders/GMV, plan movements, attribution (desde s__attributes__acquisition_profile__ref - domain merchant), QLs y tags de onboarding.\n\n**Domain:** marketing\n**Granularity:** agg (one row per store)"
     meta:
       owner: "jhu.boggio@tiendanube.com"
       domain: "marketing"
