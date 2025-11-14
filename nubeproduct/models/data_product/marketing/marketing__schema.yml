@@ -3072,7 +3072,7 @@ models:
         description: "System identifier of the process that last updated this record"
 
 
-  - name: s__general__mkt_attribution_github_inputs_affiliate_classification__ref
+  - name: s__general__mkt_attribution_github_inputs_affiliates_classification__ref
     description: "A data product that contains affiliate classification-specific inputs from the GitHub mkt_attribution repository. This model focuses on tracking and validating affiliate classification parameters used in marketing campaigns, helping users:
      - Track and validate affiliate classification parameters for marketing campaigns
      - Ensure consistency in affiliate classification parameter usage across different marketing channels
