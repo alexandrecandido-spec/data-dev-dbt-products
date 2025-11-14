@@ -63,7 +63,7 @@ raw_source AS (
   {% if is_incremental() %}
     WHERE sys_audit_updated_on >
       (
-        SELECT COALESCE(MAX(sys_audit_updated_on), TIMESTAMP '1900-01-01 00:00:00') - INTERVAL 124 HOURS
+        SELECT COALESCE(MAX(sys_audit_updated_on), TIMESTAMP '1900-01-01 00:00:00') - INTERVAL 1 HOURS
         FROM {{ this }}
       )
   {% endif %}

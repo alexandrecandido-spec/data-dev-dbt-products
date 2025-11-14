@@ -1709,6 +1709,7 @@ models:
       - name: potential_gross_profit_perc
         description: "Potential gross profit percentage from HubSpot deal properties. Populated for Sales New Contracts, Onboarding metrics, Upsell/Renewal, and Success deal-based events. Null for Sales SQLs/Opportunities and Success merchant snapshots."
 
+
   - name: g__success__warnings__agg_snapshot_weekly
     config:
       meta:
@@ -1747,3 +1748,123 @@ models:
         description: "Date when the warning was entered."
       - name: date_exited_warning
         description: "Date when the warning was exited."
+
+
+  - name: g__success__new_warnings__agg_snapshot_weekly_monthly
+    config:
+      meta:
+        tech_steward: "guillermo.defelice@tiendanube.com"
+        domain: "midmarket"
+        business_owner: "Franco Tiberti"
+    description: "Snapshot of new warnings (stores entering warning stage) for Success stores aggregated by week and month. Captures the first occurrence of a store entering warning status within each time period."
+    columns:
+      - name: store_id
+        description: "Unique identifier of the store."
+        tests:
+          - not_null
+      - name: warning_root_cause_1
+        description: "Primary root cause of the warning."
+      - name: warning_root_cause_2
+        description: "Secondary root cause of the warning."
+      - name: warning_summary
+        description: "Summary or explanation of the warning event."
+      - name: warning_type
+        description: "Type or category of the warning."
+      - name: competitor_identified
+        description: "Competitor identified during the warning event, if applicable."
+      - name: date_from
+        description: "Start date of the aggregation period (week or month start date)."
+        tests:
+          - not_null
+      - name: event_date
+        description: "Actual date when the store entered the warning stage."
+        tests:
+          - not_null
+      - name: periodicity
+        description: "Aggregation period: 'weekly' or 'monthly'."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["weekly", "monthly"]
+
+
+  - name: g__success__outgoing_warnings__agg_snapshot_weekly_monthly
+    config:
+      meta:
+        tech_steward: "guillermo.defelice@tiendanube.com"
+        domain: "midmarket"
+        business_owner: "Franco Tiberti"
+    description: "Snapshot of outgoing warnings (stores exiting warning stage) for Success stores aggregated by week and month. Captures the first occurrence of a store exiting warning status within each time period."
+    columns:
+      - name: store_id
+        description: "Unique identifier of the store."
+        tests:
+          - not_null
+      - name: warning_root_cause_1
+        description: "Primary root cause of the warning that was resolved."
+      - name: warning_root_cause_2
+        description: "Secondary root cause of the warning that was resolved."
+      - name: warning_summary
+        description: "Summary or explanation of the warning event that was resolved."
+      - name: warning_type
+        description: "Type or category of the warning that was resolved."
+      - name: competitor_identified
+        description: "Competitor identified during the warning period, if applicable."
+      - name: date_from
+        description: "Start date of the aggregation period (week or month start date)."
+        tests:
+          - not_null
+      - name: event_date
+        description: "Actual date when the store exited the warning stage."
+        tests:
+          - not_null
+      - name: periodicity
+        description: "Aggregation period: 'weekly' or 'monthly'."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["weekly", "monthly"]
+
+
+  - name: g__success__new_and_outgoing_warnings__agg_snapshot_weekly_monthly
+    config:
+      meta:
+        tech_steward: "guillermo.defelice@tiendanube.com"
+        domain: "midmarket"
+        business_owner: "Franco Tiberti"
+    description: "Unified snapshot combining both new warnings (stores entering warning stage) and outgoing warnings (stores exiting warning stage) for Success stores, aggregated by week and month. Provides a comprehensive view of warning lifecycle events."
+    columns:
+      - name: store_id
+        description: "Unique identifier of the store."
+        tests:
+          - not_null
+      - name: warning_root_cause_1
+        description: "Primary root cause of the warning."
+      - name: warning_root_cause_2
+        description: "Secondary root cause of the warning."
+      - name: warning_summary
+        description: "Summary or explanation of the warning event."
+      - name: warning_type
+        description: "Type or category of the warning."
+      - name: competitor_identified
+        description: "Competitor identified during the warning event, if applicable."
+      - name: date_from
+        description: "Start date of the aggregation period (week or month start date)."
+        tests:
+          - not_null
+      - name: event_date
+        description: "Actual date when the warning event occurred (either entry or exit)."
+        tests:
+          - not_null
+      - name: periodicity
+        description: "Aggregation period: 'weekly' or 'monthly'."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["weekly", "monthly"]
+      - name: warning_event
+        description: "Type of warning event: 'new_warning' for stores entering warning stage or 'outgoing_warning' for stores exiting warning stage."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["new_warning", "outgoing_warning"]

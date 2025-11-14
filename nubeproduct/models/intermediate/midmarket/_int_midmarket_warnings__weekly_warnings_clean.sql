@@ -8,7 +8,7 @@ SELECT
     warning_summary,
     warning_type,
     competitor_identified,
-    CAST(date_entered_warning AS DATE) as date_entered_warning,
-    CAST(date_exited_warning AS DATE) as date_exited_warning
+    CAST(date_entered_warning - interval '3' hour AS DATE) as date_entered_warning,
+    CAST(date_exited_warning - interval '3' hour AS DATE) as date_exited_warning
 FROM 
     {{ source('int_data_legacy', 'stitchdata__success_deals_warning') }} w
