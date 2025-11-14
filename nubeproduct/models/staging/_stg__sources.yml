@@ -470,9 +470,9 @@ sources:
         description: "Contains the configuration of the stores for the invoice feature"
 
   - name: stg_curated_social
-    database: curated
+    database: hive_metastore
     schema: social
-    description: "Raw tables from curated.social schema containing social media integrations"
+    description: "Raw tables from hive_metastore.social schema containing social media integrations"
     tables:
       - name: google_ads_account
         description: "Google Ads account installations by store"
