@@ -133,7 +133,7 @@ SELECT
     END AS partner_level_test
     */
 FROM base_metrics AS BM
-LEFT JOIN {{ ref('int_partnerships__partners_levels__rules') }} AS LR
+LEFT JOIN {{ ref('_int_partnerships__partners_levels__rules') }} AS LR
     ON LR.country_code = BM.partner_country_code
      AND BM.active_paying_stores >= LR.min_active_paying_stores
      AND BM.new_payments_last_quarter >= LR.min_new_payments_last_quarter
