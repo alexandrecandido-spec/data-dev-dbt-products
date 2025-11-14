@@ -1286,7 +1286,6 @@ models:
         description: "Deterministic technical key for each session (MD5 of session_id, consumer_id, store_id)."
         tests:
           - not_null
-          - unique
       - name: session_timestamp
         description: "Original timestamp of the session event."
         tests:
@@ -1345,6 +1344,12 @@ models:
         description: "System or user that last updated the row in this model."
         tests:
           - not_null
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - unique_session_key
+            - base_date
+
 
   - name: product__checkout_events_event
     description: >
