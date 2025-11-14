@@ -2188,32 +2188,6 @@ models:
         description: "Timestamp of when this record was last updated in our data warehouse"
       - name: sys_audit_updated_by
         description: "System identifier of the process that last updated this record"
-  - name: s__product_marketing__active_merchant__ref
-    description: "**Data Product SILVER REF: Active Merchant Flag**\n\nIdentifica si una tienda forma parte de la base de clientes pagantes (active merchants).\nFlag que indica si la tienda está en la lista de active_merchants de la última fecha disponible.\n\n**Domain:** marketing\n**Granularity:** ref (one row per store)"
-    meta:
-      owner: "jhu.boggio@tiendanube.com"
-      domain: "marketing"
-      business_owner: "Giselle Galli"
-    columns:
-      - name: store_id
-        description: "ID único de la tienda"
-        tests:
-          - not_null
-          - unique
-      - name: is_active_merchant
-        description: "Indica si la tienda forma parte de la base de clientes pagantes. 1 = activa, 0 = no activa"
-        tests:
-          - not_null
-          - accepted_values:
-              values: [0, 1]
-      - name: sys_audit_created_on
-        description: "Timestamp of when this record was created in our data warehouse"
-      - name: sys_audit_created_by
-        description: "System identifier of the process that created this record"
-      - name: sys_audit_updated_on
-        description: "Timestamp of when this record was last updated in our data warehouse"
-      - name: sys_audit_updated_by
-        description: "System identifier of the process that last updated this record"
   - name: g__product_marketing__admin_access_store__agg
     description: "**Data Product GOLD: Admin Access Metrics by Store**\n\nMétricas de accesos al panel de administración por tienda en diferentes períodos de tiempo.\nAgrega eventos de acceso usando SUM para calcular métricas por ventanas temporales (7d, 15d, 30d, 60d).\n\n**Domain:** marketing\n**Granularity:** agg (one row per store)"
     meta:
