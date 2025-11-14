@@ -30,7 +30,7 @@ with
         from
             (
                 select store_id, count(distinct order_id) as np_trx_last_30
-                from {{ source("stg_orders", "mwp_orders") }}
+                from {{ source("int_stg_orders", "mwp_orders") }}
                 where
                     completed_at is not null
                     and status != 'cancelled'
