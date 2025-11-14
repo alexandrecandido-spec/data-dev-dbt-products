@@ -44,7 +44,7 @@ contracts_ranks AS
 (
     SELECT
         ROW_NUMBER() OVER(PARTITION BY ASS.store_id, ASS.snapshot_date ORDER BY C.contract_id DESC) AS RN,
-        AS.partner_id,
+        ASS.partner_id,
         ASS.store_id,
         ASS.first_payment,
         ASS.created_at,
@@ -56,8 +56,8 @@ contracts_ranks AS
         C.plan_group
     FROM agencies_stores AS ASS
     LEFT JOIN contracts AS C    
-        ON AS.store_id = C.store_id
-            AND AS.snapshot_date BETWEEN C.start_date AND C.end_date
+        ON ASS.store_id = C.store_id
+            AND ASS.snapshot_date BETWEEN C.start_date AND C.end_date
 ),
 temp_base AS    
 (
@@ -125,7 +125,7 @@ LEFT JOIN {{ ref('int_partnerships__partners_levels__rules') }} AS LR
      AND BM.active_paying_stores >= LR.min_active_paying_stores
      AND BM.new_payments_last_quarter >= LR.min_new_payments_last_quarter
      AND BM.new_payments_last_365d >= LR.min_new_payments_last_365d
-)
+),
 raw_levels AS 
 (
     SELECT

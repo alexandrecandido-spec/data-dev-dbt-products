@@ -24,27 +24,35 @@ seq_smoothed AS
     date_seq,
     raw_seq,
     aggregate(
-      raw_seq,                 -- recorré esta lista: [0,4,4,4,...]
-      array<int>(),            -- arranca con una lista vacía: acc = []
+      raw_seq,               -- recorro esta lista: [0,4,4,4,...]
+      array(),               -- ✅ arranco con array vacío: acc = []
       (acc, r) ->
         array_concat(
           acc,
           array(
             CASE
-              WHEN cardinality(acc) = 0 THEN r   -- primer mes: smooth = raw
+              WHEN size(acc) = 0 THEN r          -- primer mes: smooth = raw
               ELSE
                 CASE
-                  WHEN r > element_at(acc, cardinality(acc)) 
-                    THEN element_at(acc, cardinality(acc)) + 1  -- sube máx 1
-                  WHEN r < element_at(acc, cardinality(acc)) 
-                    THEN element_at(acc, cardinality(acc)) - 1  -- baja máx 1
-                  ELSE element_at(acc, cardinality(acc))        -- se queda igual
+                  WHEN r >  element_at(acc, size(acc))
+                    THEN element_at(acc, size(acc)) + 1   -- sube máx +1
+                  WHEN r <  element_at(acc, size(acc))
+                    THEN element_at(acc, size(acc)) - 1   -- baja máx -1
+                  ELSE element_at(acc, size(acc))         -- se queda igual
                 END
             END
           )
         )
-    ) AS smooth_seq           -- resultado: [0,1,2,3,4] por ejemplo
+    ) AS smooth_seq        -- te queda algo tipo [0,1,2,3,4]         
   FROM seq_arrays
+),
+seq_exploded AS (
+  SELECT
+    ss.partner_id,
+    s.date_seq   AS snapshot_date,
+    s.smooth_seq AS smooth_rank
+  FROM seq_smoothed ss
+  LATERAL VIEW posexplode(arrays_zip(ss.date_seq, ss.smooth_seq)) pe AS pos, s
 ),
 final_levels AS 
 (
@@ -57,13 +65,11 @@ final_levels AS
     RL.new_payments_last_365d,
     RL.partner_level_raw,
     RL.raw_rank,
-    element_at(SS.smooth_seq, PE.pos + 1) AS smooth_rank
-  FROM seq_smoothed SS
-  -- explota date_seq en filas: una fila por (partner, posición, fecha)
-  LATERAL VIEW posexplode(SS.date_seq) PE AS pos, snapshot_date
+    SE.smooth_rank
+  FROM seq_exploded SE
   INNER JOIN {{ ref('int_partnerships__partners_levels__raw') }} AS RL
-    ON RL.partner_id     = SS.partner_id
-   AND RL.snapshot_date  = PE.snapshot_date
+    ON RL.partner_id     = SE.partner_id
+   AND RL.snapshot_date  = SE.snapshot_date
 )
 SELECT 
     FL.*,
