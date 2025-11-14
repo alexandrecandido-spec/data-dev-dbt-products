@@ -14,7 +14,7 @@ calculations AS
     SELECT 
         partner_id,
         MAX(table_merchant_change_timestamp) AS table_merchant_change_timestamp,
-        MIN(CASE WHEN A.payment_lifecycle_status = 'Paying' AND A.business_unit = 'MM' THEN 'MM' ELSE 'SMB' END) AS partner_business_unit,
+        MIN(CASE WHEN payment_lifecycle_status = 'Paying' AND A.business_unit = 'MM' THEN 'MM' ELSE 'SMB' END) AS partner_business_unit,
         CAST(MAX(CASE WHEN payment_lifecycle_status = 'Paying' THEN 1 ELSE 0 END) AS BOOLEAN) AS active_paying_stores_flg,
         CAST(MAX(CASE WHEN first_payment BETWEEN TRUNC(ADD_MONTHS(CURRENT_DATE,-3), 'month') AND CURRENT_DATE() THEN 1 ELSE 0 END) AS BOOLEAN) AS new_payments_lm3_flg,
         MIN(CASE WHEN tag_acquired_by = 'Partner' THEN DATE(created_at) ELSE NULL END) AS first_store_trial_date,
