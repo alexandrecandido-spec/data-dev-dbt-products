@@ -60,6 +60,19 @@ SELECT
     sid.tiktok,
     sid.pinterest,
     
+    -- Facebook Pixel y CAPI
+    sid.pixel_fb,
+    sid.capi_status,
+    
+    -- 2FA Status
+    sid.twofa_status,
+    
+    -- Social Ads (TikTok, Google Ads, Google MC, Google User)
+    sid.tiktok_ads,
+    sid.google_ads,
+    sid.google_mc,
+    sid.google_user,
+    
     -- Tema
     sid.active_theme,
     sid.first_date_config_theme,

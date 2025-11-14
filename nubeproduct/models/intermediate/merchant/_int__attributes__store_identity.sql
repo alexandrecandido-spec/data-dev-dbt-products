@@ -105,8 +105,116 @@ store_settings AS (
         twitter,
         tiktok,
         pinterest,
+        -- Facebook Pixel: flag si tiene fb_pixel configurado
+        CASE WHEN fb_pixel IS NOT NULL THEN 'Yes' ELSE 'No' END AS pixel_fb,
         sys_audit_updated_on
     FROM {{ source('stg_moltres', 'mwp_store_settings') }}
+),
+
+-- Facebook API Conversión (CAPI)
+facebook_capi AS (
+    SELECT
+        store_id,
+        'Yes' AS capi_status
+    FROM {{ source('stg_moltres', 'mwp_facebook_bussiness_extension') }}
+    WHERE deleted_at IS NULL
+        AND capi_status = 1
+    GROUP BY store_id
+),
+
+-- 2FA Status por tienda
+twofa_status AS (
+    SELECT
+        wu.store_id,
+        COUNT(DISTINCT mfa.user_id) AS users_w_2fa_act,
+        COUNT(DISTINCT wu.id) AS store_users,
+        CASE
+            WHEN COUNT(DISTINCT mfa.user_id) = 0 THEN 'Completamente desactivado'
+            WHEN COUNT(DISTINCT mfa.user_id) = COUNT(DISTINCT wu.id) THEN '2FA completamente activado'
+            WHEN COUNT(DISTINCT mfa.user_id) < COUNT(DISTINCT wu.id) THEN 'Parcialmente activado'
+            ELSE 'No informado'
+        END AS twofa_status
+    FROM {{ source('int_moltres', 'wp_users') }} wu
+    LEFT JOIN (
+        SELECT 
+            CAST(user_id AS BIGINT) AS user_id
+        FROM {{ source('bronze_risk_new_admin', 'auth_authentication_factors') }}
+        WHERE enabled = 1 AND type = 'TOTP'
+    ) mfa ON mfa.user_id = wu.id
+    WHERE wu.deleted = 0
+    GROUP BY wu.store_id
+),
+
+-- Social Ads (TikTok, Google Ads, Google Merchant Center, Google User)
+-- Identificamos tiendas con integraciones activas (última instalación no eliminada)
+base_tiktok_raw AS (
+    SELECT
+        storeid AS store_id,
+        createdat,
+        deletedat,
+        ROW_NUMBER() OVER (PARTITION BY storeid ORDER BY createdat DESC) AS rn
+    FROM {{ source('stg_curated_social', 'tiktok_user') }}
+    WHERE deletedat IS NULL
+),
+base_tiktok AS (
+    SELECT DISTINCT store_id
+    FROM base_tiktok_raw
+    WHERE rn = 1
+),
+base_google_ads_raw AS (
+    SELECT
+        storeid AS store_id,
+        createdat,
+        deletedat,
+        ROW_NUMBER() OVER (PARTITION BY storeid ORDER BY createdat DESC) AS rn
+    FROM {{ source('stg_curated_social', 'google_ads_account') }}
+    WHERE deletedat IS NULL
+),
+base_google_ads AS (
+    SELECT DISTINCT store_id
+    FROM base_google_ads_raw
+    WHERE rn = 1
+),
+base_merchant_center_raw AS (
+    SELECT
+        storeid AS store_id,
+        createdat,
+        deletedat,
+        ROW_NUMBER() OVER (PARTITION BY storeid ORDER BY createdat DESC) AS rn
+    FROM {{ source('stg_curated_social', 'google_merchant_center_account') }}
+    WHERE deletedat IS NULL
+),
+base_merchant_center AS (
+    SELECT DISTINCT store_id
+    FROM base_merchant_center_raw
+    WHERE rn = 1
+),
+base_google_user_raw AS (
+    SELECT
+        storeid AS store_id,
+        createdat,
+        deletedat,
+        ROW_NUMBER() OVER (PARTITION BY storeid ORDER BY createdat DESC) AS rn
+    FROM {{ source('stg_curated_social', 'google_user') }}
+    WHERE deletedat IS NULL
+),
+base_google_user AS (
+    SELECT DISTINCT store_id
+    FROM base_google_user_raw
+    WHERE rn = 1
+),
+social_ads AS (
+    SELECT
+        sc.store_id,
+        CASE WHEN t.store_id IS NOT NULL THEN 'Yes' ELSE 'No' END AS tiktok_ads,
+        CASE WHEN ga.store_id IS NOT NULL THEN 'Yes' ELSE 'No' END AS google_ads,
+        CASE WHEN mc.store_id IS NOT NULL THEN 'Yes' ELSE 'No' END AS google_mc,
+        CASE WHEN gu.store_id IS NOT NULL THEN 'Yes' ELSE 'No' END AS google_user
+    FROM {{ ref('s__attributes__store_core__ref') }} sc
+    LEFT JOIN base_tiktok t ON sc.store_id = t.store_id
+    LEFT JOIN base_google_ads ga ON sc.store_id = ga.store_id
+    LEFT JOIN base_merchant_center mc ON sc.store_id = mc.store_id
+    LEFT JOIN base_google_user gu ON sc.store_id = gu.store_id
 ),
 
 -- Información del usuario principal
@@ -195,6 +303,19 @@ SELECT
     ss.tiktok,
     ss.pinterest,
     
+    -- Facebook Pixel y CAPI
+    ss.pixel_fb,
+    COALESCE(fc.capi_status, 'No') AS capi_status,
+    
+    -- 2FA Status
+    COALESCE(tf.twofa_status, 'No informado') AS twofa_status,
+    
+    -- Social Ads (TikTok, Google Ads, Google MC, Google User)
+    sa.tiktok_ads,
+    sa.google_ads,
+    sa.google_mc,
+    sa.google_user,
+
     -- Tema
     tl.active_theme,
     tl.first_date_config_theme,
@@ -204,7 +325,19 @@ SELECT
     ai.tiendanube_app_installed_at,
 
     -- Auditoría incremental
-    greatest(sb.sys_audit_updated_on, nd.sys_audit_updated_on, ss.sys_audit_updated_on, mu.sys_audit_updated_on, tl.last_date_config_theme, ai.tiendanube_app_installed_at) as change_timestamp
+    -- Nota: Los nuevos CTEs (facebook_capi, twofa_status, social_ads) se detectarán automáticamente
+    -- porque dependen de fuentes que ya están incluidas:
+    -- - facebook_capi: cambios en mwp_store_settings (ss.sys_audit_updated_on) detectarán cambios en pixel_fb
+    -- - twofa_status: cambios en wp_users (mu.sys_audit_updated_on) detectarán cambios en 2FA
+    -- - social_ads: cambios se detectarán cuando cambien los modelos staging que consumen
+    greatest(
+        sb.sys_audit_updated_on, 
+        nd.sys_audit_updated_on, 
+        ss.sys_audit_updated_on, 
+        mu.sys_audit_updated_on, 
+        tl.last_date_config_theme, 
+        ai.tiendanube_app_installed_at
+    ) as change_timestamp
 
 FROM store_base sb
 LEFT JOIN latest_name_description nd ON sb.store_id = nd.store_id
@@ -213,4 +346,7 @@ LEFT JOIN docs ii ON sb.store_id = ii.store_id
 LEFT JOIN main_user mu ON sb.store_id = mu.store_id AND sb.main_user_id = mu.user_id
 LEFT JOIN theme_info tl ON sb.store_id = tl.store_id 
 LEFT JOIN app_info ai ON sb.store_id = ai.store_id
+LEFT JOIN facebook_capi fc ON sb.store_id = fc.store_id
+LEFT JOIN twofa_status tf ON sb.store_id = tf.store_id
+LEFT JOIN social_ads sa ON sb.store_id = sa.store_id
 
