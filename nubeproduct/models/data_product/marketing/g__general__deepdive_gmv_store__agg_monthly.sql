@@ -10,25 +10,77 @@
 
 with
 /* ===========================
-   1) Meses con cambios en DAILY
+   1) Meses con cambios en DAILY (a nivel MES)
    =========================== */
 {% if is_incremental() %}
-dp_prev_max_daily as (
-  select coalesce(max(sys_audit_month_max), timestamp '1900-01-01') as prev_global_daily_audit
+
+dp_prev_month_audit as (
+  -- audit mensual ya persistida en el DP
+  select
+    reported_month,
+    max(sys_audit_month_max) as prev_sys_audit_month_max
   from {{ this }}
-),
-daily_changed as (
-  select last_day(d.date) as reported_month
-  from {{ ref('g__operations__orders_gmv_store__agg_daily') }} d
-  where d.sys_audit_updated_on > (select prev_global_daily_audit from dp_prev_max_daily)
   group by 1
 ),
+
+dp_prev_month_observed as (
+  -- fecha máxima observada en el mes (agregada desde last_observed_date_in_month por store)
+  select
+    reported_month,
+    max(last_observed_date_in_month) as prev_month_observed_through_date
+  from {{ this }}
+  group by 1
+),
+
+daily_month_audit_now as (
+  -- audit mensual actual en la fuente daily
+  select
+    last_day(d.date)            as reported_month,
+    max(d.sys_audit_updated_on) as sys_audit_month_max_now
+  from {{ ref('g__operations__orders_gmv_store__agg_daily') }} d
+  group by 1
+),
+
+daily_month_observed_now as (
+  -- hasta qué fecha real del mes hay datos hoy (por mes)
+  select
+    last_day(d.date) as reported_month,
+    max(d.date)      as month_observed_through_date_now
+  from {{ ref('g__operations__orders_gmv_store__agg_daily') }} d
+  group by 1
+),
+
+daily_changed_by_audit as (
+  select n.reported_month
+  from daily_month_audit_now n
+  left join dp_prev_month_audit p using (reported_month)
+  where p.prev_sys_audit_month_max is null
+     or n.sys_audit_month_max_now > p.prev_sys_audit_month_max
+),
+
+daily_changed_by_observed as (
+  select n.reported_month
+  from daily_month_observed_now n
+  left join dp_prev_month_observed p using (reported_month)
+  where p.prev_month_observed_through_date is null
+     or n.month_observed_through_date_now > p.prev_month_observed_through_date
+),
+
+daily_changed as (
+  select reported_month from daily_changed_by_audit
+  union
+  select reported_month from daily_changed_by_observed
+),
+
 {% else %}
+
 daily_changed as (
+  -- full refresh: todos los meses presentes en daily
   select last_day(d.date) as reported_month
   from {{ ref('g__operations__orders_gmv_store__agg_daily') }} d
   group by 1
 ),
+
 {% endif %}
 
 /* ===========================================
@@ -53,7 +105,6 @@ milestones_audit_now as (
   from {{ ref('s__lifecycle__store_sales_milestones__ref') }}
 ),
 
--- Audit unificado (mantenemos el alias que usa el DP aguas abajo)
 status_audit_now as (
   select
     coalesce(sc.store_id, ms.store_id) as store_id,
@@ -106,7 +157,6 @@ months_for_changed_stores as (
     join stores_changed_status s using (store_id)
     group by d.reported_month
   {% else %}
-    -- full-refresh: meses que estén en la consolidada
     select c.reported_month
     from {{ ref('_int__deepdive_gmv__consolidated_monthly') }} c
     join stores_changed_status s using (store_id)
@@ -153,17 +203,23 @@ src as (
     a.*,
     {{ marketing_mpt_hash([
       "a.store_id","a.reported_month",
-      "a.gmv","a.gmv_usd","a.orders","a.product_quantity","a.avg_ticket","a.avg_ticket_usd",
+      "a.gmv","a.gmv_usd","a.orders","a.product_quantity",
+      "a.avg_ticket","a.avg_ticket_usd",
+      "a.avg_ticket_on_platform","a.avg_ticket_off_platform",
+      "a.avg_ticket_usd_on_platform","a.avg_ticket_usd_off_platform",
       "a.orders_on_platform","a.orders_off_platform",
       "a.gmv_on_platform","a.gmv_off_platform",
       "a.gmv_usd_on_platform","a.gmv_usd_off_platform",
+      "a.sales_on_platform","a.sales_off_platform","a.sales_onoff_platform",
       "a.avg_gmv_last_3_months","a.avg_gmv_usd_last_3_months",
       "a.gmv_local_monthly_range","a.gmv_usd_monthly_range",
       "a.gmv_local_current_range","a.gmv_usd_current_range",
+      "a.gmv_local_avg3m_range","a.gmv_usd_avg3m_range",
       "a.first_sale_date_all_time","a.first_sale_month_all_time",
       "a.last_sale_date","a.last_sale_month",
       "a.is_first_sale_month","a.is_last_sale_month",
       "a.gmv_new_vs_churned",
+      "a.historical_smb_movement_type","a.historical_smb_in_out_movements",
       "a.current_plan","a.current_bu","a.historical_plan","a.historical_bu","a.current_seller_segment",
       "a.months_from_creation","a.months_from_first_payment",
       "a.months_from_first_seller","a.months_from_first_sale","a.months_from_new_seller"
@@ -172,12 +228,21 @@ src as (
 ),
 
 /* ==========================================================
-   9) Audit mensual máximo desde DAILY (para persistir en DP)
+   9) Audit mensual máximo y cobertura desde DAILY (nivel mes)
    ========================================================== */
 month_audit as (
   select
     last_day(d.date)            as reported_month,
     max(d.sys_audit_updated_on) as sys_audit_month_max
+  from {{ ref('g__operations__orders_gmv_store__agg_daily') }} d
+  where last_day(d.date) in (select reported_month from months_to_overwrite)
+  group by 1
+),
+
+month_observed as (
+  select
+    last_day(d.date) as reported_month,
+    max(d.date)      as month_observed_through_date
   from {{ ref('g__operations__orders_gmv_store__agg_daily') }} d
   where last_day(d.date) in (select reported_month from months_to_overwrite)
   group by 1
@@ -204,8 +269,14 @@ select
   s.gmv_usd,
   s.orders,
   s.product_quantity,
+
+  -- tickets
   s.avg_ticket,
   s.avg_ticket_usd,
+  s.avg_ticket_on_platform,
+  s.avg_ticket_off_platform,
+  s.avg_ticket_usd_on_platform,
+  s.avg_ticket_usd_off_platform,
 
   -- on/off platform
   s.orders_on_platform,
@@ -215,15 +286,22 @@ select
   s.gmv_usd_on_platform,
   s.gmv_usd_off_platform,
 
-  -- promedios 3M cerrados
+  -- flags on/off
+  s.sales_on_platform,
+  s.sales_off_platform,
+  s.sales_onoff_platform,
+
+  -- promedios 3M (últimos 3 meses con actividad)
   s.avg_gmv_last_3_months,
   s.avg_gmv_usd_last_3_months,
 
-  -- rangos
+  -- rangos (mensual, último mes cerrado y por promedio 3M)
   s.gmv_local_monthly_range,
   s.gmv_usd_monthly_range,
   s.gmv_local_current_range,
   s.gmv_usd_current_range,
+  s.gmv_local_avg3m_range,
+  s.gmv_usd_avg3m_range,
 
   -- first/last + flags
   s.first_sale_date_all_time,
@@ -233,10 +311,12 @@ select
   s.is_first_sale_month,
   s.is_last_sale_month,
 
-  -- clasificación
+  -- clasificación + movimientos SMB
   s.gmv_new_vs_churned,
+  s.historical_smb_movement_type,
+  s.historical_smb_in_out_movements,
 
-  -- nombres ORIGINALES de daily (no renombramos)
+  -- plan / BU / segmento
   s.current_plan,
   s.current_bu,
   s.historical_plan,
@@ -250,9 +330,15 @@ select
   s.months_from_first_sale,
   s.months_from_new_seller,
 
-  -- audits
-  ma.sys_audit_month_max,                   
-  s.status_audit_max_now as status_audit_max,  
+  -- supports por store (útiles para debug/incrementalidad)
+  s.max_sys_audit_updated_on_in_month,
+  s.lom_sys_audit_updated_on,
+  s.last_observed_date_in_month,
+
+  -- audits y cobertura de mes (nivel mes)
+  ma.sys_audit_month_max,
+  s.status_audit_max_now as status_audit_max,
+  mo.month_observed_through_date,
 
   -- fingerprint mensual
   s.row_hash,
@@ -269,9 +355,11 @@ select
   'data-dev-dbt-products' as sys_audit_updated_by
 
 from src s
-left join month_audit ma using (reported_month)
+left join month_audit    ma using (reported_month)
+left join month_observed mo using (reported_month)
 {% if is_incremental() %}
 left join existing e
   on e.store_id = s.store_id
  and e.year_month_code = s.year_month_code
 {% endif %}
+
