@@ -165,4 +165,4 @@ raw_levels AS
         new_payments_last_quarter,
         new_payments_last_365d
 )
-SELECT * FROM raw_levels;
+SELECT * FROM raw_levels

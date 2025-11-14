@@ -47,4 +47,4 @@ WITH level_rules AS (
         3,  -- min_new_payments_last_quarter
         0   -- min_new_payments_last_365d
 )
-SELECT * FROM level_rules;
+SELECT * FROM level_rules
