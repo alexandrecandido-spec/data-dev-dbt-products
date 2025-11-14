@@ -5,8 +5,20 @@ WITH date_spine AS -- Create a table with the date spine for the snapshot date
         year_id,
         quarter_id
     FROM {{ ref('dim_calendar') }}
-    WHERE first_day_of_month BETWEEN '2023-01-01' AND CURRENT_DATE()
+    WHERE first_day_of_month BETWEEN '2020-01-01' AND CURRENT_DATE()
     GROUP BY year_id, quarter_id
+),
+partners_info AS
+(
+    SELECT
+        partner_id,
+        DATE(partner_created_at) AS partner_created_date,
+        partner_country_code,
+        DS.snapshot_date
+    FROM {{ ref('s__general__partners_info__ref') }}
+    CROSS JOIN date_spine AS DS
+    WHERE has_store_dev_trial = 1
+        AND DATE(partner_created_at) <= DS.snapshot_date
 ),
 agencies_stores AS
 (
@@ -38,10 +50,12 @@ contracts AS    -- Create a table with the historicalcontracts for each store
     FROM {{ ref('moltres__contracts') }} AS C
     LEFT JOIN {{ ref('operations_grouping_plans') }} AS OGP
         ON C.plan_id = OGP.plan
-    WHERE C.start_date >= '2021-01-01'
+    WHERE C.start_date >= '2018-01-01'
 ), 
 contracts_ranks AS
 (
+    SELECT * FROM 
+    (
     SELECT
         ROW_NUMBER() OVER(PARTITION BY ASS.store_id, ASS.snapshot_date ORDER BY C.contract_id DESC) AS RN,
         ASS.partner_id,
@@ -58,39 +72,38 @@ contracts_ranks AS
     LEFT JOIN contracts AS C    
         ON ASS.store_id = C.store_id
             AND ASS.snapshot_date BETWEEN C.start_date AND C.end_date
-),
-temp_base AS    
-(
-    SELECT    
-        *
-    FROM contracts_ranks AS CR
+    )
     WHERE RN = 1
 ),
-base_metrics AS
+base_metrics AS    
 (
-    SELECT 
-    BM.partner_id,
-    BM.snapshot_date,
-    BM.partner_country_code,
-    SUM(CASE WHEN 
-        BM.first_payment IS NOT NULL 
-        AND BM.first_payment <= BM.snapshot_date 
-        AND (BM.churned_at IS NULL OR BM.churned_at > BM.snapshot_date)
-        AND BM.plan_group != 'freemium'  
-    THEN 1 ELSE 0 END)
-    AS active_paying_stores,
-    SUM(CASE WHEN 
-    BM.tag_acquired_by = 'Partner'
-    AND BM.first_payment IS NOT NULL
-    AND DATE_TRUNC('QUARTER', BM.first_payment) = DATE_TRUNC('QUARTER', ADD_MONTHS(BM.snapshot_date, -3))
-    THEN 1 ELSE 0 END) AS new_payments_last_quarter,
-    SUM(CASE WHEN 
-    BM.tag_acquired_by = 'Partner'
-    AND BM.first_payment IS NOT NULL
-    AND BM.first_payment BETWEEN DATE_SUB(BM.snapshot_date, 365) AND BM.snapshot_date THEN 1 ELSE 0 END) 
-    AS new_payments_last_365d
-FROM temp_base AS BM
-GROUP BY BM.partner_id, BM.snapshot_date, BM.partner_country_code
+    SELECT    
+        PI.partner_id,
+        PI.partner_created_date,
+        PI.partner_country_code,
+        PI.snapshot_date,
+        SUM(CASE WHEN 
+            BM.first_payment IS NOT NULL 
+            AND BM.first_payment <= BM.snapshot_date 
+            AND (BM.churned_at IS NULL OR BM.churned_at > BM.snapshot_date)
+            AND BM.plan_group != 'freemium'  
+        THEN 1 ELSE 0 END)
+        AS active_paying_stores,
+        SUM(CASE WHEN 
+            BM.tag_acquired_by = 'Partner'
+            AND BM.first_payment IS NOT NULL
+            AND DATE_TRUNC('QUARTER', BM.first_payment) = DATE_TRUNC('QUARTER', ADD_MONTHS(BM.snapshot_date, -3))
+        THEN 1 ELSE 0 END) AS new_payments_last_quarter,
+        SUM(CASE WHEN 
+            BM.tag_acquired_by = 'Partner'
+            AND BM.first_payment IS NOT NULL
+            AND BM.first_payment BETWEEN DATE_SUB(BM.snapshot_date, 365) AND BM.snapshot_date THEN 1 ELSE 0 END) 
+        AS new_payments_last_365d
+    FROM partners_info AS PI
+    LEFT JOIN contracts_ranks AS CR
+        ON PI.partner_id = CR.partner_id
+            AND CR.snapshot_date = PI.snapshot_date
+    GROUP BY PI.partner_id, PI.partner_created_date, PI.partner_country_code, PI.snapshot_date
 ),
 matched_rules AS 
 (
@@ -137,7 +150,7 @@ raw_levels AS
         new_payments_last_365d,
         COALESCE(
           MAX_BY(partner_level_raw, raw_rank),
-          'Member'
+          'Rules undefined for partners country'
         ) AS partner_level_raw,
         COALESCE(
           MAX(raw_rank),

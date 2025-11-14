@@ -31,7 +31,8 @@ seq_smoothed AS
           acc,
           array(
             CASE
-              WHEN size(acc) = 0 THEN r          -- primer mes: smooth = raw
+            --WHEN size(acc) = 0 THEN r       -- primer mes: smooth = raw
+              WHEN size(acc) = 0 THEN least(r, 1)
               ELSE
                 CASE
                   WHEN r >  element_at(acc, size(acc))
@@ -72,8 +73,16 @@ final_levels AS
    AND RL.snapshot_date  = SE.snapshot_date
 )
 SELECT 
-    FL.*,
-    IF(LR.level IS NOT NULL, LR.level, 'Rules undefined for partners country') AS partner_level
+    FL.partner_id,
+    FL.partner_country_code,
+    FL.snapshot_date,
+    FL.active_paying_stores,
+    FL.new_payments_last_quarter,
+    FL.new_payments_last_365d,
+    FL.partner_level_raw,
+    FL.raw_rank,
+    IF(LR.level IS NOT NULL, LR.level, 'Rules undefined for partners country') AS partner_level,
+    FL.smooth_rank
 FROM final_levels AS FL
 LEFT JOIN {{ ref('int_partnerships__partners_levels__rules') }} AS LR
     ON LR.country_code = FL.partner_country_code

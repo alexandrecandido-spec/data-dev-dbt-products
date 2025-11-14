@@ -1,11 +1,11 @@
 WITH level_rules AS (
     SELECT 
-        'BR'  AS country_code,
-        'Member'   AS level,
-        0          AS raw_rank,
-        0          AS min_active_paying_stores,
-        0          AS min_new_payments_last_quarter,
-        0          AS min_new_payments_last_365d
+        'BR' AS country_code,
+        'Member' AS level,
+        0 AS raw_rank,
+        0 AS min_active_paying_stores,
+        0 AS min_new_payments_last_quarter,
+        0 AS min_new_payments_last_365d
 
     UNION ALL
 
@@ -47,4 +47,4 @@ WITH level_rules AS (
         3,  -- min_new_payments_last_quarter
         0   -- min_new_payments_last_365d
 )
-SELECT * FROM level_rules
+SELECT * FROM level_rules;
