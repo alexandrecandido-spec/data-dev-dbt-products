@@ -143,14 +143,6 @@ sources:
       - name: mwp_countries
         description: "countries table from bronze_risk.ecosystem"
   
-  - name: bronze_risk_new_admin
-    database: bronze_risk
-    schema: new_admin
-    tables:
-      - name: auth_authentication_factors
-        description: "Authentication factors per user (2FA) from bronze_risk.new_admin"
-  
-  
   - name: stg_data_predictors
     database: hive_metastore
     schema: data_predictors
@@ -466,6 +458,14 @@ sources:
         description: "Contains the information of the store configuration for the productive environment"
       - name: store_invoice_registry
         description: "Contains the configuration of the stores for the invoice feature"
+
+  - name: stg_tableau_external
+    database: hive_metastore
+    schema: tableau_external
+    description: "Raw tables from tableau_external schema containing external data sources"
+    tables:
+      - name: gs_perfit_merchants
+        description: "Perfit merchants data from external source"
 
   - name: stg_unity_data_manual
     database: data_products_prd

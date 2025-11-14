@@ -328,3 +328,45 @@ sources:
     tables:
       - name: invoice_information
         description: "Información de facturación/razón social asociada a la tienda."
+
+  - name: int_stg_moltres
+    database: hive_metastore
+    schema: moltres
+    description: "Staging tables from moltres schema used in intermediate models"
+    tables:
+      - name: mwp_store_settings
+        description: "Store configuration settings"
+      - name: mwp_options
+        description: "Contains information about merchant configuration settings options"
+      - name: mwp_store_info
+        description: "Contains all the list of stores with their information"
+      - name: mwp_contracts
+        description: "Table with contracts information"
+      - name: mwp_payment_stores
+        description: "Information of pagos de subscription por payment y store"
+      - name: mwp_payments
+        description: "Information of pagos"
+
+  - name: int_stg_orders
+    database: hive_metastore
+    schema: orders
+    description: "Staging tables from orders schema used in intermediate models"
+    tables:
+      - name: mwp_orders
+        description: "Main table, contains information about orders, including customer details, products, status, and creation and completion dates"
+
+  - name: int_stg_unity_data_manual
+    database: data_products_prd
+    schema: data_manual
+    description: "Staging tables from data_manual schema used in intermediate models"
+    tables:
+      - name: ext__partnerships__platform_development__app_managers
+        description: "Contains the information of the app and tech partner managers"
+
+  - name: int_stg_nuvem_credito
+    database: hive_metastore
+    schema: nuvem_credito
+    description: "Staging tables from nuvem_credito schema used in intermediate models"
+    tables:
+      - name: installments
+        description: "Contains all installments associated to a contract"

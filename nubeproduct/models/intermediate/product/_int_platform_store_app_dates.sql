@@ -11,8 +11,8 @@ stores as (
         ,date(created_at) as creation_date
         ,date(first_payment) as first_payment
         ,date(churned_at) as churned_at
-    from {{ source('stg_moltres', 'mwp_store_info') }} s
-    left join {{ source('bronze_risk_ecommerce', 'mwp_store_settings') }} ss
+    from {{ source('int_stg_moltres', 'mwp_store_info') }} s
+    left join `hive_metastore`.`ecommerce`.`mwp_store_settings` ss
     on s.id = ss.store_id
     where true
     and state <> 4
@@ -81,7 +81,7 @@ partner_managers as (
         ,partner_manager
         ,app_id
         ,app_manager
-    from {{ source('stg_unity_data_manual', 'ext__partnerships__platform_development__app_managers') }}
+    from {{ source('int_stg_unity_data_manual', 'ext__partnerships__platform_development__app_managers') }}
 )
 SELECT distinct
         s.*

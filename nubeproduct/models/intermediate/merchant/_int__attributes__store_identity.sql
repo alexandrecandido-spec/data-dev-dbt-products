@@ -132,7 +132,7 @@ store_settings AS (
         tiktok,
         pinterest,
         sys_audit_updated_on
-    FROM {{ source('stg_moltres', 'mwp_store_settings') }}
+    FROM {{ source('int_stg_moltres', 'mwp_store_settings') }}
 ),
 
 -- Información del usuario principal
@@ -171,7 +171,7 @@ theme_info AS (
                 opt.option_value AS active_theme,
                 MIN(opt.created_at) AS first_date_config_theme,
                 MAX(opt.created_at) AS last_date_config_theme
-            FROM {{ source('stg_moltres', 'mwp_options') }} opt
+            FROM {{ source('int_stg_moltres', 'mwp_options') }} opt
             WHERE opt.option_name = 'twig_template'
             GROUP BY opt.store_id, opt.option_value
         ) t

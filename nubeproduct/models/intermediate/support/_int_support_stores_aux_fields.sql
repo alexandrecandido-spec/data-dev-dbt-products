@@ -4,7 +4,7 @@ with
 
     layout as (
         select store_id, option_value as layout
-        from {{ source("stg_moltres", "mwp_options") }}
+        from {{ source("int_stg_moltres", "mwp_options") }}
         where option_name = 'twig_template'
     ),
 
@@ -12,7 +12,7 @@ with
         select
             store_id,
             case when instagram is not null then true else false end as has_instagram
-        from {{ source("stg_moltres", "mwp_store_settings") }}
+        from {{ source("int_stg_moltres", "mwp_store_settings") }}
     ),
 
     paid_until as (

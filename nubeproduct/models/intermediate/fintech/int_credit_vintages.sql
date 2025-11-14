@@ -50,7 +50,7 @@ paid_installments AS (
         i.paid_amount / 100 AS u_paid,
         i.original_amount / 100 AS original_paid,
         i.principal_amount / 100 AS principal_paid
-    FROM {{ source('stg_nuvem_credito', 'installments') }} i
+    FROM {{ source('int_stg_nuvem_credito', 'installments') }} i
     WHERE i.status = 'paid'
 ),
 
