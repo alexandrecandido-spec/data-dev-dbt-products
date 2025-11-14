@@ -24,27 +24,27 @@ seq_smoothed AS
     date_seq,
     raw_seq,
     aggregate(
-      raw_seq,               -- recorro esta lista: [0,4,4,4,...]
-      array(),               -- ✅ arranco con array vacío: acc = []
+      raw_seq,                                -- recorro esta lista: [0,4,4,4,...]
+      CAST(array() AS array<int>),            -- seed tipado: acc = []
       (acc, r) ->
-        array_concat(
+        concat(
           acc,
           array(
             CASE
-            --WHEN size(acc) = 0 THEN r       -- primer mes: smooth = raw
+              --WHEN size(acc) = 0 THEN r       -- primer mes: smooth = raw
               WHEN size(acc) = 0 THEN least(r, 1)
               ELSE
                 CASE
-                  WHEN r >  element_at(acc, size(acc))
+                  WHEN r > element_at(acc, size(acc))
                     THEN element_at(acc, size(acc)) + 1   -- sube máx +1
-                  WHEN r <  element_at(acc, size(acc))
+                  WHEN r < element_at(acc, size(acc))
                     THEN element_at(acc, size(acc)) - 1   -- baja máx -1
                   ELSE element_at(acc, size(acc))         -- se queda igual
                 END
             END
           )
         )
-    ) AS smooth_seq        -- te queda algo tipo [0,1,2,3,4]         
+    ) AS smooth_seq    
   FROM seq_arrays
 ),
 seq_exploded AS (
