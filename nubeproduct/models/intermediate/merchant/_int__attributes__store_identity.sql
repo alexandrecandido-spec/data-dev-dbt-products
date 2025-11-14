@@ -25,66 +25,92 @@ WITH store_base AS (
 ),
 
 -- store_name desde i18n (última versión)
-latest_name_description as (
-  select store_id, nullif(trim(name), '') as store_name, store_description, sys_audit_updated_on
-  from (
-    select
+latest_name_description AS (
+  SELECT store_id, nullif(trim(name), '') as store_name, store_description, sys_audit_updated_on
+  FROM (
+    SELECT
       ss.store_id,
       i18n.name,
-      i18n.description as store_description,
+      i18n.description AS store_description,
       i18n.sys_audit_updated_on,
       row_number() over (partition by ss.store_id order by i18n.id desc) as rnk
-    from {{ source('int_moltres','mwp_store_settings') }} ss
-    left join {{ source('int_moltres','mwp_store_settings_i18n') }} i18n
-      on ss.id = i18n.store_setting_id
+    FROM {{ source('int_moltres','mwp_store_settings') }} ss
+    LEFT JOIN {{ source('int_moltres','mwp_store_settings_i18n') }} i18n ON ss.id = i18n.store_setting_id
   ) t
-  where rnk = 1
+  WHERE rnk = 1
 ),
 
 
--- mejor candidato de doc desde invoice_info
-merchant_id as (
-  select
-    m.store_id,
-    upper(trim(m.id_type)) as id_type,
-    trim(m.id_number)      as id_number,
-    row_number() over (
-      partition by m.store_id
-      order by case upper(trim(m.id_type))
-                 when 'CNPJ' then 0 when 'CPF' then 0 when 'CUIT' then 0
-                 when 'RUT'  then 0 when 'RFC' then 0 when 'DNI'  then 0
-                 else 9 end,
-               m.name asc
-    ) as rn
-  from {{ source('int_moltres','mwp_invoice_info') }} m
+-- PRIORIDAD 1: billing.invoice_information
+billing_merchant AS (
+  SELECT 
+  store_id,
+  id_type,
+  id_number
+  FROM (
+      SELECT
+      cast(storeId as bigint) AS store_id,
+      upper(trim(idType)) AS id_type,
+      trim(idNumber) AS id_number,
+      row_number() over (partition by storeId order by createdAt desc) AS rn
+      FROM {{ source('int_billing','invoice_information') }}
+  )
+  WHERE rn = 1
+),
+
+-- PRIORIDAD 2: moltres.mwp_invoice_info
+invoice_merchant_info AS (
+  SELECT
+  store_id,
+  id_type,
+  id_number
+  FROM (
+    SELECT
+    cast(m.store_id as bigint) AS store_id,
+    upper(trim(m.id_type)) AS id_type,
+    trim(m.id_number) AS id_number,
+    row_number() over (partition by m.store_id order by m.sys_audit_created_on desc) AS rn
+    FROM {{ source('int_moltres','mwp_invoice_info') }} m
+  )
+  WHERE rn = 1
+),
+
+-- Resolver prioridad entre ambas fuentes
+merchant_id AS (
+  SELECT
+    coalesce(b.store_id, m.store_id) AS store_id,
+    coalesce(nullif(b.id_type,   ''), nullif(m.id_type,   '')) AS id_type,
+    coalesce(nullif(b.id_number, ''), nullif(m.id_number, '')) AS id_number
+  FROM billing_merchant b
+  FULL OUTER JOIN invoice_merchant_info m on b.store_id = m.store_id
 ),
 
 -- fallback: business_id si no hay invoice_info
 biz as (
-  select
-    ss.store_id,
-    trim(ss.business_id) as business_id
-  from {{ source('int_moltres','mwp_store_settings') }} ss
+  SELECT
+    cast(ss.store_id as bigint) AS store_id,
+    trim(ss.business_id) AS business_id
+  FROM {{ source('int_moltres','mwp_store_settings') }} ss
 ),
 
-docs as (
-  select
+-- Composición final de documentos con prioridades
+docs AS (
+  SELECT
     b.store_id,
-    case
-      when mi.id_type in ('CNPJ','CPF','CUIT','RUT','RFC','DNI') then mi.id_type
-      when bz.business_id is not null then 'UNKNOWN'
-      else null
-    end as doc_type,
+    CASE
+      WHEN mi.id_type IN ('CNPJ','CPF','CUIT','RUT','RFC','DNI') THEN mi.id_type
+      WHEN bz.business_id is not null then 'UNKNOWN'
+      ELSE NULL
+    END AS doc_type,
     nullif(
-      case
-        when mi.id_type in ('CNPJ','CPF','CUIT','RUT','RFC','DNI')
-          then regexp_replace(mi.id_number, '[^0-9A-Z]', '')
-        else regexp_replace(bz.business_id, '[^0-9A-Z]', '')
-      end
-    , '') as doc_number
-  from store_base b
-  left join (select * from merchant_id where rn = 1) mi on b.store_id = mi.store_id
-  left join biz bz on b.store_id = bz.store_id
+      CASE
+        WHEN mi.id_type IN ('CNPJ','CPF','CUIT','RUT','RFC','DNI')
+          THEN regexp_replace(mi.id_number, '[^0-9A-Z]', '')
+        ELSE regexp_replace(bz.business_id, '[^0-9A-Z]', '')
+      END, '') AS doc_number
+  FROM store_base b
+  LEFT JOIN merchant_id mi ON b.store_id = mi.store_id
+  LEFT JOIN biz bz ON b.store_id = bz.store_id
 ),
 
 -- Configuración de la tienda (teléfonos, redes sociales)

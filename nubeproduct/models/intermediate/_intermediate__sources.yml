@@ -67,6 +67,8 @@ sources:
         description: "Información de impuestos de pagos."
       - name: mwp_invoices_credit_notes
         description: "Información de notas de crédito de facturas."
+      - name: mwp_store_cancellations
+        description: "Información de cancelaciones de tiendas (encuestas de churns o cancelaciones de tiendas). Incluye el motivo de la cancelación y el comentario de la cancelación."
 
   - name: int_finance
     database: hive_metastore
@@ -75,6 +77,8 @@ sources:
     tables:
       - name: active_merchants
         description: "List of currently active merchants, based on plan subscriptions and payment activity."
+      - name: churns_merchants
+        description: "List of churns merchants."
 
   - name: int_third_party
     database: hive_metastore
@@ -233,6 +237,8 @@ sources:
         description: "WBR (Success) snapshot from legacy Postgres."
       - name: stitchdata__mbr_success
         description: "MBR (Success) snapshot from legacy Postgres."
+      - name: stitchdata__success_deals_warning
+        description: "Success deals warning snapshot from legacy Postgres."
 
   - name: int_hubspot
     database: raw
@@ -313,3 +319,12 @@ sources:
         description: "Historical snapshot of Zendesk chats, storing data extracted from ticket audit logs for analytical purposes."
       - name: legacy_comments
         description: "Historical snapshot of Zendesk ticket comments, preserving all public and internal messages exchanged within tickets. This table consolidates comment-level data extracted from Zendesk audit logs or API exports, including authorship, visibility, and timestamps. It serves analytical and auditing purposes, enabling the reconstruction of historical conversations and customer-agent interactions over time."
+
+
+  - name: int_billing
+    database: hive_metastore
+    schema: billing
+    description: "Intermediate tables built from raw data in the billing schema."
+    tables:
+      - name: invoice_information
+        description: "Información de facturación/razón social asociada a la tienda."

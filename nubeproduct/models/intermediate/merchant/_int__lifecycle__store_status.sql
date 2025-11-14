@@ -14,11 +14,11 @@ WITH store_source AS (
 segment_info AS (
   SELECT
     l.store_id
-    ,lower(cs.segment_name) as current_segment
-    ,CASE WHEN lower(cs.segment_name) IN ('no-seller', 'struggling-seller') THEN 'no-seller' 
-      WHEN lower(cs.segment_name) IN ('tiny-seller', 'small-seller', 'medium-seller', 'large-seller', 'top-seller') THEN 'seller'
+    ,LOWER(cs.segment_name) as current_segment
+    ,CASE WHEN LOWER(cs.segment_name) IN ('no-seller', 'struggling-seller') THEN 'no-seller' 
+      WHEN LOWER(cs.segment_name) IN ('tiny-seller', 'small-seller', 'medium-seller', 'large-seller', 'top-seller') THEN 'seller'
       ELSE 'not informed' END AS is_seller
-    ,lower(ms.segment_name) as max_segment
+    ,LOWER(ms.segment_name) as max_segment
     ,l.sys_audit_updated_on
   FROM {{ ref('_int_dim_merchant_info__segment') }} l
   LEFT JOIN {{ ref('dimension__attributes__segment_type__ref') }} cs ON l.current_segment_id = cs.segment_id
@@ -32,6 +32,39 @@ blocked_store__info AS (
     , bl.blocked_last_updated_at
   FROM {{ ref('merchant__attributes__store_tags__ref') }} bl
   WHERE bl.blocked_reason is not null
+),
+active_finance_merchants AS (
+    SELECT store_id
+    FROM (
+        SELECT 
+            store_id,
+            date_id,
+            MAX(date_id) OVER () AS max_date
+        FROM {{ source('int_finance', 'active_merchants') }}
+    )
+    WHERE date_id = max_date
+    GROUP BY store_id
+),
+cancellations_info AS (
+  SELECT 
+  *
+  FROM 
+  (
+    SELECT 
+    c.store_id,
+    c.reason AS cancellation_reason,
+    trim(c.extra) AS cancellation_comment,
+    c.created_at AS cancellation_comment_at,
+    c.sys_audit_updated_on AS cancellation_updated_at,
+    row_number() over (partition by store_id order by created_at desc) as row_rank
+  FROM {{ source('int_moltres', 'mwp_store_cancellations') }} c) ca
+  WHERE ca.row_rank = 1
+),
+midmarket_success_stores AS (
+  SELECT 
+  store_id
+  FROM {{ ref('midmarket_success_stores') }}
+  WHERE in_portfolio = true
 )
 
 
@@ -43,8 +76,8 @@ SELECT
     , fs.first_seller_at
     , CASE WHEN fs.first_seller_at IS NOT NULL AND ss.first_payment IS NOT NULL AND ss.first_payment <= fs.first_seller_at THEN TRUE ELSE FALSE END AS new_seller
     , ss.current_plan_id
-    , coalesce(pl.namev2, 'not informed') AS current_plan_name
-    , coalesce(pl.grupo, 'not informed') AS current_plan_type
+    , COALESCE(pl.namev2, 'not informed') AS current_plan_name
+    , COALESCE(pl.grupo, 'not informed') AS current_plan_type
     , si.current_segment
     , si.is_seller
     , si.max_segment
@@ -55,9 +88,17 @@ SELECT
     , ss.disabled
     , ss.custom_theme
     , CASE WHEN ss.first_payment IS NOT NULL THEN 1 ELSE 0 END AS new_payment
-    , greatest(ss.sys_audit_updated_on, si.sys_audit_updated_on, bl.blocked_last_updated_at, fs.sys_audit_updated_on) as change_timestamp
+    , COALESCE(CASE WHEN af.store_id IS NOT NULL THEN 1 ELSE 0 END, 0) AS is_active_merchant
+    , COALESCE(CASE WHEN ms.store_id IS NOT NULL THEN 'MM' ELSE 'SMB' END, 'SMB') AS business_unit
+    , CASE WHEN ss.churned_at IS NOT NULL THEN ci.cancellation_reason ELSE NULL END AS cancellation_reason
+    , CASE WHEN ss.churned_at IS NOT NULL THEN ci.cancellation_comment ELSE NULL END AS cancellation_comment
+    , CASE WHEN ss.churned_at IS NOT NULL THEN ci.cancellation_comment_at ELSE NULL END AS cancellation_comment_at
+    , GREATEST(ss.sys_audit_updated_on, si.sys_audit_updated_on, bl.blocked_last_updated_at, fs.sys_audit_updated_on) as change_timestamp
 FROM store_source ss 
 LEFT JOIN segment_info si ON ss.store_id = si.store_id
 LEFT JOIN blocked_store__info bl ON ss.store_id = bl.store_id
+LEFT JOIN active_finance_merchants af ON ss.store_id = af.store_id
+LEFT JOIN cancellations_info ci ON ss.store_id = ci.store_id
+LEFT JOIN midmarket_success_stores ms ON ss.store_id = ms.store_id
 LEFT JOIN {{ ref('s__general__grouping_plans__ref') }} pl ON ss.current_plan_id = pl.plan
 LEFT JOIN {{ ref('s__lifecycle__first_seller_date__ref') }} fs ON ss.store_id = fs.store_id
