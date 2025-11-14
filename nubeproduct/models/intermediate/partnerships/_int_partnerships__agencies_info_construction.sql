@@ -4,7 +4,8 @@ WITH partners_info AS
         partner_id,
         DATE(partner_created_at) AS partner_created_date,
         IF(DATEDIFF(month, DATE(partner_created_at), CURRENT_DATE()) < 12,'New partner','Established partner') AS partner_age_classification,
-        COALESCE(partner_utm_campaign, partner_utm_source, partner_utm_medium, partner_utm_content, 'Unknown') AS partner_origin
+        COALESCE(partner_utm_campaign, partner_utm_source, partner_utm_medium, partner_utm_content, 'Unknown') AS partner_origin,
+        sys_audit_updated_on AS partner_info_change_timestamp
     FROM {{ ref('s__general__partners_info__ref')}}
     WHERE has_store_dev_trial = 1
 ),
@@ -12,6 +13,7 @@ calculations AS
 (
     SELECT 
         partner_id,
+        MAX(table_merchant_change_timestamp) AS table_merchant_change_timestamp,
         MIN(CASE WHEN A.payment_lifecycle_status = 'Paying' AND A.business_unit = 'MM' THEN 'MM' ELSE 'SMB' END) AS partner_business_unit,
         CAST(MAX(CASE WHEN payment_lifecycle_status = 'Paying' THEN 1 ELSE 0 END) AS BOOLEAN) AS active_paying_stores_flg,
         CAST(MAX(CASE WHEN first_payment BETWEEN TRUNC(ADD_MONTHS(CURRENT_DATE,-3), 'month') AND CURRENT_DATE() THEN 1 ELSE 0 END) AS BOOLEAN) AS new_payments_lm3_flg,
@@ -24,7 +26,31 @@ calculations AS
     FROM  {{ ref('_int_partnerships__partners_stores__table_merchant_domain')}}
     WHERE partnership_type = 'store_development'
     GROUP BY partner_id
+),
+partners_levels AS 
+(
+    SELECT 
+        partner_id,
+        partner_level, 
+        program_levels_change_timestamp 
+    FROM 
+    (
+    SELECT 
+        ROW_NUMBER() OVER(PARTITION BY partner_id ORDER BY snapshot_date DESC) AS RN,
+        partner_id,
+        partner_level,
+        sys_audit_updated_on AS program_levels_change_timestamp
+    FROM {{ ref('s__agencies__program_levels__scd')}}
+    )
+    WHERE RN = 1
 )
-SELECT * FROM partners_info
-LEFT JOIN calculations
-    ON partners_info.partner_id = calculations.partner_id
+SELECT 
+    PI.* EXCEPT(PI.partner_info_change_timestamp),
+    C.* EXCEPT(C.partner_id, C.table_merchant_change_timestamp),
+    PL.* EXCEPT(PL.partner_id, PL.program_levels_change_timestamp),
+    GREATEST(PI.partner_info_change_timestamp, C.table_merchant_change_timestamp, PL.program_levels_change_timestamp) AS agencies_info_change_timestamp
+FROM partners_info PI
+LEFT JOIN calculations C
+    ON PI.partner_id = C.partner_id
+LEFT JOIN partners_levels PL
+    ON PI.partner_id = PL.partner_id
