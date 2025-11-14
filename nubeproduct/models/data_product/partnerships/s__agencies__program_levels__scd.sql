@@ -22,7 +22,7 @@ program_levels AS
         raw_rank,
         partner_level,
         smooth_rank
-    FROM {{ ref('int_partnerships__partners_levels__smooth') }}
+    FROM {{ ref('_int_partnerships__partners_levels__smooth') }}
 )
 SELECT 
     PL.*,
