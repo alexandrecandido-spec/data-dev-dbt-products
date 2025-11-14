@@ -9,7 +9,7 @@
             "DELETE FROM {{ this }}
                     WHERE store_id NOT IN (
                         SELECT store_id
-                        FROM {{ ref('moltres__mwp_store_info') }}
+                        FROM {{ ref('s__attributes__store_core__ref') }}
             )"
             ]
 ) }}
