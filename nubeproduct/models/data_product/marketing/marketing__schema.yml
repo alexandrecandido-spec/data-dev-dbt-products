@@ -2890,6 +2890,10 @@ models:
         description: "Timestamp of when this record was created in our data warehouse"
       - name: sys_audit_updated_on
         description: "Timestamp of when this record was last updated in our data warehouse"
+      - name: sys_audit_created_on
+        description: "Timestamp of when this record was created in our data warehouse"
+      - name: sys_audit_updated_by
+        description: "System identifier of the process that last updated this record"
       - name: sys_audit_created_by
         description: "System identifier of the process that created this record"
 
@@ -3099,6 +3103,16 @@ models:
         description: "Affiliate classification asigned by business, extracted from the issue title/body"
       - name: created_at
         description: "Timestamp of when the GitHub issue/input was created"
+      - name: affiliate_country
+        description: "Country of the affiliate, extracted from the issue title/body"
+      - name: affiliate_tier
+        description: "Tier asigned by business, extracted from the issue title/body"
+        tests:
+          - dbt_expectations.expect_column_values_to_be_in_set:
+              value_set: ['T1','T2','T3','T4','T5', null]
+              row_condition: "input_type = 'AFFILIATE_LIST' AND affiliate_tier IS NOT NULL"
+      - name: rownumber
+        description: "Row number to take the first line"
       - name: updated_at
         description: "Timestamp of the most recent update to the GitHub issue/input"
       - name: closed_at
