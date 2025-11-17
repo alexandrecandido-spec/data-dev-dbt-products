@@ -134,7 +134,7 @@ store_settings AS (
         -- Facebook Pixel: flag si tiene fb_pixel configurado
         CASE WHEN fb_pixel IS NOT NULL THEN 'Yes' ELSE 'No' END AS pixel_fb,
         sys_audit_updated_on
-    FROM {{ source('stg_moltres', 'mwp_store_settings') }}
+    FROM {{ source('int_stg_moltres', 'mwp_store_settings') }}
 ),
 
 -- Facebook API Conversión (CAPI)
@@ -142,7 +142,7 @@ facebook_capi AS (
     SELECT
         store_id,
         'Yes' AS capi_status
-    FROM {{ source('stg_moltres', 'mwp_facebook_bussiness_extension') }}
+    FROM {{ source('int_stg_moltres', 'mwp_facebook_bussiness_extension') }}
     WHERE deleted_at IS NULL
         AND capi_status = 1
     GROUP BY store_id
@@ -164,7 +164,7 @@ twofa_status AS (
     LEFT JOIN (
         SELECT 
             CAST(user_id AS BIGINT) AS user_id
-        FROM {{ source('bronze_risk_new_admin', 'auth_authentication_factors') }}
+        FROM `hive_metastore`.`newadmin`.`authentication_factors`
         WHERE enabled = 1 AND type = 'TOTP'
     ) mfa ON mfa.user_id = wu.id
     WHERE wu.deleted = 0
@@ -179,7 +179,7 @@ base_tiktok_raw AS (
         createdat,
         deletedat,
         ROW_NUMBER() OVER (PARTITION BY storeid ORDER BY createdat DESC) AS rn
-    FROM {{ source('stg_curated_social', 'tiktok_user') }}
+    FROM {{ source('int_stg_curated_social', 'tiktok_user') }}
     WHERE deletedat IS NULL
 ),
 base_tiktok AS (
@@ -193,7 +193,7 @@ base_google_ads_raw AS (
         createdat,
         deletedat,
         ROW_NUMBER() OVER (PARTITION BY storeid ORDER BY createdat DESC) AS rn
-    FROM {{ source('stg_curated_social', 'google_ads_account') }}
+    FROM {{ source('int_stg_curated_social', 'google_ads_account') }}
     WHERE deletedat IS NULL
 ),
 base_google_ads AS (
@@ -207,7 +207,7 @@ base_merchant_center_raw AS (
         createdat,
         deletedat,
         ROW_NUMBER() OVER (PARTITION BY storeid ORDER BY createdat DESC) AS rn
-    FROM {{ source('stg_curated_social', 'google_merchant_center_account') }}
+    FROM {{ source('int_stg_curated_social', 'google_merchant_center_account') }}
     WHERE deletedat IS NULL
 ),
 base_merchant_center AS (
@@ -221,7 +221,7 @@ base_google_user_raw AS (
         createdat,
         deletedat,
         ROW_NUMBER() OVER (PARTITION BY storeid ORDER BY createdat DESC) AS rn
-    FROM {{ source('stg_curated_social', 'google_user') }}
+    FROM {{ source('int_stg_curated_social', 'google_user') }}
     WHERE deletedat IS NULL
 ),
 base_google_user AS (
@@ -279,7 +279,7 @@ theme_info AS (
                 opt.option_value AS active_theme,
                 MIN(opt.created_at) AS first_date_config_theme,
                 MAX(opt.created_at) AS last_date_config_theme
-            FROM {{ source('stg_moltres', 'mwp_options') }} opt
+            FROM {{ source('int_stg_moltres', 'mwp_options') }} opt
             WHERE opt.option_name = 'twig_template'
             GROUP BY opt.store_id, opt.option_value
         ) t

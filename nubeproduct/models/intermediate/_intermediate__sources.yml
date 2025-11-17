@@ -328,3 +328,29 @@ sources:
     tables:
       - name: invoice_information
         description: "Información de facturación/razón social asociada a la tienda."
+
+  - name: int_stg_moltres
+    database: hive_metastore
+    schema: moltres
+    description: "Staging tables from moltres schema used in intermediate models"
+    tables:
+      - name: mwp_store_settings
+        description: "Store configuration settings"
+      - name: mwp_facebook_bussiness_extension
+        description: "Facebook Business Extension (CAPI) configuration by store"
+      - name: mwp_options
+        description: "Contains information about merchant configuration settings options"
+
+  - name: int_stg_curated_social
+    database: hive_metastore
+    schema: social
+    description: "Staging tables from social schema used in intermediate models"
+    tables:
+      - name: tiktok_user
+        description: "TikTok user integrations by store"
+      - name: google_ads_account
+        description: "Google Ads account installations by store"
+      - name: google_merchant_center_account
+        description: "Google Merchant Center account installations by store"
+      - name: google_user
+        description: "Google user integrations by store"
