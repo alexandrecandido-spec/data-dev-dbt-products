@@ -45,7 +45,10 @@ WITH source AS (
         discount_gateway,
         promotional_discount_id,
         shipping_cost_owner,
-        fulfillment_status
+        shipping_extra,
+        fulfillment_status,
+        coupon_id,
+        order_traits
 
     FROM {{ source('stg_orders', 'mwp_orders') }}
     
@@ -98,6 +101,9 @@ SELECT
     promotional_discount_id,
     shipping_cost_owner,
     fulfillment_status,
+    coupon_id,
+    shipping_extra,
+    order_traits,
     CASE  
         WHEN status != 'cancelled' 
             AND payment_status = 'paid' 

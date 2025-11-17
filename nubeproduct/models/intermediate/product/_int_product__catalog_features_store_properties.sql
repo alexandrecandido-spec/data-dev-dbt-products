@@ -59,7 +59,16 @@ select
     ) AS max_sys_audit_updated_on
 FROM {{ ref('moltres__mwp_store_info') }} msi
 LEFT JOIN {{ ref('operations_grouping_plans') }} gp on gp.plan = msi.plan
-LEFT JOIN {{ source('int_moltres', 'mwp_options') }} o on o.store_id = msi.store_id AND o.option_name = 'twig_template'
+LEFT JOIN 
+    (
+        SELECT
+            store_id,
+            option_value
+        FROM {{ source('int_moltres', 'mwp_options') }}
+        WHERE option_name = 'twig_template'
+        QUALIFY ROW_NUMBER() OVER (PARTITION BY store_id ORDER BY created_at DESC) = 1
+    ) o 
+ON o.store_id = msi.store_id
 LEFT JOIN {{ ref('_int_product__catalog_features_stock_history_variants') }} spv on spv.store_id = msi.store_id
 LEFT JOIN {{ ref('_int_product__catalog_features_categories_lang_cd_gmv') }} combined on combined.store_id = msi.store_id
 LEFT JOIN {{ ref('_int_product__catalog_features_metafields_combined') }} mf on mf.store_id = msi.store_id

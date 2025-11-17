@@ -86,8 +86,8 @@ SELECT
     ) AS input_sources_partners,
 
     -- Outras colunas
-    PE.team AS partner_team,
-    PE.subteam AS partner_subteam,
+    PE.team AS partner_exception_team,
+    PE.subteam AS partner_exception_subteam,
     PF.fraude,
     PS.affiliate_tier,
     PS.affiliate_main_platform,
