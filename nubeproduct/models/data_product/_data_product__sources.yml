@@ -127,3 +127,8 @@ sources:
       - name: daily_email_template_data
         description: "Historical data from notebook process for daily email template usage (orderreadyforpickup events)"
 
+  - name: dp_data_manual_prd
+    database: data_products_prd
+    schema: data_manual
+    tables:
+      - name: ext__logistics__operations__logistics_shipping_options_mapping
