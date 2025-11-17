@@ -1,0 +1,267 @@
+version: 2
+models:
+  - name: subscriptions__subscription_orders_events
+    description: "Staging model that contains the subscription orders events."
+    config:
+      meta:
+        owner: "fernando.martinez@tiendanube.com"
+        domain: "product"
+        business_owner: "Nicolas Loreti"
+    columns:
+      - name: registered_date
+        description: "Date when the subscription order was registered."
+        tests:
+          - not_null
+      - name: store_id
+        description: "Store identifier of the store with the subscription order."
+        tests:
+          - not_null
+      - name: customer_id
+        description: "Customer identifier of the customer with the subscription order."
+      - name: order_id
+        description: "Order identifier of the order with the subscription order."
+      - name: subscription_id
+        description: "Subscription identifier of the subscription with the subscription order."
+      - name: status
+        description: "Status of the subscription order."
+      - name: instance_number
+        description: "Instance number of the subscription order."
+      - name: attempt
+        description: "Attempt of the subscription order."
+      - name: error_code
+        description: "Error code of the subscription order."
+      - name: error_description
+        description: "Error description of the subscription order."
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model."
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model."
+      - name: sys_audit_updated_on
+        description: "Timestamp when the record was last updated."
+      - name: sys_audit_updated_by
+        description: "User or process that last updated the record."
+
+  - name: subscriptions_runs_upcoming_scd
+    description: "Staging model that contains the upcoming runs of future subscription orders."
+    config:
+      meta:
+        owner: "fernando.martinez@tiendanube.com"
+        domain: "product"
+        business_owner: "Nicolas Loreti"
+    columns:
+      - name: subscription_id
+        description: "Subscription identifier of the subscription with the upcoming run."
+        tests:
+          - not_null
+          - unique
+      - name: instance_number
+        description: "Instance number of the upcoming run."
+      - name: attempt
+        description: "Attempt of the upcoming run."
+      - name: status
+        description: "Status of the upcoming run."
+      - name: next_attempt_date
+        description: "Next attempt date of the upcoming run."
+      - name: next_instance_date
+        description: "Next instance date of the upcoming run."
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model."
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model."
+      - name: sys_audit_updated_on
+        description: "Timestamp when the record was last updated."
+      - name: sys_audit_updated_by
+        description: "User or process that last updated the record."
+
+  - name: subscriptions__subscription_options_scd
+    description: "Staging model that contains the subscription options of the subscriptions."
+    config:
+      meta:
+        owner: "fernando.martinez@tiendanube.com"
+        domain: "product"
+        business_owner: "Nicolas Loreti"
+    columns:
+      - name: subscription_option_id
+        description: "Subscription option identifier of the subscription option."
+        tests:
+          - not_null
+          - unique
+      - name: creation_date
+        description: "Date when the subscription option was created."
+        tests:
+          - not_null
+      - name: metaplan_id
+        description: "Metaplan identifier of the metaplan with the subscription option."
+      - name: frequency_type
+        description: "Frequency type of the subscription option."
+      - name: frequency_param
+        description: "Frequency parameter of the subscription option."
+      - name: discount_percentage
+        description: "Discount percentage of the subscription option."
+      - name: is_subs_option_deleted
+        description: "Indicates if the subscription option is deleted."
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model."
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model."
+      - name: sys_audit_updated_on
+        description: "Timestamp when the record was last updated."
+      - name: sys_audit_updated_by
+        description: "User or process that last updated the record."
+  
+  - name: subscriptions_metaplans_scd
+    description: "Staging model that contains the metaplans of the subscriptions."
+    config:
+      meta:
+        owner: "fernando.martinez@tiendanube.com"
+        domain: "product"
+        business_owner: "Nicolas Loreti"
+    columns:
+      - name: metaplan_id
+        description: "Metaplan identifier of the metaplan."
+        tests:
+          - not_null
+          - unique
+      - name: created_date
+        description: "Date when the metaplan was created."
+        tests:
+          - not_null
+      - name: store_id
+        description: "Store identifier of the store with the metaplan."
+        tests:
+          - not_null
+      - name: promotion_id
+        description: "Promotion identifier of the promotion with the metaplan."
+      - name: metaplan_name
+        description: "Name of the metaplan."
+      - name: is_metaplan_deleted
+        description: "Indicates if the metaplan is deleted."
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model."
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model."
+      - name: sys_audit_updated_on
+        description: "Timestamp when the record was last updated."
+      - name: sys_audit_updated_by
+        description: "User or process that last updated the record."
+
+  - name: subscriptions_subscription_orders_events
+    description: "Staging model that contains the subscription orders events."
+    config:
+      meta:
+        owner: "fernando.martinez@tiendanube.com"
+        domain: "product"
+        business_owner: "Nicolas Loreti"
+    columns:
+      - name: registered_date
+        description: "Date when the subscription order was registered."
+        tests:
+          - not_null
+      - name: store_id
+        description: "Store identifier of the store with the subscription order."
+        tests:
+          - not_null
+      - name: customer_id
+        description: "Customer identifier of the customer with the subscription order."
+      - name: order_id
+        description: "Order identifier of the order with the subscription order."
+      - name: subscription_id
+        description: "Subscription identifier of the subscription with the subscription order."
+      - name: status
+        description: "Status of the subscription order."
+      - name: instance_number
+        description: "Instance number of the subscription order."
+      - name: attempt
+        description: "Attempt of the subscription order."
+      - name: error_code
+        description: "Error code of the subscription order."
+      - name: error_description
+        description: "Error description of the subscription order."
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model."
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model."
+      - name: sys_audit_updated_on
+        description: "Timestamp when the record was last updated."
+      - name: sys_audit_updated_by
+        description: "User or process that last updated the record."
+        
+  - name: subscriptions_subscription_options_scd
+    description: "Staging model that contains the subscription options of the subscriptions."
+    config:
+      meta:
+        owner: "fernando.martinez@tiendanube.com"
+        domain: "product"
+        business_owner: "Nicolas Loreti"
+    columns:
+      - name: subs_option_id
+        description: "Subscription option identifier of the subscription option."
+        tests:
+          - not_null
+          - unique
+      - name: creation_date
+        description: "Date when the subscription option was created."
+        tests:
+          - not_null
+      - name: metaplan_id
+        description: "Metaplan identifier of the metaplan with the subscription option."
+      - name: frequency_type
+        description: "Frequency type of the subscription option."
+      - name: frequency_param
+        description: "Frequency parameter of the subscription option."
+      - name: discount_percentage
+        description: "Discount percentage of the subscription option."
+      - name: is_subs_option_deleted
+        description: "Indicates if the subscription option is deleted."
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model."
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model."
+      - name: sys_audit_updated_on
+        description: "Timestamp when the record was last updated."
+      - name: sys_audit_updated_by
+        description: "User or process that last updated the record."
+  
+  - name: subscriptions_subscriptions_info_scd
+    description: "Staging model that contains the subscriptions info."
+    config:
+      meta:
+        owner: "fernando.martinez@tiendanube.com"
+        domain: "product"
+        business_owner: "Nicolas Loreti"
+    columns:
+      - name: unique_id
+        description: "Unique identifier of the subscription."
+        tests:
+          - not_null
+          - unique
+      - name: subscription_id
+        description: "Subscription identifier of the subscription."
+        tests:
+          - not_null
+      - name: subscription_option_id
+        description: "Subscription option identifier of the subscription option."
+      - name: store_id
+        description: "Store identifier of the store with the subscription."
+      - name: customer_id
+        description: "Customer identifier of the customer with the subscription."
+      - name: initial_order_id
+        description: "Initial order identifier of the initial order with the subscription."
+      - name: customer_mail
+        description: "Email of the customer with the subscription."
+      - name: subscription_status
+        description: "Status of the subscription."
+      - name: initial_subscription_date
+        description: "Date when the subscription was initial."
+      - name: subscription_created_date
+        description: "Date when the subscription was created."
+      - name: subscription_cancellation_date
+        description: "Date when the subscription was cancelled."
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model."
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model."
+      - name: sys_audit_updated_on
+        description: "Timestamp when the record was last updated."
+      - name: sys_audit_updated_by
+        description: "User or process that last updated the record."
