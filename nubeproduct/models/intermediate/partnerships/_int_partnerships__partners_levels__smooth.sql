@@ -31,12 +31,14 @@ seq_smoothed AS
           acc,
           array(
             CASE
-              --WHEN size(acc) = 0 THEN r       -- primer mes: smooth = raw
-              WHEN size(acc) = 0 THEN least(r, 1)
+              WHEN size(acc) = 0 THEN r       -- primer mes: smooth = raw
+              --WHEN size(acc) = 0 THEN least(r, 1)
               ELSE
                 CASE
+                  --WHEN r > element_at(acc, size(acc))
+                    --THEN element_at(acc, size(acc)) + 1   -- sube máx +1
                   WHEN r > element_at(acc, size(acc))
-                    THEN element_at(acc, size(acc)) + 1   -- sube máx +1
+                  THEN r                    -- puede subir lo que sea necesario
                   WHEN r < element_at(acc, size(acc))
                     THEN element_at(acc, size(acc)) - 1   -- baja máx -1
                   ELSE element_at(acc, size(acc))         -- se queda igual

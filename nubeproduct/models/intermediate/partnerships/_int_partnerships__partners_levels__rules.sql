@@ -5,7 +5,8 @@ WITH level_rules AS (
         0 AS raw_rank,
         0 AS min_active_paying_stores,
         0 AS min_new_payments_last_quarter,
-        0 AS min_new_payments_last_365d
+        0 AS min_new_payments_last_365d,
+        0 AS min_active_enterprise_stores
 
     UNION ALL
 
@@ -15,7 +16,8 @@ WITH level_rules AS (
         1,
         1,  -- min_active_paying_stores
         0,  -- min_new_payments_last_quarter
-        0   -- min_new_payments_last_365d
+        0,   -- min_new_payments_last_365d
+        0,   -- min_active_enterprise_stores
 
     UNION ALL
 
@@ -23,9 +25,10 @@ WITH level_rules AS (
         'BR', 
         'Silver', 
         2,
-        3,  -- min_active_paying_stores
+        1,  -- min_active_paying_stores
         0,  -- min_new_payments_last_quarter
-        1   -- min_new_payments_last_365d
+        1,   -- min_new_payments_last_365d
+        0,   -- min_active_enterprise_stores
 
     UNION ALL
 
@@ -35,7 +38,8 @@ WITH level_rules AS (
         3,
         10, -- min_active_paying_stores
         1,  -- min_new_payments_last_quarter
-        0   -- min_new_payments_last_365d
+        0,   -- min_new_payments_last_365d
+        0,   -- min_active_enterprise_stores
 
     UNION ALL
 
@@ -45,6 +49,7 @@ WITH level_rules AS (
         4,
         25, -- min_active_paying_stores
         3,  -- min_new_payments_last_quarter
-        0   -- min_new_payments_last_365d
+        0,   -- min_new_payments_last_365d
+        0,   -- min_active_enterprise_stores
 )
 SELECT * FROM level_rules
