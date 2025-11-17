@@ -53,7 +53,7 @@ db_orders AS (
             ON dbco.id = fo.id
         LEFT JOIN {{ ref('_int_logistics_shipping__carrier_names') }} dbc 
             ON dbc.shipping_method = fo.shipping_method
-        LEFT JOIN {{ source("dp_data_manual", "logistics__shipping_classification") }} lsc 
+        LEFT JOIN {{ source("dp_data_manual_prd", "ext__logistics__operations__logistics_shipping_options_mapping") }} lsc 
             ON lsc.carrier_name = dbc.carrier_name 
             AND lsc.shipping_option_code = fo.shipping_option_code
         LEFT JOIN existing_data e 
