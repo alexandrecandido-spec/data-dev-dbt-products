@@ -48,7 +48,7 @@ stores as (
         ,date(churned_at) as churned_at
         ,monthly_fee
     from {{ source('int_stg_moltres', 'mwp_store_info') }} s
-    left join `hive_metastore`.`ecommerce`.`mwp_store_settings` ss
+    left join {{ source('int_stg_moltres', 'mwp_store_settings') }} ss
         on ss.store_id = s.id
     left join {{ ref('operations_grouping_plans') }} g
         on s.plan = g.plan

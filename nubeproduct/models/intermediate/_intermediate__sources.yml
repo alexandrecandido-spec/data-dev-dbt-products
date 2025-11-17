@@ -348,6 +348,15 @@ sources:
         description: "Information of pagos"
       - name: mwp_tags
         description: "Tags associadas a lojas e outras entidades. Inclui flags como sre-block-store-404 e sre-block-store-429"
+        columns:
+          - name: related_id
+            description: "ID de la entidad relacionada (store_id cuando type='store')"
+          - name: tag
+            description: "Nombre del tag asignado a la entidad"
+          - name: sys_audit_updated_on
+            description: "Timestamp de última actualización del tag (puede ser NULL)"
+          - name: created
+            description: "Timestamp de creación del tag (usado como fallback cuando sys_audit_updated_on es NULL)"
 
   - name: int_stg_orders
     database: hive_metastore
