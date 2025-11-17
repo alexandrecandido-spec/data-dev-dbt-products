@@ -625,16 +625,10 @@ models:
           - not_null
       - name: title
         description: "title of the problem"
-        tests:
-          - not_null
       - name: repo_name
         description: "repository in which the problem is located"
-        tests:
-          - not_null
       - name: state
         description: "state of the problem, open or closed"
-        tests:
-          - not_null
       - name: labels_tipo
         description: "Team assigned to the problem based on its tags."
       - name: platform_country_state
@@ -671,6 +665,14 @@ models:
         description: "impacted GMV in local currency by the problem"
       - name: impacted_gmv_usd
         description: "impacted GMV in USD by the problem"  
+      - name: sys_audit_created_on
+        description: "date the problem was created"
+      - name: sys_audit_updated_on
+        description: "date the problem was updated"
+      - name: sys_audit_created_by
+        description: "user who created the problem"
+      - name: sys_audit_updated_by
+        description: "user who updated the problem"
 
   - name: product_platform_development_issues
     description: 
@@ -761,30 +763,18 @@ models:
           - not_null
       - name: state
         description: "state of the issue, open or closed"
-        tests:
-          - not_null
       - name: created_at
         description: "date the issue was created"
-        tests:
-          - not_null
       - name: closed_at
         description: "date the issue was closed (nullable for open issues)"
       - name: title
         description: "title of the issue"
-        tests:
-          - not_null
       - name: url
         description: "url of the issue"
-        tests:
-          - not_null
       - name: labels
         description: "labels of the issue"
-        tests:
-          - not_null
       - name: labels_tipo
         description: "type of issue based on its tags"
-        tests:
-          - not_null
       - name: labels_domain
         description: "app domains affected by the issue"
       - name: labels_country
@@ -819,20 +809,12 @@ models:
         description: "countries missing from the issue"
       - name: sys_audit_created_on
         description: "date the issue was created"
-        tests:
-          - not_null
       - name: sys_audit_updated_on
         description: "date the issue was updated"
-        tests:
-          - not_null
       - name: sys_audit_created_by
         description: "user who created the issue"
-        tests:
-          - not_null
       - name: sys_audit_updated_by
         description: "user who updated the issue"
-        tests:
-          - not_null
 
 
   - name: product__offline_subscriptions

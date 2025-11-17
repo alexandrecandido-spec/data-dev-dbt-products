@@ -1,7 +1,7 @@
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'merge',
-    unique_key = ['registered_month', 'issue_number', 'platform_country_state', 'country'],
+    unique_key = ['unique_issue_country'],
     partition_by = 'created_at',
     on_schema_change = 'fail',
     tags = ['daily-8am']
@@ -78,7 +78,7 @@ base as (
     group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18
 )
 select
-    concat(cast(p.registered_month as string) , cast(p.issue_number as string), p.country) as unique_issue_country
+    concat(cast(p.registered_month as string) , cast(p.issue_number as string), cast(p.platform_country_state as string), p.country) as unique_issue_country
     ,p.registered_month
     ,p.issue_number
     ,p.title
