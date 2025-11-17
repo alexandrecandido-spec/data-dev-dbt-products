@@ -3776,6 +3776,85 @@ models:
           column_B: total_sessions_with_carts
 
 
+  - name: g__subscriptions__subscriptions_store_info__agg_daily
+    description: >
+      Daily aggregated dataset that measures subscription store information.
+    config:
+      meta:
+        owner: "fernando.martinez@tiendanube.com"
+        domain: "product"
+        business_owner: "Nicolas Loreti"
+    columns:
+      - name: unique_id
+        description: "Unique identifier of the subscription store information."
+        tests:
+          - not_null
+          - unique
+      - name: registered_date
+        description: "Date when the subscription store information was registered."
+        tests:
+          - not_null
+      - name: store_id
+        description: "Store identifier where the subscription store information was registered."
+        tests:
+          - not_null
+      - name: store_name
+        description: "Name of the store."
+      - name: vertical_name
+        description: "Vertical of the store."
+      - name: segment
+        description: "Segment of the store."
+      - name: total_metaplans
+        description: "Total number of metaplans for the store."
+      - name: total_active_metaplans
+        description: "Total number of active metaplans for the store."
+      - name: new_metaplans
+        description: "Total number of new metaplans for the store."
+      - name: new_subscriptions
+        description: "Total number of new subscriptions for the store."
+      - name: churned_subscriptions
+        description: "Total number of churned subscriptions for the store."
+      - name: total_subscriptions
+        description: "Total number of subscriptions for the store."
+      - name: total_active_subscriptions
+        description: "Total number of active subscriptions for the store."
+      - name: total_cancelled_subscriptions
+        description: "Total number of cancelled subscriptions for the store."
+      - name: total_customers
+        description: "Total number of customers for the store."
+      - name: total_active_customers
+        description: "Total number of active customers for the store."
+      - name: total_orders
+        description: "Total number of orders for the store."
+      - name: total_successful_initial_orders
+        description: "Total number of successful initial orders for the store."
+      - name: total_successful_recurrent_orders
+        description: "Total number of successful recurrent orders for the store."
+      - name: total_not_successful_initial_orders
+        description: "Total number of not successful initial orders for the store."
+      - name: total_transactions
+        description: "Total number of transactions for the store."
+      - name: failed_transactions
+        description: "Total number of failed transactions for the store."
+      - name: paid_transactions
+        description: "Total number of paid transactions for the store."
+      - name: initial_failed_transactions
+        description: "Total number of initial failed transactions for the store."
+      - name: initial_paid_transactions
+        description: "Total number of initial paid transactions for the store."
+      - name: recurrent_failed_transactions
+        description: "Total number of recurrent failed transactions for the store."
+      - name: recurrent_paid_transactions
+        description: "Total number of recurrent paid transactions for the store."
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created in this model."
+      - name: sys_audit_created_by
+        description: "System or user that created the row in this model."
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this model."
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row in this model."
+
   - name: g__traffic__session_carts__agg_monthly
     description: >
       Gold model that aggregates sessions by store and traffic dimensions at a monthly granularity,
