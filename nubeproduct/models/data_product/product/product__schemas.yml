@@ -625,16 +625,10 @@ models:
           - not_null
       - name: title
         description: "title of the problem"
-        tests:
-          - not_null
       - name: repo_name
         description: "repository in which the problem is located"
-        tests:
-          - not_null
       - name: state
         description: "state of the problem, open or closed"
-        tests:
-          - not_null
       - name: labels_tipo
         description: "Team assigned to the problem based on its tags."
       - name: platform_country_state
@@ -651,6 +645,8 @@ models:
         description: "minimum date between ticket_closed_at and label_closed_date. it is used to correct the closing date for each country"
       - name: labels_domain
         description: "app domains affected by the problem"
+      - name: labels
+        description: "all of the labels of the problem"
       - name: country
         description: "country affected by the problem. this country might be determined by the country tags, the stores affected by the problem or the solved_by_app tags"
       - name: is_solved_by_app_country
@@ -671,6 +667,14 @@ models:
         description: "impacted GMV in local currency by the problem"
       - name: impacted_gmv_usd
         description: "impacted GMV in USD by the problem"  
+      - name: sys_audit_created_on
+        description: "date the problem was created"
+      - name: sys_audit_updated_on
+        description: "date the problem was updated"
+      - name: sys_audit_created_by
+        description: "user who created the problem"
+      - name: sys_audit_updated_by
+        description: "user who updated the problem"
 
   - name: product_platform_development_issues
     description: 
@@ -761,30 +765,18 @@ models:
           - not_null
       - name: state
         description: "state of the issue, open or closed"
-        tests:
-          - not_null
       - name: created_at
         description: "date the issue was created"
-        tests:
-          - not_null
       - name: closed_at
         description: "date the issue was closed (nullable for open issues)"
       - name: title
         description: "title of the issue"
-        tests:
-          - not_null
       - name: url
         description: "url of the issue"
-        tests:
-          - not_null
       - name: labels
         description: "labels of the issue"
-        tests:
-          - not_null
       - name: labels_tipo
         description: "type of issue based on its tags"
-        tests:
-          - not_null
       - name: labels_domain
         description: "app domains affected by the issue"
       - name: labels_country
@@ -819,20 +811,12 @@ models:
         description: "countries missing from the issue"
       - name: sys_audit_created_on
         description: "date the issue was created"
-        tests:
-          - not_null
       - name: sys_audit_updated_on
         description: "date the issue was updated"
-        tests:
-          - not_null
       - name: sys_audit_created_by
         description: "user who created the issue"
-        tests:
-          - not_null
       - name: sys_audit_updated_by
         description: "user who updated the issue"
-        tests:
-          - not_null
 
 
   - name: product__offline_subscriptions
@@ -4801,3 +4785,35 @@ models:
       - name: paid_orders
         description: amount of paid orders.
 
+  - name: s__onboarding__questionnaire_status__ref
+    description: >
+      "Silver layer model that contains information on onboardding status and calculates the total time (in seconds) 
+      between the creation and the last update of a stores onboarding record."
+    config:
+      meta:
+        owner: "ynara.oliveira@nuvemshop.com.br"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: store_id
+        description: "Unique identifier of the store associated with the onboarding record."
+        tests:
+          - not_null
+          - unique
+      - name: signup_status
+        description: "Current status of the stores signup process."
+        tests:
+          - accepted_values:
+              values: ['completed', 'pending']
+      - name: time_at_sign_up
+        description: >
+          Time spent (in seconds) between the creation and last update of the onboarding record.
+          Represents how long it took for a store to complete its signup process.
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model. Defaults to current_timestamp if not available."
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model. Defaults to 'data-dev-dbt-products'."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed."
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."

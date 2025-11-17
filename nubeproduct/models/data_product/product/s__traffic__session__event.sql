@@ -1,26 +1,24 @@
 -- Brings sessions with enriched UTMs, user classification and traffic classification. SSOT
 {{ config(
     materialized = 'incremental',
+    incremental_strategy='merge',
     unique_key = ['base_date', 'unique_session_key'],
-    incremental_predicates=[ 'DBT_INTERNAL_SOURCE.base_date = DBT_INTERNAL_DEST.base_date', 'DBT_INTERNAL_SOURCE.unique_session_key = DBT_INTERNAL_DEST.unique_session_key' ],
     partition_by = 'base_date',
     on_schema_change = 'fail',
     post_hook=["OPTIMIZE {{ this }} ZORDER BY (unique_session_key)"],
     tags = ['daily-2am']
 ) }}
 
-{% set base_date_filter %}
- {{
-    get_max_date_env_model(
-      'product',
-      's__traffic__session__event',
-      'base_date',
-      1, 'day',
-      fallback_start=None,
-      fallback_end=None
-    )
-  }}
-{% endset %}
+{% set force_start_var = var('force_start', None) %}
+
+{% set base_date_filter = get_incremental_date(
+    domain='product',
+    table='s__traffic__session__event',
+    date_field='base_date',
+    fwd_value=1,
+    fwd_unit='day',
+    force_date=force_start_var
+) %}
 
 WITH swd AS (
 SELECT
