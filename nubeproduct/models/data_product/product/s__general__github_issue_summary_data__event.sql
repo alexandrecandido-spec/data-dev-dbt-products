@@ -14,6 +14,7 @@
       WHERE d.sys_audit_is_deleted = 1
         AND d.repo_name   = {{ this }}.repo_name
         AND d.issue_number = {{ this }}.issue_number
+        AND is_latest_by_repo_and_number = TRUE
     );
     ",
       "
@@ -24,6 +25,7 @@
         WHERE d.sys_audit_is_deleted = 1
           AND d.repo_name   = {{ this }}.repo_name
           AND d.issue_number = {{ this }}.issue_number
+          AND is_latest_by_repo_and_number = TRUE
     );
       "]
   )
@@ -61,7 +63,7 @@ SELECT *
 FROM final
 {% if is_incremental() %}
 WHERE sys_audit_updated_on > (
-  SELECT COALESCE(MAX(sys_audit_updated_on), TIMESTAMP '1900-01-01 00:00:00') - INTERVAL '24 hours'
+  SELECT COALESCE(MAX(sys_audit_updated_on), TIMESTAMP '1900-01-01 00:00:00') - INTERVAL '1 Hours'
   FROM {{ this }}
 )
 {% endif %}

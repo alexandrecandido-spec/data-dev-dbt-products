@@ -14,7 +14,7 @@ WITH existing_data AS (
 
 SELECT
     cast(ir.id as bigint) as request_id,
-    cast(ir.store_id as integer) as store_id,
+    cast(ir.store_id as bigint) as store_id,
     cast(ir.order_id as bigint) as order_id,
     cast(ir.fulfillment_order_id as string) as fulfillment_order_id,
     cast(ir.invoice_type as string) as invoice_type,

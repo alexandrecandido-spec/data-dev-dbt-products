@@ -6,8 +6,8 @@
     incremental_strategy='merge',
     unique_key=['id'],
     on_schema_change='fail',
-    post_hook=["DELETE FROM {{ this }} WHERE id in (SELECT id FROM {{ ref('product__general__github_issue_label__link') }} WHERE sys_audit_is_deleted = 1) ",
-        "DELETE FROM {{ this }} WHERE id in (SELECT id FROM {{ ref('product__general__github_problem_label__link') }} WHERE sys_audit_is_deleted = 1)"]
+    post_hook=["DELETE FROM {{ this }} WHERE id in (SELECT id FROM {{ ref('product__general__github_issue_label__link') }} WHERE sys_audit_is_deleted = 1 AND is_latest_by_repo_and_number = TRUE) ",
+        "DELETE FROM {{ this }} WHERE id in (SELECT id FROM {{ ref('product__general__github_problem_label__link') }} WHERE sys_audit_is_deleted = 1 AND is_latest_by_repo_and_number = TRUE) "]
   ) 
 }}
 
@@ -15,6 +15,7 @@ WITH base AS (
   SELECT *
   FROM {{ ref('_int__product__general__github_issues_and_problems_union') }}
   WHERE COALESCE(sys_audit_is_deleted, 0) != 1
+  AND is_latest_by_repo_and_number = TRUE
 ),
 labels AS (
   SELECT 

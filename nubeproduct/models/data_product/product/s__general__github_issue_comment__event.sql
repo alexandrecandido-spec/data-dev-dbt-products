@@ -14,6 +14,7 @@
       WHERE d.sys_audit_is_deleted = 1
         AND d.repo_name   = {{ this }}.repo_name
         AND d.issue_number = {{ this }}.issue_number
+        AND is_latest_by_repo_and_number = TRUE
     );
     ",
       "
@@ -24,6 +25,7 @@
         WHERE d.sys_audit_is_deleted = 1
           AND d.repo_name   = {{ this }}.repo_name
           AND d.issue_number = {{ this }}.issue_number
+          AND is_latest_by_repo_and_number = TRUE
     );
       "]
   ) 
@@ -69,7 +71,7 @@ LEFT JOIN existing_data e
   ON pre.id = e.id
 {% if is_incremental() %}
 WHERE github_updated_at > (
-  SELECT COALESCE(MAX(sys_audit_updated_on), TIMESTAMP('1900-01-01 00:00:00')) - INTERVAL 24 HOURS
+  SELECT COALESCE(MAX(sys_audit_updated_on), TIMESTAMP('1900-01-01 00:00:00')) - INTERVAL 1 HOURS
   FROM {{ this }}
 )
 {% endif %}

@@ -12,6 +12,8 @@ WITH calls_interactions AS (
         ON CAST(deal AS BIGINT) = sid.deal_id
     WHERE 
         call_status = 'Completed'
+        AND (call_outcome = 'Conectado'
+            OR call_outcome like 'Connected%')
         AND (call_and_meeting_type IS NULL OR call_and_meeting_type != 'CS - Non-Value Interaction')
         AND (activity_date < date_trunc('week', current_date) OR activity_date < date_trunc('month', current_date))
     GROUP BY CAST(deal AS BIGINT)

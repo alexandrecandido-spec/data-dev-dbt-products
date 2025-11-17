@@ -89,6 +89,8 @@ def create_dbt_dag(
         schedule_interval = '0 8 * * 1' 
     elif schedule_interval_tag == 'weekly-monday-9am':
         schedule_interval = '0 9 * * 1' 
+    elif schedule_interval_tag == 'weekly-monday-930am':
+        schedule_interval = '30 9 * * 1'
     elif schedule_interval_tag == 'weekly-monday-10am':
         schedule_interval = '0 10 * * 1' 
     elif schedule_interval_tag == 'weekly-monday-1030am':
