@@ -3442,7 +3442,7 @@ models:
       - name: sys_audit_updated_by
         description: "Identifier for the user or system that last updated this record."
 
-  - name: g__growth__store_conversion__agg_daily
+  - name: g__general__store_conversion__agg_daily
     description: >
       Daily aggregated dataset that measures store trial-to-paid conversion performance. It calculates how many stores 
       converted (made their first payment) within 7, 14, 21, ... up to 84 days after creation, segmented by country, 

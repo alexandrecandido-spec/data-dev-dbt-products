@@ -2575,3 +2575,554 @@ models:
     - name: sys_audit_updated_by
       description: "Process/user that last updated the record."
       tests: [not_null]
+
+  - name: s__general__mkt_attribution_model__event
+    description: "data product contains granular click-level data used in the marketing attribution model. Each click is linked to the responsible marketing team or source, enabling the attribution of acquisition results—such as store creation—to specific marketing efforts. This dataset supports performance analysis, reporting, and decision-making across acquisition channels"
+    config:
+      meta:
+        owner: "malen.correa@tiendanube.com"
+        domain: "marketing" 
+        business_owner: "Giselle Galli" 
+    columns:
+      - name: store_id
+        description: "Unique identifier for each store"
+        tests:
+          - not_null
+      - name: click_order 
+        description: "Order of the click"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 1
+              strictly: false
+      - name: click_qty
+        description: "Quantity of clicks involved on the journey to the store creation"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 1
+              strictly: false
+      - name: click_id 
+        description: "Unique identifier for each click"
+        tests:
+          - dbt_expectations.expect_column_values_to_be_unique:
+              row_condition: "click_id is not null"
+      - name: click_timestamp
+        description: "Timestamp of when the click occurred"
+        tests:
+          - dbt_expectations.expect_column_values_to_not_be_null:
+              row_condition: "click_id is not null"
+      - name: source
+        description: "Indicates the origin of the traffic, such as the platform or channel (e.g., Google, Facebook, newsletter) that brought the user to the site. Used to identify the marketing team or partner responsible for the click."
+      - name: medium
+        description: "Describes the marketing medium through which the traffic arrived (e.g., email, CPC, social, referral). Helps classify the type of acquisition effort."
+      - name: campaign
+        description: "Specifies the name or identifier of the marketing campaign associated with the click. Useful for measuring the performance of specific initiatives."
+      - name: content
+        description: "Used to differentiate between variations of content or creatives within the same campaign (e.g., different ads or links). Supports more granular attribution analysis."
+      - name: referrer_domain
+        description: "Domain of the page that referred the user before landing on the site. Useful for identifying external sources or traffic origins not captured by UTM parameters."
+      - name: referrer_path
+        description: "Full path from the referring URL, providing more detailed context about the exact page that led the user to the site. Helps in refining attribution when the domain alone is not sufficient."
+      - name: landing_page_domain
+        description: "Domain of the landing page where the user first arrived. Helps identify which property or microsite was involved in the acquisition."
+      - name: landing_page_path
+        description: "Path of the landing page URL, capturing the specific page or content that the user landed on. Useful for mapping custom campaigns or tracking user entry points."
+      - name: attribution_source
+        description: "Indicates the source system from which the attribution click data was retrieved. Possible values include local_db, amplitude, or empty (when no click data was available). This field helps track data lineage and diagnose attribution completeness."
+      - name: country_code
+        description: "Country associated with each store, based on registration data."
+      - name: year_month_day_code
+        description: Date in YYYYMMDD integer format used for partitioning.
+        tests:
+          - not_null        
+      - name: register_url
+        description: "URL of the store's registration page."
+      - name: mkt_source
+        description: "Team responsible for the acquisition efforts and results attribution"
+        tests:
+          - not_null
+      - name: mkt_subteam
+        description: "Subteam responsible for the acquisition efforts and results attribution"
+        tests:
+          - not_null
+      - name: trials_last_click
+        description: "Set to 1 when the acquisition of the trial store is attributed to the last recorded click."
+        tests:
+          - accepted_values:
+              values: [0, 1]
+      - name: trials_first_click
+        description: "Set to 1 when the acquisition of the trial store is attributed to the first recorded click."
+        tests:
+          - accepted_values:
+              values: [0, 1]
+      - name: trials_mean_click
+        description: "Official attribution model. Each click receives a weighted contribution to the store acquisition, and the aggregated attribution is assigned to each team per store."
+        tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              max_value: 1
+      - name: input_sources
+        description: "List of inputs that were used to attribute the store creation to control incrementality in the attribution model"
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: "Timestamp of when the data was created"
+      - name: sys_audit_created_by
+        description: "System identifier of the process that created this record"
+      - name: sys_audit_updated_on
+        description: "Timestamp of when the data was last updated"
+      - name: sys_audit_updated_by
+        description: "System identifier of the process that last updated this record"
+
+  - name: s__general__mkt_attribution_github_inputs_all__ref
+    description: "A silver data product that lists all inputs from the GitHub mkt_attribution repository to help users:
+     - Determine the impact of acquisition efforts and results in the attribution model.
+     - Test and validate whether specific UTM inputs for the MKT Attribution Product are available for use.
+     - Perform custom analytics and reporting."
+    config:
+      meta:
+        owner: "malen.correa@tiendanube.com"
+        domain: "marketing" 
+        business_owner: "Giselle Galli" 
+    columns:
+      - name: id
+        description: "Unique identifier for the GitHub issue/input record"
+        tests:
+          - not_null
+          - unique 
+      - name: input_number
+        description: "Sequential identifier assigned to the GitHub issue/input"
+        tests:
+          - not_null
+      - name: input_title
+        description: "Title of the GitHub issue/input, which may contain UTM parameters"
+        tests:
+          - not_null
+      - name: input_type
+        description: "Type of input, extracted from the issue title"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['UTM', 'SUBTEAM_MKT', 'URL', 'REFERRER', 'PARTNER_CODE', 'PARTNER_FRAUD', 'AFFILIATE_LIST', 'INSTI']
+      - name: utm_source
+        description: "Marketing traffic source identifier (extracted from issue title/body)"
+      - name: utm_medium
+        description: "Marketing channel or medium identifier (extracted from issue title/body)"
+      - name: utm_campaign
+        description: "Marketing campaign identifier (extracted from issue title/body)"
+      - name: utm_content
+        description: "Specific content identifier within the campaign (extracted from issue title/body)"
+      - name: url
+        description: "Complete URL associated with the record, typically pointing to a landing page"
+      - name: landing_page_domain
+        description: "Domain name of the landing page associated with the record"
+      - name: landing_page_path
+        description: "URL path of the landing page associated with the record"
+      - name: referrer
+        description: "URL or domain that referred the user to the site or page (Referrer), extracted from the issue title/body"
+        tests:
+          - dbt_expectations.expect_column_values_to_not_be_null:
+              row_condition: "input_type in ('REFERRER')"
+      - name: partner_code
+        description: "Partner code extracted from the issue title/body"
+        tests:
+          - dbt_expectations.expect_column_values_to_not_be_null:
+              row_condition: "input_type in ('PARTNER_CODE', 'PARTNER_FRAUD')"
+      - name: partner_id
+        description: "Partner ID extracted from the issue title/body"
+        tests:
+          - dbt_expectations.expect_column_values_to_not_be_null:
+              row_condition: "input_type in ('PARTNER_FRAUD')"
+      - name: fraude
+        description: "Fraud flag extracted from the issue title/body"
+      - name: affiliate_code
+        description: "Affiliate code extracted from the issue title/body"
+        tests:
+          - dbt_expectations.expect_column_values_to_not_be_null:
+              row_condition: "input_type in ('AFFILIATE_LIST')"
+      - name: affiliate_classification
+        description: "Affiliate classification asigned by business, extracted from the issue title/body"
+      - name: affiliate_country
+        description: "Country of the affiliate, extracted from the issue title/body"
+      - name: affiliate_tier
+        description: "Tier asigned by business, extracted from the issue title/body"
+        tests:
+          - dbt_expectations.expect_column_values_to_be_in_set:
+              value_set: ['T1','T2','T3','T4','T5', null]
+              row_condition: "input_type = 'AFFILIATE_LIST' AND affiliate_tier IS NOT NULL"
+      - name: affiliate_fit
+        description: "Fit asigned by business, extracted from the issue title/body"
+      - name: affiliate_main_platform
+        description: "Main platform asigned by business, extracted from the issue title/body"
+      - name: team
+        description: "Team responsible for the acquisition efforts and results attribution"
+        tests:
+          - dbt_expectations.expect_column_values_to_be_in_set:
+              value_set: ['Others','Mid-market','Product Marketing','Enp','Organic','Affiliates','Growth','Partners','Store Referral','Performance Brand','Performance No Brand','Communications','Mandae','Performance','Eea']
+              row_condition: "input_type in ('UTM', 'SUBTEAM_MKT', 'URL', 'INSTI', 'REFERRER', 'PARTNER_CODE') AND state = 'open'"
+      - name: subteam
+        description: "Subteam responsible for the acquisition efforts and results attribution"
+        tests:
+          - dbt_expectations.expect_column_values_to_not_be_null:
+              row_condition: "input_type in ('SUBTEAM_MKT')"
+      - name: user_create
+        description: "GitHub username of the issue/input creator"
+      - name: state
+        description: "Current status of the GitHub issue/input (open or closed)"
+        tests:
+          - accepted_values:
+              values: ['open', 'closed']
+      - name: assignee
+        description: "GitHub username of the assigned issue/input handler"
+      - name: comments
+        description: "Total number of comments on the GitHub issue/input"
+      - name: created_at
+        description: "Timestamp of when the GitHub issue/input was created"
+        tests:
+          - not_null
+      - name: updated_at
+        description: "Timestamp of the most recent update to the GitHub issue/input"
+        tests:
+          - not_null
+      - name: closed_at
+        description: "Timestamp of when the GitHub issue/input was closed (if applicable)"
+      - name: sys_audit_extracted_on
+        description: "Timestamp of when the data was extracted from the GitHub API"
+      - name: sys_audit_created_on
+        description: "Timestamp of when this record was created in our data warehouse"
+      - name: sys_audit_updated_on
+        description: "Timestamp of when this record was last updated in our data warehouse"
+      - name: sys_audit_created_by
+        description: "System identifier of the process that created this record"
+      - name: sys_audit_updated_by
+        description: "System identifier of the process that last updated this record"
+
+  - name: s__general__mkt_attribution_github_inputs_utm__ref
+    description: "A data product that contains UTM-specific inputs from the GitHub mkt_attribution repository. This model focuses on tracking and validating UTM parameters used in marketing campaigns, helping users:
+     - Track and validate UTM parameters for marketing campaigns
+     - Ensure consistency in UTM parameter usage across different marketing channels
+     - Monitor and analyze UTM parameter effectiveness in campaign attribution"
+    config:
+      meta:
+        owner: "malen.correa@tiendanube.com"
+        domain: "marketing"
+        business_owner: "Giselle Galli" 
+    columns:
+      - name: id
+        description: "Unique identifier for the GitHub issue/input record"
+      - name: input_number
+        description: "Sequential identifier assigned to the GitHub issue/input"
+      - name: input_title
+        description: "Title of the GitHub issue/input containing UTM parameters"
+      - name: input_type
+        description: "Type of input, extracted from the issue title"
+      - name: state
+        description: "Current status of the GitHub issue/input (open or closed)"
+      - name: source
+        description: "Marketing traffic source identifier (extracted from issue title/body)"
+      - name: medium
+        description: "Marketing channel or medium identifier (extracted from issue title/body)"
+      - name: campaign
+        description: "Marketing campaign identifier (extracted from issue title/body)"
+      - name: content
+        description: "Specific content identifier within the campaign (extracted from issue title/body)"
+      - name: source_mkt
+        description: "Team responsible for the acquisition efforts and results attribution"
+      - name: subteam
+        description: "Subteam responsible for the acquisition efforts and results attribution"
+      - name: created_at
+        description: "Timestamp of when the GitHub issue/input was created"
+      - name: updated_at
+        description: "Timestamp of the most recent update to the GitHub issue/input"
+      - name: closed_at
+        description: "Timestamp of when the GitHub issue/input was closed (if applicable)"
+      - name: sys_audit_created_on
+        description: "Timestamp of when this record was created in our data warehouse"
+      - name: sys_audit_updated_on
+        description: "Timestamp of when this record was last updated in our data warehouse"
+      - name: sys_audit_created_by
+        description: "System identifier of the process that created this record"
+      - name: sys_audit_updated_by
+        description: "System identifier of the process that last updated this record"
+
+
+  - name: s__general__mkt_attribution_github_inputs_subteam__ref
+    description: "A data product that contains subteam-specific inputs from the GitHub mkt_attribution repository. This model focuses on tracking and validating subteam parameters used in marketing campaigns, helping users:
+     - Track and validate subteam parameters for marketing campaigns
+     - Ensure consistency in subteam parameter usage across different marketing channels
+     - Monitor and analyze subteam parameter effectiveness in campaign attribution"
+    config:
+      meta:
+        owner: "malen.correa@tiendanube.com"
+        domain: "marketing"
+        business_owner: "Giselle Galli" 
+    columns:
+      - name: id
+        description: "Unique identifier for the GitHub issue/input record"
+      - name: input_number
+        description: "Sequential identifier assigned to the GitHub issue/input"
+      - name: input_title
+        description: "Title of the GitHub issue/input containing subteam parameters"
+      - name: input_type
+        description: "Type of input, extracted from the issue title"
+      - name: state
+        description: "Current status of the GitHub issue/input (open or closed)"
+      - name: utm_source
+        description: "Marketing traffic source identifier (extracted from issue title/body)"
+      - name: utm_medium
+        description: "Marketing channel or medium identifier (extracted from issue title/body)"
+      - name: utm_campaign
+        description: "Marketing campaign identifier (extracted from issue title/body)"
+      - name: utm_content
+        description: "Specific content identifier within the campaign (extracted from issue title/body)"
+      - name: team
+        description: "Team responsible for the acquisition efforts and results attribution"
+      - name: subteam
+        description: "Subteam responsible for the acquisition efforts and results attribution"
+      - name: created_at
+        description: "Timestamp of when the GitHub issue/input was created"
+      - name: updated_at
+        description: "Timestamp of the most recent update to the GitHub issue/input"
+      - name: closed_at
+        description: "Timestamp of when the GitHub issue/input was closed (if applicable)"
+      - name: sys_audit_created_on
+        description: "Timestamp of when this record was created in our data warehouse"
+      - name: sys_audit_updated_on
+        description: "Timestamp of when this record was last updated in our data warehouse"
+      - name: sys_audit_created_on
+        description: "Timestamp of when this record was created in our data warehouse"
+      - name: sys_audit_updated_by
+        description: "System identifier of the process that last updated this record"
+      - name: sys_audit_created_by
+        description: "System identifier of the process that created this record"
+
+
+  - name: s__general__mkt_attribution_github_inputs_url__ref
+    description: "A data product that contains URL-specific inputs from the GitHub mkt_attribution repository. This model focuses on tracking and validating URL parameters used in marketing campaigns, helping users:
+     - Track and validate URL parameters for marketing campaigns
+     - Ensure consistency in URL parameter usage across different marketing channels
+     - Monitor and analyze URL parameter effectiveness in campaign attribution"
+    config:
+      meta:
+        owner: "malen.correa@tiendanube.com"
+        domain: "marketing"
+        business_owner: "Giselle Galli" 
+    columns:
+      - name: id
+        description: "Unique identifier for the GitHub issue/input record"
+      - name: input_number
+        description: "Sequential identifier assigned to the GitHub issue/input"
+      - name: input_title
+        description: "Title of the GitHub issue/input containing URL parameters"
+      - name: input_type
+        description: "Type of input, extracted from the issue title"
+      - name: state
+        description: "Current status of the GitHub issue/input (open or closed)"
+      - name: url
+        description: "Complete URL associated with the record, typically pointing to a landing page."
+      - name: landing_page_domain
+        description: "Domain of the landing page where the user first arrived"
+      - name: landing_page_path
+        description: "Path of the landing page URL, capturing the specific page or content that the user landed on"
+      - name: team
+        description: "Team responsible for the acquisition efforts and results attribution"
+      - name: subteam
+        description: "Subteam responsible for the acquisition efforts and results attribution"
+      - name: created_at
+        description: "Timestamp of when the GitHub issue/input was created"
+      - name: updated_at
+        description: "Timestamp of the most recent update to the GitHub issue/input"
+      - name: closed_at
+        description: "Timestamp of when the GitHub issue/input was closed (if applicable)"
+      - name: sys_audit_created_on
+        description: "Timestamp of when this record was created in our data warehouse"
+      - name: sys_audit_updated_on
+        description: "Timestamp of when this record was last updated in our data warehouse"
+      - name: sys_audit_created_by
+        description: "System identifier of the process that created this record"
+      - name: sys_audit_updated_by
+        description: "System identifier of the process that last updated this record"
+  
+
+  - name: s__general__mkt_attribution_github_inputs_insti__ref
+    description: "A data product that contains INSTI-specific inputs from the GitHub mkt_attribution repository. This model focuses on tracking and validating INSTI parameters used in marketing campaigns, helping users:
+     - Track and validate INSTI parameters for marketing campaigns
+     - Ensure consistency in INSTI parameter usage across different marketing channels
+     - Monitor and analyze INSTI parameter effectiveness in campaign attribution"
+    config:
+      meta:
+        owner: "malen.correa@tiendanube.com"
+        domain: "marketing"
+        business_owner: "Giselle Galli" 
+    columns:
+      - name: id
+        description: "Unique identifier for the GitHub issue/input record"
+      - name: input_number
+        description: "Sequential identifier assigned to the GitHub issue/input"
+      - name: input_title
+        description: "Title of the GitHub issue/input containing INSTI parameters"
+      - name: input_type
+        description: "Type of input, extracted from the issue title"
+      - name: state
+        description: "Current status of the GitHub issue/input (open or closed)"
+      - name: landing_page_domain
+        description: "Domain of the landing page where the user first arrived"
+      - name: landing_page_path
+        description: "Path of the landing page URL, capturing the specific page or content that the user landed on"
+      - name: team
+        description: "Team responsible for the acquisition efforts and results attribution"
+      - name: subteam
+        description: "Subteam responsible for the acquisition efforts and results attribution"
+      - name: created_at
+        description: "Timestamp of when the GitHub issue/input was created"
+      - name: updated_at
+        description: "Timestamp of the most recent update to the GitHub issue/input"
+      - name: closed_at
+        description: "Timestamp of when the GitHub issue/input was closed (if applicable)"
+      - name: sys_audit_created_on
+        description: "Timestamp of when this record was created in our data warehouse"
+      - name: sys_audit_updated_on
+        description: "Timestamp of when this record was last updated in our data warehouse"
+      - name: sys_audit_created_by
+        description: "System identifier of the process that created this record"
+      - name: sys_audit_updated_by
+        description: "System identifier of the process that last updated this record"
+
+
+  - name: s__general__mkt_attribution_github_inputs_referrer__ref
+    description: "A data product that contains referrer-specific inputs from the GitHub mkt_attribution repository. This model focuses on tracking and validating referrer parameters used in marketing campaigns, helping users:
+     - Track and validate referrer parameters for marketing campaigns
+     - Ensure consistency in referrer parameter usage across different marketing channels
+     - Monitor and analyze referrer parameter effectiveness in campaign attribution"
+    config:
+      meta: 
+        owner: "malen.correa@tiendanube.com"
+        domain: "marketing"
+        business_owner: "Giselle Galli" 
+    columns:
+      - name: id
+        description: "Unique identifier for the GitHub issue/input record"
+      - name: input_number
+        description: "Sequential identifier assigned to the GitHub issue/input"
+      - name: input_title
+        description: "Title of the GitHub issue/input containing referrer parameters"
+      - name: input_type
+        description: "Type of input, extracted from the issue title"
+      - name: state
+        description: "Current status of the GitHub issue/input (open or closed)"
+      - name: referrer
+        description: "URL or domain that referred the user to the site or page (Referrer), extracted from the issue title/body"
+      - name: team
+        description: "Team responsible for the acquisition efforts and results attribution"
+      - name: subteam
+        description: "Subteam responsible for the acquisition efforts and results attribution"
+      - name: created_at
+        description: "Timestamp of when the GitHub issue/input was created"
+      - name: updated_at
+        description: "Timestamp of the most recent update to the GitHub issue/input"
+      - name: closed_at
+        description: "Timestamp of when the GitHub issue/input was closed (if applicable)"
+      - name: sys_audit_created_on
+        description: "Timestamp of when this record was created in our data warehouse"
+      - name: sys_audit_updated_on
+        description: "Timestamp of when this record was last updated in our data warehouse"
+      - name: sys_audit_created_by
+        description: "System identifier of the process that created this record"
+      - name: sys_audit_updated_by
+        description: "System identifier of the process that last updated this record"
+
+
+  - name: s__general__mkt_attribution_github_inputs_partner_exception__ref
+    description: "A data product that contains partner exception-specific inputs from the GitHub mkt_attribution repository. This model focuses on tracking and validating partner exception parameters used in marketing campaigns, helping users:
+     - Track and validate partner exception parameters for marketing campaigns
+     - Ensure consistency in partner exception parameter usage across different marketing channels
+     - Monitor and analyze partner exception parameter effectiveness in campaign attribution"
+    config:
+      meta:
+        owner: "malen.correa@tiendanube.com"
+        domain: "marketing"
+        business_owner: "Giselle Galli" 
+    columns:
+      - name: id
+        description: "Unique identifier for the GitHub issue/input record"
+      - name: input_number
+        description: "Sequential identifier assigned to the GitHub issue/input"
+      - name: input_title
+        description: "Title of the GitHub issue/input containing partner exception parameters"
+      - name: input_type
+        description: "Type of input, extracted from the issue title"
+      - name: state
+        description: "Current status of the GitHub issue/input (open or closed)"
+      - name: partner_code
+        description: "Partner code extracted from the issue title/body"
+      - name: team
+        description: "Team responsible for the acquisition efforts and results attribution"
+      - name: subteam
+        description: "Subteam responsible for the acquisition efforts and results attribution"
+      - name: created_at
+        description: "Timestamp of when the GitHub issue/input was created"
+      - name: updated_at
+        description: "Timestamp of the most recent update to the GitHub issue/input"
+      - name: closed_at
+        description: "Timestamp of when the GitHub issue/input was closed (if applicable)"
+      - name: sys_audit_created_on
+        description: "Timestamp of when this record was created in our data warehouse"
+      - name: sys_audit_updated_on
+        description: "Timestamp of when this record was last updated in our data warehouse"
+      - name: sys_audit_created_by
+        description: "System identifier of the process that created this record"
+      - name: sys_audit_updated_by
+        description: "System identifier of the process that last updated this record"
+
+
+  - name: s__general__mkt_attribution_github_inputs_affiliates_classification__ref
+    description: "A data product that contains affiliate classification-specific inputs from the GitHub mkt_attribution repository. This model focuses on tracking and validating affiliate classification parameters used in marketing campaigns, helping users:
+     - Track and validate affiliate classification parameters for marketing campaigns
+     - Ensure consistency in affiliate classification parameter usage across different marketing channels
+     - Monitor and analyze affiliate classification parameter effectiveness in campaign attribution"
+    config:
+      meta:
+        owner: "malen.correa@tiendanube.com"
+        domain: "marketing"
+        business_owner: "Giselle Galli" 
+    columns:
+      - name: id
+        description: "Unique identifier for the GitHub issue/input record"
+      - name: input_number
+        description: "Sequential identifier assigned to the GitHub issue/input"
+      - name: input_title
+        description: "Title of the GitHub issue/input containing affiliate classification parameters"
+      - name: input_type
+        description: "Type of input, extracted from the issue title"
+      - name: state
+        description: "Current status of the GitHub issue/input (open or closed)"
+      - name: affiliate_code
+        description: "Affiliate code extracted from the issue title/body"
+      - name: affiliate_classification
+        description: "Affiliate classification asigned by business, extracted from the issue title/body"
+      - name: created_at
+        description: "Timestamp of when the GitHub issue/input was created"
+      - name: affiliate_country
+        description: "Country of the affiliate, extracted from the issue title/body"
+      - name: affiliate_tier
+        description: "Tier asigned by business, extracted from the issue title/body"
+        tests:
+          - dbt_expectations.expect_column_values_to_be_in_set:
+              value_set: ['T1','T2','T3','T4','T5', null]
+              row_condition: "input_type = 'AFFILIATE_LIST' AND affiliate_tier IS NOT NULL"
+      - name: rownumber
+        description: "Row number to take the first line"
+      - name: updated_at
+        description: "Timestamp of the most recent update to the GitHub issue/input"
+      - name: closed_at
+        description: "Timestamp of when the GitHub issue/input was closed (if applicable)"
+      - name: sys_audit_created_on
+        description: "Timestamp of when this record was created in our data warehouse"
+      - name: sys_audit_updated_on
+        description: "Timestamp of when this record was last updated in our data warehouse"
+      - name: sys_audit_created_by
+        description: "System identifier of the process that created this record"
+      - name: sys_audit_updated_by
+        description: "System identifier of the process that last updated this record"
+ 
