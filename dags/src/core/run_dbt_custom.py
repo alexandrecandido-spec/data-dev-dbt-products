@@ -162,7 +162,7 @@ def create_dbt_dag(
                          dbt_command= 'test',
                          full_refresh=False,
                          models=[],  # Empty by default, will be populated at runtime
-                         pool='dbt_serial_pool',
+                         pool='dbt_test_pool',
                      )
         
         setup >> create_profiles >> task >> test
