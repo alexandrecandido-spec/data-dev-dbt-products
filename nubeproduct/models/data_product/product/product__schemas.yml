@@ -645,6 +645,8 @@ models:
         description: "minimum date between ticket_closed_at and label_closed_date. it is used to correct the closing date for each country"
       - name: labels_domain
         description: "app domains affected by the problem"
+      - name: labels
+        description: "all of the labels of the problem"
       - name: country
         description: "country affected by the problem. this country might be determined by the country tags, the stores affected by the problem or the solved_by_app tags"
       - name: is_solved_by_app_country
