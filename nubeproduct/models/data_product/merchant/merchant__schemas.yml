@@ -332,7 +332,7 @@ models:
       - name: mkt_subteam_partner_click
         description: "Marketing subteam from the partner click attribution. Tag indicating the affiliate classification of the store."
       - name: mkt_campaign_partner_click
-        description: "Marketing campaign from the partner click attribution."
+        description: "Identifies the marketing campaign associated with the user’s first click on a partner-related landing page. It returns the campaign name when the record has a valid partner_id and the landing page URL contains “/partners/”. Used to track campaigns that drive traffic through partner links, distinguishing them from other marketing sources."
       - name: mkt_landing_page_domain_first_click
         description: "Landing page domain from the first click attribution."
       - name: mkt_landing_page_domain_last_click
@@ -343,9 +343,6 @@ models:
         description: "Landing page path from the last click attribution."
       - name: ql_profile
         description: "Quality lead profile classification."
-        tests: [not_null]
-      - name: blocked_fraud_tag
-        description: "Tag indicating if the store is blocked or is attributed to a fraudulent partner."
         tests: [not_null]
       - name: sys_audit_created_on
         description: "Timestamp when the row was originally created."
