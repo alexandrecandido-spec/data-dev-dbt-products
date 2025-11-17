@@ -33,7 +33,7 @@ WHERE
 
 , agg_1 AS (
 SELECT
-    DATE_TRUNC('month', base_date) AS base_month
+    DATE(DATE_TRUNC('month', base_date)) AS base_month
     , store_id
     , country_code
     , vertical_name

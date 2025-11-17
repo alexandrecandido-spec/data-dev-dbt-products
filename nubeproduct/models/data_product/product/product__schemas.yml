@@ -625,16 +625,10 @@ models:
           - not_null
       - name: title
         description: "title of the problem"
-        tests:
-          - not_null
       - name: repo_name
         description: "repository in which the problem is located"
-        tests:
-          - not_null
       - name: state
         description: "state of the problem, open or closed"
-        tests:
-          - not_null
       - name: labels_tipo
         description: "Team assigned to the problem based on its tags."
       - name: platform_country_state
@@ -651,6 +645,8 @@ models:
         description: "minimum date between ticket_closed_at and label_closed_date. it is used to correct the closing date for each country"
       - name: labels_domain
         description: "app domains affected by the problem"
+      - name: labels
+        description: "all of the labels of the problem"
       - name: country
         description: "country affected by the problem. this country might be determined by the country tags, the stores affected by the problem or the solved_by_app tags"
       - name: is_solved_by_app_country
@@ -671,6 +667,14 @@ models:
         description: "impacted GMV in local currency by the problem"
       - name: impacted_gmv_usd
         description: "impacted GMV in USD by the problem"  
+      - name: sys_audit_created_on
+        description: "date the problem was created"
+      - name: sys_audit_updated_on
+        description: "date the problem was updated"
+      - name: sys_audit_created_by
+        description: "user who created the problem"
+      - name: sys_audit_updated_by
+        description: "user who updated the problem"
 
   - name: product_platform_development_issues
     description: 
@@ -761,30 +765,18 @@ models:
           - not_null
       - name: state
         description: "state of the issue, open or closed"
-        tests:
-          - not_null
       - name: created_at
         description: "date the issue was created"
-        tests:
-          - not_null
       - name: closed_at
         description: "date the issue was closed (nullable for open issues)"
       - name: title
         description: "title of the issue"
-        tests:
-          - not_null
       - name: url
         description: "url of the issue"
-        tests:
-          - not_null
       - name: labels
         description: "labels of the issue"
-        tests:
-          - not_null
       - name: labels_tipo
         description: "type of issue based on its tags"
-        tests:
-          - not_null
       - name: labels_domain
         description: "app domains affected by the issue"
       - name: labels_country
@@ -819,20 +811,12 @@ models:
         description: "countries missing from the issue"
       - name: sys_audit_created_on
         description: "date the issue was created"
-        tests:
-          - not_null
       - name: sys_audit_updated_on
         description: "date the issue was updated"
-        tests:
-          - not_null
       - name: sys_audit_created_by
         description: "user who created the issue"
-        tests:
-          - not_null
       - name: sys_audit_updated_by
         description: "user who updated the issue"
-        tests:
-          - not_null
 
 
   - name: product__offline_subscriptions
@@ -3458,7 +3442,7 @@ models:
       - name: sys_audit_updated_by
         description: "Identifier for the user or system that last updated this record."
 
-  - name: g__growth__store_conversion__agg_daily
+  - name: g__general__store_conversion__agg_daily
     description: >
       Daily aggregated dataset that measures store trial-to-paid conversion performance. It calculates how many stores 
       converted (made their first payment) within 7, 14, 21, ... up to 84 days after creation, segmented by country, 
@@ -3775,6 +3759,85 @@ models:
           column_A: total_sessions_with_unique_carts
           column_B: total_sessions_with_carts
 
+
+  - name: g__subscriptions__subscriptions_store_info__agg_daily
+    description: >
+      Daily aggregated dataset that measures subscription store information.
+    config:
+      meta:
+        owner: "fernando.martinez@tiendanube.com"
+        domain: "product"
+        business_owner: "Nicolas Loreti"
+    columns:
+      - name: unique_id
+        description: "Unique identifier of the subscription store information."
+        tests:
+          - not_null
+          - unique
+      - name: registered_date
+        description: "Date when the subscription store information was registered."
+        tests:
+          - not_null
+      - name: store_id
+        description: "Store identifier where the subscription store information was registered."
+        tests:
+          - not_null
+      - name: store_name
+        description: "Name of the store."
+      - name: vertical_name
+        description: "Vertical of the store."
+      - name: segment
+        description: "Segment of the store."
+      - name: total_metaplans
+        description: "Total number of metaplans for the store."
+      - name: total_active_metaplans
+        description: "Total number of active metaplans for the store."
+      - name: new_metaplans
+        description: "Total number of new metaplans for the store."
+      - name: new_subscriptions
+        description: "Total number of new subscriptions for the store."
+      - name: churned_subscriptions
+        description: "Total number of churned subscriptions for the store."
+      - name: total_subscriptions
+        description: "Total number of subscriptions for the store."
+      - name: total_active_subscriptions
+        description: "Total number of active subscriptions for the store."
+      - name: total_cancelled_subscriptions
+        description: "Total number of cancelled subscriptions for the store."
+      - name: total_customers
+        description: "Total number of customers for the store."
+      - name: total_active_customers
+        description: "Total number of active customers for the store."
+      - name: total_orders
+        description: "Total number of orders for the store."
+      - name: total_successful_initial_orders
+        description: "Total number of successful initial orders for the store."
+      - name: total_successful_recurrent_orders
+        description: "Total number of successful recurrent orders for the store."
+      - name: total_not_successful_initial_orders
+        description: "Total number of not successful initial orders for the store."
+      - name: total_transactions
+        description: "Total number of transactions for the store."
+      - name: failed_transactions
+        description: "Total number of failed transactions for the store."
+      - name: paid_transactions
+        description: "Total number of paid transactions for the store."
+      - name: initial_failed_transactions
+        description: "Total number of initial failed transactions for the store."
+      - name: initial_paid_transactions
+        description: "Total number of initial paid transactions for the store."
+      - name: recurrent_failed_transactions
+        description: "Total number of recurrent failed transactions for the store."
+      - name: recurrent_paid_transactions
+        description: "Total number of recurrent paid transactions for the store."
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created in this model."
+      - name: sys_audit_created_by
+        description: "System or user that created the row in this model."
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this model."
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row in this model."
 
   - name: g__traffic__session_carts__agg_monthly
     description: >

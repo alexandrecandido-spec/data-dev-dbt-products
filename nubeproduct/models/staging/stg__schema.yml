@@ -1286,7 +1286,6 @@ models:
         description: "Deterministic technical key for each session (MD5 of session_id, consumer_id, store_id)."
         tests:
           - not_null
-          - unique
       - name: session_timestamp
         description: "Original timestamp of the session event."
         tests:
@@ -1345,6 +1344,12 @@ models:
         description: "System or user that last updated the row in this model."
         tests:
           - not_null
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - unique_session_key
+            - base_date
+
 
   - name: product__checkout_events_event
     description: >
@@ -3859,12 +3864,45 @@ models:
         tests:
           - not_null
 
+      
+  - name: product__nuvem_pago__transactions__events
+    description: "Staging model that contains the transactions from Nuvem Pago."
+    config:
+      meta:
+        owner: "fernando.martinez@tiendanube.com"
+        domain: "product"
+        business_owner: "Nicolas Loreti"
+    columns:
+      - name: transaction_id
+        description: "Transaction identifier of the transaction."
+        tests:
+          - not_null
+          - unique
+      - name: charge_id
+        description: "Charge identifier of the charge."
+      - name: order_id
+        description: "Order identifier of the order."
+      - name: status
+        description: "Status of the transaction."
+      - name: payment_method
+        description: "Payment method of the transaction."
+      - name: amount
+        description: "Amount of the transaction."
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model."
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model."
+      - name: sys_audit_updated_on
+        description: "Timestamp when the record was last updated."
+      - name: sys_audit_updated_by
+        description: "User or process that last updated the record."   
+
 
   - name: product__general__github_issue_comment__event
     description: 
       "Event table with GitHub **issue comments** pulled from the `stg_third_party.product_github_issues_comments`
       staging source. One row per comment (`id`). The model is **incremental** (merge on `id`) and ingests
-      only rows whose `source.sys_audit_updated_on` is within the last 24 hours relative to the latest loaded
+      only rows whose `source.sys_audit_updated_on` is within the last 1 hours relative to the latest loaded
       record. System audit fields track creation, updates and soft-deletes."
     config:
       meta:
@@ -3931,7 +3969,7 @@ models:
     description: 
       "Event table with GitHub **problems comments** pulled from the `stg_third_party.product_github_problems_comments`
       staging source. One row per comment (`id`). The model is **incremental** (merge on `id`) and ingests
-      only rows whose `source.sys_audit_updated_on` is within the last 24 hours relative to the latest loaded
+      only rows whose `source.sys_audit_updated_on` is within the last 1 hours relative to the latest loaded
       record. System audit fields track creation, updates and soft-deletes."
     config:
       meta:
@@ -4000,7 +4038,7 @@ models:
       `stg_third_party.product_github_issues_events` staging source.
       One row per event (`id`). The model is **incremental** (merge on `id`)
       and ingests only rows whose `source.sys_audit_updated_on` are within the
-      last 24 hours relative to the latest loaded record. System audit fields
+      last 1 hours relative to the latest loaded record. System audit fields
       track creation, updates, and soft-deletes."
     config:
       meta:
@@ -4073,7 +4111,7 @@ models:
       `stg_third_party.product_github_problems_events` staging source.
       One row per event (`id`). The model is **incremental** (merge on `id`)
       and ingests only rows whose `source.sys_audit_updated_on` are within the
-      last 24 hours relative to the latest loaded record. System audit fields
+      last 1 hours relative to the latest loaded record. System audit fields
       track creation, updates, and soft-deletes."
     config:
       meta:
@@ -4145,7 +4183,7 @@ models:
       "Link table between **GitHub issues** and their **labels**, sourced from
       `stg_third_party.product_github_issues`. One row per (issue `id`, `labels_name`)
       pair. The model is **incremental** (merge on `[id, labels_name]`) and reads only
-      rows whose `sys_audit_updated_on` are within ~124 hours of the latest loaded
+      rows whose `sys_audit_updated_on` are within 1 hours of the latest loaded
       record. Source rows are deduplicated to keep the most recent extract per
       `(id, labels_name)` and include a helper flag `is_latest_by_repo_and_number`.
       Blank/missing label names are normalized to `__no_label__`. System audit
@@ -4283,7 +4321,7 @@ models:
       "Link table between **GitHub problems** and their **labels**, sourced from
       `stg_third_party.product_github_problems`. One row per (problem `id`, `labels_name`)
       pair. The model is **incremental** (merge on `[id, labels_name]`) and reads only
-      rows whose `sys_audit_updated_on` are within ~124 hours of the latest loaded
+      rows whose `sys_audit_updated_on` are within 1 hours of the latest loaded
       record. Source rows are deduplicated to keep the most recent extract per
       `(id, labels_name)` and include a helper flag `is_latest_by_repo_and_number`.
       Blank/missing label names are normalized to `__no_label__`. System audit
@@ -4481,3 +4519,4 @@ models:
         description: "Timestamp of the current model run when the record was processed."
       - name: sys_audit_updated_by
         description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
+

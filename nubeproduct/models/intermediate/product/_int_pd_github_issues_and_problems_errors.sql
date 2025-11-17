@@ -35,3 +35,4 @@
     from {{ ref('product_issues_and_problems_summary') }} i
     where true
     and labels_tipo = 'App'
+    and created_at is not null

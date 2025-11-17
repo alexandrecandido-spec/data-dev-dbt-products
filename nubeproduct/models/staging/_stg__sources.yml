@@ -527,3 +527,27 @@ sources:
     tables:
       - name: journal_payment_provider
         description: "Payment provider journal with registration events and configuration. Contains PaymentProviderRegistered events."
+  
+  - name: stg_subscriptions
+    database: hive_metastore
+    schema: subscriptions
+    description: "Source containing tables related to subscriptions"
+    tables:
+      - name: metaplans
+        description: "Contains all the metaplans info"
+      - name: subscriptions
+        description: "Contains all the subscriptions info"
+      - name: subscription_options
+        description: "Contains all the subscription metaplan options info"
+      - name: runs_upcoming
+        description: "Contains all the upcoming runs of future subscription orders"
+      - name: subscription_orders
+        description: "Contains all the subscription orders info"
+
+  - name: stg_nuvem_pago_transactions
+    database: hive_metastore
+    schema: nuvem_pago_transactions
+    description: "Source containing tables related to Nuvem Pago transactions"
+    tables:
+      - name: transactions
+        description: "Contains all the order transactions info"
