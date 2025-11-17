@@ -152,4 +152,3 @@ LEFT JOIN {{ ref('_int_logistics_gsv__shipments')}} all_shipments on carts_order
 LEFT JOIN blocked_store__info on carts_orders.store_id = blocked_store__info.store_id
 LEFT JOIN session_info on carts_orders.id = session_info.cart_id
 LEFT JOIN payment_date_legacy on carts_orders.id = payment_date_legacy.order_id
-where date(carts_orders.completed_at) >= '2025-10-01'
