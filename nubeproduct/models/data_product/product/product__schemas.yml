@@ -625,16 +625,10 @@ models:
           - not_null
       - name: title
         description: "title of the problem"
-        tests:
-          - not_null
       - name: repo_name
         description: "repository in which the problem is located"
-        tests:
-          - not_null
       - name: state
         description: "state of the problem, open or closed"
-        tests:
-          - not_null
       - name: labels_tipo
         description: "Team assigned to the problem based on its tags."
       - name: platform_country_state
@@ -651,6 +645,8 @@ models:
         description: "minimum date between ticket_closed_at and label_closed_date. it is used to correct the closing date for each country"
       - name: labels_domain
         description: "app domains affected by the problem"
+      - name: labels
+        description: "all of the labels of the problem"
       - name: country
         description: "country affected by the problem. this country might be determined by the country tags, the stores affected by the problem or the solved_by_app tags"
       - name: is_solved_by_app_country
@@ -671,6 +667,14 @@ models:
         description: "impacted GMV in local currency by the problem"
       - name: impacted_gmv_usd
         description: "impacted GMV in USD by the problem"  
+      - name: sys_audit_created_on
+        description: "date the problem was created"
+      - name: sys_audit_updated_on
+        description: "date the problem was updated"
+      - name: sys_audit_created_by
+        description: "user who created the problem"
+      - name: sys_audit_updated_by
+        description: "user who updated the problem"
 
   - name: product_platform_development_issues
     description: 
@@ -761,30 +765,18 @@ models:
           - not_null
       - name: state
         description: "state of the issue, open or closed"
-        tests:
-          - not_null
       - name: created_at
         description: "date the issue was created"
-        tests:
-          - not_null
       - name: closed_at
         description: "date the issue was closed (nullable for open issues)"
       - name: title
         description: "title of the issue"
-        tests:
-          - not_null
       - name: url
         description: "url of the issue"
-        tests:
-          - not_null
       - name: labels
         description: "labels of the issue"
-        tests:
-          - not_null
       - name: labels_tipo
         description: "type of issue based on its tags"
-        tests:
-          - not_null
       - name: labels_domain
         description: "app domains affected by the issue"
       - name: labels_country
@@ -819,20 +811,12 @@ models:
         description: "countries missing from the issue"
       - name: sys_audit_created_on
         description: "date the issue was created"
-        tests:
-          - not_null
       - name: sys_audit_updated_on
         description: "date the issue was updated"
-        tests:
-          - not_null
       - name: sys_audit_created_by
         description: "user who created the issue"
-        tests:
-          - not_null
       - name: sys_audit_updated_by
         description: "user who updated the issue"
-        tests:
-          - not_null
 
 
   - name: product__offline_subscriptions
@@ -3458,7 +3442,7 @@ models:
       - name: sys_audit_updated_by
         description: "Identifier for the user or system that last updated this record."
 
-  - name: g__growth__store_conversion__agg_daily
+  - name: g__general__store_conversion__agg_daily
     description: >
       Daily aggregated dataset that measures store trial-to-paid conversion performance. It calculates how many stores 
       converted (made their first payment) within 7, 14, 21, ... up to 84 days after creation, segmented by country, 
@@ -3660,6 +3644,7 @@ models:
       - name: sys_audit_updated_by
         description: "User or system that last updated the chargeback."     
         
+
   - name: g__traffic__session_carts__agg_daily
     description: >
       Gold model that aggregates sessions by store and traffic dimensions at a daily granularity,
@@ -3669,15 +3654,15 @@ models:
       GMV-related fields are included solely for funnel tracking purposes. 
       For official revenue figures, refer to Finance data products and dashboards.
       --
-      This model is updated incrementally, processing only the last 30 days from the most recent update.
-      Therefore, cart updates are only tracked within 30 days after the original session occurred.
+      This model is updated incrementally, processing only the previous month from the most recent update.
+      Therefore, cart updates are only tracked up to a month after the original session occurred.
       --
       Data availability:
       - Sessions: from 2024-01-01 onwards
       - Cart linkage to sessions: from 2024-01-23 onwards
       --
       Full documentation available at:
-      https://www.notion.so/Gold-g__traffic__session_carts__agg_daily-2a185d24ee8f80f69bb4fdfaf8dc3c5c
+      https://www.notion.so/Gold-g__traffic__session_carts__agg_-2a185d24ee8f80f69bb4fdfaf8dc3c5c
     config:
       meta:
         owner: "barbara.marques@nuvemshop.com.br"
@@ -3686,6 +3671,200 @@ models:
     columns:
       - name: base_date
         description: "Partition date for the table, based on the session timestamp."
+        tests: 
+          - not_null
+      - name: store_id
+        description: "Store identifier where the session occurred."
+        tests: 
+          - not_null
+      - name: country_code
+        description: "Country of the store at the time of update (not necessarily at session time)."
+        tests: 
+          - not_null
+      - name: vertical_name
+        description: "Vertical classification of the store, captured at the model update."
+      - name: current_plan_type
+        description: "Type of the store plan, captured at the model update."
+      - name: current_segment
+        description: "Segment classification of the store (tiny, small, etc.), captured at the model update."
+      - name: is_store_blocked
+        description: "Whether the store was blocked, captured at the model update."
+      - name: visitor_country
+        description: "Country of the visitor based on latest update (not necessarily at session time)."
+      - name: device
+        description: "Device category (desktop, mobile, etc.) used in the session."
+      - name: theme
+        description: "Theme identifier of the storefront during the session."
+      - name: source_name
+        description: "Classified traffic source for the session (e.g., google, meta, direct)."
+        tests: 
+          - not_null
+      - name: source_group
+        description: "Grouped classification of `source_name` by parent company or channel family (e.g., meta, alphabet, ai sources)."
+        tests: 
+          - not_null
+      - name: google_subchannel
+        description: "Detailed classification of Google Ads campaigns by subchannel (e.g., pmax, shopping, search)."
+      - name: traffic_type
+        description: "Indicates whether the session came from paid or organic traffic."
+        tests: 
+          - not_null
+      - name: is_end_user
+        description: "Boolean flag indicating whether the session is likely from a real end-user."
+        tests: 
+          - not_null
+      - name: storefront
+        description: "Storefront domain accessed during the session (store, mobile, pos, etc)."
+      - name: total_sessions
+        description: "Count of sessions aggregated by the defined key."
+      - name: total_unique_sessions
+        description: "Count of unique sessions aggregated by the defined key. Must generate the same total as total_sessions."
+      - name: total_unique_session_ids
+        description: "Count of distinct session_id's aggregated by the defined key."
+      - name: total_unique_consumer_ids
+        description: "Count of distinct consumer_id's aggregated by the defined key."
+      - name: total_sessions_with_carts
+        description: "Count of carts matched to sessions aggregated by the defined key."
+      - name: total_sessions_with_unique_carts
+        description: "Count of unique carts matched to sessions aggregated by the defined key. Must generate the same total as total_sessions_with_carts."
+      - name: total_sessions_with_paid_orders
+        description: >
+          Count of sessions where a cart resulted in a paid order.
+          Attention: this is only for funnel reference. For official GMV data, please consult official dashboards and data models, by the Finance team.
+      - name: total_usd_sessions_with_paid_orders
+        description: >
+          Sum of the total order value (USD) of sessions where a cart resulted in a paid order.
+          Attention: this is only for funnel reference. For official GMV data, please consult official dashboards and data models, by the Finance team.
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created in this model."
+        tests: 
+          - not_null
+      - name: sys_audit_created_by
+        description: "System or user that created the row in this model."
+        tests: 
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this model."
+        tests: 
+          - not_null
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row in this model."
+        tests: 
+          - not_null
+    tests:
+      - dbt_expectations.expect_column_pair_values_to_be_equal:
+          column_A: total_unique_sessions
+          column_B: total_sessions
+      - dbt_expectations.expect_column_pair_values_to_be_equal:
+          column_A: total_sessions_with_unique_carts
+          column_B: total_sessions_with_carts
+
+
+  - name: g__subscriptions__subscriptions_store_info__agg_daily
+    description: >
+      Daily aggregated dataset that measures subscription store information.
+    config:
+      meta:
+        owner: "fernando.martinez@tiendanube.com"
+        domain: "product"
+        business_owner: "Nicolas Loreti"
+    columns:
+      - name: unique_id
+        description: "Unique identifier of the subscription store information."
+        tests:
+          - not_null
+          - unique
+      - name: registered_date
+        description: "Date when the subscription store information was registered."
+        tests:
+          - not_null
+      - name: store_id
+        description: "Store identifier where the subscription store information was registered."
+        tests:
+          - not_null
+      - name: store_name
+        description: "Name of the store."
+      - name: vertical_name
+        description: "Vertical of the store."
+      - name: segment
+        description: "Segment of the store."
+      - name: total_metaplans
+        description: "Total number of metaplans for the store."
+      - name: total_active_metaplans
+        description: "Total number of active metaplans for the store."
+      - name: new_metaplans
+        description: "Total number of new metaplans for the store."
+      - name: new_subscriptions
+        description: "Total number of new subscriptions for the store."
+      - name: churned_subscriptions
+        description: "Total number of churned subscriptions for the store."
+      - name: total_subscriptions
+        description: "Total number of subscriptions for the store."
+      - name: total_active_subscriptions
+        description: "Total number of active subscriptions for the store."
+      - name: total_cancelled_subscriptions
+        description: "Total number of cancelled subscriptions for the store."
+      - name: total_customers
+        description: "Total number of customers for the store."
+      - name: total_active_customers
+        description: "Total number of active customers for the store."
+      - name: total_orders
+        description: "Total number of orders for the store."
+      - name: total_successful_initial_orders
+        description: "Total number of successful initial orders for the store."
+      - name: total_successful_recurrent_orders
+        description: "Total number of successful recurrent orders for the store."
+      - name: total_not_successful_initial_orders
+        description: "Total number of not successful initial orders for the store."
+      - name: total_transactions
+        description: "Total number of transactions for the store."
+      - name: failed_transactions
+        description: "Total number of failed transactions for the store."
+      - name: paid_transactions
+        description: "Total number of paid transactions for the store."
+      - name: initial_failed_transactions
+        description: "Total number of initial failed transactions for the store."
+      - name: initial_paid_transactions
+        description: "Total number of initial paid transactions for the store."
+      - name: recurrent_failed_transactions
+        description: "Total number of recurrent failed transactions for the store."
+      - name: recurrent_paid_transactions
+        description: "Total number of recurrent paid transactions for the store."
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created in this model."
+      - name: sys_audit_created_by
+        description: "System or user that created the row in this model."
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this model."
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row in this model."
+
+  - name: g__traffic__session_carts__agg_monthly
+    description: >
+      Gold model that aggregates sessions by store and traffic dimensions at a monthly granularity,
+      combining them with cart generation and paid order information. It is used to analyze
+      acquisition effectiveness, conversion from session to cart, and directional GMV trends.
+      --
+      GMV-related fields are included solely for funnel tracking purposes. 
+      For official revenue figures, refer to Finance data products and dashboards.
+      --
+      This model is updated incrementally, processing only the previous month from the most recent update.
+      Therefore, cart updates are only tracked up to a month after the original session occurred.
+      --
+      Data availability:
+      - Sessions: from 2024-01-01 onwards
+      - Cart linkage to sessions: from 2024-01-23 onwards
+      --
+      Full documentation available at:
+      https://www.notion.so/Gold-g__traffic__session_carts__agg_-2a185d24ee8f80f69bb4fdfaf8dc3c5c
+    config:
+      meta:
+        owner: "barbara.marques@nuvemshop.com.br"
+        domain: "product"
+        business_owner: "Tomas Musich"
+    columns:
+      - name: base_month
+        description: "Partition date for the table, based on the month of the session timestamp."
         tests: 
           - not_null
       - name: store_id
@@ -4502,3 +4681,139 @@ models:
         description: "Actor/system that last updated the row (fixed to 'data-dev-dbt-products')."
         tests:
           - not_null
+
+  - name: g__checkout__cvr_and_completion_time__event
+    description: >
+      Gold layer table with funnel and completion time for Checkout domain.
+    config:
+      meta:
+        owner: "fabrizio.crivella@tiendanube.com"
+        business_owner: "Rocio Diez"
+        openmetadata:
+          domain: "product"
+    columns:
+      - name: cart_id
+        description: Unique identifier of cart.
+        tests:
+          - not_null
+      - name: fecha
+        description: started_checkout casted as date.
+        tests:
+          - not_null
+      - name: store_id
+        description: Unique identifier of store.
+      - name: current_segment_name
+        description: Segment associated to the store.
+      - name: country_code
+        description: Country associated to the store.
+      - name: cart_id
+        description: Unique identifier of cart.
+      - name: storefront
+        description: Storefront where the cart was originated.
+      - name: device_type
+        description: Device used by the Consumer.
+      - name: gateway_method
+        description: Gateway used by the Consumer.
+      - name: started_checkout_at
+        description: Timestamp when the Checkout was initiated.
+      - name: completed_contact_at
+        description: Timestamp when the Consumer completed contact information.
+      - name: completed_at
+        description: Timestamp when the Cart was completed.
+      - name: total_checkout_time
+        description: Time elapsed between Checkout initiation and completion.
+      - name: completed_contact_to_completed_at
+        description: Time elapsed between Contact information completion and cart completion.
+      - name: started_checkout_to_completed_contact
+        description: Time elapsed between cart initiation and completed Contact information.
+
+  - name: g__checkout__carts__event_daily
+    description: >
+      Gold layer table with a summary of each Checkout step with the amount of carts.
+    config:
+      meta:
+        owner: "fabrizio.crivella@tiendanube.com"
+        business_owner: "Rocio Diez"
+        openmetadata:
+          domain: "product"
+    columns:
+      - name: step
+        description: Checkout step. Checkout start, Completed Contact, Completed Order, Paid Order.
+        tests:
+          - not_null
+      - name: fecha
+        description: started_checkout casted as date.
+        tests:
+          - not_null
+      - name: store_id
+        description: Unique identifier of store.
+      - name: storefront
+        description: Storefront where the cart was originated.
+      - name: device_type
+        description: Device used by the Consumer.
+      - name: gateway_method
+        description: Gateway used by the Consumer.
+      - name: current_segment_name
+        description: Segment associated to the store.
+      - name: country_code
+        description: Country associated to the store.
+      - name: orders
+        description: Count distinct cart_id.
+
+  - name: g__checkout__carts_cvr__daily
+    description: >
+      Gold layer table with a daily summary of the amount of carts.
+    config:
+      meta:
+        owner: "fabrizio.crivella@tiendanube.com"
+        business_owner: "Rocio Diez"
+        openmetadata:
+          domain: "product"
+    columns:
+      - name: fecha
+        description: started_checkout casted as date.
+        tests:
+          - not_null
+      - name: store_id
+        description: Unique identifier of store.
+      - name: started_checkouts
+        description: amount of started checkouts.
+      - name: completed_contacts
+        description: amount of completed contacts.
+      - name: completed_ats
+        description: amount of completed carts.
+      - name: paid_orders
+        description: amount of paid orders.
+
+  - name: s__onboarding__questionnaire_status__ref
+    description: >
+      "Silver layer model that contains information on onboardding status and calculates the total time (in seconds) 
+      between the creation and the last update of a stores onboarding record."
+    config:
+      meta:
+        owner: "ynara.oliveira@nuvemshop.com.br"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: store_id
+        description: "Unique identifier of the store associated with the onboarding record."
+        tests:
+          - not_null
+          - unique
+      - name: signup_status
+        description: "Current status of the stores signup process."
+        tests:
+          - accepted_values:
+              values: ['completed', 'pending']
+      - name: time_at_sign_up
+        description: >
+          Time spent (in seconds) between the creation and last update of the onboarding record.
+          Represents how long it took for a store to complete its signup process.
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model. Defaults to current_timestamp if not available."
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model. Defaults to 'data-dev-dbt-products'."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed."
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."

@@ -9,7 +9,7 @@
         , 'google_subchannel', 'traffic_type', 'is_end_user', 'storefront'],
    partition_by = 'base_date',
    on_schema_change = 'fail',
-   tags = ['daily-4am']
+   tags = ['daily-2am']
 ) }}
 
 WITH base_data AS (
@@ -17,17 +17,6 @@ SELECT
     *
 FROM
     {{ ref('_int_product__session_agg_prep')}}
-WHERE
-    {% if not is_incremental() %}
-    base_date BETWEEN DATE('2024-01-01') AND DATE('2024-01-05')
-    {% else %}
-    {% set interval = get_max_date(this, 'base_date', 2, 'week') %}
-    {% set min_date_raw = interval.split(' ')[1] %}
-    {% set min_date = min_date_raw %}
-    {% set max_date = interval.split(' ')[-1] %}
-    {% set s_start_date = "DATE_ADD(DAY, -31, " ~ min_date ~ ")" %}
-    base_date BETWEEN {{ s_start_date }} AND {{ max_date }}
-    {% endif %}
 )
 
 , dedup_data AS (

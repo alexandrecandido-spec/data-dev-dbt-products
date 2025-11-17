@@ -14,6 +14,7 @@
       WHERE d.sys_audit_is_deleted = 1
         AND d.repo_name   = {{ this }}.repo_name
         AND d.issue_number = {{ this }}.issue_number
+        AND is_latest_by_repo_and_number = TRUE
     );
     ",
       "
@@ -24,6 +25,7 @@
         WHERE d.sys_audit_is_deleted = 1
           AND d.repo_name   = {{ this }}.repo_name
           AND d.issue_number = {{ this }}.issue_number
+          AND is_latest_by_repo_and_number = TRUE
     );
       "]
   ) 
@@ -36,7 +38,7 @@ WITH issues AS (
     AND is_latest_by_repo_and_number = TRUE
   {% if is_incremental() %}
   AND sys_audit_updated_on > (
-    SELECT COALESCE(MAX(sys_audit_updated_on), TIMESTAMP('1900-01-01 00:00:00')) - INTERVAL 24 HOURS
+    SELECT COALESCE(MAX(sys_audit_updated_on), TIMESTAMP('1900-01-01 00:00:00')) - INTERVAL 1 HOURS
     FROM {{ this }}
   )
   {% endif %}
@@ -47,7 +49,7 @@ comments AS (
   WHERE COALESCE(sys_audit_is_deleted, 0) != 1
   {% if is_incremental() %}
   AND sys_audit_updated_on > (
-    SELECT COALESCE(MAX(sys_audit_updated_on), TIMESTAMP('1900-01-01 00:00:00')) - INTERVAL 24 HOURS
+    SELECT COALESCE(MAX(sys_audit_updated_on), TIMESTAMP('1900-01-01 00:00:00')) - INTERVAL 1 HOURS
     FROM {{ this }}
   )
   {% endif %}

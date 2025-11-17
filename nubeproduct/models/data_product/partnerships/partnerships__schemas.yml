@@ -52,9 +52,9 @@ models:
         description: "Timestamp of the most recent change across all partner input sources."
       - name: input_sources_partners
         description: "Comma-separated list of input sources that have data for this partner."
-      - name: partner_team
+      - name: partner_exception_team
         description: "Team responsible for managing the partner."
-      - name: partner_subteam
+      - name: partner_exception_subteam
         description: "Subteam responsible for managing the partner."
       - name: fraude
         description: "Fraud indicator flag for the partner."

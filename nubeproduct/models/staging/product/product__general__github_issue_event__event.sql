@@ -35,5 +35,5 @@ SELECT
 FROM {{ source('stg_third_party', 'product_github_issues_events') }} source
 LEFT JOIN existing_data e ON source.id = e.id
 {% if is_incremental() %}
-    WHERE source.sys_audit_updated_on > (SELECT COALESCE(MAX(sys_audit_updated_on), '1900-01-01 00:00:00'::timestamp) - INTERVAL 24 HOUR FROM {{ this }})
+    WHERE source.sys_audit_updated_on > (SELECT COALESCE(MAX(sys_audit_updated_on), '1900-01-01 00:00:00'::timestamp) - INTERVAL 1 HOUR FROM {{ this }})
 {% endif %}
