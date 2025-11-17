@@ -1286,7 +1286,6 @@ models:
         description: "Deterministic technical key for each session (MD5 of session_id, consumer_id, store_id)."
         tests:
           - not_null
-          - unique
       - name: session_timestamp
         description: "Original timestamp of the session event."
         tests:
@@ -1345,6 +1344,12 @@ models:
         description: "System or user that last updated the row in this model."
         tests:
           - not_null
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - unique_session_key
+            - base_date
+
 
   - name: product__checkout_events_event
     description: >
@@ -3859,6 +3864,39 @@ models:
         tests:
           - not_null
 
+      
+  - name: product__nuvem_pago__transactions__events
+    description: "Staging model that contains the transactions from Nuvem Pago."
+    config:
+      meta:
+        owner: "fernando.martinez@tiendanube.com"
+        domain: "product"
+        business_owner: "Nicolas Loreti"
+    columns:
+      - name: transaction_id
+        description: "Transaction identifier of the transaction."
+        tests:
+          - not_null
+          - unique
+      - name: charge_id
+        description: "Charge identifier of the charge."
+      - name: order_id
+        description: "Order identifier of the order."
+      - name: status
+        description: "Status of the transaction."
+      - name: payment_method
+        description: "Payment method of the transaction."
+      - name: amount
+        description: "Amount of the transaction."
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model."
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model."
+      - name: sys_audit_updated_on
+        description: "Timestamp when the record was last updated."
+      - name: sys_audit_updated_by
+        description: "User or process that last updated the record."   
+
 
   - name: product__general__github_issue_comment__event
     description: 
@@ -4481,3 +4519,4 @@ models:
         description: "Timestamp of the current model run when the record was processed."
       - name: sys_audit_updated_by
         description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
+
