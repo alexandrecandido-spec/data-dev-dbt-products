@@ -82,6 +82,8 @@ sources:
         description: "Fulfillments associated with an order."
       - name: mwp_orders_logging
         description: "Logs associated with orders (changes in fulfillment status, payment status etc)"
+      - name: order_money_flows
+        description: "Money flows associated with orders"
 
 
   - name: stg_nuvem_credito

@@ -12,6 +12,7 @@
 WITH source AS (
     SELECT 
         id,
+        order_id,
         created_at AS created_at,
         started_checkout AS started_checkout_at, 
         completed_contact AS completed_contact_at, 
@@ -67,6 +68,7 @@ existing_data AS (
 
 SELECT 
     source.id,
+    source.order_id,
     created_at,
     started_checkout_at, 
     completed_contact_at, 
