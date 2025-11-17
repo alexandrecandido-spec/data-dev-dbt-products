@@ -9,9 +9,6 @@
     partition_by = 'base_date',
     on_schema_change = 'fail',
     tags = ['product', 'daily-2am'],
-    pre_hook = [
-        "DELETE FROM {{ this }} WHERE base_date BETWEEN DATE('2024-10-13') AND DATE('2024-12-19')"
-    ]
 ) }}
 
 WITH raw_sessions AS (
@@ -40,7 +37,7 @@ WHERE
     {% if not is_incremental() %}
     TO_DATE(date_id, 'yyyyMMdd') BETWEEN DATE('2024-01-01') AND DATE('2024-01-05')
     {% else %}
-    TO_DATE(date_id, 'yyyyMMdd') BETWEEN DATE('2024-10-13') AND DATE('2024-12-19')
+    TO_DATE(date_id, 'yyyyMMdd') {{ get_max_date(this, 'base_date', 1, 'week') }}
     {% endif %}
 )
 
