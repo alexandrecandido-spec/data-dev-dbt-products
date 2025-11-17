@@ -37,7 +37,7 @@ Spec:
 ⚠️ NOTAS:
    - Este modelo consume de múltiples data products existentes
    - Algunas secciones pueden requerir ajustes según disponibilidad de datos
-   - Tags de onboarding se consumen desde stg_moltres.mwp_tags (staging source) siguiendo arquitectura raw → staging → silver → gold
+   - Tags de onboarding se consumen desde int_stg_moltres.mwp_tags (intermediate source) siguiendo arquitectura raw → staging → intermediate → silver → gold
 */
 
 WITH existing_data AS (
@@ -136,7 +136,7 @@ stores_with_changes AS (
         -- Cambios en tags de onboarding
         -- Nota: usar sys_audit_updated_on si existe, sino usar created como proxy
         SELECT DISTINCT CAST(related_id AS BIGINT) AS store_id
-        FROM {{ source('stg_moltres', 'mwp_tags') }}
+        FROM {{ source('int_stg_moltres', 'mwp_tags') }}
         WHERE tag IN ('new-admin-onboarding-202411-a', 'new-admin-onboarding-202411-b')
         AND COALESCE(
             CAST(sys_audit_updated_on AS TIMESTAMP),
@@ -345,7 +345,7 @@ onboarding_tags AS (
     SELECT 
         CAST(related_id AS BIGINT) AS store_id,
         tag AS onboarding_tag
-    FROM {{ source('stg_moltres', 'mwp_tags') }}
+    FROM {{ source('int_stg_moltres', 'mwp_tags') }}
     WHERE tag IN ('new-admin-onboarding-202411-a', 'new-admin-onboarding-202411-b')
 ),
 
