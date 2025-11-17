@@ -4785,3 +4785,35 @@ models:
       - name: paid_orders
         description: amount of paid orders.
 
+  - name: s__onboarding__questionnaire_status__ref
+    description: >
+      "Silver layer model that contains information on onboardding status and calculates the total time (in seconds) 
+      between the creation and the last update of a stores onboarding record."
+    config:
+      meta:
+        owner: "ynara.oliveira@nuvemshop.com.br"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: store_id
+        description: "Unique identifier of the store associated with the onboarding record."
+        tests:
+          - not_null
+          - unique
+      - name: signup_status
+        description: "Current status of the stores signup process."
+        tests:
+          - accepted_values:
+              values: ['completed', 'pending']
+      - name: time_at_sign_up
+        description: >
+          Time spent (in seconds) between the creation and last update of the onboarding record.
+          Represents how long it took for a store to complete its signup process.
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model. Defaults to current_timestamp if not available."
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model. Defaults to 'data-dev-dbt-products'."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed."
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
