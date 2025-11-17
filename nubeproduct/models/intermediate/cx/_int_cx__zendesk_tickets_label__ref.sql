@@ -38,13 +38,13 @@ SELECT
   submitter_id,
   type,
   get_json_object(via, '$.channel') AS via_channel,
-  element_at(
+  lower(element_at(
   filter(
     from_json(custom_fields, 'array<struct<id: BIGINT, value: STRING>>'),
     x -> x.id = 9470656687892       -- ← el ID que buscás (numérico)
   ),
   1
-  ).value AS is_partner,
+  ).value) AS is_partner,
     element_at(
   filter(
     from_json(custom_fields, 'array<struct<id: BIGINT, value: STRING>>'),
@@ -154,3 +154,6 @@ SELECT
   ELSE NULL
 END AS sla_min 
 FROM raw_tickets
+WHERE status != 'deleted'
+  AND is_spam = FALSE
+  AND is_test = FALSE
