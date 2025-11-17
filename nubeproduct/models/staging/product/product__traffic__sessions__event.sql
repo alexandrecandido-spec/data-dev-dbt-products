@@ -1,9 +1,17 @@
 {{ config(
     materialized = 'incremental',
-    unique_key = 'unique_session_key',
+    incremental_strategy = 'merge',
+    incremental_predicates = [
+        'DBT_INTERNAL_SOURCE.base_date = DBT_INTERNAL_DEST.base_date',
+        'DBT_INTERNAL_SOURCE.unique_session_key = DBT_INTERNAL_DEST.unique_session_key'
+    ],
+    unique_key = ['unique_session_key', 'base_date'],
     partition_by = 'base_date',
     on_schema_change = 'fail',
-    tags = ['product', 'daily-2am']
+    tags = ['product', 'daily-2am'],
+    pre_hook = [
+        "DELETE FROM {{ this }} WHERE base_date BETWEEN DATE('2024-10-13') AND DATE('2024-12-19')"
+    ]
 ) }}
 
 WITH raw_sessions AS (
@@ -26,13 +34,13 @@ SELECT
     , NULLIF(LOWER(utm_content), '')  AS utm_content
     , NULLIF(LOWER(landing_page), '') AS landing_page
     , NULLIF(LOWER(http_referral), '') AS http_referral
-FROM
+FROM 
     {{ source('stg_storefronts', 'sessions') }}
-WHERE 
+WHERE
     {% if not is_incremental() %}
     TO_DATE(date_id, 'yyyyMMdd') BETWEEN DATE('2024-01-01') AND DATE('2024-01-05')
     {% else %}
-    TO_DATE(date_id, 'yyyyMMdd') {{ get_max_date(this, 'base_date', 1, 'month') }}
+    TO_DATE(date_id, 'yyyyMMdd') BETWEEN DATE('2024-10-13') AND DATE('2024-12-19')
     {% endif %}
 )
 
@@ -44,41 +52,33 @@ FROM (
         *
         , ROW_NUMBER() OVER (PARTITION BY unique_session_key ORDER BY session_timestamp ASC) AS row_num
     FROM raw_sessions
-) sub
-WHERE row_num = 1
-)
-
-, existing_data AS (
-    {{ get_existing_data(this, ['unique_session_key'])}}
+) AS sub
+WHERE 
+    row_num = 1
 )
 
 SELECT
-    dds.unique_session_key
-    , dds.session_timestamp
-    , dds.base_date
-    , dds.session_id
-    , dds.consumer_id
-    , dds.store_id
-    , dds.visitor_country
-    , dds.device
-    , dds.theme
-    , dds.user_agent
-    , dds.ip_address
-    , dds.utm_source
-    , dds.utm_medium
-    , dds.utm_campaign
-    , dds.utm_term
-    , dds.utm_content
-    , dds.landing_page
-    , dds.http_referral
+    unique_session_key
+    , session_timestamp
+    , base_date
+    , session_id
+    , consumer_id
+    , store_id
+    , visitor_country
+    , device
+    , theme
+    , user_agent
+    , ip_address
+    , utm_source
+    , utm_medium
+    , utm_campaign
+    , utm_term
+    , utm_content
+    , landing_page
+    , http_referral
     , CURRENT_TIMESTAMP AS sys_audit_created_on
     , 'data-dev-dbt-products' AS sys_audit_created_by
     , CURRENT_TIMESTAMP AS sys_audit_updated_on
     , 'data-dev-dbt-products' AS sys_audit_updated_by
-FROM
-    deduped_sessions AS dds
-LEFT JOIN
-    existing_data
-    ON dds.unique_session_key = existing_data.unique_session_key
-WHERE
-    existing_data.unique_session_key IS NULL
+FROM 
+    deduped_sessions

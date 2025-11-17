@@ -698,3 +698,64 @@ models:
         description: "Timestamp when the row was last updated."
       - name: sys_audit_updated_by
         description: "System or user that last updated the row."
+
+  - name: s__general__zendesk_assignment__event
+    description: >
+      Interval-level table that tracks assignee and group intervals per Zendesk ticket.
+      Each row represents a continuous period during which the assignee_id remains the same.
+      The group_id captured is the value in effect at the start of the interval. Before the
+      first assignment, the table uses -1 as a sentinel value.
+    meta:
+      domain: "cx"
+      owner: "valeria.nascimento@nuvemshop.com.br"
+      business_owner: "Operations"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ticket_id
+            - assignment_start_time
+    columns:
+      - name: ticket_id
+        description: "Unique identifier of the ticket in Zendesk."
+        tests:
+          - not_null
+      - name: assignee_id
+        description: "Assignee responsible for the ticket during the interval. Uses -1 when no assignee existed at that point."
+        tests:
+          - not_null
+      - name: assignment_type
+        description: "User role/type for the assignee at the time of the interval; falls back to 'Not Informed' if unknown."
+        tests:
+          - not_null
+      - name: guru_name
+        description: "Display name of the assignee; falls back to 'Not Informed' if unknown."
+        tests:
+          - not_null
+      - name: group_id
+        description: "Zendesk group associated with the ticket at the start of the interval. Uses -1 when unknown."
+        tests:
+          - not_null
+      - name: assignment_start_time
+        description: "UTC timestamp when this assignee interval starts (inclusive)."
+        tests:
+          - not_null
+      - name: assignment_end_time
+        description: "UTC timestamp when this assignee interval ends (exclusive). Uses 2100-01-31 00:00:00 as sentinel for open intervals."
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created by the dbt process."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "System or user that created the row (usually the dbt job user)."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp of the most recent update to the row by the dbt process."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row (usually the dbt job user)."
+        tests:
+          - not_null

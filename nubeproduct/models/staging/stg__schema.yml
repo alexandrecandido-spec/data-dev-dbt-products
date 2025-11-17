@@ -1286,7 +1286,6 @@ models:
         description: "Deterministic technical key for each session (MD5 of session_id, consumer_id, store_id)."
         tests:
           - not_null
-          - unique
       - name: session_timestamp
         description: "Original timestamp of the session event."
         tests:
@@ -1345,6 +1344,12 @@ models:
         description: "System or user that last updated the row in this model."
         tests:
           - not_null
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - unique_session_key
+            - base_date
+
 
   - name: product__checkout_events_event
     description: >
@@ -3858,3 +3863,660 @@ models:
         description: "MD5 hash of determinative content plus mapping fields (used for CDC/merge)."
         tests:
           - not_null
+
+      
+  - name: product__nuvem_pago__transactions__events
+    description: "Staging model that contains the transactions from Nuvem Pago."
+    config:
+      meta:
+        owner: "fernando.martinez@tiendanube.com"
+        domain: "product"
+        business_owner: "Nicolas Loreti"
+    columns:
+      - name: transaction_id
+        description: "Transaction identifier of the transaction."
+        tests:
+          - not_null
+          - unique
+      - name: charge_id
+        description: "Charge identifier of the charge."
+      - name: order_id
+        description: "Order identifier of the order."
+      - name: status
+        description: "Status of the transaction."
+      - name: payment_method
+        description: "Payment method of the transaction."
+      - name: amount
+        description: "Amount of the transaction."
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model."
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model."
+      - name: sys_audit_updated_on
+        description: "Timestamp when the record was last updated."
+      - name: sys_audit_updated_by
+        description: "User or process that last updated the record."   
+
+
+  - name: product__general__github_issue_comment__event
+    description: 
+      "Event table with GitHub **issue comments** pulled from the `stg_third_party.product_github_issues_comments`
+      staging source. One row per comment (`id`). The model is **incremental** (merge on `id`) and ingests
+      only rows whose `source.sys_audit_updated_on` is within the last 1 hours relative to the latest loaded
+      record. System audit fields track creation, updates and soft-deletes."
+    config:
+      meta:
+        owner: "fabricio.crivella@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: url
+        description: "API URL of the GitHub comment resource."
+      - name: html_url
+        description: "Web URL of the GitHub comment page."
+      - name: id
+        description: "Primary key of the GitHub comment (bigint). Merge key for the incremental model."
+        tests:
+          - not_null
+          - unique
+      - name: node_id
+        description: "Global GraphQL node identifier for the comment."
+        tests:
+          - not_null
+      - name: user_login
+        description: "GitHub login (username) of the author of the comment."
+      - name: created_at
+        description: "UTC timestamp when the comment was created on GitHub."
+        tests:
+          - not_null
+      - name: updated_at
+        description: "UTC timestamp of the latest update to the comment on GitHub."
+        tests:
+          - not_null
+      - name: body
+        description: "Markdown text body of the comment."
+      - name: number
+        description: "Issue number to which this comment belongs."
+        tests:
+          - not_null
+      - name: repo_name
+        description: "Repository label for the source repo. Fixed to 'issues' in this model."
+        tests:
+          - not_null
+      - name: sys_audit_is_deleted
+        description: "Soft-delete flag propagated from source. True when the record is considered deleted."
+      - name: sys_audit_deleted_on
+        description: "Timestamp when the record was soft-deleted (if applicable)."
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was first inserted into this model (defaults to now for new rows)."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "Actor/system that first created the row in this model (defaults to 'data-dev-dbt-products')."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this model."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "Actor/system that last updated the row in this model (fixed to 'data-dev-dbt-products')."
+        tests:
+          - not_null
+
+
+  - name: product__general__github_problem_comment__event
+    description: 
+      "Event table with GitHub **problems comments** pulled from the `stg_third_party.product_github_problems_comments`
+      staging source. One row per comment (`id`). The model is **incremental** (merge on `id`) and ingests
+      only rows whose `source.sys_audit_updated_on` is within the last 1 hours relative to the latest loaded
+      record. System audit fields track creation, updates and soft-deletes."
+    config:
+      meta:
+        owner: "fabricio.crivella@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: url
+        description: "API URL of the GitHub comment resource."
+      - name: html_url
+        description: "Web URL of the GitHub comment page."
+      - name: id
+        description: "Primary key of the GitHub comment (bigint). Merge key for the incremental model."
+        tests:
+          - not_null
+          - unique
+      - name: node_id
+        description: "Global GraphQL node identifier for the comment."
+        tests:
+          - not_null
+      - name: user_login
+        description: "GitHub login (username) of the author of the comment."
+      - name: created_at
+        description: "UTC timestamp when the comment was created on GitHub."
+        tests:
+          - not_null
+      - name: updated_at
+        description: "UTC timestamp of the latest update to the comment on GitHub."
+        tests:
+          - not_null
+      - name: body
+        description: "Markdown text body of the comment."
+      - name: number
+        description: "Issue number to which this comment belongs."
+        tests:
+          - not_null
+      - name: repo_name
+        description: "Repository label for the source repo. Fixed to 'issues' in this model."
+        tests:
+          - not_null
+      - name: sys_audit_is_deleted
+        description: "Soft-delete flag propagated from source. True when the record is considered deleted."
+      - name: sys_audit_deleted_on
+        description: "Timestamp when the record was soft-deleted (if applicable)."
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was first inserted into this model (defaults to now for new rows)."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "Actor/system that first created the row in this model (defaults to 'data-dev-dbt-products')."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this model."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "Actor/system that last updated the row in this model (fixed to 'data-dev-dbt-products')."
+        tests:
+          - not_null
+
+
+  - name: product__general__github_issue_event__event
+    description: 
+      "Event table with GitHub **issue events** pulled from the
+      `stg_third_party.product_github_issues_events` staging source.
+      One row per event (`id`). The model is **incremental** (merge on `id`)
+      and ingests only rows whose `source.sys_audit_updated_on` are within the
+      last 1 hours relative to the latest loaded record. System audit fields
+      track creation, updates, and soft-deletes."
+    config:
+      meta:
+        owner: "fabricio.crivella@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: id
+        description: "Primary key of the GitHub issue event (bigint). Merge key for the incremental model."
+        tests:
+          - not_null
+          - unique
+      - name: actor_login
+        description: "GitHub login (username) of the actor who triggered the event."
+      - name: actor_id
+        description: "Numeric GitHub user id of the actor (bigint)."
+      - name: event
+        description: "Event type (e.g., opened, closed, labeled, assigned, renamed, milestoned, etc.)."
+        tests:
+          - not_null
+      - name: created_at
+        description: "UTC timestamp when the event occurred on GitHub."
+        tests:
+          - not_null
+      - name: label_name
+        description: "Name of the label involved in the event, if applicable (for labeled/unlabeled events)."
+      - name: number
+        description: "Issue number associated with this event."
+        tests:
+          - not_null
+      - name: repo_name
+        description: "Repository label for the source repo. Fixed to 'issues' in this model."
+        tests:
+          - not_null
+      - name: state_reason
+        description: "Reason associated with a state change (e.g., completed, not_planned) when provided by GitHub."
+      - name: assignee_login
+        description: "GitHub login of the assignee involved in the event, if applicable."
+      - name: rename_from
+        description: "Previous issue title (for rename events), if applicable."
+      - name: rename_to
+        description: "New issue title (for rename events), if applicable."
+      - name: milestone_title
+        description: "Milestone title involved in the event, if applicable."
+      - name: sys_audit_is_deleted
+        description: "Soft-delete flag propagated from the source indicating logical deletion."
+      - name: sys_audit_deleted_on
+        description: "Timestamp when the record was logically deleted (if applicable)."
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was first inserted into this model (defaults to now for new rows)."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "Actor/system that first created the row in this model (defaults to 'data-dev-dbt-products')."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this model."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "Actor/system that last updated the row in this model (fixed to 'data-dev-dbt-products')."
+        tests:
+          - not_null
+
+
+  - name: product__general__github_problem_event__event
+    description: 
+      "Event table with GitHub **problems events** pulled from the
+      `stg_third_party.product_github_problems_events` staging source.
+      One row per event (`id`). The model is **incremental** (merge on `id`)
+      and ingests only rows whose `source.sys_audit_updated_on` are within the
+      last 1 hours relative to the latest loaded record. System audit fields
+      track creation, updates, and soft-deletes."
+    config:
+      meta:
+        owner: "fabricio.crivella@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: id
+        description: "Primary key of the GitHub problem event (bigint). Merge key for the incremental model."
+        tests:
+          - not_null
+          - unique
+      - name: actor_login
+        description: "GitHub login (username) of the actor who triggered the event."
+      - name: actor_id
+        description: "Numeric GitHub user id of the actor (bigint)."
+      - name: event
+        description: "Event type (e.g., opened, closed, labeled, assigned, renamed, milestoned, etc.)."
+        tests:
+          - not_null
+      - name: created_at
+        description: "UTC timestamp when the event occurred on GitHub."
+        tests:
+          - not_null
+      - name: label_name
+        description: "Name of the label involved in the event, if applicable (for labeled/unlabeled events)."
+      - name: number
+        description: "Issue number associated with this event."
+        tests:
+          - not_null
+      - name: repo_name
+        description: "Repository label for the source repo. Fixed to 'issues' in this model."
+        tests:
+          - not_null
+      - name: state_reason
+        description: "Reason associated with a state change (e.g., completed, not_planned) when provided by GitHub."
+      - name: assignee_login
+        description: "GitHub login of the assignee involved in the event, if applicable."
+      - name: rename_from
+        description: "Previous issue title (for rename events), if applicable."
+      - name: rename_to
+        description: "New issue title (for rename events), if applicable."
+      - name: milestone_title
+        description: "Milestone title involved in the event, if applicable."
+      - name: sys_audit_is_deleted
+        description: "Soft-delete flag propagated from the source indicating logical deletion."
+      - name: sys_audit_deleted_on
+        description: "Timestamp when the record was logically deleted (if applicable)."
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was first inserted into this model (defaults to now for new rows)."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "Actor/system that first created the row in this model (defaults to 'data-dev-dbt-products')."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this model."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "Actor/system that last updated the row in this model (fixed to 'data-dev-dbt-products')."
+        tests:
+          - not_null
+
+
+  - name: product__general__github_issue_label__link
+    description: 
+      "Link table between **GitHub issues** and their **labels**, sourced from
+      `stg_third_party.product_github_issues`. One row per (issue `id`, `labels_name`)
+      pair. The model is **incremental** (merge on `[id, labels_name]`) and reads only
+      rows whose `sys_audit_updated_on` are within 1 hours of the latest loaded
+      record. Source rows are deduplicated to keep the most recent extract per
+      `(id, labels_name)` and include a helper flag `is_latest_by_repo_and_number`.
+      Blank/missing label names are normalized to `__no_label__`. System audit
+      fields track creation, updates, and soft-deletes."
+    config:
+      meta:
+        owner: "fabricio.crivella@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: ["id", "labels_name"]
+    columns:
+      - name: id
+        description: "Primary key of the GitHub issue (bigint). Part of the composite merge key."
+        tests:
+          - not_null
+      - name: node_id
+        description: "Global GraphQL node identifier for the issue."
+      - name: issue_number
+        description: "Issue number within the repository (int)."
+        tests:
+          - not_null
+      - name: title
+        description: "Issue title at the time of extraction."
+      - name: user_login
+        description: "GitHub login (username) of the issue author."
+      - name: state
+        description: "Issue state (e.g., open, closed)."
+      - name: state_reason
+        description: "Reason for the current state, when provided by GitHub (e.g., completed, not_planned)."
+      - name: body
+        description: "Markdown body/description of the issue."
+      - name: created_at
+        description: "UTC timestamp when the issue was created."
+        tests:
+          - not_null
+      - name: updated_at
+        description: "UTC timestamp of the latest update to the issue."
+        tests:
+          - not_null
+      - name: closed_at
+        description: "UTC timestamp when the issue was closed, if applicable."
+      - name: url
+        description: "API URL of the issue resource."
+      - name: html_url
+        description: "Web URL of the issue page."
+      - name: comments_url
+        description: "API URL to retrieve comments for the issue."
+      - name: events_url
+        description: "API URL to retrieve events for the issue."
+      - name: repo_name
+        description: "Repository label for the source repo. Fixed to 'issues' in this model."
+        tests:
+          - not_null
+      - name: comments
+        description: "Number of comments on the issue (int)."
+      - name: locked
+        description: "Boolean flag indicating whether the conversation is locked."
+      - name: active_lock_reason
+        description: "Reason provided by GitHub when the issue is locked."
+      - name: assignee_id
+        description: "Numeric GitHub user id for the assignee (bigint), if present."
+      - name: assignee_login
+        description: "GitHub login of the assignee."
+      - name: assignee_url
+        description: "API URL of the assignee resource."
+      - name: assignee_type
+        description: "Assignee entity type (e.g., User, Bot)."
+      - name: milestone_id
+        description: "Milestone id (bigint), if the issue is assigned to a milestone."
+      - name: milestone_node_id
+        description: "GraphQL node id of the milestone."
+      - name: milestone_number
+        description: "Milestone number (int)."
+      - name: milestone_html_url
+        description: "Web URL of the milestone page."
+      - name: milestone_title
+        description: "Milestone title."
+      - name: milestone_description
+        description: "Milestone description."
+      - name: milestone_state
+        description: "Milestone state (e.g., open, closed)."
+      - name: milestone_created_at
+        description: "UTC timestamp when the milestone was created."
+      - name: milestone_updated_at
+        description: "UTC timestamp when the milestone was last updated."
+      - name: milestone_due_on
+        description: "UTC due date for the milestone, if defined."
+      - name: milestone_closed_at
+        description: "UTC timestamp when the milestone was closed, if applicable."
+      - name: labels_id
+        description: "Label id (bigint) associated with the issue, if available."
+      - name: labels_name
+        description: >
+          Label name normalized for null/blank values. When missing/blank/invalid,
+          it is set to `__no_label__`. Part of the composite merge key.
+        tests:
+          - not_null
+      - name: labels_description
+        description: "Label description text, if provided."
+      - name: labels_color
+        description: "Label color string (hex without '#', as returned by GitHub)."
+      - name: is_latest_by_repo_and_number
+        description: >
+          True when this row belongs to the most recent extraction for the same
+          (`repo_name`, `issue_number`) based on `sys_audit_extracted_on`.
+      - name: sys_audit_extracted_on
+        description: "Timestamp when the row was extracted from the source system."
+        tests:
+          - not_null
+      - name: sys_audit_is_deleted
+        description: "Soft-delete flag propagated from source indicating logical deletion."
+      - name: sys_audit_deleted_on
+        description: "Timestamp when the record was logically deleted (if applicable)."
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was first inserted into this model (defaults to now for new rows)."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "Actor/system that first created the row in this model (defaults to 'data-dev-dbt-products')."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this model."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "Actor/system that last updated the row in this model (fixed to 'data-dev-dbt-products')."
+        tests:
+          - not_null
+
+  - name: product__general__github_problem_label__link
+    description: 
+      "Link table between **GitHub problems** and their **labels**, sourced from
+      `stg_third_party.product_github_problems`. One row per (problem `id`, `labels_name`)
+      pair. The model is **incremental** (merge on `[id, labels_name]`) and reads only
+      rows whose `sys_audit_updated_on` are within 1 hours of the latest loaded
+      record. Source rows are deduplicated to keep the most recent extract per
+      `(id, labels_name)` and include a helper flag `is_latest_by_repo_and_number`.
+      Blank/missing label names are normalized to `__no_label__`. System audit
+      fields track creation, updates, and soft-deletes."
+    config:
+      meta:
+        owner: "fabricio.crivella@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: ["id", "labels_name"]
+    columns:
+      - name: id
+        description: "Primary key of the GitHub issue (bigint). Part of the composite merge key."
+        tests:
+          - not_null
+      - name: node_id
+        description: "Global GraphQL node identifier for the issue."
+      - name: issue_number
+        description: "Issue number within the repository (int)."
+        tests:
+          - not_null
+      - name: title
+        description: "Issue title at the time of extraction."
+      - name: user_login
+        description: "GitHub login (username) of the issue author."
+      - name: state
+        description: "Issue state (e.g., open, closed)."
+      - name: state_reason
+        description: "Reason for the current state, when provided by GitHub (e.g., completed, not_planned)."
+      - name: body
+        description: "Markdown body/description of the issue."
+      - name: created_at
+        description: "UTC timestamp when the issue was created."
+        tests:
+          - not_null
+      - name: updated_at
+        description: "UTC timestamp of the latest update to the issue."
+        tests:
+          - not_null
+      - name: closed_at
+        description: "UTC timestamp when the issue was closed, if applicable."
+      - name: url
+        description: "API URL of the issue resource."
+      - name: html_url
+        description: "Web URL of the issue page."
+      - name: comments_url
+        description: "API URL to retrieve comments for the issue."
+      - name: events_url
+        description: "API URL to retrieve events for the issue."
+      - name: repo_name
+        description: "Repository label for the source repo. Fixed to 'issues' in this model."
+        tests:
+          - not_null
+      - name: comments
+        description: "Number of comments on the issue (int)."
+      - name: locked
+        description: "Boolean flag indicating whether the conversation is locked."
+      - name: active_lock_reason
+        description: "Reason provided by GitHub when the issue is locked."
+      - name: assignee_id
+        description: "Numeric GitHub user id for the assignee (bigint), if present."
+      - name: assignee_login
+        description: "GitHub login of the assignee."
+      - name: assignee_url
+        description: "API URL of the assignee resource."
+      - name: assignee_type
+        description: "Assignee entity type (e.g., User, Bot)."
+      - name: milestone_id
+        description: "Milestone id (bigint), if the issue is assigned to a milestone."
+      - name: milestone_node_id
+        description: "GraphQL node id of the milestone."
+      - name: milestone_number
+        description: "Milestone number (int)."
+      - name: milestone_html_url
+        description: "Web URL of the milestone page."
+      - name: milestone_title
+        description: "Milestone title."
+      - name: milestone_description
+        description: "Milestone description."
+      - name: milestone_state
+        description: "Milestone state (e.g., open, closed)."
+      - name: milestone_created_at
+        description: "UTC timestamp when the milestone was created."
+      - name: milestone_updated_at
+        description: "UTC timestamp when the milestone was last updated."
+      - name: milestone_due_on
+        description: "UTC due date for the milestone, if defined."
+      - name: milestone_closed_at
+        description: "UTC timestamp when the milestone was closed, if applicable."
+      - name: labels_id
+        description: "Label id (bigint) associated with the issue, if available."
+      - name: labels_name
+        description: >
+          Label name normalized for null/blank values. When missing/blank/invalid,
+          it is set to `__no_label__`. Part of the composite merge key.
+        tests:
+          - not_null
+      - name: labels_description
+        description: "Label description text, if provided."
+      - name: labels_color
+        description: "Label color string (hex without '#', as returned by GitHub)."
+      - name: is_latest_by_repo_and_number
+        description: >
+          True when this row belongs to the most recent extraction for the same
+          (`repo_name`, `issue_number`) based on `sys_audit_extracted_on`.
+      - name: sys_audit_extracted_on
+        description: "Timestamp when the row was extracted from the source system."
+        tests:
+          - not_null
+      - name: sys_audit_is_deleted
+        description: "Soft-delete flag propagated from source indicating logical deletion."
+      - name: sys_audit_deleted_on
+        description: "Timestamp when the record was logically deleted (if applicable)."
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was first inserted into this model (defaults to now for new rows)."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "Actor/system that first created the row in this model (defaults to 'data-dev-dbt-products')."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this model."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "Actor/system that last updated the row in this model (fixed to 'data-dev-dbt-products')."
+        tests:
+          - not_null
+
+  - name: product__coupon__discount_coupons__event
+    description: "Event table with discount coupons from merchants"
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: coupon_id
+        description: "Primary key of the discount coupon"
+        tests:
+          - not_null
+          - unique
+      - name: store_id
+        description: "Store id"
+        tests:
+          - not_null
+      - name: coupon_code
+        description: "Code of the discount coupon"
+        tests:
+          - not_null
+      - name: coupon_type
+        description: "Type of the discount coupon (percentage, absolute)"
+      - name: coupon_valid
+        description: "Validity of the discount coupon (true, false)"
+      - name: coupon_start_date
+        description: "Start date of the discount coupon"
+      - name: coupon_used
+        description: "Has discount coupon been used?"
+      - name: coupon_max_uses
+        description: "Max uses of the discount coupon"
+      - name: coupon_end_date
+        description: "End date of the discount coupon"
+      - name: coupon_deleted_at
+        description: "Deleted date of the discount coupon"
+      - name: coupon_value
+        description: "Value of the discount coupon"
+      - name: coupon_restrictions
+        description: "Restriction of the discount coupon"
+      - name: coupon_apply_total_amount
+        description: "Apply total amount of the discount coupon"
+      - name: coupon_created_at
+        description: "Created date of the discount coupon"
+      - name: coupon_updated_at
+        description: "Updated date of the discount coupon"
+      - name: coupon_created_by_app_id
+        description: "App id of the app the coupon was created from"
+      - name: coupon_first_consumer_purchase
+        description: "If the coupon is only valid for the first consumer purchase"
+      - name: coupon_max_uses_per_client
+        description: "Max uses per client of the discount coupon"
+      - name: coupon_combines_with_other_discounts
+        description: "If the coupon can be used with other discounts"
+      - name: coupon_only_cheapest_shipping
+        description: "If the coupon is only valid for the cheapest shipping"
+      - name: year_month_day_code
+        description: "Year month day code"
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model. Defaults to current_timestamp if not available."
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model. Defaults to 'data-dev-dbt-products'."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed."
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
+
