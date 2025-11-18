@@ -309,13 +309,14 @@ facebook_capi_max_ts AS (
 ),
 
 twofa_max_ts AS (
+    -- Nota: authentication_factors no tiene columnas de timestamp, por lo que solo usamos wp_users
+    -- Los cambios en authentication_factors se detectarán cuando cambien los wp_users asociados
     SELECT COALESCE(
-        MAX(GREATEST(
-            COALESCE((SELECT MAX(sys_audit_updated_on) FROM {{ source('int_moltres', 'wp_users') }} WHERE deleted = 0), CAST('1900-01-01' AS TIMESTAMP)),
-            COALESCE((SELECT MAX(COALESCE(sys_audit_updated_on, created, CAST('1900-01-01' AS TIMESTAMP))) FROM `hive_metastore`.`newadmin`.`authentication_factors` WHERE enabled = 1 AND type = 'TOTP'), CAST('1900-01-01' AS TIMESTAMP))
-        )),
+        MAX(sys_audit_updated_on),
         CAST('1900-01-01' AS TIMESTAMP)
     ) AS max_audit
+    FROM {{ source('int_moltres', 'wp_users') }}
+    WHERE deleted = 0
 ),
 
 social_ads_max_ts AS (
