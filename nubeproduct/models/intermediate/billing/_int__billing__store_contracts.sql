@@ -30,7 +30,7 @@ base AS (
     FROM {{ ref('billing__contracts__store_contract__scd') }} c
     LEFT JOIN {{ ref('s__general__grouping_plans__ref') }} p on p.plan = c.plan_id
     LEFT JOIN tags_info t on t.store_id = c.store_id
-    INNER JOIN {{ ref('s__attributes__store_core__ref') }} sc on c.store_id = sc.store_id
+    INNER JOIN {{ ref('s__lifecycle__store_status__ref') }} ss on c.store_id = ss.store_id
 ),
 
 -- 1️⃣ Ordenamos para detectar cambios
@@ -142,8 +142,16 @@ data_anomaly_fix AS (
     SELECT
         a.*,
         CASE WHEN a.change_reason = 'data_anomaly' AND a.contract_type = 'pre-churn-lead' AND a.rn_current = 1 THEN 'freemium' ELSE a.plan_name END AS main_plan_name,
-        CASE WHEN a.change_reason = 'data_anomaly' AND a.tag = 'billing-churn-vencimientos-extensos' AND a.contract_type in ('pre-churn-lead', 'pre-churn') THEN created_at_contract ELSE start_date END AS main_start_date,
-        CASE WHEN a.change_reason = 'data_anomaly' AND a.tag = 'billing-churn-vencimientos-extensos' AND a.contract_type in ('pre-churn-lead', 'pre-churn') THEN created_at_contract ELSE start_date END AS main_end_date
+        CASE 
+            WHEN a.change_reason = 'data_anomaly' AND a.tag = 'billing-churn-vencimientos-extensos' THEN created_at_contract 
+            WHEN a.change_reason = 'data_anomaly' AND (a.tag = 'ONG' OR a.tag IS NULL) AND a.contract_type in ('pre-churn-lead', 'pre-churn', 'standard', 'free-days', 'url-free-days','freemium') THEN created_at_contract
+            ELSE start_date END AS main_start_date,
+        CASE 
+            WHEN a.change_reason = 'data_anomaly' AND a.tag = 'billing-churn-vencimientos-extensos' AND a.contract_type in ('pre-churn-lead', 'pre-churn') THEN created_at_contract 
+            WHEN a.change_reason = 'data_anomaly' AND a.tag = 'billing-churn-vencimientos-extensos' AND a.contract_type in ('free-days','standard','recurring-edge-case') THEN LEAD(created_at_contract) OVER (PARTITION BY store_id ORDER BY created_at_contract, start_date) 
+            WHEN a.change_reason = 'data_anomaly' AND (a.tag = 'ONG' OR a.tag IS NULL) AND a.contract_type in ('pre-churn-lead', 'pre-churn') THEN created_at_contract 
+            WHEN a.change_reason = 'data_anomaly' AND (a.tag = 'ONG' OR a.tag IS NULL) AND a.contract_type in ('standard','free-days','url-free-days','freemium') THEN LEAD(created_at_contract) OVER (PARTITION BY store_id ORDER BY created_at_contract, start_date) 
+            ELSE end_date END AS main_end_date
     FROM final a
 )
 
@@ -152,7 +160,6 @@ SELECT
   main_plan_name AS plan_name,
   contract_type,
   contracts_total,
-  tag,
   contract_id,
   created_at_contract,
   main_start_date AS start_date,
@@ -160,7 +167,9 @@ SELECT
   sys_audit_updated_on,
   change_reason,
   CASE WHEN rn_current = 1 THEN TRUE ELSE FALSE END AS is_current,
-  COUNT(*) OVER (PARTITION BY store_id) AS total_rows_by_store,
-  ROW_NUMBER() OVER (PARTITION BY store_id ORDER BY created_at_contract, start_date) AS row_num_by_contract
+  ROW_NUMBER() OVER (PARTITION BY store_id ORDER BY created_at_contract, start_date) AS contract_order,
+  COUNT(*) OVER (PARTITION BY store_id) AS contracts_qty,
+  tag,
+  CASE WHEN MAX(CASE WHEN change_reason = 'data_anomaly' THEN 1 ELSE 0 END) OVER (PARTITION BY store_id) = 1 THEN TRUE ELSE FALSE END AS merchant_has_anomaly
 FROM data_anomaly_fix
 ORDER BY store_id, contract_id, start_date ASC
