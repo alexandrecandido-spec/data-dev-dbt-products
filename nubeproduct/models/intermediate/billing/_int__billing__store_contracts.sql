@@ -1,16 +1,36 @@
-WITH base AS (
+
+WITH tags_info AS (
+  SELECT
+    t.related_id AS store_id,
+    MIN_BY(t.tag, CASE 
+      WHEN t.tag = 'billing-churn-vencimientos-extensos' THEN 1
+      WHEN t.tag IN ('beneficio-tiendagratuita', 'benefcio-tiendagratuita') THEN 2
+      WHEN t.tag IN ('ONG', 'ONG ', 'TAG ONG') THEN 3
+      ELSE 4
+    END) AS tag,
+    MAX(t.sys_audit_updated_on) AS updated_at
+  FROM {{ source('int_moltres', 'mwp_tags') }} t
+  WHERE t.tag IN ('billing-churn-vencimientos-extensos', 'beneficio-tiendagratuita', 'ONG')
+  GROUP BY t.related_id
+),
+
+base AS (
     SELECT
         c.id,
         c.store_id,
         c.plan_id,
         p.grupo AS plan_name,
         c.type,
+        c.total,
+        t.tag,
         CAST(c.created_at AS DATE) AS created_at_contract,
         CAST(start_date AS DATE) AS start_date,
         CAST(end_date AS DATE) AS end_date,
         c.sys_audit_updated_on
     FROM {{ ref('billing__contracts__store_contract__scd') }} c
-    left join {{ ref('s__general__grouping_plans__ref') }} p on p.plan = c.plan_id
+    LEFT JOIN {{ ref('s__general__grouping_plans__ref') }} p on p.plan = c.plan_id
+    LEFT JOIN tags_info t on t.store_id = c.store_id
+    INNER JOIN {{ ref('s__attributes__store_core__ref') }} sc on c.store_id = sc.store_id
 ),
 
 -- 1️⃣ Ordenamos para detectar cambios
@@ -20,6 +40,8 @@ ordered AS (
         store_id,
         plan_name,
         type,
+        total,
+        tag,
         created_at_contract,
         start_date,
         end_date,
@@ -47,7 +69,15 @@ flags AS (
         WHEN type != prev_type THEN 1
         -- 🔹 cambia de tipo (por ejemplo trial → standard o pre-churn → standard)
         ELSE 0
-    END AS new_block_flag
+    END AS new_block_flag,
+    CASE
+        WHEN start_date < '2000-01-01' THEN 'data_anomaly' -- fechas anomalas
+        WHEN prev_end_date IS NULL THEN 'first_contract' -- primer contrato
+        WHEN plan_name != prev_plan THEN 'plan_changed' -- cambio de plan
+        WHEN start_date > prev_end_date THEN 'gap_between_periods' -- gap entre periodos
+        WHEN type != prev_type THEN 'type_changed' -- cambio de tipo
+        ELSE 'unclassified' -- no clasificado
+    END AS change_reason_trigger
   FROM ordered
 ),
 
@@ -69,20 +99,68 @@ typed AS (
         FIRST_VALUE(CASE 
             WHEN type NOT IN ('change-plan','change-plan-free-until-next-bill') 
             THEN type END) 
-            IGNORE NULLS OVER (PARTITION BY store_id, group_id ORDER BY start_date, id) AS main_type
+            IGNORE NULLS OVER (PARTITION BY store_id, group_id ORDER BY start_date, id) AS main_type,
+        FIRST_VALUE(change_reason_trigger) IGNORE NULLS
+            OVER (PARTITION BY store_id, group_id ORDER BY start_date, id) AS change_reason
     FROM grouped g
-)
+),
 
 -- 5️⃣ Consolidamos por bloque
+block_agg AS (
 SELECT
-store_id,
-plan_name,
-main_type AS contract_type,
-MIN(id) AS contract_id,
-MIN(created_at_contract) AS created_at_contract,
-MIN(start_date) AS start_date,
-MAX(end_date) AS end_date,
-MAX(sys_audit_updated_on) AS sys_audit_updated_on
+    store_id,
+    plan_name AS plan_name,
+    main_type AS contract_type,
+    tag,
+    SUM(total) AS contracts_total,
+    MIN(id)                   AS contract_id,
+    MIN(created_at_contract)  AS created_at_contract,
+    MIN(start_date)           AS start_date,
+    MAX(end_date)             AS end_date,
+    MAX(sys_audit_updated_on) AS sys_audit_updated_on,
+    MAX(change_reason)        AS change_reason
 FROM typed
-GROUP BY store_id, plan_name, main_type, group_id
-ORDER BY store_id, start_date
+GROUP BY store_id, plan_name, main_type, tag, group_id
+),
+
+-- 6️⃣ Marcamos el contrato actual por store
+final AS (
+SELECT
+    *,
+    ROW_NUMBER() OVER (
+             PARTITION BY store_id
+             ORDER BY
+                created_at_contract DESC,   -- 🥇 contrato creado más recientemente
+                start_date DESC,            -- 🥈 si hay empate, el que empezó más recientemente
+                end_date DESC               -- 🥉 si aún hay empate, el que termina más tarde
+           ) as rn_current
+FROM block_agg
+),
+
+--7️⃣ arreglamos el plan_name para los data_anomaly con tag de billing-churn-vencimientos-extensos y contact_type = 'pre-churn-lead'
+data_anomaly_fix AS (
+    SELECT
+        a.*,
+        CASE WHEN a.change_reason = 'data_anomaly' AND a.contract_type = 'pre-churn-lead' AND a.rn_current = 1 THEN 'freemium' ELSE a.plan_name END AS main_plan_name,
+        CASE WHEN a.change_reason = 'data_anomaly' AND a.tag = 'billing-churn-vencimientos-extensos' AND a.contract_type in ('pre-churn-lead', 'pre-churn') THEN created_at_contract ELSE start_date END AS main_start_date,
+        CASE WHEN a.change_reason = 'data_anomaly' AND a.tag = 'billing-churn-vencimientos-extensos' AND a.contract_type in ('pre-churn-lead', 'pre-churn') THEN created_at_contract ELSE start_date END AS main_end_date
+    FROM final a
+)
+
+SELECT
+  store_id,
+  main_plan_name AS plan_name,
+  contract_type,
+  contracts_total,
+  tag,
+  contract_id,
+  created_at_contract,
+  main_start_date AS start_date,
+  main_end_date AS end_date,
+  sys_audit_updated_on,
+  change_reason,
+  CASE WHEN rn_current = 1 THEN TRUE ELSE FALSE END AS is_current,
+  COUNT(*) OVER (PARTITION BY store_id) AS total_rows_by_store,
+  ROW_NUMBER() OVER (PARTITION BY store_id ORDER BY created_at_contract, start_date) AS row_num_by_contract
+FROM data_anomaly_fix
+ORDER BY store_id, contract_id, start_date ASC

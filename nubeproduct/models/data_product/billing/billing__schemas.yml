@@ -16,6 +16,8 @@ models:
         description: "Plan type name."
       - name: contract_type
         description: "Type of contract event (e.g., freemium, change-plan)."
+      - name: contracts_total
+        description: "Total amount of cash paid by the store for the contracts."
       - name: created_at_contract
         description: "Timestamp when the contract entry was created."
       - name: start_date
@@ -28,6 +30,18 @@ models:
         tests:
           - not_null:
               severity: warn
+      - name: change_reason
+        description: "Reason for the change in the contract."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_set:
+              value_set: [first_contract, plan_changed, gap_between_periods, type_changed, data_anomaly, unclassified]
+      - name: is_current
+        description: "Indicates if the contract is currently active."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_set:
+              value_set: [true, false]
       - name: sys_audit_created_on
         description: "Timestamp when the row was originally created."
         tests:
