@@ -4823,6 +4823,9 @@ models:
         description: "Timestamp of the current model run when the record was processed."
       - name: sys_audit_updated_by
         description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."  - name: s__subscriptions__potential_clients__link
+    
+    
+  - name: s__subscriptions__potential_clients__link
     description: Silver layer table with a list of potential clients. It shows the potential stores that have recurrent orders from the same client with the same product.
     config:
       meta:
