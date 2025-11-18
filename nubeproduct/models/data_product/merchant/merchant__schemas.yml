@@ -414,3 +414,35 @@ models:
       - name: sys_audit_updated_by
         description: "System or user that last updated the row."
         tests: [not_null]
+
+  - name: s__lifecycle__competitor_crawler__ref
+    description: "Data Product silver that contains the competitor crawler data of each store. This data is used to identify the competitor of each store. The crawler stopped working in 2023"
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "merchant"
+        business_owner: "Analytics Engineering"
+    columns:
+      - name: id
+        description: "Unique identifier for each competitor crawler"
+        tests: [not_null, unique]
+      - name: store_id
+        description: "Unique identifier for each store"
+      - name: cname
+        description: "Competitor name"
+      - name: competitor
+        description: "Competitor URL"
+      - name: date
+        description: "Date of the competitor crawler"
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created."
+        tests: [not_null]
+      - name: sys_audit_created_by
+        description: "System or user that created the row."
+        tests: [not_null]
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this table."
+        tests: [not_null]
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row."
+        tests: [not_null]
