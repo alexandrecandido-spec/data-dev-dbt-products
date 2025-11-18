@@ -16,7 +16,7 @@
     table='s__traffic__session__event',
     date_field='base_date',
     fwd_value=1,
-    fwd_unit='day',
+    fwd_unit='week',
     force_date=force_start_var
 ) %}
 

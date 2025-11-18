@@ -27,9 +27,10 @@ parsed_inc AS
 ,tb_users AS
 (
 SELECT
- CAST(_airbyte_extracted_at AS date) AS airbyte_extracted_at
+ CAST(1 AS bigint) AS source_priority
+,CAST(_airbyte_extracted_at AS date) AS airbyte_extracted_at
 ,CAST(id AS bigint) AS user_id
-,NULLIF(name, '')  AS name
+,CASE WHEN COALESCE(name,'') = '' THEN 'Not Informed' ELSE name END AS name
 ,NULLIF(trim(lower(email)), '') AS email
 ,NULLIF(role, '')  AS role
 ,NULLIF(phone, '') AS phone
@@ -79,9 +80,10 @@ FROM parsed_inc
     ,tb_legacy AS
     (
     SELECT
-     CAST(null AS date) AS airbyte_extracted_at
+     CAST(2 AS bigint) AS source_priority
+    ,CAST(null AS date) AS airbyte_extracted_at
     ,CAST(id AS bigint) AS user_id
-    ,NULLIF(name, '')  AS name
+    ,CASE WHEN COALESCE(name,'') = '' THEN 'Not Informed' ELSE name END AS name
     ,NULLIF(trim(lower(email)), '') AS email
     ,NULLIF(role, '')  AS role
     ,NULLIF(phone, '') AS phone
@@ -118,7 +120,7 @@ FROM parsed_inc
     (
     SELECT * FROM tb_users UNION ALL SELECT * FROM tb_legacy
     )
-    SELECT  *, ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY COALESCE(updated_at, created_at) DESC) AS rnk
+    SELECT  *, ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY source_priority ASC, COALESCE(updated_at, created_at) DESC) AS rnk
     FROM    tb_final 
     qualify rnk = 1
 
