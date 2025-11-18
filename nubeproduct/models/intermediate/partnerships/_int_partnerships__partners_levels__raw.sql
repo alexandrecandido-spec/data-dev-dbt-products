@@ -14,7 +14,9 @@ partners_info AS
         partner_id,
         DATE(partner_created_at) AS partner_created_date,
         partner_country_code,
-        DS.snapshot_date
+        DS.snapshot_date,
+        DS.year_id,
+        DS.quarter_id
     FROM {{ ref('s__general__partners_info__ref') }}
     CROSS JOIN date_spine AS DS
     WHERE has_store_dev_trial = 1
@@ -82,6 +84,8 @@ base_metrics AS
         PI.partner_created_date,
         PI.partner_country_code,
         PI.snapshot_date,
+        PI.year_id,
+        PI.quarter_id,
         SUM(CASE WHEN 
             CR.first_payment IS NOT NULL 
             AND CR.first_payment <= PI.snapshot_date 
@@ -103,7 +107,7 @@ base_metrics AS
     LEFT JOIN contracts_ranks AS CR
         ON PI.partner_id = CR.partner_id
             AND CR.snapshot_date = PI.snapshot_date
-    GROUP BY PI.partner_id, PI.partner_created_date, PI.partner_country_code, PI.snapshot_date
+    GROUP BY PI.partner_id, PI.partner_created_date, PI.partner_country_code, PI.snapshot_date, PI.year_id, PI.quarter_id
 ),
 matched_rules AS 
 (
@@ -145,6 +149,8 @@ raw_levels AS
         partner_id,
         partner_country_code,
         snapshot_date,
+        year_id,
+        quarter_id,
         active_paying_stores,
         new_payments_last_quarter,
         new_payments_last_365d,
