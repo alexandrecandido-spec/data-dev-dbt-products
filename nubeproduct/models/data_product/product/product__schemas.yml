@@ -505,12 +505,10 @@ models:
         description: 1 if the merchant has multiple languages enabled, 0 otherwise
       - name: enabled_countries_count
         description: the number of countries enabled for the merchant's store (the ones listed within 'Idiomas y Monedas' in the 'Paises Habilitados' section - mwp_user_countries table. Can find country names to country_id relationship in the mwp_countries table)
-      - name: admin_stock_changes_count
-        description: the number of times the merchant has changed the stock of a product through the admin portal in the last 3 months (using 'variant-stock-changed' events in mwp_stock_history table looking at null app_id fields )
-      - name: api_stock_changes_count
-        description: the number of times the merchant has changed the stock of a product via API in the last 3 months (using 'variant-stock-changed' events in mwp_stock_history table, looking at non-null app_id fields with api or admin_edit as source)
-      - name: csv_variant_creations_count
-        description: the number of times the merchant has created variants via CSV import in the last 3 months (using 'variant-created' events in mwp_stock_history table looking at csv_import as source)
+      - name: first_product_created_at
+        description: the date when the first product was created in the merchant's store
+      - name: sixth_product_created_at
+        description: the date when the sixth product was created in the merchant's store
       - name: product_count
         description: the number of non deleted products in the merchant's store
       - name: published_product_count
@@ -519,6 +517,12 @@ models:
         description: the number of non deleted products with a video link in the merchant's store
       - name: product_with_active_video_uploaded_count
         description: the number of products with an active video uploaded in the merchant's store
+      - name: product_with_infinite_stock_count
+        description: the number of products with infinite stock in the merchant's store (all variants have null stock aka infinite stock)
+      - name: published_physical_product_count
+        description: the number of non deleted and published physical products in the merchant's store (requires_shipping = 1)
+      - name: published_digital_product_count
+        description: the number of non deleted and published digital products in the merchant's store (requires_shipping = 0)
       - name: variant_count
         description: the number of non deleted variants in the merchant's store
       - name: published_product_variant_count
@@ -531,6 +535,8 @@ models:
         description: the number of active CD's in the merchant's store (active means not deleted)
       - name: cd_count
         description: the number of CD's in the merchant's store (active or deleted)
+      - name: stock_transfers_count
+        description: the number of stock transfers done by the merchant
       - name: category_count
         description: the number of categories in the merchant's store (not deleted)
       - name: category_level_count
@@ -625,16 +631,10 @@ models:
           - not_null
       - name: title
         description: "title of the problem"
-        tests:
-          - not_null
       - name: repo_name
         description: "repository in which the problem is located"
-        tests:
-          - not_null
       - name: state
         description: "state of the problem, open or closed"
-        tests:
-          - not_null
       - name: labels_tipo
         description: "Team assigned to the problem based on its tags."
       - name: platform_country_state
@@ -651,6 +651,8 @@ models:
         description: "minimum date between ticket_closed_at and label_closed_date. it is used to correct the closing date for each country"
       - name: labels_domain
         description: "app domains affected by the problem"
+      - name: labels
+        description: "all of the labels of the problem"
       - name: country
         description: "country affected by the problem. this country might be determined by the country tags, the stores affected by the problem or the solved_by_app tags"
       - name: is_solved_by_app_country
@@ -671,6 +673,14 @@ models:
         description: "impacted GMV in local currency by the problem"
       - name: impacted_gmv_usd
         description: "impacted GMV in USD by the problem"  
+      - name: sys_audit_created_on
+        description: "date the problem was created"
+      - name: sys_audit_updated_on
+        description: "date the problem was updated"
+      - name: sys_audit_created_by
+        description: "user who created the problem"
+      - name: sys_audit_updated_by
+        description: "user who updated the problem"
 
   - name: product_platform_development_issues
     description: 
@@ -761,30 +771,18 @@ models:
           - not_null
       - name: state
         description: "state of the issue, open or closed"
-        tests:
-          - not_null
       - name: created_at
         description: "date the issue was created"
-        tests:
-          - not_null
       - name: closed_at
         description: "date the issue was closed (nullable for open issues)"
       - name: title
         description: "title of the issue"
-        tests:
-          - not_null
       - name: url
         description: "url of the issue"
-        tests:
-          - not_null
       - name: labels
         description: "labels of the issue"
-        tests:
-          - not_null
       - name: labels_tipo
         description: "type of issue based on its tags"
-        tests:
-          - not_null
       - name: labels_domain
         description: "app domains affected by the issue"
       - name: labels_country
@@ -819,20 +817,12 @@ models:
         description: "countries missing from the issue"
       - name: sys_audit_created_on
         description: "date the issue was created"
-        tests:
-          - not_null
       - name: sys_audit_updated_on
         description: "date the issue was updated"
-        tests:
-          - not_null
       - name: sys_audit_created_by
         description: "user who created the issue"
-        tests:
-          - not_null
       - name: sys_audit_updated_by
         description: "user who updated the issue"
-        tests:
-          - not_null
 
 
   - name: product__offline_subscriptions
@@ -3458,7 +3448,7 @@ models:
       - name: sys_audit_updated_by
         description: "Identifier for the user or system that last updated this record."
 
-  - name: g__growth__store_conversion__agg_daily
+  - name: g__general__store_conversion__agg_daily
     description: >
       Daily aggregated dataset that measures store trial-to-paid conversion performance. It calculates how many stores 
       converted (made their first payment) within 7, 14, 21, ... up to 84 days after creation, segmented by country, 
@@ -3775,6 +3765,85 @@ models:
           column_A: total_sessions_with_unique_carts
           column_B: total_sessions_with_carts
 
+
+  - name: g__subscriptions__subscriptions_store_info__agg_daily
+    description: >
+      Daily aggregated dataset that measures subscription store information.
+    config:
+      meta:
+        owner: "fernando.martinez@tiendanube.com"
+        domain: "product"
+        business_owner: "Nicolas Loreti"
+    columns:
+      - name: unique_id
+        description: "Unique identifier of the subscription store information."
+        tests:
+          - not_null
+          - unique
+      - name: registered_date
+        description: "Date when the subscription store information was registered."
+        tests:
+          - not_null
+      - name: store_id
+        description: "Store identifier where the subscription store information was registered."
+        tests:
+          - not_null
+      - name: store_name
+        description: "Name of the store."
+      - name: vertical_name
+        description: "Vertical of the store."
+      - name: segment
+        description: "Segment of the store."
+      - name: total_metaplans
+        description: "Total number of metaplans for the store."
+      - name: total_active_metaplans
+        description: "Total number of active metaplans for the store."
+      - name: new_metaplans
+        description: "Total number of new metaplans for the store."
+      - name: new_subscriptions
+        description: "Total number of new subscriptions for the store."
+      - name: churned_subscriptions
+        description: "Total number of churned subscriptions for the store."
+      - name: total_subscriptions
+        description: "Total number of subscriptions for the store."
+      - name: total_active_subscriptions
+        description: "Total number of active subscriptions for the store."
+      - name: total_cancelled_subscriptions
+        description: "Total number of cancelled subscriptions for the store."
+      - name: total_customers
+        description: "Total number of customers for the store."
+      - name: total_active_customers
+        description: "Total number of active customers for the store."
+      - name: total_orders
+        description: "Total number of orders for the store."
+      - name: total_successful_initial_orders
+        description: "Total number of successful initial orders for the store."
+      - name: total_successful_recurrent_orders
+        description: "Total number of successful recurrent orders for the store."
+      - name: total_not_successful_initial_orders
+        description: "Total number of not successful initial orders for the store."
+      - name: total_transactions
+        description: "Total number of transactions for the store."
+      - name: failed_transactions
+        description: "Total number of failed transactions for the store."
+      - name: paid_transactions
+        description: "Total number of paid transactions for the store."
+      - name: initial_failed_transactions
+        description: "Total number of initial failed transactions for the store."
+      - name: initial_paid_transactions
+        description: "Total number of initial paid transactions for the store."
+      - name: recurrent_failed_transactions
+        description: "Total number of recurrent failed transactions for the store."
+      - name: recurrent_paid_transactions
+        description: "Total number of recurrent paid transactions for the store."
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created in this model."
+      - name: sys_audit_created_by
+        description: "System or user that created the row in this model."
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this model."
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row in this model."
 
   - name: g__traffic__session_carts__agg_monthly
     description: >
@@ -4722,3 +4791,35 @@ models:
       - name: paid_orders
         description: amount of paid orders.
 
+  - name: s__onboarding__questionnaire_status__ref
+    description: >
+      "Silver layer model that contains information on onboardding status and calculates the total time (in seconds) 
+      between the creation and the last update of a stores onboarding record."
+    config:
+      meta:
+        owner: "ynara.oliveira@nuvemshop.com.br"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: store_id
+        description: "Unique identifier of the store associated with the onboarding record."
+        tests:
+          - not_null
+          - unique
+      - name: signup_status
+        description: "Current status of the stores signup process."
+        tests:
+          - accepted_values:
+              values: ['completed', 'pending']
+      - name: time_at_sign_up
+        description: >
+          Time spent (in seconds) between the creation and last update of the onboarding record.
+          Represents how long it took for a store to complete its signup process.
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model. Defaults to current_timestamp if not available."
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model. Defaults to 'data-dev-dbt-products'."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed."
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."

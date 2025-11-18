@@ -23,8 +23,10 @@ SELECT
 FROM {{ source('stg_hubspot', 'companies') }} c
 LEFT JOIN existing_data e ON cast(c.company_id as bigint) = e.company_id
 
+WHERE c._airbyte_raw_id <> 'df0aa495-11a2-4e0a-93bd-4b0257f24ab4' -- descarto un registro viejo que se ingestó mal, para poder detectar futuros nulos
+
 {% if is_incremental() %}
-WHERE c._airbyte_extracted_at >= (
+AND c._airbyte_extracted_at >= (
     SELECT COALESCE(MAX(sys_audit_updated_on), '1900-01-01') FROM {{ this }}
 )
 {% endif %}
