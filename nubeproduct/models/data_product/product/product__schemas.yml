@@ -4871,3 +4871,36 @@ models:
         description: Date when the potential client was updated.
       - name: sys_audit_updated_by
         description: User who updated the potential client.
+
+  - name: g__product__general__storefront_funnel__agg_daily
+    description: >
+      Gold layer table with a daily summary of the amount of carts starting by storefront.
+    config:
+      meta:
+        owner: "fabrizio.crivella@tiendanube.com"
+        business_owner: "Rocio Diez"
+        openmetadata:
+          domain: "product"
+    columns:
+      - name: country
+        description: Country associated to the buyer.
+        tests:
+          - not_null
+      - name: current_segment_name
+        description: Segment associated to the store.
+      - name: vertical_name
+        description: Vertical associated to the store.
+      - name: tag
+        description: Indicated if the store has lightspeed or online-metrics-enabled tag.
+      - name: date_time
+        description: Date associated to the event.
+      - name: device
+        description: Device on which the cart was made.
+      - name: event
+        description: Analyzed step.
+      - name: theme
+        description: Theme associated to the store.
+      - name: checkout_session
+        description: Indicated if the session is a genuine user session or if it is created by the Checkout.
+      - name: count
+        description: Amount of unique carts.
