@@ -11,7 +11,7 @@ stores as (
         ,date(created_at) as creation_date
         ,date(first_payment) as first_payment
         ,date(churned_at) as churned_at
-    from {{ source('int_stg_moltres', 'mwp_store_info') }} s
+    from {{ source('int_moltres', 'mwp_store_info') }} s
     left join `hive_metastore`.`ecommerce`.`mwp_store_settings` ss
     on s.id = ss.store_id
     where true
