@@ -7,6 +7,14 @@
     )
 }}
 
+-- depends_on:
+--   - {{ ref('_int_marketing__onboarding_plan_movements') }}
+--   - {{ ref('_int_marketing__onboarding_orders_gmv') }}
+--   - {{ ref('company_metrics_paid_orders') }}
+--   - {{ ref('moltres__contracts') }}
+--   - {{ ref('s__attributes__store_core__ref') }}
+--   - {{ ref('s__general__grouping_plans__ref') }}
+
 /*
 Data Product: Onboarding 4 Steps Consolidated (GOLD AGG)
 Description: Modelo consolidado con todas las métricas de onboarding y 4 steps por tienda
@@ -32,6 +40,9 @@ Spec:
      2. Comparación de valores: Usa hash MD5 de todas las columnas de negocio para:
         * Evitar UPDATEs innecesarios cuando los valores calculados no cambiaron
         * Solo hacer MERGE de tiendas donde el hash cambió o son nuevas
+   - Optimizaciones de performance:
+     * Uso de LEFT JOIN en lugar de NOT IN / IN para mejor eficiencia
+     * Cálculo de hash solo para tiendas que pasaron el filtro inicial
    - Máxima eficiencia: Evita procesar y actualizar tiendas sin cambios reales
 
 ⚠️ NOTAS:
@@ -121,7 +132,7 @@ stores_with_changes AS (
         UNION DISTINCT
         
         -- Cambios en attribution
-        SELECT store_id FROM {{ ref('marketing_merchant_info_refined') }}
+        SELECT store_id FROM {{ ref('s__attributes__acquisition_profile__ref') }}
         WHERE sys_audit_updated_on > (SELECT max_updated_on FROM last_update_time)
         
         UNION DISTINCT
@@ -135,7 +146,7 @@ stores_with_changes AS (
         -- Cambios en tags de onboarding
         -- Nota: usar sys_audit_updated_on si existe, sino usar created como proxy
         SELECT DISTINCT CAST(related_id AS BIGINT) AS store_id
-        FROM {{ source('dp_moltres', 'mwp_tags') }}
+        FROM {{ source('int_moltres', 'mwp_tags') }}
         WHERE tag IN ('new-admin-onboarding-202411-a', 'new-admin-onboarding-202411-b')
         AND COALESCE(
             CAST(sys_audit_updated_on AS TIMESTAMP),
@@ -256,54 +267,11 @@ store_info AS (
 
 -- ============================================
 -- ORDERS & GMV: Métricas de órdenes y GMV
--- Calculado desde company_metrics_paid_orders
+-- Consumido desde modelo intermedio
 -- ============================================
-store_created_dates AS (
-    SELECT DISTINCT
-        store_id,
-        created_at AS store_created_at
-    FROM {{ ref('s__attributes__store_core__ref') }}
-    WHERE created_at >= '2024-01-01'
-),
-orders_gmv_base AS (
-    SELECT 
-        o.store_id,
-        scd.store_created_at,
-        o.id AS order_id,
-        DATE(o.completed_at) AS completed_date,
-        o.total,
-        o.total_in_usd,
-        DATEDIFF(DAY, scd.store_created_at, DATE(o.completed_at)) AS days_since_store_creation
-    FROM {{ ref('company_metrics_paid_orders') }} o
-    INNER JOIN store_created_dates scd
-        ON o.store_id = scd.store_id
-    WHERE o.completed_at IS NOT NULL
-        AND o.total_in_usd >= 0
-        AND o.total_in_usd < 10000  -- Filtrar outliers según especificación
-),
 orders_gmv AS (
-    SELECT 
-        store_id,
-        -- Primera orden completada
-        MIN(completed_date) AS first_order,
-        -- Días desde creación de tienda hasta primera orden
-        MIN(days_since_store_creation) AS time_to_first_order,
-        -- Conteo de órdenes por ventana de tiempo desde creación de tienda
-        COUNT(DISTINCT CASE WHEN days_since_store_creation <= 7 THEN order_id ELSE NULL END) AS orders_7,
-        COUNT(DISTINCT CASE WHEN days_since_store_creation <= 15 THEN order_id ELSE NULL END) AS orders_15,
-        COUNT(DISTINCT CASE WHEN days_since_store_creation <= 30 THEN order_id ELSE NULL END) AS orders_30,
-        COUNT(DISTINCT CASE WHEN days_since_store_creation <= 60 THEN order_id ELSE NULL END) AS orders_60,
-        COUNT(DISTINCT CASE WHEN days_since_store_creation <= 90 THEN order_id ELSE NULL END) AS orders_90,
-        -- GMV en moneda local por ventana de tiempo desde creación de tienda
-        SUM(CASE WHEN days_since_store_creation <= 30 THEN COALESCE(total, 0) ELSE 0 END) AS gmv_30,
-        SUM(CASE WHEN days_since_store_creation <= 60 THEN COALESCE(total, 0) ELSE 0 END) AS gmv_60,
-        SUM(CASE WHEN days_since_store_creation <= 90 THEN COALESCE(total, 0) ELSE 0 END) AS gmv_90,
-        -- GMV en USD por ventana de tiempo desde creación de tienda
-        SUM(CASE WHEN days_since_store_creation <= 30 THEN COALESCE(total_in_usd, 0) ELSE 0 END) AS gmv_dol_30,
-        SUM(CASE WHEN days_since_store_creation <= 60 THEN COALESCE(total_in_usd, 0) ELSE 0 END) AS gmv_dol_60,
-        SUM(CASE WHEN days_since_store_creation <= 90 THEN COALESCE(total_in_usd, 0) ELSE 0 END) AS gmv_dol_90
-    FROM orders_gmv_base
-    GROUP BY store_id
+    SELECT *
+    FROM {{ ref('_int_marketing__onboarding_orders_gmv') }}
 ),
 
 -- ============================================
@@ -320,7 +288,7 @@ blocked_fraud AS (
 
 -- ============================================
 -- ATTRIBUTION: Información de atribución de marketing
--- Consumido desde marketing_merchant_info_refined
+-- Consumido desde s__attributes__acquisition_profile__ref (domain merchant)
 -- ============================================
 attribution AS (
     SELECT 
@@ -332,145 +300,30 @@ attribution AS (
         -- active_merchant_probability: Usamos is_active_merchant de s__lifecycle__store_status__ref como probabilidad (0 o 1)
         -- Si necesitas una probabilidad real (0-1), habría que usar un modelo de ML específico
         COALESCE(ls.is_active_merchant, 0) AS active_merchant_probability
-    FROM {{ ref('marketing_merchant_info_refined') }} att
+    FROM {{ ref('s__attributes__acquisition_profile__ref') }} att
     LEFT JOIN {{ ref('s__lifecycle__store_status__ref') }} ls
         ON att.store_id = ls.store_id
 ),
 
 -- ============================================
 -- ONBOARDING TAGS: Tags de nuevo onboarding
+-- Consumido desde int_moltres.mwp_tags
 -- ============================================
 onboarding_tags AS (
     SELECT 
         CAST(related_id AS BIGINT) AS store_id,
         tag AS onboarding_tag
-    FROM {{ source('dp_moltres', 'mwp_tags') }}
+    FROM {{ source('int_moltres', 'mwp_tags') }}
     WHERE tag IN ('new-admin-onboarding-202411-a', 'new-admin-onboarding-202411-b')
 ),
 
 -- ============================================
 -- PLAN MOVEMENTS: Upgrade/downgrade de planes
--- Calculado desde moltres__contracts comparando group_order_id de planes
+-- Consumido desde modelo intermedio
 -- ============================================
-contracts_with_plan_info AS (
-    SELECT 
-        c.store_id,
-        c.plan_id,
-        c.created_at,
-        c.start_date,
-        gp.grupo AS plan_group,
-        CASE 
-            WHEN gp.grupo IN ('test_broken','no-stores') THEN 0
-            WHEN gp.grupo IN ('zero-fee','freemium') THEN 1
-            WHEN gp.grupo IN ('lojinha','plan-a','plan-emprendedor') THEN 2
-            WHEN gp.grupo IN ('plan-b') THEN 3
-            WHEN gp.grupo IN ('plan-c') THEN 4
-            WHEN gp.grupo IN ('enterprise') THEN 5
-            ELSE -1 
-        END AS plan_order_id,
-        s.created_at AS store_created_at
-    FROM {{ ref('moltres__contracts') }} c
-    INNER JOIN {{ ref('s__attributes__store_core__ref') }} s
-        ON c.store_id = s.store_id
-        AND s.created_at >= '2024-01-01'
-    LEFT JOIN {{ ref('s__general__grouping_plans__ref') }} gp
-        ON c.plan_id = gp.plan
-    WHERE c.plan_id IS NOT NULL
-),
-first_plan AS (
-    SELECT 
-        store_id,
-        plan_group AS primeiro_plano,
-        plan_order_id AS first_plan_order_id
-    FROM (
-        SELECT 
-            store_id,
-            plan_group,
-            plan_order_id,
-            ROW_NUMBER() OVER (PARTITION BY store_id ORDER BY created_at ASC, start_date ASC) AS rn
-        FROM contracts_with_plan_info
-    ) ranked
-    WHERE rn = 1
-),
-max_plan_by_window AS (
-    SELECT 
-        store_id,
-        MAX(CASE WHEN DATEDIFF(DAY, store_created_at, DATE(created_at)) <= 7 THEN plan_order_id ELSE -1 END) AS max_plan_order_d7,
-        MAX(CASE WHEN DATEDIFF(DAY, store_created_at, DATE(created_at)) <= 15 THEN plan_order_id ELSE -1 END) AS max_plan_order_d15,
-        MAX(CASE WHEN DATEDIFF(DAY, store_created_at, DATE(created_at)) <= 30 THEN plan_order_id ELSE -1 END) AS max_plan_order_d30,
-        MAX(CASE WHEN DATEDIFF(DAY, store_created_at, DATE(created_at)) <= 7 THEN plan_group ELSE NULL END) AS max_plan_d7,
-        MAX(CASE WHEN DATEDIFF(DAY, store_created_at, DATE(created_at)) <= 15 THEN plan_group ELSE NULL END) AS max_plan_d15,
-        MAX(CASE WHEN DATEDIFF(DAY, store_created_at, DATE(created_at)) <= 30 THEN plan_group ELSE NULL END) AS max_plan_d30
-    FROM contracts_with_plan_info
-    GROUP BY store_id
-),
--- Plan al final de cada ventana (último plan activo dentro de la ventana)
--- Usamos ROW_NUMBER para obtener el último contrato dentro de cada ventana
-contracts_ranked_by_window AS (
-    SELECT 
-        c.store_id,
-        c.plan_order_id,
-        DATEDIFF(DAY, c.store_created_at, DATE(c.created_at)) AS days_from_creation,
-        ROW_NUMBER() OVER (
-            PARTITION BY c.store_id, 
-                CASE 
-                    WHEN DATEDIFF(DAY, c.store_created_at, DATE(c.created_at)) <= 7 THEN 7
-                    WHEN DATEDIFF(DAY, c.store_created_at, DATE(c.created_at)) <= 15 THEN 15
-                    WHEN DATEDIFF(DAY, c.store_created_at, DATE(c.created_at)) <= 30 THEN 30
-                    ELSE NULL
-                END
-            ORDER BY c.created_at DESC, c.start_date DESC
-        ) AS rn
-    FROM contracts_with_plan_info c
-    WHERE DATEDIFF(DAY, c.store_created_at, DATE(c.created_at)) <= 30
-),
-plan_at_end_of_window AS (
-    SELECT 
-        store_id,
-        MAX(CASE WHEN days_from_creation <= 7 AND rn = 1 THEN plan_order_id ELSE -1 END) AS plan_order_d7,
-        MAX(CASE WHEN days_from_creation <= 15 AND rn = 1 THEN plan_order_id ELSE -1 END) AS plan_order_d15,
-        MAX(CASE WHEN days_from_creation <= 30 AND rn = 1 THEN plan_order_id ELSE -1 END) AS plan_order_d30
-    FROM contracts_ranked_by_window
-    GROUP BY store_id
-),
 plan_movements AS (
-    SELECT 
-        sc.store_id,
-        fp.primeiro_plano,
-        mp.max_plan_d7,
-        mp.max_plan_d15,
-        mp.max_plan_d30,
-        -- Upgrade: si el plan máximo en la ventana es mayor que el primer plan
-        CASE WHEN mp.max_plan_order_d7 > COALESCE(fp.first_plan_order_id, -1) THEN 1 ELSE 0 END AS upgrade_d7,
-        CASE WHEN mp.max_plan_order_d15 > COALESCE(fp.first_plan_order_id, -1) THEN 1 ELSE 0 END AS upgrade_d15,
-        CASE WHEN mp.max_plan_order_d30 > COALESCE(fp.first_plan_order_id, -1) THEN 1 ELSE 0 END AS upgrade_d30,
-        -- Downgrade: si el plan al final de la ventana es menor que el plan máximo alcanzado en esa ventana
-        CASE 
-            WHEN mp.max_plan_order_d7 > 0 
-                AND pe.plan_order_d7 >= 0 
-                AND pe.plan_order_d7 < mp.max_plan_order_d7 
-            THEN 1 
-            ELSE 0 
-        END AS downgrade_d7,
-        CASE 
-            WHEN mp.max_plan_order_d15 > 0 
-                AND pe.plan_order_d15 >= 0 
-                AND pe.plan_order_d15 < mp.max_plan_order_d15 
-            THEN 1 
-            ELSE 0 
-        END AS downgrade_d15,
-        CASE 
-            WHEN mp.max_plan_order_d30 > 0 
-                AND pe.plan_order_d30 >= 0 
-                AND pe.plan_order_d30 < mp.max_plan_order_d30 
-            THEN 1 
-            ELSE 0 
-        END AS downgrade_d30
-    FROM {{ ref('s__attributes__store_core__ref') }} sc
-    LEFT JOIN first_plan fp ON sc.store_id = fp.store_id
-    LEFT JOIN max_plan_by_window mp ON sc.store_id = mp.store_id
-    LEFT JOIN plan_at_end_of_window pe ON sc.store_id = pe.store_id
-    WHERE sc.created_at >= '2024-01-01'
+    SELECT *
+    FROM {{ ref('_int_marketing__onboarding_plan_movements') }}
 ),
 
 -- ============================================
@@ -711,6 +564,11 @@ final_data AS (
 
     FROM {{ ref('s__attributes__store_core__ref') }} sc
     INNER JOIN store_info si ON sc.store_id = si.store_id
+    {% if is_incremental() %}
+    -- Optimización: LEFT JOIN para detectar tiendas nuevas y con cambios (más eficiente que NOT IN / IN)
+    LEFT JOIN existing_data ed_filter ON sc.store_id = ed_filter.store_id
+    LEFT JOIN stores_with_changes swc ON sc.store_id = swc.store_id
+    {% endif %}
     LEFT JOIN admin_access aa ON sc.store_id = aa.store_id
     LEFT JOIN storefront_sessions ss ON sc.store_id = ss.store_id
     LEFT JOIN layout l ON sc.store_id = l.store_id
@@ -732,100 +590,119 @@ final_data AS (
         --    Ventana más larga: 90 días (día 0 al día 90 inclusive = 91 días totales)
         -- 3. Tiendas con cambios detectados en fuentes upstream (timestamps)
         AND (
-            -- Tiendas nuevas
-            sc.store_id NOT IN (SELECT store_id FROM existing_data)
+            -- Tiendas nuevas (optimizado: LEFT JOIN + IS NULL es más eficiente que NOT IN)
+            ed_filter.store_id IS NULL
             -- O tiendas dentro de ventanas activas (hasta día 91 para asegurar cálculo completo del día 90)
             OR DATEDIFF(DAY, sc.created_at, CURRENT_DATE) <= 91
-            -- O tiendas con cambios detectados en fuentes upstream
-            OR sc.store_id IN (SELECT store_id FROM stores_with_changes)
+            -- O tiendas con cambios detectados en fuentes upstream (optimizado: LEFT JOIN + IS NOT NULL es más eficiente que IN)
+            OR swc.store_id IS NOT NULL
         )
     {% endif %}
 ),
 {% if is_incremental() %}
 -- Comparar hash con datos existentes para evitar UPDATEs innecesarios
+-- Optimización: Solo calcular hash para tiendas que pasaron el filtro inicial (no todas las tiendas de la tabla)
+-- Usamos el mismo criterio de filtrado que en final_data para reducir el cálculo de hash
+stores_to_check_hash AS (
+    SELECT DISTINCT sc.store_id
+    FROM {{ ref('s__attributes__store_core__ref') }} sc
+    LEFT JOIN existing_data ed_filter_hash ON sc.store_id = ed_filter_hash.store_id
+    LEFT JOIN stores_with_changes swc_filter_hash ON sc.store_id = swc_filter_hash.store_id
+    WHERE sc.created_at >= '2024-01-01'
+    AND (
+        -- Tiendas nuevas (optimizado: LEFT JOIN + IS NULL es más eficiente que NOT IN)
+        ed_filter_hash.store_id IS NULL
+        -- O tiendas dentro de ventanas activas
+        OR DATEDIFF(DAY, sc.created_at, CURRENT_DATE) <= 91
+        -- O tiendas con cambios detectados en fuentes upstream (optimizado: LEFT JOIN + IS NOT NULL es más eficiente que IN)
+        OR swc_filter_hash.store_id IS NOT NULL
+    )
+),
 existing_with_hash AS (
     SELECT 
-        store_id,
+        t.store_id,
         MD5(
             CONCAT_WS('||',
-                CAST(store_id AS STRING),
-                COALESCE(store_name, ''),
-                COALESCE(country, ''),
-                COALESCE(CAST(created_at AS STRING), ''),
-                COALESCE(CAST(first_payment AS STRING), ''),
-                COALESCE(CAST(first_seller_at AS STRING), ''),
-                COALESCE(current_segment, ''),
-                COALESCE(current_plan, ''),
-                COALESCE(vertical, ''),
-                COALESCE(CAST(main_user_id AS STRING), ''),
-                COALESCE(user_email, ''),
-                COALESCE(owner_phone_number, ''),
-                COALESCE(phone_from_footer, ''),
-                COALESCE(whatsapp_button, ''),
-                COALESCE(CAST(COALESCE(qty_admin_access_7d, 0) AS STRING), ''),
-                COALESCE(CAST(COALESCE(qty_admin_access_15d, 0) AS STRING), ''),
-                COALESCE(CAST(COALESCE(qty_admin_access_30d, 0) AS STRING), ''),
-                COALESCE(CAST(COALESCE(qty_admin_access_60d, 0) AS STRING), ''),
-                COALESCE(CAST(first_date_admin_access AS STRING), ''),
-                COALESCE(CAST(last_date_admin_access AS STRING), ''),
-                COALESCE(CAST(first_store_session AS STRING), ''),
-                COALESCE(CAST(COALESCE(qty_sessions_7d, 0) AS STRING), ''),
-                COALESCE(CAST(COALESCE(qty_sessions_15d, 0) AS STRING), ''),
-                COALESCE(CAST(COALESCE(qty_sessions_30d, 0) AS STRING), ''),
-                COALESCE(CAST(COALESCE(qty_sessions_60d, 0) AS STRING), ''),
-                COALESCE(CAST(COALESCE(qty_sessions_90d, 0) AS STRING), ''),
-                COALESCE(CAST(last_store_session AS STRING), ''),
-                COALESCE(CAST(COALESCE(config_layout, 0) AS STRING), ''),
-                COALESCE(layout_name, ''),
-                COALESCE(CAST(COALESCE(theme_banner, 0) AS STRING), ''),
-                COALESCE(CAST(COALESCE(theme_slider, 0) AS STRING), ''),
-                COALESCE(CAST(COALESCE(theme_color_change, 0) AS STRING), ''),
-                COALESCE(CAST(first_date_config_layout AS STRING), ''),
-                COALESCE(CAST(last_date_config_layout AS STRING), ''),
-                COALESCE(CAST(COALESCE(config_products, 0) AS STRING), ''),
-                COALESCE(CAST(first_date_config_products AS STRING), ''),
-                COALESCE(CAST(last_date_config_products AS STRING), ''),
-                COALESCE(CAST(COALESCE(config_payment, 0) AS STRING), ''),
-                COALESCE(CAST(first_date_config_payment AS STRING), ''),
-                COALESCE(CAST(last_date_config_payment AS STRING), ''),
-                COALESCE(CAST(COALESCE(config_shipping, 0) AS STRING), ''),
-                COALESCE(CAST(first_date_config_shipping AS STRING), ''),
-                COALESCE(CAST(last_date_config_shipping AS STRING), ''),
-                COALESCE(CAST(first_order AS STRING), ''),
-                COALESCE(CAST(time_to_first_order AS STRING), ''),
-                COALESCE(CAST(orders_7 AS STRING), ''),
-                COALESCE(CAST(orders_15 AS STRING), ''),
-                COALESCE(CAST(orders_30 AS STRING), ''),
-                COALESCE(CAST(orders_60 AS STRING), ''),
-                COALESCE(CAST(orders_90 AS STRING), ''),
-                COALESCE(CAST(gmv_30 AS STRING), ''),
-                COALESCE(CAST(gmv_60 AS STRING), ''),
-                COALESCE(CAST(gmv_90 AS STRING), ''),
-                COALESCE(CAST(gmv_dol_30 AS STRING), ''),
-                COALESCE(CAST(gmv_dol_60 AS STRING), ''),
-                COALESCE(CAST(gmv_dol_90 AS STRING), ''),
-                COALESCE(CAST(upgrade_d7 AS STRING), ''),
-                COALESCE(CAST(upgrade_d15 AS STRING), ''),
-                COALESCE(CAST(upgrade_d30 AS STRING), ''),
-                COALESCE(CAST(downgrade_d7 AS STRING), ''),
-                COALESCE(CAST(downgrade_d15 AS STRING), ''),
-                COALESCE(CAST(downgrade_d30 AS STRING), ''),
-                COALESCE(CAST(primeiro_plano AS STRING), ''),
-                COALESCE(CAST(max_plan_d7 AS STRING), ''),
-                COALESCE(CAST(max_plan_d15 AS STRING), ''),
-                COALESCE(CAST(max_plan_d30 AS STRING), ''),
-                COALESCE(mkt_source_first_click, ''),
-                COALESCE(mkt_subteam_first_click, ''),
-                COALESCE(mkt_source_last_click, ''),
-                COALESCE(mkt_subteam_last_click, ''),
-                COALESCE(CAST(active_merchant_probability AS STRING), ''),
-                COALESCE(onboarding_tag, ''),
-                COALESCE(CAST(new_payment_probability AS STRING), ''),
-                COALESCE(CAST(cutoff_ql AS STRING), ''),
-                COALESCE(CAST(COALESCE(blocked_fraud_tag, 0) AS STRING), '')
+                CAST(t.store_id AS STRING),
+                COALESCE(t.store_name, ''),
+                COALESCE(t.country, ''),
+                COALESCE(CAST(t.created_at AS STRING), ''),
+                COALESCE(CAST(t.first_payment AS STRING), ''),
+                COALESCE(CAST(t.first_seller_at AS STRING), ''),
+                COALESCE(t.current_segment, ''),
+                COALESCE(t.current_plan, ''),
+                COALESCE(t.vertical, ''),
+                COALESCE(CAST(t.main_user_id AS STRING), ''),
+                COALESCE(t.user_email, ''),
+                COALESCE(t.owner_phone_number, ''),
+                COALESCE(t.phone_from_footer, ''),
+                COALESCE(t.whatsapp_button, ''),
+                COALESCE(CAST(COALESCE(t.qty_admin_access_7d, 0) AS STRING), ''),
+                COALESCE(CAST(COALESCE(t.qty_admin_access_15d, 0) AS STRING), ''),
+                COALESCE(CAST(COALESCE(t.qty_admin_access_30d, 0) AS STRING), ''),
+                COALESCE(CAST(COALESCE(t.qty_admin_access_60d, 0) AS STRING), ''),
+                COALESCE(CAST(t.first_date_admin_access AS STRING), ''),
+                COALESCE(CAST(t.last_date_admin_access AS STRING), ''),
+                COALESCE(CAST(t.first_store_session AS STRING), ''),
+                COALESCE(CAST(COALESCE(t.qty_sessions_7d, 0) AS STRING), ''),
+                COALESCE(CAST(COALESCE(t.qty_sessions_15d, 0) AS STRING), ''),
+                COALESCE(CAST(COALESCE(t.qty_sessions_30d, 0) AS STRING), ''),
+                COALESCE(CAST(COALESCE(t.qty_sessions_60d, 0) AS STRING), ''),
+                COALESCE(CAST(COALESCE(t.qty_sessions_90d, 0) AS STRING), ''),
+                COALESCE(CAST(t.last_store_session AS STRING), ''),
+                COALESCE(CAST(COALESCE(t.config_layout, 0) AS STRING), ''),
+                COALESCE(t.layout_name, ''),
+                COALESCE(CAST(COALESCE(t.theme_banner, 0) AS STRING), ''),
+                COALESCE(CAST(COALESCE(t.theme_slider, 0) AS STRING), ''),
+                COALESCE(CAST(COALESCE(t.theme_color_change, 0) AS STRING), ''),
+                COALESCE(CAST(t.first_date_config_layout AS STRING), ''),
+                COALESCE(CAST(t.last_date_config_layout AS STRING), ''),
+                COALESCE(CAST(COALESCE(t.config_products, 0) AS STRING), ''),
+                COALESCE(CAST(t.first_date_config_products AS STRING), ''),
+                COALESCE(CAST(t.last_date_config_products AS STRING), ''),
+                COALESCE(CAST(COALESCE(t.config_payment, 0) AS STRING), ''),
+                COALESCE(CAST(t.first_date_config_payment AS STRING), ''),
+                COALESCE(CAST(t.last_date_config_payment AS STRING), ''),
+                COALESCE(CAST(COALESCE(t.config_shipping, 0) AS STRING), ''),
+                COALESCE(CAST(t.first_date_config_shipping AS STRING), ''),
+                COALESCE(CAST(t.last_date_config_shipping AS STRING), ''),
+                COALESCE(CAST(t.first_order AS STRING), ''),
+                COALESCE(CAST(t.time_to_first_order AS STRING), ''),
+                COALESCE(CAST(t.orders_7 AS STRING), ''),
+                COALESCE(CAST(t.orders_15 AS STRING), ''),
+                COALESCE(CAST(t.orders_30 AS STRING), ''),
+                COALESCE(CAST(t.orders_60 AS STRING), ''),
+                COALESCE(CAST(t.orders_90 AS STRING), ''),
+                COALESCE(CAST(t.gmv_30 AS STRING), ''),
+                COALESCE(CAST(t.gmv_60 AS STRING), ''),
+                COALESCE(CAST(t.gmv_90 AS STRING), ''),
+                COALESCE(CAST(t.gmv_dol_30 AS STRING), ''),
+                COALESCE(CAST(t.gmv_dol_60 AS STRING), ''),
+                COALESCE(CAST(t.gmv_dol_90 AS STRING), ''),
+                COALESCE(CAST(t.upgrade_d7 AS STRING), ''),
+                COALESCE(CAST(t.upgrade_d15 AS STRING), ''),
+                COALESCE(CAST(t.upgrade_d30 AS STRING), ''),
+                COALESCE(CAST(t.downgrade_d7 AS STRING), ''),
+                COALESCE(CAST(t.downgrade_d15 AS STRING), ''),
+                COALESCE(CAST(t.downgrade_d30 AS STRING), ''),
+                COALESCE(CAST(t.primeiro_plano AS STRING), ''),
+                COALESCE(CAST(t.max_plan_d7 AS STRING), ''),
+                COALESCE(CAST(t.max_plan_d15 AS STRING), ''),
+                COALESCE(CAST(t.max_plan_d30 AS STRING), ''),
+                COALESCE(t.mkt_source_first_click, ''),
+                COALESCE(t.mkt_subteam_first_click, ''),
+                COALESCE(t.mkt_source_last_click, ''),
+                COALESCE(t.mkt_subteam_last_click, ''),
+                COALESCE(CAST(t.active_merchant_probability AS STRING), ''),
+                COALESCE(t.onboarding_tag, ''),
+                COALESCE(CAST(t.new_payment_probability AS STRING), ''),
+                COALESCE(CAST(t.cutoff_ql AS STRING), ''),
+                COALESCE(CAST(COALESCE(t.blocked_fraud_tag, 0) AS STRING), '')
             )
         ) AS existing_hash
-    FROM {{ this }}
+    FROM {{ this }} t
+    -- Optimización: Solo calcular hash para tiendas que pasaron el filtro inicial
+    INNER JOIN stores_to_check_hash stch ON t.store_id = stch.store_id
 ),
 {% endif %}
 -- Solo incluir filas que cambiaron o son nuevas

@@ -2394,7 +2394,7 @@ models:
         description: "System identifier of the process that last updated this record"
 
   - name: g__product_marketing__onboarding_4_steps_store__agg
-    description: "**Data Product GOLD: Onboarding 4 Steps Consolidated Metrics by Store**\n\nModelo consolidado con todas las métricas de onboarding y 4 steps por tienda.\nConsolida información de múltiples data products: admin access, storefront sessions, layout, products, payments, shipping, orders/GMV, plan movements, attribution, QLs y tags de onboarding.\n\n**Domain:** marketing\n**Granularity:** agg (one row per store)"
+    description: "**Data Product GOLD: Onboarding 4 Steps Consolidated Metrics by Store**\n\nModelo consolidado con todas las métricas de onboarding y 4 steps por tienda.\nConsolida información de múltiples data products: admin access, storefront sessions, layout, products, payments, shipping, orders/GMV, plan movements, attribution, QLs y tags de onboarding.\n\n**Fuentes principales:**\n- Attribution: Consumido desde s__attributes__acquisition_profile__ref (domain merchant)\n- Orders/GMV: Calculado en modelo intermedio _int_marketing__onboarding_orders_gmv\n- Plan Movements: Calculado en modelo intermedio _int_marketing__onboarding_plan_movements\n- Onboarding Tags: Consumido desde int_moltres.mwp_tags\n\n**Domain:** marketing\n**Granularity:** agg (one row per store)\n**Materialización:** Incremental optimizada con comparación de hash para evitar UPDATEs innecesarios"
     meta:
       owner: "jhu.boggio@tiendanube.com"
       domain: "marketing"
@@ -2536,17 +2536,17 @@ models:
       - name: max_plan_d30
         description: "Grupo del plan máximo alcanzado en los primeros 30 días desde creación"
       - name: mkt_source_first_click
-        description: "Fuente de marketing atribuida al primer click"
+        description: "Fuente de marketing atribuida al primer click. Consumido desde s__attributes__acquisition_profile__ref (domain merchant)"
       - name: mkt_subteam_first_click
-        description: "Subteam de marketing atribuida al primer click"
+        description: "Subteam de marketing atribuida al primer click. Consumido desde s__attributes__acquisition_profile__ref (domain merchant)"
       - name: mkt_source_last_click
-        description: "Fuente de marketing atribuida al último click"
+        description: "Fuente de marketing atribuida al último click. Consumido desde s__attributes__acquisition_profile__ref (domain merchant)"
       - name: mkt_subteam_last_click
-        description: "Subteam de marketing atribuida al último click"
+        description: "Subteam de marketing atribuida al último click. Consumido desde s__attributes__acquisition_profile__ref (domain merchant)"
       - name: active_merchant_probability
-        description: "Probabilidad de ser active merchant (0 o 1). Usa is_active_merchant de s__lifecycle__store_status__ref. Si necesitas una probabilidad real (0-1), usar un modelo de ML específico"
+        description: "Probabilidad de ser active merchant (0 o 1). Usa is_active_merchant de s__lifecycle__store_status__ref. Si necesitas una probabilidad real (0-1), usar un modelo de ML específico. Attribution consumido desde s__attributes__acquisition_profile__ref (domain merchant)"
       - name: onboarding_tag
-        description: "Tag de onboarding asignado a la tienda (new-admin-onboarding-202411-a o new-admin-onboarding-202411-b)"
+        description: "Tag de onboarding asignado a la tienda (new-admin-onboarding-202411-a o new-admin-onboarding-202411-b). Consumido desde int_moltres.mwp_tags"
       - name: new_payment_probability
         description: "Probabilidad estimada de que la tienda convierta a cliente pagante (0-1)"
       - name: cutoff_ql

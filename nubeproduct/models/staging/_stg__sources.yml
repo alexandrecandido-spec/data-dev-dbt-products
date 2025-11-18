@@ -459,14 +459,6 @@ sources:
       - name: store_invoice_registry
         description: "Contains the configuration of the stores for the invoice feature"
 
-  - name: stg_tableau_external
-    database: hive_metastore
-    schema: tableau_external
-    description: "Raw tables from tableau_external schema containing external data sources"
-    tables:
-      - name: gs_perfit_merchants
-        description: "Perfit merchants data from external source"
-
   - name: stg_unity_data_manual
     database: data_products_prd
     schema: data_manual
