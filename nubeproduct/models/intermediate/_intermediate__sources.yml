@@ -69,6 +69,8 @@ sources:
         description: "Información de notas de crédito de facturas."
       - name: mwp_store_cancellations
         description: "Información de cancelaciones de tiendas (encuestas de churns o cancelaciones de tiendas). Incluye el motivo de la cancelación y el comentario de la cancelación."
+      - name: mwp_facebook_bussiness_extension
+        description: "Facebook Business Extension (CAPI) configuration by store"
 
   - name: int_finance
     database: hive_metastore
@@ -330,19 +332,7 @@ sources:
       - name: invoice_information
         description: "Información de facturación/razón social asociada a la tienda."
 
-  - name: int_stg_moltres
-    database: hive_metastore
-    schema: moltres
-    description: "Staging tables from moltres schema used in intermediate models"
-    tables:
-      - name: mwp_store_settings
-        description: "Store configuration settings"
-      - name: mwp_facebook_bussiness_extension
-        description: "Facebook Business Extension (CAPI) configuration by store"
-      - name: mwp_options
-        description: "Contains information about merchant configuration settings options"
-
-  - name: int_stg_curated_social
+  - name: int_social
     database: hive_metastore
     schema: social
     description: "Staging tables from social schema used in intermediate models"

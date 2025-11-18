@@ -469,20 +469,6 @@ sources:
       - name: store_invoice_registry
         description: "Contains the configuration of the stores for the invoice feature"
 
-  - name: stg_curated_social
-    database: hive_metastore
-    schema: social
-    description: "Raw tables from hive_metastore.social schema containing social media integrations"
-    tables:
-      - name: google_ads_account
-        description: "Google Ads account installations by store"
-      - name: google_user
-        description: "Google user integrations by store"
-      - name: google_merchant_center_account
-        description: "Google Merchant Center account installations by store"
-      - name: tiktok_user
-        description: "TikTok user integrations by store"
-
   - name: stg_unity_data_manual
     database: data_products_prd
     schema: data_manual
