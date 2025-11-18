@@ -62,8 +62,8 @@ def execute_query(connection: Connection, query: str, query_name: str):
     print(f"{Colors.BOLD}{Colors.OKCYAN}📊 {query_name}{Colors.ENDC}")
     print(f"{Colors.HEADER}{'='*80}{Colors.ENDC}\n")
     
+    cursor = connection.cursor()
     try:
-        cursor = connection.cursor()
         cursor.execute(query)
         
         # Obtener nombres de columnas
@@ -87,11 +87,11 @@ def execute_query(connection: Connection, query: str, query_name: str):
         
         print(f"\n{Colors.OKGREEN}✅ Total de filas: {len(results)}{Colors.ENDC}\n")
         
-        cursor.close()
-        
     except Exception as e:
-        print(f"{Colors.FAIL}❌ Error al ejecutar la consulta: {str(e)}{Colors.ENDC}\n")
+        print(f"{Colors.FAIL}❌ Error al ejecutar la consulta: {e}{Colors.ENDC}\n")
         raise
+    finally:
+        cursor.close()
 
 def main():
     """Función principal"""
@@ -132,7 +132,7 @@ def main():
     current_name = None
     in_query = False
     
-    for i, line in enumerate(lines):
+    for line in lines:
         # Detectar inicio de consulta
         if re.match(r'--\s*CONSULTA\s+(\d+):\s*(.+)', line, re.IGNORECASE):
             # Guardar consulta anterior
@@ -147,9 +147,8 @@ def main():
             # Extraer número y nombre de la nueva consulta
             match = re.match(r'--\s*CONSULTA\s+(\d+):\s*(.+)', line, re.IGNORECASE)
             if match:
-                query_num = match.group(1)
                 query_name = match.group(2).strip()
-                current_name = f"{query_num}. {query_name}"
+                current_name = query_name  # Guardar solo el nombre, sin el número
                 current_query = []
                 in_query = False  # Esperar a que termine el header de comentarios
             continue
@@ -193,7 +192,7 @@ def main():
     # Ejecutar cada consulta
     try:
         for i, query_info in enumerate(queries, 1):
-            query_name = f"{i}. {query_info['name']}"
+            query_name = f"{i}. {query_info['name']}"  # Agregar número solo aquí
             execute_query(connection, query_info['sql'], query_name)
     finally:
         connection.close()
