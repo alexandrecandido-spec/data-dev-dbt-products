@@ -7,6 +7,24 @@
     )
 }}
 
+-- depends_on:
+--   - {{ ref('_int_marketing__onboarding_orders_gmv') }}
+--   - {{ ref('_int_marketing__onboarding_plan_movements') }}
+--   - {{ ref('s__attributes__store_core__ref') }}
+--   - {{ ref('s__attributes__store_identity__ref') }}
+--   - {{ ref('g__product_marketing__admin_access_store__agg') }}
+--   - {{ ref('g__product_marketing__storefront_sessions_store__agg') }}
+--   - {{ ref('s__product_marketing__layout__ref') }}
+--   - {{ ref('s__product_marketing__products__ref') }}
+--   - {{ ref('s__product_marketing__payments__ref') }}
+--   - {{ ref('s__product_marketing__shipping__ref') }}
+--   - {{ ref('s__lifecycle__store_status__ref') }}
+--   - {{ ref('s__attributes__acquisition_profile__ref') }}
+--   - {{ ref('marketing__models__quality_leads__ref') }}
+--   - {{ ref('company_metrics_paid_orders') }}
+--   - {{ ref('moltres__contracts') }}
+--   - {{ source('int_moltres', 'mwp_tags') }}
+
 /*
 Data Product: Onboarding 4 Steps Consolidated (GOLD AGG)
 Description: Modelo consolidado con todas las métricas de onboarding y 4 steps por tienda
@@ -16,10 +34,10 @@ Business Use: Dashboard consolidado de onboarding con todas las métricas de 4 s
 
 Spec: 
 - Consolida información de múltiples data products: admin access, storefront sessions, layout, products, payments, shipping
-- Incluye métricas de órdenes/GMV desde data_operations
+- Incluye métricas de órdenes/GMV desde _int_marketing__onboarding_orders_gmv (modelo intermedio ephemeral)
 - Incluye información de tienda desde data_operations
-- Incluye lógica de upgrade/downgrade de planes
-- Incluye attribution desde s__attributes__acquisition_profile__ref (domain merchant), tags de onboarding, QLs
+- Incluye lógica de upgrade/downgrade de planes desde _int_marketing__onboarding_plan_movements (modelo intermedio ephemeral)
+- Incluye attribution desde s__attributes__acquisition_profile__ref (domain merchant), tags de onboarding (int_moltres.mwp_tags), QLs
 - Una fila por store_id
 
 ✅ Materialización INCREMENTAL OPTIMIZADA CON COMPARACIÓN DE VALORES:
@@ -257,54 +275,10 @@ store_info AS (
 
 -- ============================================
 -- ORDERS & GMV: Métricas de órdenes y GMV
--- Calculado desde company_metrics_paid_orders
+-- Usa modelo intermedio _int_marketing__onboarding_orders_gmv
 -- ============================================
-store_created_dates AS (
-    SELECT DISTINCT
-        store_id,
-        created_at AS store_created_at
-    FROM {{ ref('s__attributes__store_core__ref') }}
-    WHERE created_at >= '2024-01-01'
-),
-orders_gmv_base AS (
-    SELECT 
-        o.store_id,
-        scd.store_created_at,
-        o.id AS order_id,
-        DATE(o.completed_at) AS completed_date,
-        o.total,
-        o.total_in_usd,
-        DATEDIFF(DAY, scd.store_created_at, DATE(o.completed_at)) AS days_since_store_creation
-    FROM {{ ref('company_metrics_paid_orders') }} o
-    INNER JOIN store_created_dates scd
-        ON o.store_id = scd.store_id
-    WHERE o.completed_at IS NOT NULL
-        AND o.total_in_usd >= 0
-        AND o.total_in_usd < 10000  -- Filtrar outliers según especificación
-),
 orders_gmv AS (
-    SELECT 
-        store_id,
-        -- Primera orden completada
-        MIN(completed_date) AS first_order,
-        -- Días desde creación de tienda hasta primera orden
-        MIN(days_since_store_creation) AS time_to_first_order,
-        -- Conteo de órdenes por ventana de tiempo desde creación de tienda
-        COUNT(DISTINCT CASE WHEN days_since_store_creation <= 7 THEN order_id ELSE NULL END) AS orders_7,
-        COUNT(DISTINCT CASE WHEN days_since_store_creation <= 15 THEN order_id ELSE NULL END) AS orders_15,
-        COUNT(DISTINCT CASE WHEN days_since_store_creation <= 30 THEN order_id ELSE NULL END) AS orders_30,
-        COUNT(DISTINCT CASE WHEN days_since_store_creation <= 60 THEN order_id ELSE NULL END) AS orders_60,
-        COUNT(DISTINCT CASE WHEN days_since_store_creation <= 90 THEN order_id ELSE NULL END) AS orders_90,
-        -- GMV en moneda local por ventana de tiempo desde creación de tienda
-        SUM(CASE WHEN days_since_store_creation <= 30 THEN COALESCE(total, 0) ELSE 0 END) AS gmv_30,
-        SUM(CASE WHEN days_since_store_creation <= 60 THEN COALESCE(total, 0) ELSE 0 END) AS gmv_60,
-        SUM(CASE WHEN days_since_store_creation <= 90 THEN COALESCE(total, 0) ELSE 0 END) AS gmv_90,
-        -- GMV en USD por ventana de tiempo desde creación de tienda
-        SUM(CASE WHEN days_since_store_creation <= 30 THEN COALESCE(total_in_usd, 0) ELSE 0 END) AS gmv_dol_30,
-        SUM(CASE WHEN days_since_store_creation <= 60 THEN COALESCE(total_in_usd, 0) ELSE 0 END) AS gmv_dol_60,
-        SUM(CASE WHEN days_since_store_creation <= 90 THEN COALESCE(total_in_usd, 0) ELSE 0 END) AS gmv_dol_90
-    FROM orders_gmv_base
-    GROUP BY store_id
+    SELECT * FROM {{ ref('_int_marketing__onboarding_orders_gmv') }}
 ),
 
 -- ============================================
@@ -351,127 +325,10 @@ onboarding_tags AS (
 
 -- ============================================
 -- PLAN MOVEMENTS: Upgrade/downgrade de planes
--- Calculado desde moltres__contracts comparando group_order_id de planes
+-- Usa modelo intermedio _int_marketing__onboarding_plan_movements
 -- ============================================
-contracts_with_plan_info AS (
-    SELECT 
-        c.store_id,
-        c.plan_id,
-        c.created_at,
-        c.start_date,
-        gp.grupo AS plan_group,
-        CASE 
-            WHEN gp.grupo IN ('test_broken','no-stores') THEN 0
-            WHEN gp.grupo IN ('zero-fee','freemium') THEN 1
-            WHEN gp.grupo IN ('lojinha','plan-a','plan-emprendedor') THEN 2
-            WHEN gp.grupo IN ('plan-b') THEN 3
-            WHEN gp.grupo IN ('plan-c') THEN 4
-            WHEN gp.grupo IN ('enterprise') THEN 5
-            ELSE -1 
-        END AS plan_order_id,
-        s.created_at AS store_created_at
-    FROM {{ ref('moltres__contracts') }} c
-    INNER JOIN {{ ref('s__attributes__store_core__ref') }} s
-        ON c.store_id = s.store_id
-        AND s.created_at >= '2024-01-01'
-    LEFT JOIN {{ ref('s__general__grouping_plans__ref') }} gp
-        ON c.plan_id = gp.plan
-    WHERE c.plan_id IS NOT NULL
-),
-first_plan AS (
-    SELECT 
-        store_id,
-        plan_group AS primeiro_plano,
-        plan_order_id AS first_plan_order_id
-    FROM (
-        SELECT 
-            store_id,
-            plan_group,
-            plan_order_id,
-            ROW_NUMBER() OVER (PARTITION BY store_id ORDER BY created_at ASC, start_date ASC) AS rn
-        FROM contracts_with_plan_info
-    ) ranked
-    WHERE rn = 1
-),
-max_plan_by_window AS (
-    SELECT 
-        store_id,
-        MAX(CASE WHEN DATEDIFF(DAY, store_created_at, DATE(created_at)) <= 7 THEN plan_order_id ELSE -1 END) AS max_plan_order_d7,
-        MAX(CASE WHEN DATEDIFF(DAY, store_created_at, DATE(created_at)) <= 15 THEN plan_order_id ELSE -1 END) AS max_plan_order_d15,
-        MAX(CASE WHEN DATEDIFF(DAY, store_created_at, DATE(created_at)) <= 30 THEN plan_order_id ELSE -1 END) AS max_plan_order_d30,
-        MAX(CASE WHEN DATEDIFF(DAY, store_created_at, DATE(created_at)) <= 7 THEN plan_group ELSE NULL END) AS max_plan_d7,
-        MAX(CASE WHEN DATEDIFF(DAY, store_created_at, DATE(created_at)) <= 15 THEN plan_group ELSE NULL END) AS max_plan_d15,
-        MAX(CASE WHEN DATEDIFF(DAY, store_created_at, DATE(created_at)) <= 30 THEN plan_group ELSE NULL END) AS max_plan_d30
-    FROM contracts_with_plan_info
-    GROUP BY store_id
-),
--- Plan al final de cada ventana (último plan activo dentro de la ventana)
--- Usamos ROW_NUMBER para obtener el último contrato dentro de cada ventana
-contracts_ranked_by_window AS (
-    SELECT 
-        c.store_id,
-        c.plan_order_id,
-        DATEDIFF(DAY, c.store_created_at, DATE(c.created_at)) AS days_from_creation,
-        ROW_NUMBER() OVER (
-            PARTITION BY c.store_id, 
-                CASE 
-                    WHEN DATEDIFF(DAY, c.store_created_at, DATE(c.created_at)) <= 7 THEN 7
-                    WHEN DATEDIFF(DAY, c.store_created_at, DATE(c.created_at)) <= 15 THEN 15
-                    WHEN DATEDIFF(DAY, c.store_created_at, DATE(c.created_at)) <= 30 THEN 30
-                    ELSE NULL
-                END
-            ORDER BY c.created_at DESC, c.start_date DESC
-        ) AS rn
-    FROM contracts_with_plan_info c
-    WHERE DATEDIFF(DAY, c.store_created_at, DATE(c.created_at)) <= 30
-),
-plan_at_end_of_window AS (
-    SELECT 
-        store_id,
-        MAX(CASE WHEN days_from_creation <= 7 AND rn = 1 THEN plan_order_id ELSE -1 END) AS plan_order_d7,
-        MAX(CASE WHEN days_from_creation <= 15 AND rn = 1 THEN plan_order_id ELSE -1 END) AS plan_order_d15,
-        MAX(CASE WHEN days_from_creation <= 30 AND rn = 1 THEN plan_order_id ELSE -1 END) AS plan_order_d30
-    FROM contracts_ranked_by_window
-    GROUP BY store_id
-),
 plan_movements AS (
-    SELECT 
-        sc.store_id,
-        fp.primeiro_plano,
-        mp.max_plan_d7,
-        mp.max_plan_d15,
-        mp.max_plan_d30,
-        -- Upgrade: si el plan máximo en la ventana es mayor que el primer plan
-        CASE WHEN mp.max_plan_order_d7 > COALESCE(fp.first_plan_order_id, -1) THEN 1 ELSE 0 END AS upgrade_d7,
-        CASE WHEN mp.max_plan_order_d15 > COALESCE(fp.first_plan_order_id, -1) THEN 1 ELSE 0 END AS upgrade_d15,
-        CASE WHEN mp.max_plan_order_d30 > COALESCE(fp.first_plan_order_id, -1) THEN 1 ELSE 0 END AS upgrade_d30,
-        -- Downgrade: si el plan al final de la ventana es menor que el plan máximo alcanzado en esa ventana
-        CASE 
-            WHEN mp.max_plan_order_d7 > 0 
-                AND pe.plan_order_d7 >= 0 
-                AND pe.plan_order_d7 < mp.max_plan_order_d7 
-            THEN 1 
-            ELSE 0 
-        END AS downgrade_d7,
-        CASE 
-            WHEN mp.max_plan_order_d15 > 0 
-                AND pe.plan_order_d15 >= 0 
-                AND pe.plan_order_d15 < mp.max_plan_order_d15 
-            THEN 1 
-            ELSE 0 
-        END AS downgrade_d15,
-        CASE 
-            WHEN mp.max_plan_order_d30 > 0 
-                AND pe.plan_order_d30 >= 0 
-                AND pe.plan_order_d30 < mp.max_plan_order_d30 
-            THEN 1 
-            ELSE 0 
-        END AS downgrade_d30
-    FROM {{ ref('s__attributes__store_core__ref') }} sc
-    LEFT JOIN first_plan fp ON sc.store_id = fp.store_id
-    LEFT JOIN max_plan_by_window mp ON sc.store_id = mp.store_id
-    LEFT JOIN plan_at_end_of_window pe ON sc.store_id = pe.store_id
-    WHERE sc.created_at >= '2024-01-01'
+    SELECT * FROM {{ ref('_int_marketing__onboarding_plan_movements') }}
 ),
 
 -- ============================================
