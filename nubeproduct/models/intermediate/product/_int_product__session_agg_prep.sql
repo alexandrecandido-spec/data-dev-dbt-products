@@ -41,3 +41,17 @@ LEFT JOIN
     AND mo.is_paid_order = TRUE
     AND mo.total_in_usd >= 0 
     AND mo.total_in_usd < 10000
+WHERE
+    {% set interval = get_max_date_env_model(
+      'product',
+      'g__traffic__session_carts__agg_daily',
+      'base_date',
+      1, 'month',
+      fallback_start='2024-01-01',
+      fallback_end='2024-01-05'
+    ) %}
+    {% set min_date_raw = interval.split(' ')[1] %}
+    {% set min_date = min_date_raw %}
+    {% set max_date = interval.split(' ')[-1] %}
+    {% set s_start_date = "DATE_ADD(MONTH, -1, DATE_TRUNC('MONTH', " ~ min_date ~ "))" %}
+    base_sessions.base_date BETWEEN {{ s_start_date }} AND {{ max_date }}

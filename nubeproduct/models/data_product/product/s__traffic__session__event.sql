@@ -1,29 +1,24 @@
 -- Brings sessions with enriched UTMs, user classification and traffic classification. SSOT
-
 {{ config(
-   materialized = 'incremental',
-   unique_key = ['base_date', 'unique_session_key'],
-   partition_by = 'base_date',
-   on_schema_change = 'fail',
-   tags = ['product', 'daily-3am'],
-   pre_hook = [
-        "DELETE FROM {{ this }} WHERE base_date = DATE('2024-09-23')"
-    ]
+    materialized = 'incremental',
+    incremental_strategy='merge',
+    unique_key = ['base_date', 'unique_session_key'],
+    partition_by = 'base_date',
+    on_schema_change = 'fail',
+    post_hook=["OPTIMIZE {{ this }} ZORDER BY (unique_session_key)"],
+    tags = ['daily-2am']
 ) }}
 
-{% set base_date_filter %}
-  {% if 1 == 1 %}
-    = DATE('2024-09-23')
-  {% else %}
-    {% if not is_incremental() %}
-        BETWEEN DATE('2024-01-01') AND DATE('2024-01-05')
-    {% else %}
-        {{ get_max_date(this, 'base_date', 2, 'week') }}
-    {% endif %}
-  {% endif %}
-{% endset %}
+{% set force_start_var = var('force_start', None) %}
 
-{% set base_date_filter = base_date_filter | replace('\n',' ') | replace('\t',' ') | trim %}
+{% set base_date_filter = get_incremental_date(
+    domain='product',
+    table='s__traffic__session__event',
+    date_field='base_date',
+    fwd_value=1,
+    fwd_unit='week',
+    force_date=force_start_var
+) %}
 
 WITH swd AS (
 SELECT

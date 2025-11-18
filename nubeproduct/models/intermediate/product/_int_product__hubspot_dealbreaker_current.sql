@@ -36,7 +36,7 @@ SELECT
 FROM {{ ref('product__general__hubspot_dealbreaker__event') }} d
 JOIN {{ ref('product__general__hubspot_dealbreaker_current__snapshot_daily') }} current
     ON d.dealbreaker_id = current.dealbreaker_id
-JOIN {{ ref('product__general__hubspot_dealbreaker_company__link') }} link
+LEFT JOIN {{ ref('product__general__hubspot_dealbreaker_company__link') }} link
     ON d.dealbreaker_id = link.dealbreaker_id
-JOIN {{ ref('product__general__hubspot_company__event') }} c
+LEFT JOIN {{ ref('product__general__hubspot_company__event') }} c
     ON link.company_id = c.company_id

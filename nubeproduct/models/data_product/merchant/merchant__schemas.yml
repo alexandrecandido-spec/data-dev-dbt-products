@@ -117,6 +117,20 @@ models:
         description: "Usuario de TikTok de la tienda"
       - name: pinterest
         description: "Usuario de Pinterest de la tienda"
+      - name: pixel_fb
+        description: "Indica si la tienda tiene Facebook Pixel configurado (Yes/No)"
+      - name: capi_status
+        description: "Indica si la tienda tiene Facebook CAPI (Conversions API) activo (Yes/No)"
+      - name: twofa_status
+        description: "Estado de autenticación de dos factores (2FA) de la tienda. Valores: 'Completamente desactivado', '2FA completamente activado', 'Parcialmente activado', 'No informado'"
+      - name: tiktok_ads
+        description: "Indica si la tienda tiene TikTok Ads instalado (Yes/No)"
+      - name: google_ads
+        description: "Indica si la tienda tiene Google Ads instalado (Yes/No)"
+      - name: google_mc
+        description: "Indica si la tienda tiene Google Merchant Center instalado (Yes/No)"
+      - name: google_user
+        description: "Indica si la tienda tiene Google User instalado (Yes/No)"
       - name: active_theme
         description: "Nombre del tema activo actual (ej: 'sydney', 'tokyo')"
       - name: first_date_config_theme
@@ -332,7 +346,7 @@ models:
       - name: mkt_subteam_partner_click
         description: "Marketing subteam from the partner click attribution. Tag indicating the affiliate classification of the store."
       - name: mkt_campaign_partner_click
-        description: "Marketing campaign from the partner click attribution."
+        description: "Identifies the marketing campaign associated with the user’s first click on a partner-related landing page. It returns the campaign name when the record has a valid partner_id and the landing page URL contains “/partners/”. Used to track campaigns that drive traffic through partner links, distinguishing them from other marketing sources."
       - name: mkt_landing_page_domain_first_click
         description: "Landing page domain from the first click attribution."
       - name: mkt_landing_page_domain_last_click
@@ -343,9 +357,6 @@ models:
         description: "Landing page path from the last click attribution."
       - name: ql_profile
         description: "Quality lead profile classification."
-        tests: [not_null]
-      - name: blocked_fraud_tag
-        description: "Tag indicating if the store is blocked or is attributed to a fraudulent partner."
         tests: [not_null]
       - name: sys_audit_created_on
         description: "Timestamp when the row was originally created."
@@ -405,6 +416,38 @@ models:
       - name: last_sale
         description: "Date of the last sale"
         tests: [not_null]
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created."
+        tests: [not_null]
+      - name: sys_audit_created_by
+        description: "System or user that created the row."
+        tests: [not_null]
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this table."
+        tests: [not_null]
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row."
+        tests: [not_null]
+
+  - name: s__lifecycle__competitor_crawler__ref
+    description: "Data Product silver that contains the competitor crawler data of each store. This data is used to identify the competitor of each store. The crawler stopped working in 2023"
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "merchant"
+        business_owner: "Analytics Engineering"
+    columns:
+      - name: id
+        description: "Unique identifier for each competitor crawler"
+        tests: [not_null, unique]
+      - name: store_id
+        description: "Unique identifier for each store"
+      - name: cname
+        description: "Competitor name"
+      - name: competitor
+        description: "Competitor URL"
+      - name: date
+        description: "Date of the competitor crawler"
       - name: sys_audit_created_on
         description: "Timestamp when the row was originally created."
         tests: [not_null]

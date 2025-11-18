@@ -1,9 +1,11 @@
 -- Enriches filtered user sessions with fallback UTM parameters and referring/landing domains
 -- UTM values are extracted from http_referral and landing_page if original UTMs are missing
 
+{% set force_start_var = var('force_start', None) %}
+
 WITH base_sessions AS (
 SELECT
-   unique_session_key
+    unique_session_key
    , session_timestamp
    , base_date
    , session_id
@@ -24,20 +26,16 @@ SELECT
 FROM
    {{ ref('product__traffic__sessions__event') }}
 WHERE
-{% if 1 == 1 %}
-   base_date = DATE('2024-09-23')
-{% else %}
    base_date {{
-    get_max_date_env_model(
-      'product',
-      's__traffic__session__event',
-      'base_date',
-      2, 'week',
-      fallback_start='2024-01-01',
-      fallback_end='2024-01-05'
+    get_incremental_date(
+      domain='product',
+      table='s__traffic__session__event',
+      date_field='base_date',
+      fwd_value=1,
+      fwd_unit='week',
+      force_date=force_start_var
     )
   }}
-{% endif %}
 )
 
 , utm_extracts AS (

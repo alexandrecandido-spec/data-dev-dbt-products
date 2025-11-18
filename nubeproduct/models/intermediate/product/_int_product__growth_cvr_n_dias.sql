@@ -1,25 +1,21 @@
 WITH base AS (
     SELECT 
-        store_id,
-        CAST(created_at AS DATE) AS date,
-        first_payment,
-        UPPER(country) AS country,
-        CASE	
-            WHEN verified = 1 THEN 'Desktop'	
-            WHEN verified IN (4, 5, 6) THEN 'Mobile'
-            WHEN verified = 2 THEN 'App'
-            WHEN verified = 0 THEN 'Undefined'
-            ELSE 'Tablet' 
-        END AS device,
-        DATEDIFF(first_payment, created_at) AS diff,
+        core.store_id,
+        CAST(core.created_at AS DATE) AS date,
+        status.first_payment,
+        core.country_code AS country,
+        core.device,
+        DATEDIFF(status.first_payment, core.created_at) AS diff,
         CASE 
-            WHEN CAST(partner_id AS string) IS NULL THEN FALSE
+            WHEN CAST(core.partner_id AS string) IS NULL THEN FALSE
             ELSE TRUE
         END AS is_affiliate,
-        is_store_blocked
-    FROM {{ ref('moltres__mwp_store_info') }}
+        status.is_store_blocked
+    FROM {{ ref('_int__attributes__store_core')}} AS core
+    LEFT JOIN {{ ref('_int__lifecycle__store_status')}} AS status 
+    ON core.store_id = status.store_id
     WHERE 
-        CAST(created_at AS DATE) >= '2022-01-01' 
+        CAST(core.created_at AS DATE) >= '2022-01-01' 
 ),
 
 aux AS (
@@ -29,7 +25,7 @@ aux AS (
     WHERE first_payment IS NOT NULL
 ),
 
-agg_1 AS (
+agg AS (
     SELECT 
         date,
         country,
@@ -61,7 +57,7 @@ unpivoted AS (
         is_store_blocked,
         days_agg,
         stores
-    FROM agg_1
+    FROM agg
     LATERAL VIEW STACK(
         12,                       
         'total07', total07,

@@ -2,13 +2,14 @@
 {% macro get_max_date_env_model(
     domain,
     table_name,
-    date_field='base_date',
-    period_value=1,
-    period_unit='week',
+    date_field,
+    period_value,
+    period_unit,
     catalog_override=None,
     quote_identifiers=False,
     fallback_start=None,
-    fallback_end=None
+    fallback_end=None,
+    verbose=False
 ) %}
 
   {# 1) Monta FQN a partir do profile atual #}
@@ -23,26 +24,34 @@
     {% set fqn = db ~ '.' ~ sc ~ '.' ~ idf %}
   {% endif %}
 
-  {# 2) Fases de compile x execute #}
+  {# 2) Compile x Execute #}
   {% if not execute %}
+    {% if verbose %}{% do log("get_max_date_env_model[COMPILE] fqn=" ~ fqn, info=True) %}{% endif %}
     {% if fallback_start and fallback_end %}
+      {% if verbose %}{% do log(" → fallback BETWEEN " ~ fallback_start ~ " and " ~ fallback_end, info=True) %}{% endif %}
       {{ return("BETWEEN DATE('" ~ fallback_start ~ "') AND DATE('" ~ fallback_end ~ "')") }}
     {% else %}
+      {% if verbose %}{% do log(" → fallback 1=0 (sem fallback_start/end)", info=True) %}{% endif %}
       {{ return("1=0") }}
     {% endif %}
   {% endif %}
 
-  {# 3) Existe? #}
+  {# 3) Checa existência física #}
   {% set rel = adapter.get_relation(database=db, schema=sc, identifier=idf) %}
   {% if rel is none %}
+    {% if verbose %}{% do log("get_max_date_env_model[NOT FOUND] fqn=" ~ fqn, info=True) %}{% endif %}
     {% if fallback_start and fallback_end %}
+      {% if verbose %}{% do log(" → fallback BETWEEN " ~ fallback_start ~ " and " ~ fallback_end, info=True) %}{% endif %}
       {{ return("BETWEEN DATE('" ~ fallback_start ~ "') AND DATE('" ~ fallback_end ~ "')") }}
     {% else %}
+      {% if verbose %}{% do log(" → fallback 1=0 (sem fallback_start/end)", info=True) %}{% endif %}
       {{ return("1=0") }}
     {% endif %}
+  {% else %}
+    {% if verbose %}{% do log("get_max_date_env_model[FOUND] fqn=" ~ rel.database ~ "." ~ rel.schema ~ "." ~ rel.identifier, info=True) %}{% endif %}
   {% endif %}
 
-  {# 4) Pega a max_date com CAST no agregado (não na coluna) #}
+  {# 4) Pega a max_date (CAST no agregado, não na coluna) #}
   {% set q %}
     select cast(max({{ date_field }}) as date) as max_date
     from {{ fqn }}
@@ -50,16 +59,20 @@
   {% set res = run_query(q) %}
   {% set max_date = (res and res.columns and res.columns[0].values() and res.columns[0].values()[0]) %}
 
+  {% do log("get_max_date_env_model[MAX] " ~ date_field ~ "=" ~ (max_date if max_date else 'NULL'), info=True) %}
+
   {# 5) Vazio? -> fallback #}
   {% if not max_date %}
     {% if fallback_start and fallback_end %}
+      {% if verbose %}{% do log(" → tabela vazia → fallback BETWEEN " ~ fallback_start ~ " and " ~ fallback_end, info=True) %}{% endif %}
       {{ return("BETWEEN DATE('" ~ fallback_start ~ "') AND DATE('" ~ fallback_end ~ "')") }}
     {% else %}
+      {% if verbose %}{% do log(" → tabela vazia → fallback 1=0 (sem fallback_start/end)", info=True) %}{% endif %}
       {{ return("1=0") }}
     {% endif %}
   {% endif %}
 
-  {# 6) Calcula janela em Jinja, retornando BETWEEN "cru" #}
+  {# 6) Calcula janela e retorna BETWEEN “cru” #}
   {% if max_date is string %}
     {% set base = modules.datetime.datetime.strptime(max_date, '%Y-%m-%d') %}
   {% else %}
@@ -72,11 +85,12 @@
   {% elif unit in ['week','weeks'] %}
     {% set end = base + modules.datetime.timedelta(weeks=period_value) %}
   {% elif unit in ['month','months'] %}
-    {# mês aproximado; se quiser calendário exato, calcule no SQL consumidor com add_months #}
     {% set end = base + modules.datetime.timedelta(days=30 * period_value) %}
   {% else %}
     {% do exceptions.raise_compiler_error("Invalid period_unit: " ~ period_unit) %}
   {% endif %}
+
+  {% if verbose %}{% do log(" → BETWEEN " ~ base.date() ~ " and " ~ end.date(), info=True) %}{% endif %}
 
   {{ return("BETWEEN DATE('" ~ base.date() ~ "') AND DATE('" ~ end.date() ~ "')") }}
 {% endmacro %}
