@@ -69,6 +69,8 @@ sources:
         description: "Información de notas de crédito de facturas."
       - name: mwp_store_cancellations
         description: "Información de cancelaciones de tiendas (encuestas de churns o cancelaciones de tiendas). Incluye el motivo de la cancelación y el comentario de la cancelación."
+      - name: mwp_facebook_bussiness_extension
+        description: "Facebook Business Extension (CAPI) configuration by store"
 
   - name: int_finance
     database: hive_metastore
@@ -330,6 +332,7 @@ sources:
       - name: invoice_information
         description: "Información de facturación/razón social asociada a la tienda."
 
+<<<<<<< HEAD
   - name: int_stg_moltres
     database: hive_metastore
     schema: moltres
@@ -383,3 +386,17 @@ sources:
     tables:
       - name: installments
         description: "Contains all installments associated to a contract"
+
+  - name: int_social
+    database: hive_metastore
+    schema: social
+    description: "Staging tables from social schema used in intermediate models"
+    tables:
+      - name: tiktok_user
+        description: "TikTok user integrations by store"
+      - name: google_ads_account
+        description: "Google Ads account installations by store"
+      - name: google_merchant_center_account
+        description: "Google Merchant Center account installations by store"
+      - name: google_user
+        description: "Google user integrations by store"
