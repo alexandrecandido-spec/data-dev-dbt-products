@@ -114,8 +114,8 @@ select distinct
   si.country                                           as country,
   si.vertical                                          as vertical,
   si.current_segment                                   as current_segment,
-  si.mail                                              as mail,
-  si.phone                                             as phone,
+  si.user_email                                        as mail,
+  si.owner_phone                                       as phone,
   si.owner_phone_number                                as owner_phone_number,
   si.risk_dropshipping_tag                             as risk_dropshipping,
   si.franchise_group                                   as franchise_group,
@@ -178,7 +178,7 @@ where
     where closed_lost_reason_2_hubspot = '2) Out of Target (ICP): E-commerce sells unlicensed, counterfeit products or prohibited'
   )
   and si.country in ('AR','BR','MX')
-  and si.blocked_store_tag is null
+  and si.is_store_blocked is false
   and si.store_churn_date is null
   and si.first_payment is not null
   and si.state <> 4

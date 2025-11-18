@@ -1,17 +1,5 @@
 with
-    --Unique store name
-    store_names as 
-        (select distinct
-			si.id as store_id,
-			ssi.name as store_name
-		from {{ source('int_moltres', 'mwp_store_info') }} as si
-			left join {{ source('int_moltres', 'mwp_store_settings') }} as ss
-				on si.id = ss.store_id
-			left join {{ source('int_moltres', 'mwp_store_settings_i18n') }} as ssi
-				on ss.id = ssi.store_setting_id
-		where
-			si.country = substring(ssi.lang,INSTR(ssi.lang,'_')+1,2)),
-	--Franchise group
+   --Franchise group
 	franchise as 
 		(select
 		    t.related_id as store_id,
@@ -36,19 +24,7 @@ with
             true as risk_dropshipping_tag
         from {{ source('int_moltres', 'mwp_tags') }} t
         where 
-            t.tag = 'risk-dropshipping'),
-	--Blocked stores
-	blocked_stores as
-		(select distinct 
-			t.related_id as store_id,
-            true as blocked_store_tag
-		from {{ source('int_moltres', 'mwp_tags') }} as t
-		  where
-		  	t.type = 'store' 
-		  	and 
-		  		(t.tag = 'sre-block-store-429'
-		  		or 
-		  		t.tag = 'sre-block-store-404'))
+            t.tag = 'risk-dropshipping')
 select
 	sa.store_id,
 	cast(sa.created_at as date) as store_creation_date,
@@ -63,32 +39,24 @@ select
 	sa.state_name,
 	sa.city_name,
 	sa.vertical_name as vertical,
-    --store_info
-	si.state,
-    p.grupo as current_plan,
-    si.current_segment,
-    cast(si.first_payment as date) as first_payment,
-    cast(si.churned_at as date) as store_churn_date,
-    --store_settings
-    ss.mail, 
-    ss.phone, 
-    ss.owner_phone_number,
-    sn.store_name,
+	ss.state,
+    ss.current_plan_type as current_plan,
+    ss.current_segment,
+    cast(ss.first_payment as date) as first_payment,
+    cast(ss.churned_at as date) as store_churn_date,
+    sid.user_email, 
+    sid.owner_phone, 
+    sid.owner_phone_number,
+    sid.store_name,
     fg.franchise_group,
 	rt.risk_dropshipping_tag,
-    bs.blocked_store_tag
+    ss.is_store_blocked
 from {{ ref('s__attributes__store_core__ref') }} as sa
-    left join {{ source('int_moltres', 'mwp_store_info') }} as si
-    	on sa.store_id = si.id
-    left join {{ source('int_moltres', 'mwp_store_settings') }} as ss
-        on sa.store_id = ss.store_id
-	left join {{ ref('operations_grouping_plans') }} as p
-    	on si.plan = p.plan    
-    left join store_names as sn
-    	on sa.store_id = sn.store_id
+	left join {{ ref('s__attributes__store_identity__ref')}} as sid
+		on sa.store_id = sid.store_id
+	left join {{ ref('s__lifecycle__store_status__ref')}} as ss
+		on sa.store_id = ss.store_id
 	left join franchise as fg
 		on sa.store_id = fg.store_id
 	left join risk_tag as rt
 		on sa.store_id = rt.store_id
-    left join blocked_stores as bs
-		on sa.store_id = bs.store_id
