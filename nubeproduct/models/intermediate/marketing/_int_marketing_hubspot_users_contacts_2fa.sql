@@ -2,7 +2,7 @@ with factors as (
     select
         cast(user_id as bigint) as user_id,
         max(case when enabled = 1 then 1 else 0 end) as has_enabled_factor
-    from `hive_metastore`.`newadmin`.`authentication_factors`
+    from {{ source('stg_newadmin', 'authentication_factors') }}
     group by user_id
 )
 

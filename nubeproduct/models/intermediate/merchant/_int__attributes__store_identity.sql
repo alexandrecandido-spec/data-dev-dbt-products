@@ -164,7 +164,7 @@ twofa_status AS (
     LEFT JOIN (
         SELECT 
             CAST(user_id AS BIGINT) AS user_id
-        FROM `hive_metastore`.`newadmin`.`authentication_factors`
+        FROM {{ source('stg_newadmin', 'authentication_factors') }}
         WHERE enabled = 1 AND type = 'TOTP'
     ) mfa ON mfa.user_id = wu.id
     WHERE wu.deleted = 0
@@ -241,7 +241,6 @@ social_ads AS (
     LEFT JOIN base_google_ads ga ON sc.store_id = ga.store_id
     LEFT JOIN base_merchant_center mc ON sc.store_id = mc.store_id
     LEFT JOIN base_google_user gu ON sc.store_id = gu.store_id
->>>>>>> origin/main
 ),
 
 -- Información del usuario principal
