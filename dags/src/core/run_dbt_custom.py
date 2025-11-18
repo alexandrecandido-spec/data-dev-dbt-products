@@ -20,7 +20,7 @@ def create_profiles_yml():
                     'host': dbt_conn.host,
                     'http_path': '/sql/1.0/warehouses/2f8b52bf3d2088a2',
                     'schema': 'data',
-                    'threads': 4,
+                    'threads': 15,
                     'token': dbt_conn.password,
                     'type': 'databricks'
                 }
@@ -164,7 +164,7 @@ def create_dbt_dag(
                          dbt_command= 'test',
                          full_refresh=False,
                          models=[],  # Empty by default, will be populated at runtime
-                         pool='dbt_serial_pool',
+                         pool='dbt_test_pool',
                      )
         
         setup >> create_profiles >> task >> test

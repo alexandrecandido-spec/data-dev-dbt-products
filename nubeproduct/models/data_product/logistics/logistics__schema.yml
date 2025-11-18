@@ -92,6 +92,14 @@ models:
         description: "Date of order creation in the format YearMonth"
       - name: shipping_service
         description: "Logistic service select by the client"
+      - name: sys_audit_created_on
+        description: Timestamp indicating when the record was first created in the data product.
+      - name: sys_audit_created_by
+        description: Identifier of the system or job that created the record.
+      - name: sys_audit_updated_on
+        description: Timestamp indicating the last update to the record.
+      - name: sys_audit_updated_by
+        description: Identifier of the system or job that last updated the record.
 
   - name: logistics_gsv__orders
     description: >

@@ -1,5 +1,5 @@
 -- Analysis of sessions to classify which ones are more likely to be from real end users
-
+{% set force_start_var = var('force_start', None) %}
 
 SELECT
    unique_session_key
@@ -9,13 +9,13 @@ FROM
    {{ ref('product__traffic__sessions__event') }}
 WHERE
    base_date {{
-    get_max_date_env_model(
-      'product',
-      's__traffic__session__event',
-      'base_date',
-      1, 'day',
-      fallback_start=None,
-      fallback_end=None
+    get_incremental_date(
+      domain='product',
+      table='s__traffic__session__event',
+      date_field='base_date',
+      fwd_value=1,
+      fwd_unit='week',
+      force_date=force_start_var
     )
   }}
 AND

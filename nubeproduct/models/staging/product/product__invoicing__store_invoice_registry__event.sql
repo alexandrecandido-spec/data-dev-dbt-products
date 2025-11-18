@@ -14,7 +14,7 @@ WITH existing_data AS (
 
 SELECT
     cast(sir.id as bigint) as registry_id,
-    cast(sir.store_id as integer) as store_id,
+    cast(sir.store_id as bigint) as store_id,
     cast(sir.document as string) as document,
     cast(sir.legal_name as string) as legal_name,
     cast(sir.trade_name as string) as trade_name,
