@@ -13,6 +13,15 @@ sources:
         description: "Stores configuration settings such as language, currency, and other information."
       - name: mwp_tags
         description: "List of tags assigned to stores."
+        columns:
+          - name: related_id
+            description: "ID de la entidad relacionada (store_id cuando type='store')"
+          - name: tag
+            description: "Nombre del tag asignado a la entidad"
+          - name: sys_audit_updated_on
+            description: "Timestamp de última actualización del tag (puede ser NULL)"
+          - name: created
+            description: "Timestamp de creación del tag (usado como fallback cuando sys_audit_updated_on es NULL)"
       - name: mwp_plans_countries
         description: "Maps available plans to the countries where Tiendanube / Nuvemshop offers its platform."
       - name: mwp_plans
@@ -331,37 +340,6 @@ sources:
     tables:
       - name: invoice_information
         description: "Información de facturación/razón social asociada a la tienda."
-
-<<<<<<< HEAD
-  - name: int_stg_moltres
-    database: hive_metastore
-    schema: moltres
-    description: "Staging tables from moltres schema used in intermediate models"
-    tables:
-      - name: mwp_store_settings
-        description: "Store configuration settings"
-      - name: mwp_options
-        description: "Contains information about merchant configuration settings options"
-      - name: mwp_store_info
-        description: "Contains all the list of stores with their information"
-      - name: mwp_contracts
-        description: "Table with contracts information"
-      - name: mwp_payment_stores
-        description: "Information of pagos de subscription por payment y store"
-      - name: mwp_payments
-        description: "Information of pagos"
-<<<<<<< HEAD
-      - name: mwp_tags
-        description: "Tags associadas a lojas e outras entidades. Inclui flags como sre-block-store-404 e sre-block-store-429"
-        columns:
-          - name: related_id
-            description: "ID de la entidad relacionada (store_id cuando type='store')"
-          - name: tag
-            description: "Nombre del tag asignado a la entidad"
-          - name: sys_audit_updated_on
-            description: "Timestamp de última actualización del tag (puede ser NULL)"
-          - name: created
-            description: "Timestamp de creación del tag (usado como fallback cuando sys_audit_updated_on es NULL)"
 
   - name: int_stg_orders
     database: hive_metastore
