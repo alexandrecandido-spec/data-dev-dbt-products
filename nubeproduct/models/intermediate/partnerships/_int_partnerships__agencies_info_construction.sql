@@ -48,6 +48,15 @@ SELECT
     PI.* EXCEPT(PI.partner_info_change_timestamp),
     C.* EXCEPT(C.partner_id, C.table_merchant_change_timestamp),
     PL.* EXCEPT(PL.partner_id, PL.program_levels_change_timestamp),
+    CASE 
+        WHEN first_store_trial_date IS NOT NULL 
+            AND DATE_TRUNC('MONTH', first_store_trial_date) = DATE_TRUNC('MONTH', ADD_MONTHS(CURRENT_DATE(), -1)) 
+        THEN 'Pre-new'
+        WHEN first_store_payment_date IS NOT NULL 
+            AND DATE_TRUNC('MONTH', first_store_payment_date) = DATE_TRUNC('MONTH', ADD_MONTHS(CURRENT_DATE(), -1)) 
+        THEN 'New'
+    ELSE 'Established'
+    END AS lifecycle_status,
     GREATEST(PI.partner_info_change_timestamp, C.table_merchant_change_timestamp, PL.program_levels_change_timestamp) AS agencies_info_change_timestamp
 FROM partners_info PI
 LEFT JOIN calculations C

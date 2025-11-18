@@ -17,6 +17,7 @@ status AS
         partner_id,
         partner_created_date,
         partner_level,
+        lifecycle_status,
         partner_age_classification,
         partner_origin,
         partner_business_unit,
