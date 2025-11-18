@@ -90,6 +90,11 @@ SELECT
             AND coalesce(blocked_store__info.is_store_blocked, FALSE) = FALSE --store not declared fraud
             AND carts_orders.total_in_usd between 0 and 10000 --prevent fraud orders
             AND store_info.state <> 4 --store not test
+            AND (
+            carts_orders.status <> 'cancelled'
+            OR 
+            carts_orders.cancelled_at > date_add(last_day(COALESCE(payment_date.paid_at, carts_orders.completed_at)), 4)
+        )
         THEN TRUE ELSE FALSE 
     END AS flg_gmv,
     coalesce(payment_date.total_amount, carts_orders.total) / exchange_rate.direct_exchange_rate AS total_in_usd,
