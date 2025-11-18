@@ -619,3 +619,96 @@ models:
         description: "System or user that last updated the row (usually the dbt job user)."
         tests:
           - not_null
+
+  - name: s__general__zendesk_users__ref
+    description: >
+      Canonical reference table for Zendesk users (agents and end-users).
+      Each row represents a unique Zendesk user and selected attributes,
+      including organization, identity flags, and custom user_fields.
+    meta:
+      domain: "cx"
+      owner: "valeria.nascimento@nuvemshop.com.br"
+      business_owner: "Operations"
+    columns:
+      - name: user_id
+        description: "Unique identifier of the user in Zendesk (id)."
+        tests: [not_null, unique]
+      - name: name
+        description: "Display name of the user."
+        tests: [not_null]
+      - name: email
+        description: "Primary email address of the user when available."
+      - name: role
+        description: "User role in Zendesk (end-user/agent/admin)."
+        tests:
+          - accepted_values:
+              values: ["end-user", "agent", "admin"]
+      - name: phone
+        description: "Primary phone number if present."
+      - name: active
+        description: "Whether the user is active."
+        tests: [not_null]
+      - name: created_at
+        description: "UTC timestamp when the user was created in Zendesk."
+      - name: updated_at
+        description: "UTC timestamp of the most recent update to the user."
+      - name: external_id
+        description: "External ID for mapping to external systems."
+      - name: iana_time_zone
+        description: "IANA time zone identifier (e.g., America/Sao_Paulo)."
+      - name: locale
+        description: "Locale code for the user (e.g., pt-BR, es-AR)."
+      - name: locale_id
+        description: "Numeric locale identifier."
+      - name: moderator
+        description: "Whether the user is a forum/community moderator."
+      - name: only_private_comments
+        description: "Whether the agent can add only private comments."
+      - name: organization_id
+        description: "Default organization id for the user (if the user belongs to multiple orgs, this is the default)."
+      - name: report_csv
+        description: "Whether the agent can view/download reports (CSV)."
+      - name: restricted_agent
+        description: "Whether the agent has restricted access to tickets."
+      - name: shared
+        description: "Whether the user is shared from a different Zendesk account."
+      - name: shared_agent
+        description: "Whether the user is a shared agent."
+      - name: shared_phone_number
+        description: "Whether the phone number is a shared identity."
+      - name: suspended
+        description: "Whether the user is suspended."
+      - name: tags
+        description: "Array/string of user tags."
+      - name: ticket_restriction
+        description: "Agent ticket visibility setting."
+      - name: time_zone
+        description: "Time zone string for the user."
+      - name: url
+        description: "API URL for this user resource."
+      - name: verified
+        description: "Whether the user's primary identity is verified."
+      - name: user_fields
+        description: "Custom field."
+      - name: user_fields_agent_ooo
+        description: "Custom field: indicates if the agent is out-of-office."
+      - name: user_fields_has_store
+        description: "Custom field: whether the user has a store."
+      - name: user_fields_is_partner
+        description: "Custom field: whether the user is a partner."
+      - name: user_fields_no_recebe_e_mail
+        description: "Custom field: whether the user should not receive emails."
+      - name: user_fields_not_actually_a_partner
+        description: "Custom field: flag for non-partner classification."
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created by the dbt process."
+        tests: [not_null]
+      - name: sys_audit_created_by
+        description: "System or user that created the row (usually the dbt job user)."
+        tests: [not_null]
+      - name: sys_audit_updated_on
+        description: "Timestamp of the most recent update to the row by the dbt process."
+        tests: [not_null]
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row (usually the dbt job user)."
+        tests: [not_null]
