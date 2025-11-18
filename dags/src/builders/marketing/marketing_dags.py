@@ -72,3 +72,11 @@ dag = create_dbt_dag(
     default_args=default_args,
     tags=['marketing', 'monthly-2nd-10AM']
 )
+
+# Crear el DAG frecuencia diaria 10:00pm
+dag = create_dbt_dag(
+    dag_id='dbt_marketing_daily-10pm',
+    schedule_interval_tag='daily-10pm',
+    default_args=default_args,
+    tags=['marketing', 'daily-10pm']
+)
