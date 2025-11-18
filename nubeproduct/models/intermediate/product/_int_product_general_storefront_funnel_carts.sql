@@ -25,5 +25,5 @@
 		left join {{ ref('merchant__attributes__store_online_tags__ref')}} tag_online on o.store_id = tag_online.store_id 
 		left join {{ ref('product__general__store_options__event')}} mo on o.store_id = mo.store_id and mo.option_name = 'twig_template'
 	where --p.order_id is not null and 
- 	 o.created_at > '2025-08-01'
+ 	 o.created_at >= '2025-01-01'
      and o.storefront in ('store', 'mobile')

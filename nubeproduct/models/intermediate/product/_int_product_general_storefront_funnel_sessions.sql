@@ -18,5 +18,5 @@ select
 	left join {{ ref('company_metrics_merchant_info') }} si on sess.store_id = si.store_id
 	left join {{ ref('merchant__attributes__store_online_tags__ref') }} tag_online on sess.store_id = tag_online.store_id 
 	left join {{ ref('product__general__store_options__event') }} mo on sess.store_id = mo.store_id and mo.option_name = 'twig_template'
-  	where sess.base_date >= '2025-08-01' 
+  	where sess.base_date >= '2025-01-01' 
     group by 1,2,3,4,5,6,7,8,9
