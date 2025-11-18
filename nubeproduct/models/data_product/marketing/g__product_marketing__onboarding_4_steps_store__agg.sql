@@ -136,7 +136,7 @@ stores_with_changes AS (
         -- Cambios en tags de onboarding
         -- Nota: usar sys_audit_updated_on si existe, sino usar created como proxy
         SELECT DISTINCT CAST(related_id AS BIGINT) AS store_id
-        FROM {{ source('int_stg_moltres', 'mwp_tags') }}
+        FROM {{ source('int_moltres', 'mwp_tags') }}
         WHERE tag IN ('new-admin-onboarding-202411-a', 'new-admin-onboarding-202411-b')
         AND COALESCE(
             CAST(sys_audit_updated_on AS TIMESTAMP),

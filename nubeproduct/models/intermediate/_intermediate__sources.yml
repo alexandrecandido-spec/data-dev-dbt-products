@@ -347,6 +347,7 @@ sources:
         description: "Information of pagos de subscription por payment y store"
       - name: mwp_payments
         description: "Information of pagos"
+<<<<<<< HEAD
       - name: mwp_tags
         description: "Tags associadas a lojas e outras entidades. Inclui flags como sre-block-store-404 e sre-block-store-429"
         columns:
