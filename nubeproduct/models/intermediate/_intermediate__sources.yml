@@ -345,3 +345,12 @@ sources:
         description: "Google Merchant Center account installations by store"
       - name: google_user
         description: "Google user integrations by store"
+
+  - name: data_manual
+    database: data_products_prd
+    schema: data_manual
+    tables:
+      - name: ext__marketing__acquisition__mkt_monthly_kpis_plan
+        description: Monthly plan of acquisition KPIs by country and mkt_source.
+      - name: ext__marketing__acquisition__key_dates_by_country
+        description: Country-level key dates (holidays + commercial days) for seasonality/weighting.
