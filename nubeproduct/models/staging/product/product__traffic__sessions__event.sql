@@ -1,11 +1,7 @@
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'merge',
-    incremental_predicates = [
-        'DBT_INTERNAL_SOURCE.base_date = DBT_INTERNAL_DEST.base_date',
-        'DBT_INTERNAL_SOURCE.unique_session_key = DBT_INTERNAL_DEST.unique_session_key'
-    ],
-    unique_key = ['unique_session_key', 'base_date'],
+    unique_key = ['base_date','unique_session_key'],
     partition_by = 'base_date',
     on_schema_change = 'fail',
     tags = ['product', 'daily-2am'],
