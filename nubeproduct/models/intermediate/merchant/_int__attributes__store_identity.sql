@@ -295,6 +295,51 @@ app_info AS (
     FROM {{ ref('moltres__platform_mwp_apps_stores') }} p 
     WHERE p.app_id = 2602
     GROUP BY 1
+),
+
+-- Timestamps from new external sources for incremental tracking
+-- Capturamos el máximo timestamp de cada fuente externa para asegurar incrementalidad correcta
+facebook_capi_max_ts AS (
+    SELECT COALESCE(
+        MAX(COALESCE(sys_audit_updated_on, created_at, CAST('1900-01-01' AS TIMESTAMP))),
+        CAST('1900-01-01' AS TIMESTAMP)
+    ) AS max_audit
+    FROM {{ source('int_stg_moltres', 'mwp_facebook_bussiness_extension') }}
+    WHERE deleted_at IS NULL AND capi_status = 1
+),
+
+twofa_max_ts AS (
+    SELECT COALESCE(
+        MAX(GREATEST(
+            COALESCE((SELECT MAX(sys_audit_updated_on) FROM {{ source('int_moltres', 'wp_users') }} WHERE deleted = 0), CAST('1900-01-01' AS TIMESTAMP)),
+            COALESCE((SELECT MAX(COALESCE(sys_audit_updated_on, created, CAST('1900-01-01' AS TIMESTAMP))) FROM `hive_metastore`.`newadmin`.`authentication_factors` WHERE enabled = 1 AND type = 'TOTP'), CAST('1900-01-01' AS TIMESTAMP))
+        )),
+        CAST('1900-01-01' AS TIMESTAMP)
+    ) AS max_audit
+),
+
+social_ads_max_ts AS (
+    SELECT COALESCE(
+        MAX(audit_ts),
+        CAST('1900-01-01' AS TIMESTAMP)
+    ) AS max_audit 
+    FROM (
+        SELECT MAX(COALESCE(sys_audit_updated_on, createdat, CAST('1900-01-01' AS TIMESTAMP))) AS audit_ts 
+        FROM {{ source('int_stg_curated_social', 'tiktok_user') }}
+        WHERE deletedat IS NULL
+        UNION ALL
+        SELECT MAX(COALESCE(sys_audit_updated_on, createdat, CAST('1900-01-01' AS TIMESTAMP))) 
+        FROM {{ source('int_stg_curated_social', 'google_ads_account') }}
+        WHERE deletedat IS NULL
+        UNION ALL
+        SELECT MAX(COALESCE(sys_audit_updated_on, createdat, CAST('1900-01-01' AS TIMESTAMP))) 
+        FROM {{ source('int_stg_curated_social', 'google_merchant_center_account') }}
+        WHERE deletedat IS NULL
+        UNION ALL
+        SELECT MAX(COALESCE(sys_audit_updated_on, createdat, CAST('1900-01-01' AS TIMESTAMP))) 
+        FROM {{ source('int_stg_curated_social', 'google_user') }}
+        WHERE deletedat IS NULL
+    ) t
 )
 
 SELECT
@@ -351,18 +396,19 @@ SELECT
     ai.tiendanube_app_installed_at,
 
     -- Auditoría incremental
-    -- Nota: Los nuevos CTEs (facebook_capi, twofa_status, social_ads) se detectarán automáticamente
-    -- porque dependen de fuentes que ya están incluidas:
-    -- - facebook_capi: cambios en mwp_store_settings (ss.sys_audit_updated_on) detectarán cambios en pixel_fb
-    -- - twofa_status: cambios en wp_users (mu.sys_audit_updated_on) detectarán cambios en 2FA
-    -- - social_ads: cambios se detectarán cuando cambien los modelos staging que consumen
+    -- Nota: Los nuevos CTEs (facebook_capi, twofa_status, social_ads) incluyen fuentes externas
+    -- que deben ser monitoreadas para detectar cambios en incremental runs.
+    -- Capturamos el máximo timestamp de cada fuente externa para asegurar incrementalidad correcta.
     greatest(
         sb.sys_audit_updated_on, 
         nd.sys_audit_updated_on, 
         ss.sys_audit_updated_on, 
         mu.sys_audit_updated_on, 
         tl.last_date_config_theme, 
-        ai.tiendanube_app_installed_at
+        ai.tiendanube_app_installed_at,
+        fc_ts.max_audit,
+        twofa_ts.max_audit,
+        sa_ts.max_audit
     ) as change_timestamp
 
 FROM store_base sb
@@ -375,4 +421,7 @@ LEFT JOIN app_info ai ON sb.store_id = ai.store_id
 LEFT JOIN facebook_capi fc ON sb.store_id = fc.store_id
 LEFT JOIN twofa_status tf ON sb.store_id = tf.store_id
 LEFT JOIN social_ads sa ON sb.store_id = sa.store_id
+CROSS JOIN facebook_capi_max_ts fc_ts
+CROSS JOIN twofa_max_ts twofa_ts
+CROSS JOIN social_ads_max_ts sa_ts
 
