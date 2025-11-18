@@ -169,6 +169,8 @@ raw_levels AS
         snapshot_date,
         active_paying_stores,
         new_payments_last_quarter,
-        new_payments_last_365d
+        new_payments_last_365d,
+        year_id,
+        quarter_id
 )
 SELECT * FROM raw_levels
