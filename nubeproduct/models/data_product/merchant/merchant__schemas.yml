@@ -117,6 +117,20 @@ models:
         description: "Usuario de TikTok de la tienda"
       - name: pinterest
         description: "Usuario de Pinterest de la tienda"
+      - name: pixel_fb
+        description: "Indica si la tienda tiene Facebook Pixel configurado (Yes/No)"
+      - name: capi_status
+        description: "Indica si la tienda tiene Facebook CAPI (Conversions API) activo (Yes/No)"
+      - name: twofa_status
+        description: "Estado de autenticación de dos factores (2FA) de la tienda. Valores: 'Completamente desactivado', '2FA completamente activado', 'Parcialmente activado', 'No informado'"
+      - name: tiktok_ads
+        description: "Indica si la tienda tiene TikTok Ads instalado (Yes/No)"
+      - name: google_ads
+        description: "Indica si la tienda tiene Google Ads instalado (Yes/No)"
+      - name: google_mc
+        description: "Indica si la tienda tiene Google Merchant Center instalado (Yes/No)"
+      - name: google_user
+        description: "Indica si la tienda tiene Google User instalado (Yes/No)"
       - name: active_theme
         description: "Nombre del tema activo actual (ej: 'sydney', 'tokyo')"
       - name: first_date_config_theme

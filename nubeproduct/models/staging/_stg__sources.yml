@@ -46,6 +46,8 @@ sources:
       - name: wp_users
       - name: mwp_apps
         description: "Contains information about apps installed by merchants"
+      - name: mwp_facebook_bussiness_extension
+        description: "Facebook Business Extension (CAPI) configuration by store"
       - name: mwp_zipcodes_ar
         description: "Table with zipcodes from Argentina."
       - name: mwp_zipcodes_mx
