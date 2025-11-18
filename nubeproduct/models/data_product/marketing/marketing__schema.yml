@@ -2534,7 +2534,7 @@ models:
       - name: active_merchant_probability
         description: "Probabilidad de ser active merchant (0 o 1). Usa is_active_merchant de s__lifecycle__store_status__ref. Si necesitas una probabilidad real (0-1), usar un modelo de ML específico"
       - name: onboarding_tag
-        description: "Tag de onboarding asignado a la tienda (new-admin-onboarding-202411-a o new-admin-onboarding-202411-b). Consumido desde int_stg_moltres.mwp_tags"
+        description: "Tag de onboarding asignado a la tienda (new-admin-onboarding-202411-a o new-admin-onboarding-202411-b). Consumido desde int_moltres.mwp_tags"
       - name: new_payment_probability
         description: "Probabilidad estimada de que la tienda convierta a cliente pagante (0-1)"
       - name: cutoff_ql
