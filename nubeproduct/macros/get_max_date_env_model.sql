@@ -9,7 +9,7 @@
     quote_identifiers=False,
     fallback_start=None,
     fallback_end=None,
-    verbose=True
+    verbose=False
 ) %}
 
   {# 1) Monta FQN a partir do profile atual #}
@@ -59,7 +59,7 @@
   {% set res = run_query(q) %}
   {% set max_date = (res and res.columns and res.columns[0].values() and res.columns[0].values()[0]) %}
 
-  {% if verbose %}{% do log("get_max_date_env_model[MAX] " ~ date_field ~ "=" ~ (max_date if max_date else 'NULL'), info=True) %}{% endif %}
+  {% do log("get_max_date_env_model[MAX] " ~ date_field ~ "=" ~ (max_date if max_date else 'NULL'), info=True) %}
 
   {# 5) Vazio? -> fallback #}
   {% if not max_date %}

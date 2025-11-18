@@ -14,7 +14,7 @@ WITH existing_data AS (
 
 SELECT
     cast(sfc.id as bigint) as sfc_id,
-    cast(sfc.store_id as integer) as store_id,
+    cast(sfc.store_id as bigint) as store_id,
     cast(sfc.feature_name as string) as feature_name,
     cast(sfc.enabled as boolean) as feature_enabled,
     cast(sfc.created_at as timestamp) as sfc_created_at,
