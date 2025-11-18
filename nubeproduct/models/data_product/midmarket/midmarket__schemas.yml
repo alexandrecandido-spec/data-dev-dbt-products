@@ -1711,6 +1711,7 @@ models:
       - name: potential_gross_profit_perc
         description: "Potential gross profit percentage from HubSpot deal properties. Populated for Sales New Contracts, Onboarding metrics, Upsell/Renewal, and Success deal-based events. Null for Sales SQLs/Opportunities and Success merchant snapshots."
 
+
   - name: g__success__warnings__agg_snapshot_weekly
     config:
       meta:
@@ -1749,6 +1750,222 @@ models:
         description: "Date when the warning was entered."
       - name: date_exited_warning
         description: "Date when the warning was exited."
+
+
+  - name: g__success__new_warnings__agg_snapshot_weekly_monthly
+    config:
+      meta:
+        tech_steward: "guillermo.defelice@tiendanube.com"
+        domain: "midmarket"
+        business_owner: "Franco Tiberti"
+    description: "Snapshot of new warnings (stores entering warning stage) for Success stores aggregated by week and month. Captures the first occurrence of a store entering warning status within each time period."
+    columns:
+      - name: store_id
+        description: "Unique identifier of the store."
+        tests:
+          - not_null
+      - name: warning_root_cause_1
+        description: "Primary root cause of the warning."
+      - name: warning_root_cause_2
+        description: "Secondary root cause of the warning."
+      - name: warning_summary
+        description: "Summary or explanation of the warning event."
+      - name: warning_type
+        description: "Type or category of the warning."
+      - name: competitor_identified
+        description: "Competitor identified during the warning event, if applicable."
+      - name: date_from
+        description: "Start date of the aggregation period (week or month start date)."
+        tests:
+          - not_null
+      - name: event_date
+        description: "Actual date when the store entered the warning stage."
+        tests:
+          - not_null
+      - name: periodicity
+        description: "Aggregation period: 'weekly' or 'monthly'."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["weekly", "monthly"]
+
+
+  - name: g__success__outgoing_warnings__agg_snapshot_weekly_monthly
+    config:
+      meta:
+        tech_steward: "guillermo.defelice@tiendanube.com"
+        domain: "midmarket"
+        business_owner: "Franco Tiberti"
+    description: "Snapshot of outgoing warnings (stores exiting warning stage) for Success stores aggregated by week and month. Captures the first occurrence of a store exiting warning status within each time period."
+    columns:
+      - name: store_id
+        description: "Unique identifier of the store."
+        tests:
+          - not_null
+      - name: warning_root_cause_1
+        description: "Primary root cause of the warning that was resolved."
+      - name: warning_root_cause_2
+        description: "Secondary root cause of the warning that was resolved."
+      - name: warning_summary
+        description: "Summary or explanation of the warning event that was resolved."
+      - name: warning_type
+        description: "Type or category of the warning that was resolved."
+      - name: competitor_identified
+        description: "Competitor identified during the warning period, if applicable."
+      - name: date_from
+        description: "Start date of the aggregation period (week or month start date)."
+        tests:
+          - not_null
+      - name: event_date
+        description: "Actual date when the store exited the warning stage."
+        tests:
+          - not_null
+      - name: periodicity
+        description: "Aggregation period: 'weekly' or 'monthly'."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["weekly", "monthly"]
+
+
+  - name: g__success__new_and_outgoing_warnings__agg_snapshot_weekly_monthly
+    config:
+      meta:
+        tech_steward: "guillermo.defelice@tiendanube.com"
+        domain: "midmarket"
+        business_owner: "Franco Tiberti"
+    description: "Unified snapshot combining both new warnings (stores entering warning stage) and outgoing warnings (stores exiting warning stage) for Success stores, aggregated by week and month. Provides a comprehensive view of warning lifecycle events."
+    columns:
+      - name: store_id
+        description: "Unique identifier of the store."
+        tests:
+          - not_null
+      - name: warning_root_cause_1
+        description: "Primary root cause of the warning."
+      - name: warning_root_cause_2
+        description: "Secondary root cause of the warning."
+      - name: warning_summary
+        description: "Summary or explanation of the warning event."
+      - name: warning_type
+        description: "Type or category of the warning."
+      - name: competitor_identified
+        description: "Competitor identified during the warning event, if applicable."
+      - name: date_from
+        description: "Start date of the aggregation period (week or month start date)."
+        tests:
+          - not_null
+      - name: event_date
+        description: "Actual date when the warning event occurred (either entry or exit)."
+        tests:
+          - not_null
+      - name: periodicity
+        description: "Aggregation period: 'weekly' or 'monthly'."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["weekly", "monthly"]
+      - name: warning_event
+        description: "Type of warning event: 'new_warning' for stores entering warning stage or 'outgoing_warning' for stores exiting warning stage."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["new_warning", "outgoing_warning"]
+
+
+  - name: g__success__downgrades__agg_snapshot_weekly_monthly
+    config:
+      meta:
+        tech_steward: "guillermo.defelice@tiendanube.com"
+        domain: "midmarket"
+        business_owner: "Franco Tiberti"
+    description: "Snapshot of downgrades (stores moving out of portfolio) for Success stores aggregated by week and month. Captures downgrade events with associated root causes, business context, and acquisition channel information."
+    columns:
+      - name: store_id
+        description: "Unique identifier of the store."
+        tests:
+          - not_null
+      - name: downgrade_root_cause_1
+        description: "Primary root cause of the downgrade (out of portfolio)."
+      - name: downgrade_root_cause_2
+        description: "Secondary root cause of the downgrade (out of portfolio)."
+      - name: downgrade_summary
+        description: "Summary or explanation of the downgrade event (out of portfolio one-liner)."
+      - name: competitor_identified
+        description: "Competitor identified during the downgrade event, if applicable."
+      - name: date_from
+        description: "Start date of the aggregation period (week or month start date)."
+        tests:
+          - not_null
+      - name: event_date
+        description: "Actual date when the store entered the downgrade stage."
+        tests:
+          - not_null
+      - name: city_state_downgrade
+        description: "City and state or sales territory associated with the downgrade."
+      - name: channel
+        description: "Lead acquisition channel (where the lead originally came from)."
+      - name: e_commerce
+        description: "E-commerce platform used by the merchant."
+      - name: business_model_sales
+        description: "Business model classification according to Sales (e.g., B2C, B2B, Hybrid)."
+      - name: onboarding_type
+        description: "Type of onboarding process that was applied to the store."
+      - name: responsavel_marketing
+        description: "Marketing team member responsible for or associated with the lead/store."
+      - name: periodicity
+        description: "Aggregation period: 'weekly' or 'monthly'."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["weekly", "monthly"]
+ 
+ 
+  - name: s__ga4__sessions__hubspot
+    description: >
+      Data product that merges GA4 session and pageview events linked to HubSpot conversions.<br>
+      It applies hierarchical logic to prioritize `session_start` events and supplement missing ones with `page_view` events.<br>
+      The model ensures accurate session attribution, even when GA4 fails to emit `session_start` events.<br>
+      Each record represents a unique session associated with a HubSpot form submission (`hubspot_conversion_id`).
+    columns:
+      - name: date_time
+        description: "Timestamp of the event (converted from microseconds to a readable datetime)."
+        tests:
+          - not_null
+      - name: user_pseudo_id
+        description: "Anonymous GA4 user identifier used to link sessions and HubSpot conversions."
+        tests:
+          - not_null
+      - name: session_number
+        description: "GA4 session number (`ga_session_number`) extracted from the event parameters."
+      - name: session_source
+        description: >
+          Session source.<br>
+          Derived according to event type:<br>
+          1. From `traffic_source.source` for `session_start`.<br>
+          2. From URL UTM parameters for `page_view` without `session_start`.<br>
+          3. Defaults to `(direct)` when both UTM and `traffic_source` are missing.
+      - name: session_medium
+        description: >
+          Session medium (e.g., organic, cpc, referral).<br>
+          Filled with `(none)` when UTM or `traffic_source.medium` is unavailable.
+      - name: session_campaign
+        description: >
+          Campaign name (`utm_campaign` or `traffic_source.name`).<br>
+          Defaults to `(direct)` when no value is available.
+      - name: session_device
+        description: "Device category (e.g., desktop, mobile, tablet)."
+      - name: event_type
+        description: >
+          Indicates the origin of the record:<br>
+          - `session_start`: directly originated from a GA4 session event.<br>
+          - `page_view`: included due to differing UTM parameters or absence of session information.
+      - name: hubspot_conversion_id
+        description: >
+          Conversion GUID (`submissionGuid`) extracted from HubSpot form URLs.<br>
+          Serves as the unique identifier for the lead conversion associated with this session.
+        tests:
+          - not_null
+
 
 
   - name: s__renewal__aquarium__snapshot

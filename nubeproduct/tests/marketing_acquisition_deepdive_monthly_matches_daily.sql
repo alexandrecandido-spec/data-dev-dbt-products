@@ -18,6 +18,9 @@ WITH dp AS (
   FROM {{ ref('g__general__deepdive_gmv_store__agg_monthly') }}
   GROUP BY 1,2
 ),
+dp_months AS (
+  SELECT DISTINCT reported_month FROM dp
+),
 dy AS (
   SELECT
     store_id,
@@ -27,6 +30,7 @@ dy AS (
     SUM(COALESCE(orders,0))                      AS orders,
     SUM(COALESCE(products,0))                    AS product_quantity
   FROM {{ ref('g__operations__orders_gmv_store__agg_daily') }}
+  WHERE last_day(date) IN (SELECT reported_month FROM dp_months)
   GROUP BY 1,2
 ),
 base AS (

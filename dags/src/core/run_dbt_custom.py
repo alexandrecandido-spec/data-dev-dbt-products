@@ -20,7 +20,7 @@ def create_profiles_yml():
                     'host': dbt_conn.host,
                     'http_path': '/sql/1.0/warehouses/2f8b52bf3d2088a2',
                     'schema': 'data',
-                    'threads': 4,
+                    'threads': 15,
                     'token': dbt_conn.password,
                     'type': 'databricks'
                 }
@@ -89,6 +89,8 @@ def create_dbt_dag(
         schedule_interval = '0 8 * * 1' 
     elif schedule_interval_tag == 'weekly-monday-9am':
         schedule_interval = '0 9 * * 1' 
+    elif schedule_interval_tag == 'weekly-monday-930am':
+        schedule_interval = '30 9 * * 1'
     elif schedule_interval_tag == 'weekly-monday-10am':
         schedule_interval = '0 10 * * 1' 
     elif schedule_interval_tag == 'weekly-monday-1030am':

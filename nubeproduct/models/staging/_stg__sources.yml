@@ -46,6 +46,8 @@ sources:
       - name: wp_users
       - name: mwp_apps
         description: "Contains information about apps installed by merchants"
+      - name: mwp_facebook_bussiness_extension
+        description: "Facebook Business Extension (CAPI) configuration by store"
       - name: mwp_zipcodes_ar
         description: "Table with zipcodes from Argentina."
       - name: mwp_zipcodes_mx
@@ -58,7 +60,10 @@ sources:
         description: "Table with shipping carrier options and settings"
       - name: mwp_store_access
         description: "Table with store admin access events"
-
+      - name: mwp_discount_coupons
+        description: "Table with coupons from merchants"
+      - name: mwp_promotional_discounts
+        description: "Table with promotional discounts from merchants"
 
   - name: stg_orders
     description: "Source containing tables related to order movements"
@@ -500,3 +505,27 @@ sources:
     tables:
       - name: journal_payment_provider
         description: "Payment provider journal with registration events and configuration. Contains PaymentProviderRegistered events."
+  
+  - name: stg_subscriptions
+    database: hive_metastore
+    schema: subscriptions
+    description: "Source containing tables related to subscriptions"
+    tables:
+      - name: metaplans
+        description: "Contains all the metaplans info"
+      - name: subscriptions
+        description: "Contains all the subscriptions info"
+      - name: subscription_options
+        description: "Contains all the subscription metaplan options info"
+      - name: runs_upcoming
+        description: "Contains all the upcoming runs of future subscription orders"
+      - name: subscription_orders
+        description: "Contains all the subscription orders info"
+
+  - name: stg_nuvem_pago_transactions
+    database: hive_metastore
+    schema: nuvem_pago_transactions
+    description: "Source containing tables related to Nuvem Pago transactions"
+    tables:
+      - name: transactions
+        description: "Contains all the order transactions info"

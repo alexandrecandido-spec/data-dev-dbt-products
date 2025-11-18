@@ -96,6 +96,10 @@ models:
         description: "Shipping cost on the owner side"
       - name: fulfillment_status
         description: "Fulfillment status of the order."
+      - name: coupon_id
+        description: "Coupon id"
+      - name: shipping_extra
+        description: "Shipping extra"
       - name: order_traits
         description: "Traits of the order (currently shows subscription_initial when the order is the first order from a subscription and subscription_recurrence for the subsequent orders within a subscription)"
       - name: is_paid_order
@@ -266,6 +270,39 @@ models:
         description: "Timestamp when the log was updated."
       - name: app_id
         description: "Unique identifier for the app associated with the log."
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model. Defaults to current_timestamp if not available."
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model. Defaults to 'data-dev-dbt-products'."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed."
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
+
+  - name: product__orders__promotional_discounts__event
+    description: "Promotional discounts associated with orders"
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: year_month_code
+        description: "Date code in YYYYMMDD format used for partitioning or filtering."
+      - name: promotional_discount_id
+        description: "Promotional discount id"
+      - name: store_id
+        description: "Store id"
+      - name: order_id
+        description: "Order id"
+      - name: currency
+        description: "Currency"
+      - name: promotional_discount_contents
+        description: "Promotional discount contents"
+      - name: total_discount_amount
+        description: "Total discount amount"
+      - name: content_items
+        description: "Content items"
       - name: sys_audit_created_on
         description: "Timestamp when the record was first loaded into the model. Defaults to current_timestamp if not available."
       - name: sys_audit_created_by
