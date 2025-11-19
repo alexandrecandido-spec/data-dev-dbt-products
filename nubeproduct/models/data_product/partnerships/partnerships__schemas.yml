@@ -435,7 +435,7 @@ models:
       - name: sys_audit_updated_by
         description: "Source or user responsible for the latest update."
 
-  - name: s__agencies__program_levels__scd
+  - name: s__agencies__program_levels__snapshot_monthly
     config:
       meta:
         owner: "felipe.lorenzo@tiendanube.com"
