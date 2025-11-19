@@ -37,7 +37,6 @@ main_source.store_id
 , main_source.disabled
 , main_source.custom_theme
 , main_source.new_payment
-, main_source.is_active_merchant
 , main_source.business_unit
 , main_source.cancellation_reason
 , main_source.cancellation_comment
@@ -54,7 +53,6 @@ FROM {{ ref('_int__lifecycle__store_status') }} main_source
   LEFT JOIN {{ this }} AS current_data ON main_source.store_id = current_data.store_id
 
   {% set monitored_cols = [
-            "is_active_merchant",
             "churned_at",
             "cancellation_reason",
             "cancellation_comment",
