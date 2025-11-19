@@ -2462,11 +2462,13 @@ models:
       - name: domain
         description: "Domain associated with the metafield (Products, Categories, Orders, Customers or Product variants)."
       - name: assignment_id
-        description: "Unique identifier of the metafield assignment."
+        description: "Unique identifier of the metafield assignment. 0 if unassigned."
       - name: owner_id
         description: "Id of the specific item that was assigned the metafield (product_id, category_id, etc)"
       - name: assignment_date
         description: "Date of the metafield assignment."
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created in this model"
       - name: sys_audit_created_by
         description: "System or user that created the row in this model."
       - name: sys_audit_updated_on
