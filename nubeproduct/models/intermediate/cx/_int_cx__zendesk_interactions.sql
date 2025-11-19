@@ -33,7 +33,7 @@ WITH
   ,CASE WHEN lower(coalesce(ud.role, 'end-user')) = 'end-user'  THEN TRUE ELSE FALSE END AS is_in_interaction
   ,CASE WHEN lower(coalesce(ud.role, 'end-user')) <> 'end-user' THEN TRUE ELSE FALSE END AS is_out_interaction
   FROM  comments tc
-  LEFT JOIN {{ source('int_zendesk_support_prod', 'users') }} ud ON ud.id = tc.author_id
+  LEFT JOIN {{ ref('s__general__zendesk_users__ref') }} ud ON ud.user_id = tc.author_id
   WHERE COALESCE(tc.author_id, -1) > 0
   AND   tc.public = TRUE
 )

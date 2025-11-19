@@ -69,6 +69,8 @@ sources:
         description: "Información de notas de crédito de facturas."
       - name: mwp_store_cancellations
         description: "Información de cancelaciones de tiendas (encuestas de churns o cancelaciones de tiendas). Incluye el motivo de la cancelación y el comentario de la cancelación."
+      - name: mwp_facebook_bussiness_extension
+        description: "Facebook Business Extension (CAPI) configuration by store"
 
   - name: int_finance
     database: hive_metastore
@@ -329,3 +331,26 @@ sources:
     tables:
       - name: invoice_information
         description: "Información de facturación/razón social asociada a la tienda."
+
+  - name: int_social
+    database: hive_metastore
+    schema: social
+    description: "Staging tables from social schema used in intermediate models"
+    tables:
+      - name: tiktok_user
+        description: "TikTok user integrations by store"
+      - name: google_ads_account
+        description: "Google Ads account installations by store"
+      - name: google_merchant_center_account
+        description: "Google Merchant Center account installations by store"
+      - name: google_user
+        description: "Google user integrations by store"
+
+  - name: data_manual
+    database: data_products_prd
+    schema: data_manual
+    tables:
+      - name: ext__marketing__acquisition__mkt_monthly_kpis_plan
+        description: Monthly plan of acquisition KPIs by country and mkt_source.
+      - name: ext__marketing__acquisition__key_dates_by_country
+        description: Country-level key dates (holidays + commercial days) for seasonality/weighting.
