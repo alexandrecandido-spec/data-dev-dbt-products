@@ -3373,3 +3373,410 @@ models:
       - name: sys_audit_updated_by
         description: "Process/user that last updated the record."
         tests: [not_null]
+
+
+  - name: s__google_search_console__enriched
+    description: "Advanced Google Search Console analytics model with competitive intelligence, brand monitoring, and search intent classification. Provides automated detection of 65+ competitor brands and detailed search intent analysis across all markets."
+    config:
+      materialized: incremental
+      tags: ['marketing', 'search_console', 'silver', 'competitive_intelligence']
+      meta:
+        owner: "beto.martinez@tiendanube.com"
+        business_owner: "Giselle Galli"
+        domain: "marketing"
+    columns:
+      - name: date
+        description: "Date of the search data (YYYY-MM-DD)"
+        tests:
+          - not_null
+      - name: date_day
+        description: "Date formatted as YYYY-MM-DD for day-level analysis"
+      - name: date_month
+        description: "Date formatted as YYYY-MM for month-level analysis"
+      - name: date_quarter
+        description: "Date formatted as YYYY-QN for quarter-level analysis"
+      - name: date_week
+        description: "Week start date formatted as YYYY-MM-DD (Monday start)"
+      - name: date_year
+        description: "Year formatted as YYYY for year-level analysis"
+      - name: date_day_of_week
+        description: "Day of week name (Monday, Tuesday, etc.)"
+      - name: country_detail
+        description: "Full country name from source data (e.g., 'Argentina', 'Brazil')"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Argentina', 'Mexico', 'Brazil', 'Colombia', 'Chile', 'Peru']
+      - name: country
+        description: "Standardized country code based on site mapping (AR, BR, MX, CO, CL, PE)"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['AR', 'BR', 'MX', 'CO', 'CL', 'PE']
+      - name: search_query
+        description: "The actual search query from Google Search Console"
+        tests:
+          - not_null
+      - name: d2c_brand_names
+        description: "D2C platform brand detected in search query. Returns brand name if detected, NULL otherwise. Prioritizes Tiendanube/Nuvemshop, then other D2C platforms by country."
+      - name: marketplace_brand_names
+        description: "Marketplace brand detected in search query. Returns brand name if detected, NULL otherwise. Includes major marketplaces by country (Mercado Libre, Amazon, etc.)."
+      - name: d2c_match_type
+        description: "Type of D2C brand match detected"
+        tests:
+          - accepted_values:
+              values: ['exact', 'broad']
+      - name: marketplace_match_type
+        description: "Type of marketplace brand match detected"
+        tests:
+          - accepted_values:
+              values: ['exact', 'broad']
+      - name: is_nuvemshop_tiendanube
+        description: "Boolean flag indicating if search query contains any variant of our brands: tiendanube, tienda nube, nuvemshop, nuvem shop, including country-specific variations (tiendanube mexico, tiendanube colombia, etc.)"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]
+      - name: is_next_evolucion  
+        description: "Boolean flag indicating if search contains our brand AND mentions of next-generation features (next, evolution, evolucion). Used for product roadmap intelligence."
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]
+      - name: non_brand_term
+        description: "Specific non-branded term detected in search query. Returns the first matching term based on priority order (Intention Verbs > D2C > Vendas > etc.)."
+      - name: non_brand_category
+        description: "Category of non-branded search intent detected: - 'Intention Verbs': Action keywords (crear, hacer, trabajar, etc.) - 'D2C': Platform-related terms (tienda, loja, sitio, etc.) - 'Vendas': Sales-related terms (venta, venda, vender) - 'Dropshipping': Dropshipping-related searches - 'Envios': Shipping/logistics terms - 'Ecommerce': General ecommerce terms - 'Producto': Product-related searches - 'Redes Sociales': Social media integration terms"
+        tests:
+          - accepted_values:
+              values: ['Intention Verbs', 'D2C', 'Vendas', 'Dropshipping', 'Envios', 'Ecommerce', 'Producto', 'Redes Sociales']
+      - name: non_brand_match_type
+        description: "Type of non-branded term match detected"
+        tests:
+          - accepted_values:
+              values: ['exact', 'broad']
+      - name: branded_non_branded
+        description: "Primary classification of search query: 'branded' if contains Tiendanube/Nuvemshop, 'nonbranded' otherwise"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['branded', 'nonbranded']
+      - name: non_adquisition_terms
+        description: "Specific non-acquisition term detected in search query. Only populated when is_nuvemshop_tiendanube is true. Used to identify existing users searching for login/support rather than potential new customers."
+      - name: is_non_adquisition_term
+        description: "Boolean flag for non-acquisition term detection (only for Tiendanube/Nuvemshop queries)"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]
+      - name: flag_d2c_oficial
+        description: "Boolean flag indicating if D2C brand is officially monitored"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]
+      - name: flag_marketplace_oficial
+        description: "Boolean flag indicating if marketplace brand is officially monitored"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]
+      - name: device
+        description: "Device type (DESKTOP, mobile, tablet). NULL values converted to DESKTOP"
+        tests:
+          - not_null
+      - name: site
+        description: "Website URL from Google Search Console"
+        tests:
+          - not_null
+      - name: impressions
+        description: "Number of times the URL appeared in search results"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+      - name: clicks
+        description: "Number of clicks from search results to the URL"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+      - name: average_position
+        description: "Average position in search results (lower is better)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 1
+              max_value: 100
+      - name: click_through_rate
+        description: "Click-through rate calculated as clicks/impressions"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+      - name: sys_audit_created_on
+        description: "Timestamp when record was created in data warehouse"
+      - name: sys_audit_updated_on
+        description: "Timestamp when record was last updated in data warehouse"
+
+
+  - name: s__google_keyword_planner__enriched
+    description: "Silver layer model for Google Keyword Planner data with brand detection and classification. Currently uses manual data upload process until API integration is implemented by Engineering team. Provides enriched KWP data with automated brand classification, category mapping, and competitive intelligence."
+    config:
+      materialized: table
+      tags: ['marketing', 'keyword_planner', 'silver', 'competitive_intelligence']
+      meta:
+        owner: "beto.martinez@tiendanube.com"
+        business_owner: "Giselle Galli"
+        domain: "marketing"
+    columns:
+      - name: date
+        description: "Date of the keyword search data (monthly KWP data)"
+        tests:
+          - not_null
+      - name: date_month
+        description: "Date formatted as YYYY-MM for month-level analysis"
+      - name: date_quarter
+        description: "Date formatted as YYYY-QN for quarter-level analysis"
+      - name: date_year
+        description: "Year formatted as YYYY for year-level analysis"
+      - name: country
+        description: "Country code (AR, BR, MX, CO, CL)"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['AR', 'BR', 'MX', 'CO', 'CL']
+      - name: search_query
+        description: "Search keyword/query from KWP data"
+        tests:
+          - not_null
+      - name: kwp_category
+        description: "Auto-generated category using business-specific classification macro"
+        tests:
+          - accepted_values:
+              values: ['Branded', 'Marketplace', 'DTC', 'Ecommerce', 'Vendas', 'Envios', 'Dropshipping', 'Producto', 'Redes Sociales', 'Intention Verbs']
+      - name: d2c_brand_names
+        description: "D2C brand name detected via automated macros"
+      - name: marketplace_brand_names
+        description: "Marketplace brand name detected via automated macros"
+      - name: is_nuvemshop_tiendanube
+        description: "Boolean flag for Tiendanube/Nuvemshop brand detection"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]
+      - name: is_next_evolucion
+        description: "Boolean flag for Next/Evolution product detection"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]
+      - name: flag_d2c_oficial
+        description: "Boolean flag indicating if D2C brand is officially monitored"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]
+      - name: flag_marketplace_oficial
+        description: "Boolean flag indicating if marketplace brand is officially monitored"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]
+      - name: impressions
+        description: "Number of searches/search volume for the keyword"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+      - name: sys_audit_created_on
+        description: "Timestamp when record was created in data warehouse"
+      - name: sys_audit_updated_on
+        description: "Timestamp when record was last updated in data warehouse"
+
+  - name: s__goals__targets_kwp_sc
+    description: "Silver layer model for daily marketing goals and targets for Search Console and KWP. Contains expected performance metrics for branded/non-branded searches across channels. Used as targets for performance comparison in Gold models."
+    config:
+      materialized: table
+      tags: ['marketing', 'goals', 'silver', 'targets']
+      meta:
+        owner: "beto.martinez@tiendanube.com"
+        business_owner: "Giselle Galli"
+        domain: "marketing"
+    columns:
+      - name: date
+        description: "Date of the goal (daily goals)"
+        tests:
+          - not_null
+      - name: date_month
+        description: "Date formatted as YYYY-MM for month-level analysis"
+      - name: date_quarter
+        description: "Date formatted as YYYY-QN for quarter-level analysis"
+      - name: date_year
+        description: "Year formatted as YYYY for year-level analysis"
+      - name: country
+        description: "Country code (AR, BR, MX, CO, CL)"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['AR', 'BR', 'MX', 'CO', 'CL']
+      - name: expected_branded_sc
+        description: "Expected daily branded impressions for Search Console"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              config:
+                where: "expected_branded_sc IS NOT NULL"
+      - name: expected_branded_share_kwp
+        description: "Expected daily branded market share for KWP (as decimal, e.g. 0.49)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              config:
+                where: "expected_branded_share_kwp IS NOT NULL"
+      - name: expected_nonbranded_kwp
+        description: "Expected daily non-branded searches for KWP"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              config:
+                where: "expected_nonbranded_kwp IS NOT NULL"
+      - name: goal_source
+        description: "Source of the goal data for tracking purposes"
+      - name: sys_audit_created_on
+        description: "Timestamp when record was created in data warehouse"
+      - name: sys_audit_updated_on
+        description: "Timestamp when record was last updated in data warehouse"
+
+
+  - name: g__brand_nonbrand_performance__daily_summary__sc
+    description: "Gold layer daily performance model for Search Console data compared against daily goals. Provides branded vs non-branded performance metrics with goal achievement tracking. Only includes Search Console metrics (no KWP data for daily granularity)."
+    config:
+      materialized: table
+      tags: ['marketing', 'gold', 'performance', 'daily', 'search_console']
+      meta:
+        owner: "beto.martinez@tiendanube.com"
+        business_owner: "Giselle Galli"
+        domain: "marketing"
+    columns:
+      - name: date
+        description: "Date of the performance data"
+        tests:
+          - not_null
+      - name: date_month
+        description: "Date formatted as YYYY-MM for month-level analysis"
+      - name: date_quarter
+        description: "Date formatted as YYYY-QN for quarter-level analysis"
+      - name: date_year
+        description: "Year formatted as YYYY for year-level analysis"
+      - name: country
+        description: "Country code (AR, BR, MX, CO, CL)"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['AR', 'BR', 'MX', 'CO', 'CL']
+      - name: branded_searches_sc
+        description: "Actual branded impressions from Search Console"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              config:
+                where: "branded_searches_sc IS NOT NULL"
+      - name: branded_clicks_sc
+        description: "Actual branded clicks from Search Console"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              config:
+                where: "branded_clicks_sc IS NOT NULL"
+      - name: branded_ctr_sc
+        description: "Actual branded CTR from Search Console"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              config:
+                where: "branded_ctr_sc IS NOT NULL"
+      - name: expected_branded_sc_daily
+        description: "Expected branded impressions goal for the day"
+      - name: branded_goal_achievement_rate_sc
+        description: "Branded goal achievement rate (actual/expected)"
+      - name: sys_audit_created_on
+        description: "Timestamp when record was created in data warehouse"
+      - name: sys_audit_updated_on
+        description: "Timestamp when record was last updated in data warehouse"
+
+
+  - name: g__brand_nonbrand_performance__monthly_summary__sc__kwp
+    description: "Gold layer monthly performance model combining Search Console and KWP data with goals. Provides comprehensive monthly performance analysis with market share calculations and detailed KWP category breakdowns for competitive intelligence."
+    config:
+      materialized: table
+      tags: ['marketing', 'gold', 'performance', 'monthly', 'search_console', 'keyword_planner']
+      meta:
+        owner: "beto.martinez@tiendanube.com"
+        business_owner: "Giselle Galli"
+        domain: "marketing"
+    columns:
+      - name: date_month
+        description: "Month of the performance data (YYYY-MM)"
+        tests:
+          - not_null
+      - name: date_quarter
+        description: "Date formatted as YYYY-QN for quarter-level analysis"
+      - name: date_year
+        description: "Year formatted as YYYY for year-level analysis"
+      - name: country
+        description: "Country code (AR, BR, MX, CO, CL)"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['AR', 'BR', 'MX', 'CO', 'CL']
+      - name: branded_searches_sc_monthly
+        description: "Monthly aggregated branded impressions from Search Console"
+      - name: branded_clicks_sc_monthly
+        description: "Monthly aggregated branded clicks from Search Console"
+      - name: branded_ctr_sc_monthly
+        description: "Monthly average branded CTR from Search Console"
+      - name: branded_searches_kwp_monthly
+        description: "Monthly branded search volume from KWP"
+      - name: nonbranded_searches_kwp_monthly
+        description: "Monthly non-branded search volume from KWP"
+      - name: branded_share_kwp_monthly
+        description: "Monthly branded market share from KWP (our branded / total branded market)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              config:
+                where: "branded_share_kwp_monthly IS NOT NULL"
+      - name: total_market_searches_kwp_monthly
+        description: "Total monthly search volume from KWP (branded + nonbranded)"
+      - name: competitor_branded_searches_kwp_monthly
+        description: "Monthly competitor branded search volume from KWP"
+      - name: total_branded_market_kwp_monthly
+        description: "Total monthly branded market volume from KWP (us + competitors)"
+      - name: marketplace_searches_kwp_monthly
+        description: "Monthly Marketplace category search volume from KWP (needed for marketplace share calculation)"
+      - name: expected_branded_sc_monthly
+        description: "Monthly aggregated expected branded impressions goal for Search Console"
+      - name: expected_nonbranded_kwp_monthly
+        description: "Monthly aggregated expected non-branded searches goal for KWP"
+      - name: expected_branded_share_kwp_monthly
+        description: "Monthly expected branded market share goal for KWP (average of daily goals)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              config:
+                where: "expected_branded_share_kwp_monthly IS NOT NULL"
+      - name: marketplace_share_kwp_monthly
+        description: "Monthly branded searches to marketplace searches ratio from KWP"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              config:
+                where: "marketplace_share_kwp_monthly IS NOT NULL"
+      - name: sys_audit_created_on
+        description: "Timestamp when record was created in data warehouse"
+      - name: sys_audit_updated_on
+        description: "Timestamp when record was last updated in data warehouse"
