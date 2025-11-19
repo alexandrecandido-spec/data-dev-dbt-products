@@ -164,7 +164,7 @@ twofa_status AS (
     LEFT JOIN (
         SELECT 
             CAST(user_id AS BIGINT) AS user_id
-        FROM `hive_metastore`.`newadmin`.`authentication_factors`
+        FROM {{ source('int_newadmin', 'authentication_factors') }}
         WHERE enabled = 1 AND type = 'TOTP'
     ) mfa ON mfa.user_id = wu.id
     WHERE wu.deleted = 0
