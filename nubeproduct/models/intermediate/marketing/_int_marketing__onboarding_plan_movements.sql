@@ -42,7 +42,7 @@ WITH contracts_with_plan_info AS (
     FROM {{ ref('s__contracts__store_contracts__scd') }} c
     INNER JOIN {{ ref('s__attributes__store_core__ref') }} s
         ON c.store_id = s.store_id
-        AND s.created_at >= '{{ var("onboarding_start_date") }}'
+        AND s.created_at >= '2024-01-01'
     WHERE c.plan_name IS NOT NULL
 ),
 
@@ -143,5 +143,5 @@ FROM {{ ref('s__attributes__store_core__ref') }} sc
 LEFT JOIN first_plan fp ON sc.store_id = fp.store_id
 LEFT JOIN max_plan_by_window mp ON sc.store_id = mp.store_id
 LEFT JOIN plan_at_end_of_window pe ON sc.store_id = pe.store_id
-WHERE sc.created_at >= '{{ var("onboarding_start_date") }}'
+WHERE sc.created_at >= '2024-01-01'
 
