@@ -1,7 +1,7 @@
 {{
   config(
     materialized='incremental',
-    tags=['marketing', 'search_console', 'silver', 'daily-9am'],
+    tags=['daily-9am'],
     unique_key=['date', 'country', 'search_query', 'device'],
     on_schema_change='fail'
   )

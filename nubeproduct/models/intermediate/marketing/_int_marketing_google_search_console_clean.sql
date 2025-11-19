@@ -1,9 +1,4 @@
-{{
-  config(
-    materialized='table',
-    tags=['marketing', 'search_console', 'intermediate']
-  )
-}}
+-- Intermediate models are ephemeral by default (no config needed)
 
 WITH source_data AS (
   SELECT 
