@@ -27,6 +27,8 @@ clean-targets:         # directories to be removed by `dbt clean`
   - "dbt_packages"
   - "logs"
 
+vars:
+  'dbt_date:time_zone': 'America/Argentina/Buenos_Aires'
 
 # Configuring models
 # Full documentation: https://docs.getdbt.com/docs/configuring-models
@@ -193,6 +195,5 @@ vars:
   mirror_hms_prefix: "{{ 'testing_unity_dev' if target.name == 'dev' else 'testing_unity_prd' }}"
   mirror_catalog: "{{ 'hive_metastore' if target.name == 'dev' else 'hive_metastore' }}" #"{{ 'data_products_dev' if target.name == 'dev' else 'data_products_prd' }}"
   'dbt_date:time_zone': 'America/Argentina/Buenos_Aires'
-  onboarding_start_date: '2024-01-01'  # Fecha de inicio para modelos de onboarding
   required_docs_fail_on_error: true         
   required_docs_skip_models: []
