@@ -40,7 +40,7 @@ partners_levels AS
         partner_id,
         partner_level,
         sys_audit_updated_on AS program_levels_change_timestamp
-    FROM {{ ref('s__agencies__program_levels__scd')}}
+    FROM {{ ref('s__agencies__program_levels__snapshot_monthly')}}
     )
     WHERE RN = 1
 )
