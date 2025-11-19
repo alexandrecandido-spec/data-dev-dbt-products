@@ -26,9 +26,10 @@ SELECT
     metafield_created_at,
     CAST(date_format(metafield_created_at, 'yyyyMM') AS INT) AS year_month_code,
     domain,
-    assignment_id,
+    COALESCE(assignment_id, 0) AS assignment_id,
     assignment_date,
     owner_id,
+    current_timestamp AS sys_audit_created_on,
     'data-dev-dbt-products' AS sys_audit_created_by,
     current_timestamp AS sys_audit_updated_on,
     'data-dev-dbt-products' AS sys_audit_updated_by
