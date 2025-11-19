@@ -3375,7 +3375,7 @@ models:
         tests: [not_null]
 
 
-  - name: s__google_search_console__enriched
+  - name: s__brand_and_comms__search_console_enriched__event
     description: "Advanced Google Search Console analytics model with competitive intelligence, brand monitoring, and search intent classification. Provides automated detection of 65+ competitor brands and detailed search intent analysis across all markets."
     config:
       materialized: incremental
