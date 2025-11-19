@@ -16,8 +16,10 @@ models:
         description: "Plan type name."
       - name: contract_type
         description: "Type of contract event (e.g., freemium, change-plan)."
+      - name: contracts_total
+        description: "Total amount of cash paid by the store for the contracts."
       - name: created_at_contract
-        description: "Timestamp when the contract entry was created."
+        description: "Date when the contract was created in the system."
       - name: start_date
         description: "Date when the contract started."
         tests:
@@ -28,6 +30,39 @@ models:
         tests:
           - not_null:
               severity: warn
+      - name: change_reason
+        description: "Reason for the change in the contract."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_set:
+              value_set: [first_contract, plan_changed, gap_between_periods, type_changed, data_anomaly, unclassified]
+      - name: is_current
+        description: "Indicates if the contract is currently active."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_set:
+              value_set: [true, false]
+      - name: contract_order
+        description: "Order of the contract within the store."
+        tests:
+          - not_null
+      - name: contracts_qty
+        description: "Total number of contracts for the store."
+        tests:
+          - not_null
+      - name: tag
+        description: "Tag associated with the contract. It is used to identify the contract anomalies. It can be 'billing-churn-vencimientos-extensos', 'beneficio-tiendagratuita', 'ONG' or NULL."
+      - name: merchant_has_anomaly
+        description: "Indicates if the merchant has any contract anomalies."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_set:
+              value_set: [true, false]
+      - name: hash_key
+        description: "Hash key for the contract. It is a concatenation of the store_id, plan_name, contract_type and start_date."
+        tests:
+          - not_null
+          - unique
       - name: sys_audit_created_on
         description: "Timestamp when the row was originally created."
         tests:
@@ -44,8 +79,5 @@ models:
         description: "System or user that last updated the row."
         tests:
           - not_null
-      - name: hash_key
-        description: "Hash key for the contract. It is a concatenation of the store_id, plan_name, contract_type and start_date."
-        tests:
-          - not_null
-          - unique
+      - name: year_month_code
+        description: "Year and month code for the start date of the contract. Partition key."
