@@ -1968,7 +1968,7 @@ models:
 
 
 
-  - name: s__renewal__aquarium__snapshot
+  - name: g__renewal__aquarium__agg_monthly
     description: >
       Midmarket Renewal Aquarium data product. Consolidates Success pipeline deals to identify renewal opportunities,
       enriched with merchant information, financial metrics, and related renewal deal tracking from the Upsell Success pipeline.
@@ -2082,7 +2082,7 @@ models:
           - not_null
 
 
-  - name: s__upsell__aquarium__snapshot
+  - name: g__upsell__aquarium__agg_monthly
     description: >
       Midmarket Upsell Aquarium data product. Identifies potential upsell opportunities by analyzing stores from finance metrics,
       enriched with Success pipeline status, existing Upsell deal tracking, and comprehensive financial performance data.
@@ -2206,7 +2206,7 @@ models:
           - not_null
 
 
-  - name: s__upsell__renewal__pipeline__enriched__snapshot
+  - name: g__upsell__renewal__pipeline__enriched__agg_monthly
     description: >
       Midmarket Upsell & Renewal pipeline enriched data product. Enriches the base Upsell & Renewal pipeline snapshot
       with comprehensive merchant information and detailed financial performance metrics. This model provides a complete

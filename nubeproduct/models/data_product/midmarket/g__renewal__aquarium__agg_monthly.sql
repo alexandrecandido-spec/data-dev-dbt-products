@@ -2,7 +2,7 @@
     materialized='table',
     on_schema_change='fail',
     unique_key=['deal_id'],
-    tags=['midmarket','daily-7am']
+    tags=['daily-7am']
 ) }}
 
 --Renewal Aquarium

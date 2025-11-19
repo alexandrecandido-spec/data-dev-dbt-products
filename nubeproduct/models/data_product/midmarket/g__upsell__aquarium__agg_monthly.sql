@@ -2,7 +2,7 @@
     materialized='table',
     on_schema_change='fail',
     unique_key=['store_id', 'date'],
-    tags=['midmarket','daily-7am']
+    tags=['daily-7am']
 ) }}
 
 --Upsell Aquarium
