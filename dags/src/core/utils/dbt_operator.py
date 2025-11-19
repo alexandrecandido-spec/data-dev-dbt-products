@@ -167,7 +167,7 @@ class DBTOperator(BashOperator):
 
         success = process.returncode == 0
 
-        if command == 'run':
+        if self.dbt_command == 'run':
             self._status_models_update()
 
         return success, ''.join(output_lines)
