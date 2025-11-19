@@ -3126,3 +3126,77 @@ models:
       - name: sys_audit_updated_by
         description: "System identifier of the process that last updated this record"
  
+  - name: g__general__meanclick_budget_forecast_agg_daily
+    description: "One row per (full_date, country, mkt_source). Consolidates daily effective KPIs (trials, new_payments, new_sellers), 90/180-day forecasts (future-only in consumption), and linear/weighted budget distributions derived from the monthly plan and type_of_day patterns."
+    meta:
+      owner: "sofia.torres@tiendanube.com"
+      domain: "marketing"
+      business_owner: "Giselle Galli"
+    tests:
+      - unique:
+          column_name: "full_date || '-' || country || '-' || mkt_source"
+    columns:
+      - name: full_date
+        description: "Calendar date (daily grain)."
+        tests: [not_null]
+      - name: country
+        description: "ISO-2 country code (AR, BR, MX, CL, CO)."
+        tests: [not_null]
+      - name: mkt_source
+        description: "Marketing source/team label as used across dashboards."
+        tests: [not_null]
+      - name: year_number
+        description: "Year of full_date (partition column)."
+      - name: month_number
+        description: "Month (1–12) of full_date (partition column)."
+      - name: day_name
+        description: "Weekday name of full_date."
+      - name: effective_trials
+        description: "Sum of trials_mean_click bucketed by store_created_date. 0 if none."
+      - name: effective_new_payments
+        description: "Sum of trials_mean_click bucketed by first_payment_date. 0 if none."
+      - name: effective_new_sellers
+        description: "Sum of trials_mean_click bucketed by first_seller_date where first_seller_date > first_payment_date. 0 if none."
+      - name: forecast_trials
+        description: "Future-only forecast for trials: 90-day avg on normal days; 180-day avg on special days; only when effective_trials=0."
+      - name: forecast_payments
+        description: "Future-only forecast for payments: 90-day avg on normal days; 180-day avg on special days; only when effective_new_payments=0."
+      - name: expected_monthly_trials
+        description: "Planned monthly trials used to derive daily expectations."
+      - name: expected_monthly_new_payments
+        description: "Planned monthly new payments used to derive daily expectations."
+      - name: expected_monthly_new_sellers
+        description: "Planned monthly new sellers used to derive daily expectations."
+      - name: ponderation_key_trials
+        description: "Daily weight within-month from 15-month type_of_day averages (trials). Sums ~1 within month."
+      - name: ponderation_key_payments
+        description: "Daily weight within-month from 15-month type_of_day averages (payments). Sums ~1 within month."
+      - name: ponderation_key_new_sellers
+        description: "Daily weight within-month from 15-month type_of_day averages (new_sellers). Sums ~1 within month."
+      - name: expected_daily_linear_trials
+        description: "expected_monthly_trials / days_in_month."
+      - name: expected_daily_linear_new_payments
+        description: "expected_monthly_new_payments / days_in_month."
+      - name: expected_daily_linear_new_sellers
+        description: "expected_monthly_new_sellers / days_in_month."
+      - name: expected_daily_weighted_trials
+        description: "expected_monthly_trials × ponderation_key_trials."
+      - name: expected_daily_weighted_new_payments
+        description: "expected_monthly_new_payments × ponderation_key_payments."
+      - name: expected_daily_weighted_new_sellers
+        description: "expected_monthly_new_sellers × ponderation_key_new_sellers."
+      - name: payload_hash
+        description: "MD5 over business payload columns (null-safe) using macro marketing_mpt_hash; used to detect content changes."
+        tests: [not_null]
+      - name: sys_audit_created_on
+        description: "Creation timestamp in the target (preserved across merges)."
+        tests: [not_null]
+      - name: sys_audit_created_by
+        description: "Process/user that created the record."
+        tests: [not_null]
+      - name: sys_audit_updated_on
+        description: "Last update timestamp in the target."
+        tests: [not_null]
+      - name: sys_audit_updated_by
+        description: "Process/user that last updated the record."
+        tests: [not_null]
