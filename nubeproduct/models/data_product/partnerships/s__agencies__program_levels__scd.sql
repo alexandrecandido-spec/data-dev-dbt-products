@@ -15,6 +15,8 @@ program_levels AS
     SELECT
         partner_id,
         snapshot_date,
+        year_id,
+        quarter_id,
         active_paying_stores,
         new_payments_last_quarter,
         new_payments_last_365d,

@@ -456,6 +456,14 @@ models:
         description: "First day of the month representing the snapshot date for the program level classification."
         tests:
           - not_null
+      - name: year_id
+        description: "Year of the snapshot date."
+        tests:
+          - not_null
+      - name: quarter_id
+        description: "Quarter of the snapshot date."
+        tests:
+          - not_null
       - name: active_paying_stores
         description: "Number of active paying stores associated with the partner at the snapshot date."
         tests:
