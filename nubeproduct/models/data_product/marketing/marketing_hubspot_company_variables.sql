@@ -27,19 +27,6 @@ with
             coalesce(credit_limit.available_limit_admin, 0.0) as np_lending_available_credit,
             gmv.gmv_local_currency_on_platform_monthly,
             gmv.gmv_local_currency_on_platform_90d,
-            -- 4 Steps de Onboarding
-            coalesce(layout.config_layout, 0) as config_layout,
-            layout.first_date_config_layout,
-            layout.last_date_config_layout,
-            coalesce(payments.config_payment, 0) as config_payment,
-            payments.first_date_config_payment,
-            payments.last_date_config_payment,
-            coalesce(shipping.config_shipping, 0) as config_shipping,
-            shipping.first_date_config_shipping,
-            shipping.last_date_config_shipping,
-            coalesce(products.config_products, 0) as config_products,
-            products.first_date_config_products,
-            products.last_date_config_products,
             active_stores.store_id
         from {{ ref("hubspot_active_stores") }} active_stores
         left join
@@ -62,18 +49,6 @@ with
         left join
             {{ ref("_int__midmarket__hubspot_gmv_by_store") }} gmv
             on active_stores.store_id = gmv.store_id
-        left join
-            {{ ref("s__product_marketing__layout__ref") }} layout
-            on active_stores.store_id = layout.store_id
-        left join
-            {{ ref("s__product_marketing__payments__ref") }} payments
-            on active_stores.store_id = payments.store_id
-        left join
-            {{ ref("s__product_marketing__shipping__ref") }} shipping
-            on active_stores.store_id = shipping.store_id
-        left join
-            {{ ref("s__product_marketing__products__ref") }} products
-            on active_stores.store_id = products.store_id
     )
 
 select
@@ -86,19 +61,6 @@ select
     info.np_lending_available_credit,
     info.gmv_local_currency_on_platform_monthly,
     info.gmv_local_currency_on_platform_90d,
-    -- 4 Steps de Onboarding
-    info.config_layout,
-    info.first_date_config_layout,
-    info.last_date_config_layout,
-    info.config_payment,
-    info.first_date_config_payment,
-    info.last_date_config_payment,
-    info.config_shipping,
-    info.first_date_config_shipping,
-    info.last_date_config_shipping,
-    info.config_products,
-    info.first_date_config_products,
-    info.last_date_config_products,
     {% if is_incremental() %}
         coalesce(
             existing_data.sys_audit_created_on, current_timestamp
@@ -124,19 +86,7 @@ from source_data as info
             "website",
             "np_lending_available_credit",
             "gmv_local_currency_on_platform_monthly",
-            "gmv_local_currency_on_platform_90d",
-            "config_layout",
-            "first_date_config_layout",
-            "last_date_config_layout",
-            "config_payment",
-            "first_date_config_payment",
-            "last_date_config_payment",
-            "config_shipping",
-            "first_date_config_shipping",
-            "last_date_config_shipping",
-            "config_products",
-            "first_date_config_products",
-            "last_date_config_products"
+            "gmv_local_currency_on_platform_90d"
         ] %}
     where
         existing_data.store_id is null

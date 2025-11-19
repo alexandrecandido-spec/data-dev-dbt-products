@@ -1157,9 +1157,8 @@ models:
       domain: "operations"
       business_owner: "Ane Paschoalino"
     description: >
-      Contains simplified store attributes for HubSpot integration, including
-      vertical classification, current segment status, and 4 steps of onboarding
-      (Layout, Payment Method, Shipping, Products). Returns empty strings
+      Contains simplified store attributes for HubSpot integration, including only
+      vertical classification and current segment status. Returns empty strings
       instead of null values to ensure the values are set in Hubspot as empty.
     columns:
       - name: store_id
@@ -1197,46 +1196,6 @@ models:
         description: "GMV in local currency over the last closed month."
       - name: gmv_local_currency_on_platform_90d
         description: "GMV in local currency over the last 90 days."
-      - name: config_layout
-        description: "Indica si la tienda completó el step de Layout (banner + slider + colors). 1 = completado, 0 = no completado"
-        tests:
-          - not_null
-          - accepted_values:
-              values: [0, 1]
-      - name: first_date_config_layout
-        description: "Fecha de la primera configuración de layout (la más temprana entre banner, slider o colors)"
-      - name: last_date_config_layout
-        description: "Fecha de completitud del layout (la más tardía entre banner, slider y colors)"
-      - name: config_payment
-        description: "Indica si la tienda completó el step de Payment Method (configuró métodos de pago). 1 = completado, 0 = no completado"
-        tests:
-          - not_null
-          - accepted_values:
-              values: [0, 1]
-      - name: first_date_config_payment
-        description: "Fecha del primer evento PaymentProviderRegistered"
-      - name: last_date_config_payment
-        description: "Fecha del último evento PaymentProviderRegistered"
-      - name: config_shipping
-        description: "Indica si la tienda completó el step de Shipping (configuró métodos de envío). 1 = completado, 0 = no completado"
-        tests:
-          - not_null
-          - accepted_values:
-              values: [0, 1]
-      - name: first_date_config_shipping
-        description: "Fecha de la primera configuración de carrier activo"
-      - name: last_date_config_shipping
-        description: "Fecha de la última configuración de carrier activo"
-      - name: config_products
-        description: "Indica si la tienda completó el step de Products (tiene 6+ productos válidos con descripción e imagen). 1 = completado, 0 = no completado"
-        tests:
-          - not_null
-          - accepted_values:
-              values: [0, 1]
-      - name: first_date_config_products
-        description: "Fecha del primer producto válido creado"
-      - name: last_date_config_products
-        description: "Fecha del sexto producto válido (fecha de completitud) si tiene 6+, sino fecha del último producto válido"
       - name: sys_audit_created_on
         description: "Timestamp when the row was originally created."
       - name: sys_audit_created_by
