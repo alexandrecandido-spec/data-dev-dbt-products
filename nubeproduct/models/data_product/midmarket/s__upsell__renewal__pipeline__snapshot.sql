@@ -2,7 +2,7 @@
     materialized='table',
     on_schema_change='fail',
     unique_key=['deal_id'],
-    tags=['midmarket','daily-7am']
+    tags=['daily-7am']
 ) }}
 
 select
@@ -34,6 +34,7 @@ select
     d.cpt,
     d.success_priority,
     d.vertical,
+    d.acquisition_channel,
     d.closed_lost_reason__1__nuevmshop_ as closed_lost_reason_1,
     d.closed_lost_reason__2__nuevmshop_ as closed_lost_reason_2,
     d.closed_won_reason__1__nuevmshop_ as closed_won_reason_1,
