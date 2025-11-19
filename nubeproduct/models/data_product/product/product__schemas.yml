@@ -978,6 +978,8 @@ models:
         description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
       - name: saved_search_is_wholesale
         description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
+      - name: saved_search_is_subscription
+        description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
       - name: saved_search_coupon_ids_raw
         description: "This is a type of filter. The column contains the value/s the merchant is filtering by"
       - name: saved_search_stock_issues

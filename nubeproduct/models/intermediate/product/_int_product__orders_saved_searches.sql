@@ -39,6 +39,7 @@ SELECT
     MAX(CASE WHEN parsed_json.key = 'minUnits' THEN parsed_json.value ELSE NULL END) AS saved_search_min_units,
     MAX(CASE WHEN parsed_json.key = 'maxUnits' THEN parsed_json.value ELSE NULL END) AS saved_search_max_units,
     MAX(CASE WHEN parsed_json.key = 'isWholesale' THEN parsed_json.value ELSE NULL END) AS saved_search_is_wholesale,
+    MAX(CASE WHEN parsed_json.key = 'isSubscription' THEN parsed_json.value ELSE NULL END) AS saved_search_is_subscription,
     MAX(CASE WHEN parsed_json.key = 'couponIdsRaw' THEN parsed_json.value ELSE NULL END) AS saved_search_coupon_ids_raw,
     MAX(CASE WHEN parsed_json.key = 'stockIssues' THEN parsed_json.value ELSE NULL END) AS saved_search_stock_issues,
     GREATEST(
