@@ -2212,6 +2212,14 @@ models:
         description: "Fecha del primer acceso al admin"
       - name: last_date_admin_access
         description: "Fecha del último acceso al admin"
+      - name: all_platform_sessions
+        description: "Total histórico de accesos al panel de administración (sin límite de tiempo)"
+      - name: platform_sessions_30
+        description: "Cantidad de accesos al panel de administración en los últimos 30 días desde current_date"
+      - name: platform_sessions_90
+        description: "Cantidad de accesos al panel de administración en los últimos 90 días desde current_date"
+      - name: platform_last_access
+        description: "Fecha del último acceso al panel de administración (alias de last_date_admin_access para compatibilidad)"
       - name: sys_audit_created_on
         description: "Timestamp of when this record was created in our data warehouse"
       - name: sys_audit_created_by
