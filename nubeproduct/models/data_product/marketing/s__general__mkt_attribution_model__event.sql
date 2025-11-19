@@ -55,8 +55,7 @@ LEFT JOIN existing_data e
                           ON main_source.click_id = e.click_id AND main_source.store_id = e.store_id
 WHERE
     {% if not is_incremental() %}
-    --  main_source.created_at >= DATE '2010-01-01'
-    main_source.created_at >= DATE '2025-01-01'
+    main_source.created_at >= DATE '2010-01-01' 
     {% endif %}
     {% if is_incremental() %}
     (
