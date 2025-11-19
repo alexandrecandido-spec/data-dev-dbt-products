@@ -15,10 +15,15 @@ WITH existing_data AS (
 
 SELECT
     ss.store_id,
+    sc.domain,
     sc.country_code as country,
     ss.current_plan_type as plan_group,
     ss.current_segment as segment,
     ss.state,
+    CASE
+        WHEN ss.churned_at IS NULL THEN FALSE
+        ELSE TRUE
+    END AS is_churned,
     CASE
         WHEN o.option_value IS NULL AND sc.country_code = 'AR' THEN FALSE
         WHEN o.option_value IS NULL AND sc.country_code <> 'AR' THEN TRUE
@@ -50,8 +55,7 @@ LEFT JOIN existing_data e
 
 
 WHERE 1=1
-    AND ss.churned_at is null
-    AND ss.state in (0, 1, 2)
+    AND ss.state <> 4
 
 {% if is_incremental() %}
 AND GREATEST(
