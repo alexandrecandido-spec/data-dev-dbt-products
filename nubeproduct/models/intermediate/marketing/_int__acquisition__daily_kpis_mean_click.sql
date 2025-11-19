@@ -6,7 +6,7 @@ with dates as (
     month_id as month_number,
     day_name as day_name
   from {{ ref('dim_calendar') }}
-  where date_id >= {{ var('start_date', "DATE '2024-01-01'") }}
+  where date_id >= DATE '2024-01-01'
 ),
 
 -- Attribution (SIN fraude acá)

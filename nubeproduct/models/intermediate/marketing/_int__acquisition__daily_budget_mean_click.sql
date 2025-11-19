@@ -10,8 +10,8 @@ with cal as (
     first_day_of_month as month_start,
     last_day_of_month  as month_end
   from {{ ref('dim_calendar') }}
-  where date_id >= {{ var('start_date', "DATE '2024-01-01'") }}
-),
+  where date_id >= DATE '2024-01-01'
+  ),
 
 plan as (
   select

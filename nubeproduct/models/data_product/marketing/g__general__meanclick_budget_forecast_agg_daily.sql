@@ -5,14 +5,10 @@
     partition_by         = ['year_number','month_number'],
     cluster_by           = ['country','mkt_source'],
     on_schema_change     = 'fail',
-    tags                 = ['daily-9am','marketing']
+    tags                 = ['daily-9am']         
 ) }}
 
-{% set start_date            = var('start_date', "'2024-01-01'") %}
-{% set forecast_horizon_days = var('forecast_horizon_days', 420) %}
-{% set force_backfill_from   = var('force_backfill_from', none) %}
-
--- columnas del payload para hash
+{# columnas del payload a hashear (para detectar cambios) #}
 {% set payload_cols = [
   'year_number','month_number','day_name',
   'effective_trials','effective_new_payments','effective_new_sellers',
@@ -23,42 +19,48 @@
   'expected_daily_weighted_trials','expected_daily_weighted_new_payments','expected_daily_weighted_new_sellers'
 ] %}
 
-with recalc_window as (
-  select
-    current_date()                                        as today_,
-    date_add(current_date(), {{ forecast_horizon_days }}) as window_end
+-- Último día del último mes en el plan (define horizonte de forecast)
+with plan_window as (
+  select coalesce(
+           max(last_day(to_date(
+                 concat(cast(year  as string), '-',
+                        lpad(cast(month as string), 2, '0'), '-01')
+               ))),
+           add_months(current_date(), 12)  -- fallback defensivo si el plan está vacío
+         ) as plan_last_day
+  from {{ source('data_manual','ext__marketing__acquisition__mkt_monthly_kpis_plan') }}
 ),
 
+recalc_window as (
+  select
+    current_date()                        as today_,
+    (select plan_last_day from plan_window) as window_end
+),
+
+-- Fuente consolidada (INT): effectives + budget + forecast
 base as (
   select *
   from {{ ref('_int__acquisition__daily_dataproduct__agg_daily') }}
-  {% if is_incremental() %}
-    where
-      (
-        {% if force_backfill_from %}
-          full_date >= {{ force_backfill_from }}
-        {% else %}
-          full_date > current_date()     -- FREEZE: el pasado no se recalcula
-        {% endif %}
-      )
-      and full_date <= (select window_end from recalc_window)
-  {% else %}
-    where full_date >= {{ start_date }}
-  {% endif %}
+  where full_date >= DATE '2024-01-01'
+    and full_date <= (select window_end from recalc_window)
+    {% if is_incremental() %}
+      and full_date > current_date()     -- freeze pasado cuando es incremental
+    {% endif %}
 ),
 
--- Enmascarar forecast FUTURO según disponibilidad de budget (métrica-específico)
+
+-- Enmascara forecast FUTURO según disponibilidad de plan (el pasado queda siempre poblado)
 masked as (
   select
     b.full_date, b.year_number, b.month_number, b.day_name,
     b.country, b.mkt_source,
 
-    -- efectivos (tu INT ya los pone NULL en futuro)
+    -- efectivos (tu INT ya pone NULL en futuro)
     b.effective_trials,
     b.effective_new_payments,
     b.effective_new_sellers,
 
-    -- forecast: pasado siempre poblado; FUTURO solo si hay plan mensual para la métrica
+    -- forecast: pasado/backcast siempre; futuro solo si hay plan de la métrica
     case
       when b.full_date > current_date() and b.expected_monthly_trials is null then null
       else b.forecast_trials
@@ -85,7 +87,7 @@ masked as (
   from base b
 ),
 
--- snapshot de lo ya materializado para preservar created_*
+-- Snapshot de lo ya materializado (para preservar created_* y detectar cambios)
 existing_data as (
   {{ get_existing_data(
       this,
@@ -93,6 +95,7 @@ existing_data as (
   ) }}
 ),
 
+-- Hash del payload enmascarado (null-safe)
 final_payload as (
   select
     m.*,
@@ -100,6 +103,7 @@ final_payload as (
   from masked m
 ),
 
+-- Auditoría + diff contra target
 joined as (
   select
     fp.*,
@@ -115,19 +119,25 @@ joined as (
     and fp.mkt_source = e.mkt_source
 )
 
+-- Exposición final
 select
-  full_date, year_number, month_number, day_name, country, mkt_source,
+  full_date, year_number, month_number, day_name,
+  country, mkt_source,
+
   effective_trials, effective_new_payments, effective_new_sellers,
-  forecast_trials, forecast_payments,
+  forecast_trials,  forecast_payments,
+
   expected_monthly_trials, expected_monthly_new_payments, expected_monthly_new_sellers,
-  ponderation_key_trials, ponderation_key_payments, ponderation_key_new_sellers,
-  expected_daily_linear_trials, expected_daily_linear_new_payments, expected_daily_linear_new_sellers,
+  ponderation_key_trials,  ponderation_key_payments,  ponderation_key_new_sellers,
+  expected_daily_linear_trials,  expected_daily_linear_new_payments,  expected_daily_linear_new_sellers,
   expected_daily_weighted_trials, expected_daily_weighted_new_payments, expected_daily_weighted_new_sellers,
+
   payload_hash,
   sys_audit_created_on, sys_audit_created_by, sys_audit_updated_on, sys_audit_updated_by
 from joined
 where
   {% if is_incremental() %}
+    -- upsert sólo cuando hay cambios en el contenido
     payload_hash_prev is null
     or payload_hash is distinct from payload_hash_prev
   {% else %}
