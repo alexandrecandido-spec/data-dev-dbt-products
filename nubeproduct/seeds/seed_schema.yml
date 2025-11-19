@@ -48,3 +48,86 @@ seeds:
         tests:
           - not_null
   
+  - name: marketing__keyword_planner_sample
+    description: >
+      DEPRECATED - Google Keyword Planner historical data sample for competitive intelligence and brand monitoring.
+      This seed is NO LONGER USED. Production models now use data_products_prd.data_manual.ext__marketing__brand_comms__searches_keyword_planner.
+      Seed will be removed in future versions.
+    columns:
+      - name: Keyword
+        description: Search keyword/term being analyzed (equivalent to search_query in Search Console)
+        tests:
+          - not_null
+      
+      - name: Category  
+        description: >
+          DEPRECATED - Original manual classification from source (Branded, DTC, Ecommerce, Marketplace, Envios, etc.).
+          This field is NO LONGER USED - we now generate the kwp_category field automatically using our classification macro.
+          Field will be removed in future versions when original table doesn't include it.
+        # No tests needed since field is deprecated
+      - name: Country
+        description: Country code where the search occurred
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['AR', 'BR', 'CL', 'CO', 'MX']
+      - name: Date
+        description: Date of the search volume measurement (format M/D/YYYY)
+        tests:
+          - not_null
+      - name: Searches
+        description: >
+          Number of searches for the keyword (equivalent to impressions in Search Console).
+          Note: Keyword Planner does not provide clicks data.
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+
+  - name: marketing_brand_nobrand_daily_goals
+    description: >
+      DEPRECATED - Daily goals and targets for branded and non-branded search impressions across LATAM markets.
+      This seed is NO LONGER USED. Production models now use ext__marketing__brand_comms__marketing_brand_nobrand_daily_goals.
+      New structure has specific goal types: expected_impressions_brand_exact_sc_daily, expected_market_share_brand_kwp, expected_searches_non_brand_kwp_daily.
+      Seed will be removed in future versions.
+    columns:
+      - name: year
+        description: "Year of the goal target (2025)"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [2025]
+      
+      - name: month
+        description: "Month number (1-12)"
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: ">= 1 AND <= 12"
+      
+      - name: date
+        description: "Target date in MM/dd/yyyy format"
+        tests:
+          - not_null
+      
+      - name: country
+        description: "Country code for the goal target"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['AR', 'BR', 'CL', 'CO', 'MX']
+      
+      - name: search_type
+        description: "Type of search - Branded or No Brand (equivalent to nonbranded)"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Branded', 'No Brand']
+      
+      - name: expected_impressions
+        description: "Daily target for expected impressions"
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: "> 0"
+  
