@@ -2462,11 +2462,13 @@ models:
       - name: domain
         description: "Domain associated with the metafield (Products, Categories, Orders, Customers or Product variants)."
       - name: assignment_id
-        description: "Unique identifier of the metafield assignment."
+        description: "Unique identifier of the metafield assignment. 0 if unassigned."
       - name: owner_id
         description: "Id of the specific item that was assigned the metafield (product_id, category_id, etc)"
       - name: assignment_date
         description: "Date of the metafield assignment."
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created in this model"
       - name: sys_audit_created_by
         description: "System or user that created the row in this model."
       - name: sys_audit_updated_on
@@ -4689,6 +4691,71 @@ models:
         description: "Actor/system that last updated the row (fixed to 'data-dev-dbt-products')."
         tests:
           - not_null
+
+
+  - name: s__general__github_issue_zendesk__link
+    description: >
+      Link table between **GitHub issues/problems** and **Zendesk tickets**.  
+      It is built from the latest snapshot in `_int__product__general__github_issues_and_problems_union`
+      and `_int__product__general__github_issues_and_problems_comments_union`, extracting Zendesk IDs
+      from the text (issue body and comments).  
+      It supports the patterns `https://tiendanubehelp.zendesk.com/agent/tickets/<id>` and  
+      `https://tiendanubehelp.zendesk.com/agent/#/tickets/<id>`.  
+      One row per (repo_name, issue_number, zendesk_id, comment_id?, issue_id?).
+    config:
+      meta:
+        owner: "fabricio.crivella@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            ["repo_name", "issue_number", "zendesk_id", "comment_id", "issue_id"]
+    columns:
+      - name: id
+        description: >
+          Surrogate identifier (SHA-256) for the link row.  
+          Calculated using (repo_name, issue_number, zendesk_id, comment_id, issue_id).
+        tests:
+          - not_null
+          - unique
+      - name: repo_name
+        description: "Normalized repository name in lowercase. Usually 'issues' or 'problems'."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["issues", "problems"]
+      - name: issue_number
+        description: "Issue/Problem number within the repository (integer)."
+        tests:
+          - not_null
+      - name: zendesk_id
+        description: >
+          Numeric ID of the Zendesk ticket extracted from the text.  
+          Derived from URLs matching the patterns `/agent/tickets/<id>` or `/agent/#/tickets/<id>`.
+        tests:
+          - not_null
+      - name: comment_id
+        description: >
+          ID of the GitHub comment from which the `zendesk_id` was extracted (if applicable).  
+          NULL when the extraction comes from the issue/problem body.
+      - name: issue_id
+        description: >
+          ID of the GitHub comment from which the `zendesk_id` was extracted (if applicable).  
+          NULL when the extraction comes from the issue/problem body.
+      - name: issue_or_comment_created_at
+        description: "Timestamp indicating when the record was originally created, depending on its source. If the Zendesk reference was extracted from a GitHub comment, this field corresponds to the comment creation date. If it was extracted from the issue body, it corresponds to the issue creation date."
+      - name: source
+        description: "Indicates whether the Zendesk link was found in the issue body or within a comment"
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was first inserted into this model."
+      - name: sys_audit_created_by
+        description: "Actor/system that created the row (defaults to 'data-dev-dbt-products')."
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this model."
+      - name: sys_audit_updated_by
+        description: "Actor/system that last updated the row (fixed to 'data-dev-dbt-products')."
+
 
   - name: g__checkout__cvr_and_completion_time__event
     description: >

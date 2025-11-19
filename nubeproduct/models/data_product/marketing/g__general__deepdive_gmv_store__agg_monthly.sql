@@ -5,7 +5,7 @@
     partition_by         = ['year_month_code'],
     cluster_by           = ['store_id'],
     on_schema_change     = 'fail',
-    tags                 = ["daily-9am-9pm"]
+    tags                 = ["daily-10am","daily-10pm"]
 ) }}
 
 with
