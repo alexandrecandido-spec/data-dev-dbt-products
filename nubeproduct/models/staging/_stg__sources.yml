@@ -19,15 +19,6 @@ sources:
         description: "Contains all the list of stores who installed and or uninstalled an app"
       - name: mwp_tags
         description: "Tags associadas a lojas e outras entidades. Inclui flags como sre-block-store-404 e sre-block-store-429"
-        columns:
-          - name: related_id
-            description: "ID de la entidad relacionada (store_id cuando type='store')"
-          - name: tag
-            description: "Nombre del tag asignado a la entidad"
-          - name: sys_audit_updated_on
-            description: "Timestamp de última actualización del tag (puede ser NULL)"
-          - name: created
-            description: "Timestamp de creación del tag (usado como fallback cuando sys_audit_updated_on es NULL)"
       - name: mwp_user_languages
         description: "Table with user languages (from 'Paises Habilitados')"
       - name: mwp_user_countries
@@ -530,11 +521,3 @@ sources:
     tables:
       - name: transactions
         description: "Contains all the order transactions info"
-
-  - name: stg_newadmin
-    database: hive_metastore
-    schema: newadmin
-    description: "Source containing tables from newadmin schema"
-    tables:
-      - name: authentication_factors
-        description: "Contains authentication factors (2FA) configuration for users"

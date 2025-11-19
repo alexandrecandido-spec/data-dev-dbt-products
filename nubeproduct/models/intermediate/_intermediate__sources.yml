@@ -13,15 +13,6 @@ sources:
         description: "Stores configuration settings such as language, currency, and other information."
       - name: mwp_tags
         description: "List of tags assigned to stores."
-        columns:
-          - name: related_id
-            description: "ID de la entidad relacionada (store_id cuando type='store')"
-          - name: tag
-            description: "Nombre del tag asignado a la entidad"
-          - name: sys_audit_updated_on
-            description: "Timestamp de última actualización del tag (puede ser NULL)"
-          - name: created
-            description: "Timestamp de creación del tag (usado como fallback cuando sys_audit_updated_on es NULL)"
       - name: mwp_plans_countries
         description: "Maps available plans to the countries where Tiendanube / Nuvemshop offers its platform."
       - name: mwp_plans
@@ -378,3 +369,11 @@ sources:
         description: "Google Merchant Center account installations by store"
       - name: google_user
         description: "Google user integrations by store"
+
+  - name: int_newadmin
+    database: hive_metastore
+    schema: newadmin
+    description: "Intermediate tables from newadmin schema used in intermediate models"
+    tables:
+      - name: authentication_factors
+        description: "Contains authentication factors (2FA) configuration for users"
