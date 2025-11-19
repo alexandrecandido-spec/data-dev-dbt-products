@@ -77,44 +77,88 @@ base as (
         or (pf.registered_month = min_close_date and pf.registered_month = created_at)
     group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18
 )
-select
-    concat(cast(p.registered_month as string) , cast(p.issue_number as string), cast(p.platform_country_state as string), p.country) as unique_issue_country
-    ,p.registered_month
-    ,p.issue_number
-    ,p.title
-    ,p.repo_name
-    ,p.state
-    ,p.labels_tipo
-    ,p.labels
-    ,p.platform_country_state
-    ,p.created_at
-    ,p.ticket_closed_at
-    ,case when p.platform_country_state = 'Open Problems' then null else p.label_closed_date end as label_closed_date
-    ,case when p.platform_country_state = 'Open Problems' then null else p.min_close_date end as min_close_date
-    ,p.labels_domain
-    ,p.country
-    ,p.is_solved_by_app_country
-    ,p.has_non_tech_enable_tag
-    ,p.has_product_dependent_tag
-    ,p.max_comments
-    ,p.impacted_stores
-    ,p.dealbreakers
-    ,p.high_impacted_stores
-    ,p.impacted_gmv
-    ,p.impacted_gmv_usd
-    ,{% if is_incremental() %}
-        coalesce(existing.sys_audit_created_on, current_timestamp) as sys_audit_created_on
-    {% else %}
-        current_timestamp as sys_audit_created_on
+-- Build full source rows
+,selected as (
+    select
+        concat(cast(p.registered_month as string) , cast(p.issue_number as string), cast(p.platform_country_state as string), p.country) as unique_issue_country
+        ,p.registered_month
+        ,p.issue_number
+        ,p.title
+        ,p.repo_name
+        ,p.state
+        ,p.labels_tipo
+        ,p.labels
+        ,p.platform_country_state
+        ,p.created_at
+        ,p.ticket_closed_at
+        ,case when p.platform_country_state = 'Open Problems' then null else p.label_closed_date end as label_closed_date
+        ,case when p.platform_country_state = 'Open Problems' then null else p.min_close_date end as min_close_date
+        ,p.labels_domain
+        ,p.country
+        ,p.is_solved_by_app_country
+        ,p.has_non_tech_enable_tag
+        ,p.has_product_dependent_tag
+        ,p.max_comments
+        ,p.impacted_stores
+        ,p.dealbreakers
+        ,p.high_impacted_stores
+        ,p.impacted_gmv
+        ,p.impacted_gmv_usd
+        ,{% if is_incremental() %}
+            coalesce(existing.sys_audit_created_on, current_timestamp) as sys_audit_created_on
+        {% else %}
+            current_timestamp as sys_audit_created_on
+        {% endif %}
+        ,'data-dev-dbt-products' as sys_audit_created_by
+        ,current_timestamp as sys_audit_updated_on
+        ,'data-dev-dbt-products' as sys_audit_updated_by
+    from base p
+    {% if is_incremental() %}
+    left join {{ this }} existing
+        on p.registered_month = existing.registered_month
+        and p.issue_number = existing.issue_number 
+        and p.platform_country_state = existing.platform_country_state 
+        and p.country = existing.country
     {% endif %}
-    ,'data-dev-dbt-products' as sys_audit_created_by
-    ,current_timestamp as sys_audit_updated_on
-    ,'data-dev-dbt-products' as sys_audit_updated_by
-from base p
-{% if is_incremental() %}
-left join {{ this }} existing
-    on p.registered_month = existing.registered_month
-    and p.issue_number = existing.issue_number 
-    and p.platform_country_state = existing.platform_country_state 
-    and p.country = existing.country
-{% endif %}
+),
+-- Ensure only one source row per unique key to satisfy Delta MERGE
+dedup as (
+    select 
+        s.*
+        ,row_number() over (
+            partition by s.unique_issue_country 
+            order by s.sys_audit_created_on desc, s.created_at desc
+        ) as _rn
+    from selected s
+)
+select
+    unique_issue_country
+    ,registered_month
+    ,issue_number
+    ,title
+    ,repo_name
+    ,state
+    ,labels_tipo
+    ,labels
+    ,platform_country_state
+    ,created_at
+    ,ticket_closed_at
+    ,label_closed_date
+    ,min_close_date
+    ,labels_domain
+    ,country
+    ,is_solved_by_app_country
+    ,has_non_tech_enable_tag
+    ,has_product_dependent_tag
+    ,max_comments
+    ,impacted_stores
+    ,dealbreakers
+    ,high_impacted_stores
+    ,impacted_gmv
+    ,impacted_gmv_usd
+    ,sys_audit_created_on
+    ,sys_audit_created_by
+    ,sys_audit_updated_on
+    ,sys_audit_updated_by
+from dedup
+where _rn = 1
