@@ -332,6 +332,30 @@ sources:
       - name: invoice_information
         description: "Información de facturación/razón social asociada a la tienda."
 
+  - name: int_stg_orders
+    database: hive_metastore
+    schema: orders
+    description: "Staging tables from orders schema used in intermediate models"
+    tables:
+      - name: mwp_orders
+        description: "Main table, contains information about orders, including customer details, products, status, and creation and completion dates"
+
+  - name: int_stg_unity_data_manual
+    database: data_products_prd
+    schema: data_manual
+    description: "Staging tables from data_manual schema used in intermediate models"
+    tables:
+      - name: ext__partnerships__platform_development__app_managers
+        description: "Contains the information of the app and tech partner managers"
+
+  - name: int_stg_nuvem_credito
+    database: hive_metastore
+    schema: nuvem_credito
+    description: "Staging tables from nuvem_credito schema used in intermediate models"
+    tables:
+      - name: installments
+        description: "Contains all installments associated to a contract"
+
   - name: int_social
     database: hive_metastore
     schema: social
@@ -345,6 +369,14 @@ sources:
         description: "Google Merchant Center account installations by store"
       - name: google_user
         description: "Google user integrations by store"
+
+  - name: int_newadmin
+    database: hive_metastore
+    schema: newadmin
+    description: "Intermediate tables from newadmin schema used in intermediate models"
+    tables:
+      - name: authentication_factors
+        description: "Contains authentication factors (2FA) configuration for users"
 
   - name: data_manual
     database: data_products_prd
