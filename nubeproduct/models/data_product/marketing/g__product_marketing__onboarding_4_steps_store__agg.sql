@@ -9,6 +9,7 @@
 
 -- depends_on:
 --   - {{ ref('_int_marketing__onboarding_orders_gmv') }}
+--   - {{ ref('_int_marketing__onboarding_plan_movements') }}
 --   - {{ ref('s__attributes__store_core__ref') }}
 --   - {{ ref('s__attributes__store_identity__ref') }}
 --   - {{ ref('g__product_marketing__admin_access_store__agg') }}
@@ -22,6 +23,7 @@
 --   - {{ ref('marketing__models__quality_leads__ref') }}
 --   - {{ ref('company_metrics_paid_orders') }}
 --   - {{ ref('s__contracts__store_contracts__scd') }}
+--   - {{ ref('merchant__attributes__store_info__ref') }}
 --   - {{ source('int_moltres', 'mwp_tags') }}
 --   - {{ source('int_data_predictors', 'marketing_cutoffs_table') }}
 
@@ -35,8 +37,8 @@ Business Use: Dashboard consolidado de onboarding con todas las métricas de 4 s
 Spec: 
 - Consolida información de múltiples data products: admin access, storefront sessions, layout, products, payments, shipping
 - Incluye métricas de órdenes/GMV desde _int_marketing__onboarding_orders_gmv (modelo intermedio ephemeral)
+- Incluye lógica de upgrade/downgrade de planes desde _int_marketing__onboarding_plan_movements (modelo intermedio ephemeral)
 - Incluye información de tienda desde data_operations
-- Incluye lógica de upgrade/downgrade de planes calculada directamente desde s__contracts__store_contracts__scd (SILVER)
 - Incluye attribution desde s__attributes__acquisition_profile__ref (domain merchant), tags de onboarding (int_moltres.mwp_tags), QLs
 - Una fila por store_id
 
@@ -132,7 +134,7 @@ stores_with_changes AS (
         
         UNION ALL
         
-        -- Cambios en contratos (para actualizar plan movements)
+        -- Cambios en contratos (para actualizar plan movements - detectado por modelo ephemeral)
         SELECT DISTINCT store_id 
         FROM {{ ref('s__contracts__store_contracts__scd') }}
         WHERE created_at_contract > (SELECT max_updated_on FROM last_update_time)
@@ -170,274 +172,6 @@ stores_with_changes AS (
 ),
 {% endif %}
 
--- ============================================
--- ADMIN ACCESS: Métricas de accesos al admin
--- ============================================
-admin_access AS (
-    SELECT 
-        store_id,
-        qty_admin_access_7d,
-        qty_admin_access_15d,
-        qty_admin_access_30d,
-        qty_admin_access_60d,
-        first_date_admin_access,
-        last_date_admin_access
-    FROM {{ ref('g__product_marketing__admin_access_store__agg') }}
-),
-
--- ============================================
--- STOREFRONT SESSIONS: Métricas de sesiones de usuarios finales
--- ============================================
-storefront_sessions AS (
-    SELECT 
-        store_id,
-        first_store_session,
-        store_sessions_7d,
-        store_sessions_15d,
-        store_sessions_30d,
-        store_sessions_60d,
-        store_sessions_90d,
-        last_store_session
-    FROM {{ ref('g__product_marketing__storefront_sessions_store__agg') }}
-),
-
--- ============================================
--- LAYOUT: Configuración de layout/tema
--- ============================================
-layout AS (
-    SELECT 
-        store_id,
-        config_layout,
-        layout_name,
-        config_banner,
-        config_slider,
-        config_colors,
-        first_date_config_layout,
-        last_date_config_layout
-    FROM {{ ref('s__product_marketing__layout__ref') }}
-),
-
--- ============================================
--- PRODUCTS: Configuración de productos (4 steps)
--- ============================================
-products AS (
-    SELECT 
-        store_id,
-        config_products,
-        first_date_config_products,
-        last_date_config_products
-    FROM {{ ref('s__product_marketing__products__ref') }}
-),
-
--- ============================================
--- PAYMENTS: Configuración de métodos de pago (4 steps)
--- ============================================
-payments AS (
-    SELECT 
-        store_id,
-        config_payment,
-        first_date_config_payment,
-        last_date_config_payment
-    FROM {{ ref('s__product_marketing__payments__ref') }}
-),
-
--- ============================================
--- SHIPPING: Configuración de métodos de envío (4 steps)
--- ============================================
-shipping AS (
-    SELECT 
-        store_id,
-        config_shipping,
-        first_date_config_shipping,
-        last_date_config_shipping
-    FROM {{ ref('s__product_marketing__shipping__ref') }}
-),
-
--- ============================================
--- STORE INFO & CONTACT: Información básica de tienda y contacto
--- Optimización: JOINs movidos directamente a final_data para evitar CTE redundante
--- ============================================
-
--- ============================================
--- ORDERS & GMV: Métricas de órdenes y GMV
--- Usa modelo intermedio _int_marketing__onboarding_orders_gmv
--- ============================================
-orders_gmv AS (
-    SELECT * FROM {{ ref('_int_marketing__onboarding_orders_gmv') }}
-),
-
--- ============================================
--- BLOCKED FRAUD TAG: Tag de bloqueo por fraude
--- Obtener is_store_blocked desde s__lifecycle__store_status__ref (viene de moltres__mwp_store_info)
--- Este campo está disponible en storefronts_curated__sessions según Bárbara
--- ============================================
-blocked_fraud AS (
-    SELECT 
-        store_id,
-        CASE WHEN is_store_blocked = TRUE THEN 1 ELSE 0 END AS blocked_fraud_tag
-    FROM {{ ref('s__lifecycle__store_status__ref') }}
-),
-
--- ============================================
--- ATTRIBUTION: Información de atribución de marketing
--- Consumido desde s__attributes__acquisition_profile__ref (domain merchant)
--- ============================================
-attribution AS (
-    SELECT 
-        att.store_id,
-        att.mkt_source_first_click,
-        att.mkt_subteam_first_click,
-        att.mkt_source_last_click,
-        att.mkt_subteam_last_click,
-        -- active_merchant_probability: Usamos is_active_merchant de s__lifecycle__store_status__ref como probabilidad (0 o 1)
-        -- Si necesitas una probabilidad real (0-1), habría que usar un modelo de ML específico
-        COALESCE(ls.is_active_merchant, 0) AS active_merchant_probability
-    FROM {{ ref('s__attributes__acquisition_profile__ref') }} att
-    LEFT JOIN {{ ref('s__lifecycle__store_status__ref') }} ls
-        ON att.store_id = ls.store_id
-),
-
--- ============================================
--- ONBOARDING TAGS: Tags de nuevo onboarding
--- ============================================
-onboarding_tags AS (
-    SELECT 
-        CAST(related_id AS BIGINT) AS store_id,
-        tag AS onboarding_tag
-    FROM {{ source('int_moltres', 'mwp_tags') }}
-    WHERE tag IN ('new-admin-onboarding-202411-a', 'new-admin-onboarding-202411-b')
-),
-
--- ============================================
--- PLAN MOVEMENTS: Upgrade/downgrade de planes
--- Calculado desde s__contracts__store_contracts__scd (SILVER) comparando group_order_id de planes
--- ============================================
-contracts_with_plan_info AS (
-    SELECT 
-        c.store_id,
-        c.plan_name,
-        c.created_at_contract AS created_at,
-        c.start_date,
-        c.plan_name AS plan_group,
-        -- Optimización: Calcular DATEDIFF una vez para evitar recálculos en CTEs siguientes
-        DATEDIFF(DAY, s.created_at, DATE(c.created_at_contract)) AS days_from_creation,
-        CASE 
-            WHEN c.plan_name IN ('test_broken','no-stores') THEN 0
-            WHEN c.plan_name IN ('zero-fee','freemium') THEN 1
-            WHEN c.plan_name IN ('lojinha','plan-a','plan-emprendedor') THEN 2
-            WHEN c.plan_name IN ('plan-b') THEN 3
-            WHEN c.plan_name IN ('plan-c') THEN 4
-            WHEN c.plan_name IN ('enterprise') THEN 5
-            ELSE -1 
-        END AS plan_order_id,
-        s.created_at AS store_created_at
-    FROM {{ ref('s__contracts__store_contracts__scd') }} c
-    INNER JOIN {{ ref('s__attributes__store_core__ref') }} s
-        ON c.store_id = s.store_id
-        AND s.created_at >= '{{ var("onboarding_start_date") }}'
-    WHERE c.plan_name IS NOT NULL
-),
-
-first_plan AS (
-    SELECT 
-        store_id,
-        plan_group AS primeiro_plano,
-        plan_order_id AS first_plan_order_id
-    FROM (
-        SELECT 
-            store_id,
-            plan_group,
-            plan_order_id,
-            ROW_NUMBER() OVER (PARTITION BY store_id ORDER BY created_at ASC, start_date ASC) AS rn
-        FROM contracts_with_plan_info
-    ) ranked
-    WHERE rn = 1
-),
-
-max_plan_by_window AS (
-    SELECT 
-        store_id,
-        -- Optimización: Usar days_from_creation calculado una vez en lugar de recalcular DATEDIFF
-        MAX(CASE WHEN days_from_creation <= 7 THEN plan_order_id ELSE -1 END) AS max_plan_order_d7,
-        MAX(CASE WHEN days_from_creation <= 15 THEN plan_order_id ELSE -1 END) AS max_plan_order_d15,
-        MAX(CASE WHEN days_from_creation <= 30 THEN plan_order_id ELSE -1 END) AS max_plan_order_d30,
-        MAX(CASE WHEN days_from_creation <= 7 THEN plan_group ELSE NULL END) AS max_plan_d7,
-        MAX(CASE WHEN days_from_creation <= 15 THEN plan_group ELSE NULL END) AS max_plan_d15,
-        MAX(CASE WHEN days_from_creation <= 30 THEN plan_group ELSE NULL END) AS max_plan_d30
-    FROM contracts_with_plan_info
-    GROUP BY store_id
-),
-
--- Plan al final de cada ventana (último plan activo dentro de la ventana)
--- Usamos ROW_NUMBER para obtener el último contrato dentro de cada ventana
-contracts_ranked_by_window AS (
-    SELECT 
-        c.store_id,
-        c.plan_order_id,
-        c.days_from_creation,
-        ROW_NUMBER() OVER (
-            PARTITION BY c.store_id, 
-                CASE 
-                    WHEN c.days_from_creation <= 7 THEN 7
-                    WHEN c.days_from_creation <= 15 THEN 15
-                    WHEN c.days_from_creation <= 30 THEN 30
-                    ELSE NULL
-                END
-            ORDER BY c.created_at DESC, c.start_date DESC
-        ) AS rn
-    FROM contracts_with_plan_info c
-    WHERE c.days_from_creation <= 30
-),
-
-plan_at_end_of_window AS (
-    SELECT 
-        store_id,
-        MAX(CASE WHEN days_from_creation <= 7 AND rn = 1 THEN plan_order_id ELSE -1 END) AS plan_order_d7,
-        MAX(CASE WHEN days_from_creation <= 15 AND rn = 1 THEN plan_order_id ELSE -1 END) AS plan_order_d15,
-        MAX(CASE WHEN days_from_creation <= 30 AND rn = 1 THEN plan_order_id ELSE -1 END) AS plan_order_d30
-    FROM contracts_ranked_by_window
-    GROUP BY store_id
-),
-
-plan_movements AS (
-    SELECT 
-        sc.store_id,
-        fp.primeiro_plano,
-        mp.max_plan_d7,
-        mp.max_plan_d15,
-        mp.max_plan_d30,
-        -- Upgrade: si el plan máximo en la ventana es mayor que el primer plan
-        CASE WHEN mp.max_plan_order_d7 > COALESCE(fp.first_plan_order_id, -1) THEN 1 ELSE 0 END AS upgrade_d7,
-        CASE WHEN mp.max_plan_order_d15 > COALESCE(fp.first_plan_order_id, -1) THEN 1 ELSE 0 END AS upgrade_d15,
-        CASE WHEN mp.max_plan_order_d30 > COALESCE(fp.first_plan_order_id, -1) THEN 1 ELSE 0 END AS upgrade_d30,
-        -- Downgrade: si el plan al final de la ventana es menor que el plan máximo alcanzado en esa ventana
-        CASE 
-            WHEN mp.max_plan_order_d7 > 0 
-                AND pe.plan_order_d7 >= 0 
-                AND pe.plan_order_d7 < mp.max_plan_order_d7 
-            THEN 1 
-            ELSE 0 
-        END AS downgrade_d7,
-        CASE 
-            WHEN mp.max_plan_order_d15 > 0 
-                AND pe.plan_order_d15 >= 0 
-                AND pe.plan_order_d15 < mp.max_plan_order_d15 
-            THEN 1 
-            ELSE 0 
-        END AS downgrade_d15,
-        CASE 
-            WHEN mp.max_plan_order_d30 > 0 
-                AND pe.plan_order_d30 >= 0 
-                AND pe.plan_order_d30 < mp.max_plan_order_d30 
-            THEN 1 
-            ELSE 0 
-        END AS downgrade_d30
-    FROM {{ ref('s__attributes__store_core__ref') }} sc
-    LEFT JOIN first_plan fp ON sc.store_id = fp.store_id
-    LEFT JOIN max_plan_by_window mp ON sc.store_id = mp.store_id
-    LEFT JOIN plan_at_end_of_window pe ON sc.store_id = pe.store_id
-    WHERE sc.created_at >= '{{ var("onboarding_start_date") }}'
-),
 
 -- ============================================
 -- STORE CORE WITH DEVICE: Calcular device solo donde se necesita
@@ -543,7 +277,7 @@ final_data_base AS (
         sh.last_date_config_shipping,
         
         -- ============================================
-        -- ORDERS & GMV
+        -- ORDERS & GMV (desde ephemeral _int_marketing__onboarding_orders_gmv)
         -- ============================================
         og.first_order,
         og.time_to_first_order,
@@ -560,7 +294,7 @@ final_data_base AS (
         og.gmv_dol_90,
         
         -- ============================================
-        -- PLAN MOVEMENTS
+        -- PLAN MOVEMENTS (desde ephemeral _int_marketing__onboarding_plan_movements)
         -- ============================================
         pm.upgrade_d7,
         pm.upgrade_d15,
@@ -580,7 +314,7 @@ final_data_base AS (
         att.mkt_subteam_first_click,
         att.mkt_source_last_click,
         att.mkt_subteam_last_click,
-        att.active_merchant_probability,
+        COALESCE(ls_att.is_active_merchant, 0) AS active_merchant_probability,
         
         -- ============================================
         -- ONBOARDING TAGS
@@ -597,14 +331,19 @@ final_data_base AS (
         -- ============================================
         -- BLOCKED FRAUD TAG
         -- ============================================
-        COALESCE(bf.blocked_fraud_tag, 0) AS blocked_fraud_tag,
+        COALESCE(CASE WHEN ls.is_store_blocked = TRUE THEN 1 ELSE 0 END, 0) AS blocked_fraud_tag,
         
     FROM {{ ref('s__attributes__store_core__ref') }} sc
     -- Optimización: JOINs directos en lugar de CTE store_info
     INNER JOIN {{ ref('s__attributes__store_identity__ref') }} si ON sc.store_id = si.store_id
     -- Optimización: Orden de JOINs optimizado - tablas pequeñas primero
-    LEFT JOIN onboarding_tags ot ON sc.store_id = ot.store_id  -- Muy pequeño (solo tags específicos)
-    LEFT JOIN blocked_fraud bf ON sc.store_id = bf.store_id  -- Pequeño (solo stores bloqueados)
+    LEFT JOIN (
+        SELECT 
+            CAST(related_id AS BIGINT) AS store_id,
+            tag AS onboarding_tag
+        FROM {{ source('int_moltres', 'mwp_tags') }}
+        WHERE tag IN ('new-admin-onboarding-202411-a', 'new-admin-onboarding-202411-b')
+    ) ot ON sc.store_id = ot.store_id  -- Muy pequeño (solo tags específicos)
     LEFT JOIN {{ ref('marketing__models__quality_leads__ref') }} ql
         ON sc.store_id = ql.store_id
     LEFT JOIN store_core_with_device_for_cutoff scd
@@ -613,16 +352,17 @@ final_data_base AS (
         ON scd.country_code = cutoff.country
         AND ql.model_id = cutoff.model_id
         AND (cutoff.device IS NULL OR cutoff.device = scd.device_calculated)
-    LEFT JOIN attribution att ON sc.store_id = att.store_id  -- Mediano
-    LEFT JOIN layout l ON sc.store_id = l.store_id  -- Mediano
-    LEFT JOIN products p ON sc.store_id = p.store_id  -- Mediano
-    LEFT JOIN payments pay ON sc.store_id = pay.store_id  -- Mediano
-    LEFT JOIN shipping sh ON sc.store_id = sh.store_id  -- Mediano
+    LEFT JOIN {{ ref('s__attributes__acquisition_profile__ref') }} att ON sc.store_id = att.store_id  -- Mediano
+    LEFT JOIN {{ ref('s__lifecycle__store_status__ref') }} ls_att ON att.store_id = ls_att.store_id  -- Para active_merchant_probability
+    LEFT JOIN {{ ref('s__product_marketing__layout__ref') }} l ON sc.store_id = l.store_id  -- Mediano
+    LEFT JOIN {{ ref('s__product_marketing__products__ref') }} p ON sc.store_id = p.store_id  -- Mediano
+    LEFT JOIN {{ ref('s__product_marketing__payments__ref') }} pay ON sc.store_id = pay.store_id  -- Mediano
+    LEFT JOIN {{ ref('s__product_marketing__shipping__ref') }} sh ON sc.store_id = sh.store_id  -- Mediano
     LEFT JOIN {{ ref('s__lifecycle__store_status__ref') }} ls ON sc.store_id = ls.store_id  -- Grande
-    LEFT JOIN admin_access aa ON sc.store_id = aa.store_id  -- Grande (métricas agregadas)
-    LEFT JOIN storefront_sessions ss ON sc.store_id = ss.store_id  -- Grande (métricas agregadas)
-    LEFT JOIN orders_gmv og ON sc.store_id = og.store_id  -- Grande (métricas agregadas)
-    LEFT JOIN plan_movements pm ON sc.store_id = pm.store_id  -- Grande (cálculos complejos)
+    LEFT JOIN {{ ref('g__product_marketing__admin_access_store__agg') }} aa ON sc.store_id = aa.store_id  -- Grande (métricas agregadas)
+    LEFT JOIN {{ ref('g__product_marketing__storefront_sessions_store__agg') }} ss ON sc.store_id = ss.store_id  -- Grande (métricas agregadas)
+    LEFT JOIN {{ ref('_int_marketing__onboarding_orders_gmv') }} og ON sc.store_id = og.store_id  -- Grande (métricas agregadas - ephemeral)
+    LEFT JOIN {{ ref('_int_marketing__onboarding_plan_movements') }} pm ON sc.store_id = pm.store_id  -- Grande (cálculos complejos - ephemeral)
     {% if is_incremental() %}
     -- Optimización: LEFT JOIN en lugar de NOT IN para mejor rendimiento y manejo de NULLs
     LEFT JOIN existing_data ed_check ON sc.store_id = ed_check.store_id
