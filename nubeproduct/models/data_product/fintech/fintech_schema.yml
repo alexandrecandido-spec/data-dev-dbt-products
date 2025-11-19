@@ -209,3 +209,83 @@ models:
         description: "System audit field indicating when the record was last updated."
         tests:
           - not_null
+
+  - name: s__lending__active_contracts_status__event
+    description: >
+      Contains a daily snapshot of every active contract and its payment situation. It includes information about the contract’s status (on time, overdue, or in grace period), amounts related to principal and interest, total balance due, and detailed counts of installments that are paid, open, or overdue.
+    config:
+      meta:
+        owner: "kamila.barroso@nuvemshop.com.br"
+        domain: "fintech"
+        business_owner: "Calvin Hetem"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - contract_id
+            - data_ref
+    columns:
+      - name: data_ref
+        description: "Reference date of the daily snapshot." 
+        tests: [not_null]       
+      - name: hub_contract_id
+        description: "Unique external identifier for each proposal."   
+        tests: [not_null]
+      - name: contract_id
+        description: "Unique internal identifier for each proposal." 
+        tests: [not_null]
+      - name: contract_status
+        description: "Current payment status of the contract — values can be On Time, Overdue, or Grace Period."   
+      - name: overdue_start_date
+        description: "Date when the contract first became overdue."          
+      - name: days_overdue
+        description: "Number of days the contract has been overdue."          
+      - name: original_total
+        description: "Original total amount of the contract (principal + interest)."   
+      - name: original_paid
+        description: "Total amount already paid from the original amount."    
+      - name: original_overdue
+        description: "Portion of the original contract amount that is currently overdue."    
+      - name: original_open
+        description: "Portion of the original contract amount that remains open but not yet due." 
+      - name: present_overdue
+        description: "Present value of installments that are overdue."   
+      - name: present_open
+        description: "Present value of installments that are still open and not overdue."    
+      - name: current_value
+        description: "Current total outstanding value, combining overdue and open amounts."    
+      - name: principal_total
+        description: "Total principal amount of the contract."      
+      - name: principal_paid
+        description: "Portion of the principal amount that has been paid."         
+      - name: principal_overdue
+        description: "Portion of the principal that is overdue."    
+      - name: principal_open
+        description: "Portion of the principal that remains open but not overdue."  
+      - name: interest_total
+        description: "Total interest amount of the contract."      
+      - name: interest_paid
+        description: "Portion of the interest amount that has been paid."         
+      - name: interest_overdue
+        description: "Portion of the interest that is overdue."    
+      - name: interest_open
+        description: "Portion of the interest that remains open but not overdue."  
+      - name: installments_paid
+        description: "Number of installments already paid."         
+      - name: installments_overdue
+        description: "Number of installments currently overdue."    
+      - name: installments_open
+        description: "Number of installments still open and not overdue."  
+      - name: year_month_day_code
+        description: "Numeric code representing the snapshot date in YYYYMMDD format."  
+      - name: sys_audit_created_by
+        description: "System audit field indicating who created the record."
+        tests: [not_null]
+      - name: sys_audit_created_on
+        description: "System audit field indicating when the record was created."
+        tests: [not_null]
+      - name: sys_audit_updated_by
+        description: "System audit field indicating who last updated the record."
+        tests: [not_null]
+      - name: sys_audit_updated_on
+        description: "System audit field indicating when the record was last updated."
+        tests: [not_null]
