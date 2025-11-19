@@ -7,26 +7,6 @@
     )
 }}
 
--- depends_on:
---   - {{ ref('_int_marketing__onboarding_orders_gmv') }}
---   - {{ ref('_int_marketing__onboarding_plan_movements') }}
---   - {{ ref('s__attributes__store_core__ref') }}
---   - {{ ref('s__attributes__store_identity__ref') }}
---   - {{ ref('g__product_marketing__admin_access_store__agg') }}
---   - {{ ref('g__product_marketing__storefront_sessions_store__agg') }}
---   - {{ ref('s__product_marketing__layout__ref') }}
---   - {{ ref('s__product_marketing__products__ref') }}
---   - {{ ref('s__product_marketing__payments__ref') }}
---   - {{ ref('s__product_marketing__shipping__ref') }}
---   - {{ ref('s__lifecycle__store_status__ref') }}
---   - {{ ref('s__attributes__acquisition_profile__ref') }}
---   - {{ ref('marketing__models__quality_leads__ref') }}
---   - {{ ref('company_metrics_paid_orders') }}
---   - {{ ref('s__contracts__store_contracts__scd') }}
---   - {{ ref('merchant__attributes__store_info__ref') }}
---   - {{ source('int_moltres', 'mwp_tags') }}
---   - {{ source('int_data_predictors', 'marketing_cutoffs_table') }}
-
 /*
 Data Product: Onboarding 4 Steps Consolidated (GOLD AGG)
 Description: Modelo consolidado con todas las métricas de onboarding y 4 steps por tienda
@@ -59,6 +39,26 @@ Spec:
    - Algunas secciones pueden requerir ajustes según disponibilidad de datos
    - Tags de onboarding se consumen desde int_moltres.mwp_tags (intermediate source) siguiendo arquitectura raw → staging → intermediate → silver → gold
 */
+
+-- depends_on:
+--   - {{ ref('_int_marketing__onboarding_orders_gmv') }}
+--   - {{ ref('_int_marketing__onboarding_plan_movements') }}
+--   - {{ ref('s__attributes__store_core__ref') }}
+--   - {{ ref('s__attributes__store_identity__ref') }}
+--   - {{ ref('g__product_marketing__admin_access_store__agg') }}
+--   - {{ ref('g__product_marketing__storefront_sessions_store__agg') }}
+--   - {{ ref('s__product_marketing__layout__ref') }}
+--   - {{ ref('s__product_marketing__products__ref') }}
+--   - {{ ref('s__product_marketing__payments__ref') }}
+--   - {{ ref('s__product_marketing__shipping__ref') }}
+--   - {{ ref('s__lifecycle__store_status__ref') }}
+--   - {{ ref('s__attributes__acquisition_profile__ref') }}
+--   - {{ ref('marketing__models__quality_leads__ref') }}
+--   - {{ ref('company_metrics_paid_orders') }}
+--   - {{ ref('s__contracts__store_contracts__scd') }}
+--   - {{ ref('merchant__attributes__store_info__ref') }}
+--   - {{ source('int_moltres', 'mwp_tags') }}
+--   - {{ source('int_data_predictors', 'marketing_cutoffs_table') }}
 
 -- El modelo ephemeral _int_marketing__onboarding_orders_gmv se compila primero automáticamente por dbt
 -- Luego viene el WITH principal del modelo
@@ -334,9 +334,7 @@ final_data_base AS (
         COALESCE(CASE WHEN ls.is_store_blocked = TRUE THEN 1 ELSE 0 END, 0) AS blocked_fraud_tag,
         
     FROM {{ ref('s__attributes__store_core__ref') }} sc
-    -- Optimización: JOINs directos en lugar de CTE store_info
     INNER JOIN {{ ref('s__attributes__store_identity__ref') }} si ON sc.store_id = si.store_id
-    -- Optimización: Orden de JOINs optimizado - tablas pequeñas primero
     LEFT JOIN (
         SELECT 
             CAST(related_id AS BIGINT) AS store_id,
@@ -344,6 +342,8 @@ final_data_base AS (
         FROM {{ source('int_moltres', 'mwp_tags') }}
         WHERE tag IN ('new-admin-onboarding-202411-a', 'new-admin-onboarding-202411-b')
     ) ot ON sc.store_id = ot.store_id  -- Muy pequeño (solo tags específicos)
+    LEFT JOIN {{ ref('s__attributes__acquisition_profile__ref') }} att ON sc.store_id = att.store_id  -- Mediano (mover antes para usar ls_att)
+    LEFT JOIN {{ ref('s__lifecycle__store_status__ref') }} ls_att ON att.store_id = ls_att.store_id  -- Para active_merchant_probability
     LEFT JOIN {{ ref('marketing__models__quality_leads__ref') }} ql
         ON sc.store_id = ql.store_id
     LEFT JOIN store_core_with_device_for_cutoff scd
@@ -352,8 +352,6 @@ final_data_base AS (
         ON scd.country_code = cutoff.country
         AND ql.model_id = cutoff.model_id
         AND (cutoff.device IS NULL OR cutoff.device = scd.device_calculated)
-    LEFT JOIN {{ ref('s__attributes__acquisition_profile__ref') }} att ON sc.store_id = att.store_id  -- Mediano
-    LEFT JOIN {{ ref('s__lifecycle__store_status__ref') }} ls_att ON att.store_id = ls_att.store_id  -- Para active_merchant_probability
     LEFT JOIN {{ ref('s__product_marketing__layout__ref') }} l ON sc.store_id = l.store_id  -- Mediano
     LEFT JOIN {{ ref('s__product_marketing__products__ref') }} p ON sc.store_id = p.store_id  -- Mediano
     LEFT JOIN {{ ref('s__product_marketing__payments__ref') }} pay ON sc.store_id = pay.store_id  -- Mediano
