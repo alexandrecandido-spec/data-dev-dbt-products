@@ -108,3 +108,11 @@ dag = create_dbt_dag(
     default_args=default_args,
     tags=['product', 'weekly-monday-9am']
 )
+
+# Monthly frequencies
+dag = create_dbt_dag(
+    dag_id='dbt_product_monthly-4th-12pm',
+    schedule_interval_tag='monthly-4th-12pm',
+    default_args=default_args,
+    tags=['product', 'monthly-4th-12pm']
+)
