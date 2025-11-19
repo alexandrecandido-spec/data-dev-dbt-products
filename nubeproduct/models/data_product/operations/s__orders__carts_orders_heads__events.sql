@@ -60,7 +60,7 @@ select
         WHEN orders.country = 'CL' and orders.currency = 'CLP' THEN FALSE
         ELSE TRUE
     END AS order_in_foreign_currency,
-    products.product_quantity,
+    orders.product_quantity,
     orders.total_in_usd,
     orders.total_in_local_currency,
     orders.total as total_in_original_currency,
@@ -113,7 +113,6 @@ select
     'data-dev-dbt-products' AS sys_audit_updated_by
     
 from {{ ref('_int__orders__orders_enriched_money_flows') }} orders
-LEFT JOIN {{ ref('company_metrics_products_per_order') }} products ON orders.id = products.order_id
 LEFT JOIN existing_data e ON orders.id = e.id
 {% if is_incremental() %}
 WHERE

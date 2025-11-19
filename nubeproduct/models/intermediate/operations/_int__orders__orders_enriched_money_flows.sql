@@ -46,6 +46,17 @@ payment_date AS (
         {{ ref('s__traffic__cart_session__link') }}
 )
 
+, order_products_quantity AS (
+    SELECT
+        order_id,
+        SUM(
+            quantity
+        ) AS product_quantity,
+        max(sys_audit_updated_on) as sys_audit_updated_on
+    FROM {{ ref('orders__mwp_order_products') }} products
+    GROUP BY order_id
+)
+
 SELECT 
     carts_orders.id,
     carts_orders.order_id,
@@ -137,14 +148,17 @@ SELECT
     coalesce(all_shipments.flg_ne_selected, 0) as flg_ne_selected,
     coalesce(all_shipments.flg_ne_enabled, 0) as flg_ne_enabled,
     all_shipments.selected_shipping_partner,
+    order_products_quantity.product_quantity,
     GREATEST(
         date(COALESCE(carts_orders.sys_audit_updated_on, '1900-01-01')),
         date(COALESCE(payment_date.sys_audit_updated_on, '1900-01-01')),
         date(COALESCE(all_shipments.posted_at, '1900-01-01')),
-        date(COALESCE(blocked_store__info.sys_audit_updated_on, '1900-01-01'))
+        date(COALESCE(blocked_store__info.sys_audit_updated_on, '1900-01-01')),
+        date(COALESCE(order_products_quantity.sys_audit_updated_on, '1900-01-01'))
     ) as sys_audit_updated_on
 FROM {{ ref('orders__mwp_orders') }} carts_orders
 INNER JOIN {{ ref('moltres__mwp_store_info') }} store_info on carts_orders.store_id = store_info.store_id
+LEFT JOIN order_products_quantity on carts_orders.id = order_products_quantity.order_id
 LEFT JOIN {{ source('int_moltres', 'mwp_apps') }} apps on CONCAT("app_",apps.id) = carts_orders.gateway
 LEFT JOIN {{ source('int_moltres', 'mwp_shipping_carriers') }} shipping_carriers on CONCAT("api_",shipping_carriers.id) = carts_orders.shipping_method
 LEFT JOIN {{ source('int_moltres', 'mwp_apps') }} apps_2 on apps_2.id = shipping_carriers.app_id
