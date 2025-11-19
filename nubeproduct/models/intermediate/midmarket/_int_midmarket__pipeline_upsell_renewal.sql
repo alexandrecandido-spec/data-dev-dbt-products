@@ -17,6 +17,7 @@ select
     d.cpt,
     d.success_priority,
     d.vertical,
+    d.where_did_the_lead_came_from_ as acquisition_channel,
     d.date_entered_downgrade_ar,
     d.date_entered_downgrade_br,
     d.date_entered_downgrade_mx,
