@@ -505,7 +505,7 @@ models:
         tests:
           - not_null
 
-  - name: s__agencies__info__scd
+  - name: s__agencies__info__ref
     config:
       meta:
         owner: "felipe.lorenzo@tiendanube.com"
