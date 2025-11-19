@@ -72,4 +72,4 @@ select
   , current_timestamp()     as sys_audit_updated_on
   , 'data-dev-dbt-products' as sys_audit_updated_by
 from filtered f
-left join {{ source('dp_zendesk_support_prod', 'users') }} u on f.assignee_id = u.id
+left join {{ ref('s__general__zendesk_users__ref') }} u on f.assignee_id = u.user_id

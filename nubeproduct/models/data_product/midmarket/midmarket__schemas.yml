@@ -1869,6 +1869,55 @@ models:
           - accepted_values:
               values: ["new_warning", "outgoing_warning"]
 
+
+  - name: g__success__downgrades__agg_snapshot_weekly_monthly
+    config:
+      meta:
+        tech_steward: "guillermo.defelice@tiendanube.com"
+        domain: "midmarket"
+        business_owner: "Franco Tiberti"
+    description: "Snapshot of downgrades (stores moving out of portfolio) for Success stores aggregated by week and month. Captures downgrade events with associated root causes, business context, and acquisition channel information."
+    columns:
+      - name: store_id
+        description: "Unique identifier of the store."
+        tests:
+          - not_null
+      - name: downgrade_root_cause_1
+        description: "Primary root cause of the downgrade (out of portfolio)."
+      - name: downgrade_root_cause_2
+        description: "Secondary root cause of the downgrade (out of portfolio)."
+      - name: downgrade_summary
+        description: "Summary or explanation of the downgrade event (out of portfolio one-liner)."
+      - name: competitor_identified
+        description: "Competitor identified during the downgrade event, if applicable."
+      - name: date_from
+        description: "Start date of the aggregation period (week or month start date)."
+        tests:
+          - not_null
+      - name: event_date
+        description: "Actual date when the store entered the downgrade stage."
+        tests:
+          - not_null
+      - name: city_state_downgrade
+        description: "City and state or sales territory associated with the downgrade."
+      - name: channel
+        description: "Lead acquisition channel (where the lead originally came from)."
+      - name: e_commerce
+        description: "E-commerce platform used by the merchant."
+      - name: business_model_sales
+        description: "Business model classification according to Sales (e.g., B2C, B2B, Hybrid)."
+      - name: onboarding_type
+        description: "Type of onboarding process that was applied to the store."
+      - name: responsavel_marketing
+        description: "Marketing team member responsible for or associated with the lead/store."
+      - name: periodicity
+        description: "Aggregation period: 'weekly' or 'monthly'."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["weekly", "monthly"]
+ 
+ 
   - name: s__ga4__sessions__hubspot
     description: >
       Data product that merges GA4 session and pageview events linked to HubSpot conversions.<br>

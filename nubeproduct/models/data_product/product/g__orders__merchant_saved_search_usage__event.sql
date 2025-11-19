@@ -48,6 +48,7 @@ select
     saved_search_min_units,
     saved_search_max_units,
     saved_search_is_wholesale,
+    saved_search_is_subscription,
     saved_search_coupon_ids_raw,
     saved_search_stock_issues,
     current_timestamp AS sys_audit_created_on,
