@@ -442,7 +442,7 @@ models:
         domain: "partnerships"
         business_owner: "Franco Tiberti"
     description: >
-      Slowly Changing Dimension (SCD) table containing historical program level information for agencies/partners 
+      Table containing historical program level information for agencies/partners 
       at monthly snapshot dates. Each row represents the partner's program level classification (Platinum, Gold, 
       Silver, Starter, Member) at a specific snapshot date, including the raw level calculation, smoothed level 
       (to prevent level downgrades), and the metrics used to determine the level (active paying stores, new payments).
@@ -505,15 +505,15 @@ models:
         tests:
           - not_null
 
-  - name: s__agencies__info__ref
+  - name: s__agencies__partners_attributes__ref
     config:
       meta:
         owner: "felipe.lorenzo@tiendanube.com"
         domain: "partnerships"
         business_owner: "Franco Tiberti"
     description: >
-      Slowly Changing Dimension (SCD) table containing consolidated current information about agencies/partners 
-      in the store development program. This table combines partner basic information (creation date, age classification, 
+      Table containing consolidated current attributes about agencies/partners 
+      in the partnerships program. This table combines partner basic information (creation date, age classification, 
       origin), current program level, lifecycle status (Pre-new, New, Established), business unit classification (MM/SMB), 
       and key dates and flags related to their stores. The table is updated incrementally when any of the source tables 
       change, maintaining a current snapshot of each partner's status.
