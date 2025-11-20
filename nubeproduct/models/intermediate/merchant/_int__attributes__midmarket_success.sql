@@ -1,12 +1,12 @@
 /*
 Intermediate Model: Mid Market Success Consolidation
-Description: Consolida información de Mid Market Success (is_midmarket, am) desde múltiples fuentes
+Description: Consolida información de Mid Market Success (is_midmarket, account_manager) desde múltiples fuentes
 Owner: jhu.boggio@tiendanube.com
 Domain: merchant
 
 Este modelo intermedio consolida la lógica de obtención de información de Mid Market Success:
-- Flag is_midmarket: basado en in_portfolio de midmarket_success_stores
-- AM (Account Manager): del registro más reciente en midmarket_weekly_business_review
+- Flag is_midmarket: basado en in_portfolio de midmarket_success_stores (validado con Franco)
+- Account Manager: del registro más reciente en midmarket_weekly_business_review
 
 El modelo SILVER solo consumirá este intermediate y manejará la incrementalidad.
 */
@@ -29,7 +29,7 @@ midmarket_stores AS (
     FROM {{ ref('midmarket_success_stores') }}
 ),
 
--- AM (Account Manager) más reciente de Weekly Business Review
+-- Account Manager más reciente de Weekly Business Review
 latest_rep AS (
     SELECT 
         store_id,
@@ -49,8 +49,8 @@ SELECT
         ELSE false 
     END AS is_midmarket,
     
-    -- AM (Account Manager) más reciente (puede ser NULL si no está en WBR)
-    lr.rep AS am,
+    -- Account Manager más reciente (puede ser NULL si no está en WBR)
+    lr.rep AS account_manager,
     
     -- Timestamp para incrementalidad (máximo entre las fuentes)
     GREATEST(

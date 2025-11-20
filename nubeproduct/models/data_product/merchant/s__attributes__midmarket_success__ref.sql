@@ -12,7 +12,7 @@
 
 /*
 Data Product: Mid Market Success (SILVER REF)
-Description: Información consolidada de Mid Market Success por tienda (is_midmarket, am)
+Description: Información consolidada de Mid Market Success por tienda (is_midmarket, account_manager)
 Owner: jhu.boggio@tiendanube.com
 Domain: merchant
 
@@ -22,7 +22,7 @@ de consolidación de datos. Este modelo solo maneja la incrementalidad y los cam
 ✅ Materialización INCREMENTAL:
    - Procesa tiendas nuevas y existentes con cambios en información de Mid Market Success
    - Estrategia MERGE con unique_key=store_id
-   - Actualiza registros cuando cambian is_midmarket o am
+   - Actualiza registros cuando cambian is_midmarket o account_manager
 */
 
 WITH existing_data AS (
@@ -32,7 +32,7 @@ source_data AS (
     SELECT
         ms.store_id,
         ms.is_midmarket,
-        ms.am
+        ms.account_manager
     FROM {{ ref('_int__attributes__midmarket_success') }} ms
     WHERE
         ms.store_id IN (SELECT store_id FROM {{ ref('s__attributes__store_core__ref') }})
