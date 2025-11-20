@@ -42,6 +42,16 @@ SELECT
     MIN(a.created_at) AS first_date_admin_access,
     MAX(a.created_at) AS last_date_admin_access,
     
+    -- Métricas de platform access desde current_date (rolling windows)
+    -- Total histórico de accesos
+    COUNT(1) AS all_platform_sessions,
+    -- Accesos en los últimos 30 días desde current_date
+    SUM(CASE WHEN DATEDIFF(DAY, a.created_at, current_date) <= 30 THEN 1 ELSE 0 END) AS platform_sessions_30,
+    -- Accesos en los últimos 90 días desde current_date
+    SUM(CASE WHEN DATEDIFF(DAY, a.created_at, current_date) <= 90 THEN 1 ELSE 0 END) AS platform_sessions_90,
+    -- Última fecha de acceso (alias para compatibilidad)
+    MAX(a.created_at) AS platform_last_access,
+    
     -- Auditoría
     MAX(COALESCE(ed.sys_audit_created_on, current_timestamp)) AS sys_audit_created_on,
     MAX(COALESCE(ed.sys_audit_created_by, 'data-dev-dbt-products')) AS sys_audit_created_by,
