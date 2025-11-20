@@ -1,8 +1,4 @@
-{{
-  config(
-    materialized='table'
-  )
-}}
+-- Intermediate models are ephemeral by default (no config needed)
 
 -- =============================================================================
 -- Marketing Goals KWP & Search Console Intermediate - Clean Data
@@ -13,7 +9,7 @@
 --   - Country standardization  
 --   - Basic data quality filters for brand/nonbrand targets
 --   - Date range filtering (2025+ goals)
--- Next Layer: s__goals__targets_kwp_sc (date dimensions + metadata)
+-- Next Layer: s__brand_and_comms__goals_targets_kwp_sc__ref (date dimensions + metadata)
 -- =============================================================================
 
 WITH base_goals AS (

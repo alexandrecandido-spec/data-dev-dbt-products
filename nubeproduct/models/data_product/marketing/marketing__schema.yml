@@ -1,11 +1,10 @@
 version: 2
 
 models:
-  - name: s__goals__targets_kwp_sc
+  - name: s__brand_and_comms__goals_targets_kwp_sc__ref
     description: "Silver layer model for daily marketing goals and targets for Search Console and KWP. Contains expected performance metrics for branded/non-branded searches across channels. Used as targets for performance comparison in Gold models."
     config:
       materialized: table
-      tags: ['marketing', 'goals', 'silver', 'targets']
       meta:
         owner: "beto.martinez@tiendanube.com"
         business_owner: "Giselle Galli"
