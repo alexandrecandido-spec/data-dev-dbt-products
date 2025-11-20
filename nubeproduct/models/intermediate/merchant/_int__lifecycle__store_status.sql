@@ -91,13 +91,15 @@ SELECT
     , CASE WHEN ss.churned_at IS NOT NULL THEN ci.cancellation_comment ELSE NULL END AS cancellation_comment
     , CASE WHEN ss.churned_at IS NOT NULL THEN ci.cancellation_comment_at ELSE NULL END AS cancellation_comment_at
     -- ACTIVE MERCHANTS: Agregado por pedido de Gi para el data product user_information
-    , CASE WHEN af.store_id IS NOT NULL THEN TRUE ELSE FALSE END AS is_free_or_paying_merchant
     , CASE 
         WHEN af.store_id IS NOT NULL 
             AND COALESCE(pl.grupo, 'not informed') != 'freemium' 
-        THEN TRUE 
-        ELSE FALSE 
-    END AS is_paying_merchant
+        THEN 'paying'
+        WHEN af.store_id IS NOT NULL 
+            AND COALESCE(pl.grupo, 'not informed') = 'freemium' 
+        THEN 'free'
+        ELSE 'not_active'
+    END AS merchant_finance_status
     , GREATEST(ss.sys_audit_updated_on, si.sys_audit_updated_on, bl.blocked_last_updated_at, fs.sys_audit_updated_on) as change_timestamp
 FROM store_source ss 
 LEFT JOIN segment_info si ON ss.store_id = si.store_id
