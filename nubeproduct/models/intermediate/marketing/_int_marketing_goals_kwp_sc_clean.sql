@@ -29,7 +29,7 @@ WITH base_goals AS (
     CURRENT_TIMESTAMP() AS sys_audit_created_on,
     CURRENT_TIMESTAMP() AS sys_audit_updated_on
     
-  FROM data_products_prd.data_manual.ext__marketing__brand_comms__marketing_brand_nobrand_daily_goals
+  FROM {{ source('data_manual', 'ext__marketing__brand_comms__marketing_brand_nobrand_daily_goals') }}
   
   -- Basic data quality filters
   WHERE date IS NOT NULL
