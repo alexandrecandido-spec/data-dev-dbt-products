@@ -431,7 +431,7 @@ models:
       meta:
         owner: "jhu.boggio@tiendanube.com"
         domain: "merchant"
-        business_owner: "Gi"
+        business_owner: "Giselle Galli"
     columns:
       - name: store_id
         description: "Unique identifier of the store (only stores with paid orders)"
