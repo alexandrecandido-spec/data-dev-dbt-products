@@ -8,6 +8,7 @@ import json
 import logging
 from typing import Optional, Tuple, List
 import subprocess
+import boto3
 
 class DBTOperator(BashOperator):
     """Custom operator para ejecutar comandos DBT con capacidad de recuperación y taggeo"""
@@ -23,6 +24,9 @@ class DBTOperator(BashOperator):
         retry: bool = False,
         *args, **kwargs
     ):
+        
+        self.dynamodb = boto3.resource("dynamodb",region_name="us-east-1")
+
         self.tags = tags
         self.dbt_command = dbt_command
         self.full_refresh = full_refresh
@@ -48,7 +52,7 @@ class DBTOperator(BashOperator):
         else:
             selection = 'tag:'
             selection += ',tag:'.join(self.tags)
-            
+        
         execution = f"""
             set -e;
             source /usr/local/airflow/python3-virtualenv/dbt-env/bin/activate;
@@ -70,6 +74,7 @@ class DBTOperator(BashOperator):
         
         execution = f'"result:error+,{tag_list}" --state /tmp/dbt/{self.project}/nubeproduct/target/'
         # "find /tmp/dbt -type f -name run_results.json"
+        
         return f"""
             set -e;
             source /usr/local/airflow/python3-virtualenv/dbt-env/bin/activate;
@@ -78,6 +83,62 @@ class DBTOperator(BashOperator):
                 --project-dir /tmp/dbt/{self.project}/nubeproduct \
                 --profiles-dir /tmp/dbt;
         """
+        
+    def _status_models_update(self):
+        # Filtro jq que extrai do run_results.json, por modelo:
+        # - status de execução
+        # - nome do modelo (último segmento de unique_id)
+        # - menor started_at (primeiro início entre os timings)
+        # - maior completed_at do passo "execute" (término da execução)
+        jq_run = r'''
+            .results[]
+            | select(.unique_id | startswith("model."))
+            | [
+                .status,
+                (.unique_id | split(".")[-1]),
+                ([.timing[]? | .started_at?] | min? // ""),
+                ([.timing[]? | select(.name=="execute") | .completed_at?] | max? // "")
+                ]
+            | @tsv
+            '''
+        
+        # Executa o jq contra o run_results.json do projeto e captura a saída como texto (TSV)
+        res = subprocess.run(
+            ["jq", "-r", jq_run, f"/tmp/dbt/{self.project}/nubeproduct/target/run_results.json"],
+            check=True,
+            capture_output=True,
+            text=True
+        )
+        
+        # Itera pelas linhas TSV retornadas (uma por modelo)
+        for line in res.stdout.splitlines():
+            status, model, started, finished = line.split("\t")
+            model = f"model.nubeproduct.{model}"
+            started_at = started.replace('Z', '')
+            finished_at = finished.replace('Z', '')
+
+            values = {}
+            update_parts = ["started_at = :sa", "finished_at = :fa"]
+            values[":sa"] = started_at
+            values[":fa"] = finished_at
+            
+            # Se o status foi sucesso, também atualiza a coluna de término com sucesso
+            if status == 'success':
+                update_parts.append("success_finished_at = :sfa")
+                values[":sfa"] = finished_at
+
+            self._dynamo_update_table("dbt-processing-control", model, update_parts, values)
+            
+
+    def _dynamo_update_table(self, table: str, model: str, update_parts: Tuple[str], values: dict):
+        
+        #Atualiza um item no DynamoDB para o modelo informado.
+        dynamo_table = self.dynamodb.Table(table)
+        dynamo_table.update_item(
+                Key={"model": model},
+                UpdateExpression="SET " + ", ".join(update_parts),
+                ExpressionAttributeValues=values
+            )
         
     def _execute_bash_command(self, command: str) -> Tuple[bool, str]:
         """Ejecuta el comando bash y captura la salida en tiempo real"""
@@ -105,6 +166,10 @@ class DBTOperator(BashOperator):
             output_lines.append(stderr)
 
         success = process.returncode == 0
+
+        if self.dbt_command == 'run':
+            self._status_models_update()
+
         return success, ''.join(output_lines)
 
     def _parse_dbt_error(self, output: str) -> Optional[str]:

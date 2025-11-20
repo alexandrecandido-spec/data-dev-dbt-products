@@ -2380,7 +2380,180 @@ models:
         description: "Timestamp of when this record was last updated in our data warehouse"
       - name: sys_audit_updated_by
         description: "System identifier of the process that last updated this record"
-          
+
+  - name: g__product_marketing__onboarding_4_steps_store__agg
+    description: "**Data Product GOLD: Onboarding 4 Steps Consolidated Metrics by Store**\n\nModelo consolidado con todas las métricas de onboarding y 4 steps por tienda.\nConsolida información de múltiples data products: admin access, storefront sessions, layout, products, payments, shipping, orders/GMV (desde _int_marketing__onboarding_orders_gmv - ephemeral), plan movements (desde _int_marketing__onboarding_plan_movements - ephemeral), attribution (desde s__attributes__acquisition_profile__ref - domain merchant), QLs y tags de onboarding (desde int_moltres.mwp_tags).\n\n**Domain:** marketing\n**Granularity:** agg (one row per store)\n**Optimización:** Usa modelos intermedios ephemeral para orders/GMV y plan movements. Filtrado incremental optimizado con LEFT JOINs en lugar de subqueries. Comparación de hash MD5 (usando macro calculate_onboarding_row_hash) para evitar UPDATEs innecesarios. Device calculado desde merchant__attributes__store_info__ref.verified solo donde se necesita (JOIN con cutoff)."
+    meta:
+      owner: "jhu.boggio@tiendanube.com"
+      domain: "marketing"
+      business_owner: "Giselle Galli"
+    columns:
+      - name: store_id
+        description: "ID único de la tienda"
+        tests:
+          - not_null
+          - unique
+      - name: store_name
+        description: "Nombre de la tienda (domain)"
+      - name: country
+        description: "País de la tienda"
+      - name: created_at
+        description: "Fecha de creación de la tienda"
+      - name: first_payment
+        description: "Fecha del primer pago"
+      - name: first_seller_at
+        description: "Fecha en que la tienda se convirtió en seller (7 ventas en 90 días)"
+      - name: current_segment
+        description: "Segmento actual de la tienda"
+      - name: current_plan
+        description: "Plan actual de la tienda"
+      - name: vertical
+        description: "Vertical de la tienda"
+      - name: main_user_id
+        description: "ID del usuario principal de la tienda"
+      - name: user_email
+        description: "Email del usuario principal"
+      - name: owner_phone_number
+        description: "Teléfono del dueño de la tienda"
+      - name: phone_from_footer
+        description: "Teléfono desde el footer de la tienda"
+      - name: whatsapp_button
+        description: "Teléfono de WhatsApp button"
+      - name: qty_admin_access_7d
+        description: "Cantidad total de accesos al admin en los primeros 7 días desde creación"
+      - name: qty_admin_access_15d
+        description: "Cantidad total de accesos al admin en los primeros 15 días desde creación"
+      - name: qty_admin_access_30d
+        description: "Cantidad total de accesos al admin en los primeros 30 días desde creación"
+      - name: qty_admin_access_60d
+        description: "Cantidad total de accesos al admin en los primeros 60 días desde creación"
+      - name: first_date_admin_access
+        description: "Fecha del primer acceso al admin"
+      - name: last_date_admin_access
+        description: "Fecha del último acceso al admin"
+      - name: first_store_session
+        description: "Fecha de la primera sesión en storefront"
+      - name: qty_sessions_7d
+        description: "Cantidad de sesiones únicas en los primeros 7 días desde creación"
+      - name: qty_sessions_15d
+        description: "Cantidad de sesiones únicas en los primeros 15 días desde creación"
+      - name: qty_sessions_30d
+        description: "Cantidad de sesiones únicas en los primeros 30 días desde creación"
+      - name: qty_sessions_60d
+        description: "Cantidad de sesiones únicas en los primeros 60 días desde creación"
+      - name: qty_sessions_90d
+        description: "Cantidad de sesiones únicas en los primeros 90 días desde creación"
+      - name: last_store_session
+        description: "Fecha de la última sesión en storefront"
+      - name: config_layout
+        description: "Indica si la tienda configuró layout. 1 = configurado, 0 = no configurado"
+      - name: layout_name
+        description: "Nombre del layout configurado"
+      - name: theme_banner
+        description: "Indica si la tienda configuró banner. 1 = configurado, 0 = no configurado"
+      - name: theme_slider
+        description: "Indica si la tienda configuró slider. 1 = configurado, 0 = no configurado"
+      - name: theme_color_change
+        description: "Indica si la tienda cambió colores. 1 = configurado, 0 = no configurado"
+      - name: first_date_config_layout
+        description: "Fecha de primera configuración de layout"
+      - name: last_date_config_layout
+        description: "Fecha de última configuración de layout"
+      - name: config_products
+        description: "Indica si la tienda configuró productos (6+ productos válidos). 1 = configurado, 0 = no configurado"
+      - name: first_date_config_products
+        description: "Fecha del primer producto válido creado"
+      - name: last_date_config_products
+        description: "Fecha del sexto producto válido (completitud) o último producto válido"
+      - name: config_payment
+        description: "Indica si la tienda configuró métodos de pago. 1 = configurado, 0 = no configurado"
+      - name: first_date_config_payment
+        description: "Fecha de primera configuración de métodos de pago"
+      - name: last_date_config_payment
+        description: "Fecha de última configuración de métodos de pago"
+      - name: config_shipping
+        description: "Indica si la tienda configuró métodos de envío. 1 = configurado, 0 = no configurado"
+      - name: first_date_config_shipping
+        description: "Fecha de primera configuración de métodos de envío"
+      - name: last_date_config_shipping
+        description: "Fecha de última configuración de métodos de envío"
+      - name: first_order
+        description: "Fecha de la primera orden completada"
+      - name: time_to_first_order
+        description: "Días desde creación de la tienda hasta la primera orden"
+      - name: orders_7
+        description: "Cantidad de órdenes en los primeros 7 días desde creación"
+      - name: orders_15
+        description: "Cantidad de órdenes en los primeros 15 días desde creación"
+      - name: orders_30
+        description: "Cantidad de órdenes en los primeros 30 días desde creación"
+      - name: orders_60
+        description: "Cantidad de órdenes en los primeros 60 días desde creación"
+      - name: orders_90
+        description: "Cantidad de órdenes en los primeros 90 días desde creación"
+      - name: gmv_30
+        description: "GMV en moneda local en los primeros 30 días desde creación"
+      - name: gmv_60
+        description: "GMV en moneda local en los primeros 60 días desde creación"
+      - name: gmv_90
+        description: "GMV en moneda local en los primeros 90 días desde creación"
+      - name: gmv_dol_30
+        description: "GMV en USD en los primeros 30 días desde creación"
+      - name: gmv_dol_60
+        description: "GMV en USD en los primeros 60 días desde creación"
+      - name: gmv_dol_90
+        description: "GMV en USD en los primeros 90 días desde creación"
+      - name: upgrade_d7
+        description: "Flag indicando si hubo upgrade de plan en los primeros 7 días. 1 = upgrade, 0 = no upgrade"
+      - name: upgrade_d15
+        description: "Flag indicando si hubo upgrade de plan en los primeros 15 días. 1 = upgrade, 0 = no upgrade"
+      - name: upgrade_d30
+        description: "Flag indicando si hubo upgrade de plan en los primeros 30 días. 1 = upgrade, 0 = no upgrade"
+      - name: downgrade_d7
+        description: "Flag indicando si hubo downgrade de plan en los primeros 7 días. 1 = downgrade (plan al final de ventana < plan máximo alcanzado), 0 = no downgrade"
+      - name: downgrade_d15
+        description: "Flag indicando si hubo downgrade de plan en los primeros 15 días. 1 = downgrade (plan al final de ventana < plan máximo alcanzado), 0 = no downgrade"
+      - name: downgrade_d30
+        description: "Flag indicando si hubo downgrade de plan en los primeros 30 días. 1 = downgrade (plan al final de ventana < plan máximo alcanzado), 0 = no downgrade"
+      - name: primeiro_plano
+        description: "Grupo del primer plan de la tienda (freemium, plan-a, plan-b, plan-c, enterprise)"
+      - name: max_plan_d7
+        description: "Grupo del plan máximo alcanzado en los primeros 7 días desde creación"
+      - name: max_plan_d15
+        description: "Grupo del plan máximo alcanzado en los primeros 15 días desde creación"
+      - name: max_plan_d30
+        description: "Grupo del plan máximo alcanzado en los primeros 30 días desde creación"
+      - name: mkt_source_first_click
+        description: "Fuente de marketing atribuida al primer click"
+      - name: mkt_subteam_first_click
+        description: "Subteam de marketing atribuida al primer click"
+      - name: mkt_source_last_click
+        description: "Fuente de marketing atribuida al último click"
+      - name: mkt_subteam_last_click
+        description: "Subteam de marketing atribuida al último click"
+      - name: active_merchant_probability
+        description: "Probabilidad de ser active merchant (0 o 1). Usa is_active_merchant de s__lifecycle__store_status__ref. Si necesitas una probabilidad real (0-1), usar un modelo de ML específico"
+      - name: onboarding_tag
+        description: "Tag de onboarding asignado a la tienda (new-admin-onboarding-202411-a o new-admin-onboarding-202411-b). Consumido desde int_moltres.mwp_tags"
+      - name: new_payment_probability
+        description: "Probabilidad estimada de que la tienda convierta a cliente pagante (0-1)"
+      - name: cutoff_ql
+        description: "Threshold usado para determinar si una tienda califica como quality lead"
+      - name: blocked_fraud_tag
+        description: "Flag indicando si la tienda está bloqueada por fraude. 1 = bloqueada, 0 = no bloqueada"
+      - name: sys_audit_created_on
+        description: "Timestamp of when this record was created in our data warehouse"
+        tests: [not_null]
+      - name: sys_audit_created_by
+        description: "System identifier of the process that created this record"
+        tests: [not_null]
+      - name: sys_audit_updated_on
+        description: "Timestamp of when this record was last updated in our data warehouse"
+        tests: [not_null]
+      - name: sys_audit_updated_by
+        description: "System identifier of the process that last updated this record"
+        tests: [not_null]
+
   - name: s__acquisition__project_tags__ref
     description: "Silver REF table for Marketing Project Tagging at store grain. Exposes three boolean flags (Merchant Sellers, Drop Sellers, Webinars), their tag names, a concatenated tag string, the three relevant dates, and audit fields. Only stores with at least one tag are included."
     config:

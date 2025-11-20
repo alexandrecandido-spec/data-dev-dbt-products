@@ -33,18 +33,6 @@ blocked_store__info AS (
   FROM {{ ref('merchant__attributes__store_tags__ref') }} bl
   WHERE bl.blocked_reason is not null
 ),
-active_finance_merchants AS (
-    SELECT store_id
-    FROM (
-        SELECT 
-            store_id,
-            date_id,
-            MAX(date_id) OVER () AS max_date
-        FROM {{ source('int_finance', 'active_merchants') }}
-    )
-    WHERE date_id = max_date
-    GROUP BY store_id
-),
 cancellations_info AS (
   SELECT 
   *
@@ -87,8 +75,7 @@ SELECT
     , ss.state
     , ss.disabled
     , ss.custom_theme
-    , CASE WHEN ss.first_payment IS NOT NULL THEN 1 ELSE 0 END AS new_payment
-    , COALESCE(CASE WHEN af.store_id IS NOT NULL THEN 1 ELSE 0 END, 0) AS is_active_merchant
+    , CASE WHEN ss.first_payment IS NOT NULL THEN TRUE ELSE FALSE END AS new_payment
     , COALESCE(CASE WHEN ms.store_id IS NOT NULL THEN 'MM' ELSE 'SMB' END, 'SMB') AS business_unit
     , CASE WHEN ss.churned_at IS NOT NULL THEN ci.cancellation_reason ELSE NULL END AS cancellation_reason
     , CASE WHEN ss.churned_at IS NOT NULL THEN ci.cancellation_comment ELSE NULL END AS cancellation_comment
@@ -97,7 +84,6 @@ SELECT
 FROM store_source ss 
 LEFT JOIN segment_info si ON ss.store_id = si.store_id
 LEFT JOIN blocked_store__info bl ON ss.store_id = bl.store_id
-LEFT JOIN active_finance_merchants af ON ss.store_id = af.store_id
 LEFT JOIN cancellations_info ci ON ss.store_id = ci.store_id
 LEFT JOIN midmarket_success_stores ms ON ss.store_id = ms.store_id
 LEFT JOIN {{ ref('s__general__grouping_plans__ref') }} pl ON ss.current_plan_id = pl.plan

@@ -241,6 +241,8 @@ models:
         description: "Whether the store is blocked or not"
         tests:
           - not_null
+          - dbt_expectations.expect_column_values_to_be_in_set:
+              value_set: [true, false]
       - name: blocked_reason
         description: "Reason for blocking the store"
         tests:
@@ -264,14 +266,8 @@ models:
         description: "Whether the store is a new payment or not, 1 if the store first payment date is not null, 0 otherwise"
         tests:
           - not_null
-          - accepted_values:
-              values: [0, 1]
-      - name: is_active_merchant
-        description: "Whether the store is active or not, 1 if the store is active, 0 otherwise"
-        tests:
-          - not_null
-          - accepted_values:
-              values: [0, 1]
+          - dbt_expectations.expect_column_values_to_be_in_set:
+              value_set: [true, false]
       - name: business_unit
         description: "Business unit of the store"
         tests:
