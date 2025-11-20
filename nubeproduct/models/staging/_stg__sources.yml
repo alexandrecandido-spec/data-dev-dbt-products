@@ -147,14 +147,6 @@ sources:
       - name: mwp_countries
         description: "countries table from bronze_risk.ecosystem"
   
-  - name: bronze_risk_new_admin
-    database: bronze_risk
-    schema: new_admin
-    tables:
-      - name: auth_authentication_factors
-        description: "Authentication factors per user (2FA) from bronze_risk.new_admin"
-  
-  
   - name: stg_data_predictors
     database: hive_metastore
     schema: data_predictors
