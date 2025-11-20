@@ -90,6 +90,8 @@ sources:
       - name: finance_exchange_rate_ars_to_usd
       - name: marketing_github_mkt_attribution
         description: "List of marketing github issues/inputs created by the marketing team"
+      - name: marketing_google_search_console_keyword_searches
+        description: "Raw Google Search Console keyword performance data including impressions, clicks, positions by country and device"
       - name: midmarket_hubspot_deals
       - name: midmarket_hubspot_calls
       - name: midmarket_hubspot_meetings
