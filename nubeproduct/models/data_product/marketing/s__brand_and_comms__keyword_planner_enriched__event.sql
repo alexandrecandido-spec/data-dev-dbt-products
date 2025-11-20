@@ -1,7 +1,7 @@
 {{
   config(
     materialized='table',
-    tags=['marketing', 'keyword_planner', 'silver', 'daily-9am']
+    tags=['daily-9am']
   )
 }}
 
