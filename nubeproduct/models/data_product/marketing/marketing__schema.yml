@@ -3579,3 +3579,110 @@ models:
         description: "Timestamp when record was last updated in data warehouse"
 
 
+  - name: g__general__mkt_attribution_model__agg_daily
+    description: "A data product that contains the aggregated daily marketing attribution model by store and attribution information. This model calculate the attribution metrics by store and attribution information of trials, qls, new payments and new sellers by last click, first click and mean click. It also calculates metrics by creation date, first payment date and first seller date."
+    config:
+      materialized: incremental
+      meta:
+        owner: "malen.correa@tiendanube.com"
+        business_owner: "Giselle Galli"
+        domain: "marketing"
+    columns:
+      - name: date
+        description: "Date of the metric results (for trials, qls, payments_created_at and new_sellers_created_at it refers to creation date; for new_sellers it refers to first_seller_at; for new_payments and new_sellers_fpd it refers to first_payment_date)"
+        tests:
+          - not_null
+      - name: year_month_day_code
+        description: "Year-month-day code for date column"
+        tests:
+          - not_null
+      - name: store_id
+        description: "Store ID for the attribution model"
+        tests: [not_null]
+      - name: country_code
+        description: "Country code for the store"
+        tests: [not_null]
+      - name: source
+        description: "utm_source of the attribution model"        
+      - name: medium
+        description: "utm_medium of the attribution model"        
+      - name: campaign
+        description: "utm_campaign of the attribution model"
+      - name: content
+        description: "utm_content of the attribution model"
+      - name: referrer_domain
+        description: "referrer_domain of the attribution model"
+      - name: referrer_path
+        description: "referrer_path of the attribution model"
+      - name: landing_page_domain
+        description: "landing_page_domain of the attribution model"
+      - name: landing_page_path
+        description: "landing_page_path of the attribution model"
+      - name: register_url
+        description: "url of registration of the store"
+      - name: partner_id
+        description: "partner_id asigned for the store"
+      - name: mkt_source
+        description: "mkt_source of the attribution model"
+      - name: mkt_subteam
+        description: "mkt_subteam of the attribution model"
+      - name: trials_last_click
+        description: "trials quantity attributed to the last click model, calculated by creation date"
+      - name: trials_first_click
+        description: "trials quantity attributed to the first click model, calculated by creation date"
+      - name: trials_mean_click
+        description: "trials quantity attributed to mean click model, calculated by creation date"
+      - name: qls_last_click
+        description: "qls quantity attributed to the last click model, calculated by creation date"
+      - name: qls_first_click
+        description: "qls quantity attributed to the first click model, calculated by creation date"
+      - name: qls_mean_click
+        description: "qls quantity attributed to mean click model, calculated by creation date"
+      - name: new_payments_last_click
+        description: "new payments quantity attributed to the last click model, calculated by first payment date"
+      - name: new_payments_first_click
+        description: "new payments quantity attributed to the first click model, calculated by first payment date"
+      - name: new_payments_mean_click
+        description: "new payments quantity attributed to mean click model, calculated by first payment date"
+      - name: new_sellers_last_click
+        description: "new sellers quantity attributed to the last click model, calculated by first seller date"
+      - name: new_sellers_first_click
+        description: "new sellers quantity attributed to the first click model, calculated by first seller date"
+      - name: new_sellers_mean_click
+        description: "new sellers quantity attributed to mean click model, calculated by first seller date" 
+      - name: payment_created_at_last_click
+        description: "payments quantity attributed to the last click model, calculated by creation date. Use for CVR calculation of trial to payment"
+      - name: payment_created_at_first_click
+        description: "payments quantity attributed to the first click model, calculated by creation date. Use for CVR calculation of trial to payment"
+      - name: payment_created_at_mean_click
+        description: "payments quantity attributed to mean click model, calculated by creation date. Use for CVR calculation of trial to payment"
+      - name: new_seller_created_at_last_click
+        description: "new sellers quantity attributed to the last click model, calculated by creation date. Use for CVR calculation of trial to seller"
+      - name: new_seller_created_at_first_click
+        description: "new sellers quantity attributed to the first click model, calculated by creation date. Use for CVR calculation of trial to seller"
+      - name: new_seller_created_at_mean_click
+        description: "new sellers quantity attributed to mean click model, calculated by creation date. Use for CVR calculation of trial to seller"
+      - name: new_seller_fpd_last_click
+        description: "new sellers quantity attributed to the last click model, calculated by first payment date. Use for CVR calculation of new payment to seller"
+      - name: new_seller_fpd_first_click
+        description: "new sellers quantity attributed to the first click model, calculated by first payment date. Use for CVR calculation of new payment to seller"
+      - name: new_seller_fpd_mean_click
+        description: "new sellers quantity attributed to mean click model, calculated by first payment date. Use for CVR calculation of new payment to seller"
+      - name: max_sys_audit_updated_on
+        description: "Timestamp of the last update of the record. It is used to track the last update of the record in the data warehouse for incremental loading."
+        tests: [not_null]
+      - name: row_key
+        description: "Row key for the record. It is used to identify the record in the data warehouse."
+        tests: [not_null]
+      - name: sys_audit_created_on
+        description: "Timestamp of when this record was created in our data warehouse"
+        tests: [not_null]
+      - name: sys_audit_created_by
+        description: "System identifier of the process that created this record"
+        tests: [not_null]
+      - name: sys_audit_updated_on
+        description: "Timestamp of when this record was last updated in our data warehouse"
+        tests: [not_null]
+      - name: sys_audit_updated_by
+        description: "System identifier of the process that last updated this record"
+        tests: [not_null]
