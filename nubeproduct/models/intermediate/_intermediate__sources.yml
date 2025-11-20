@@ -388,3 +388,7 @@ sources:
         description: Monthly plan of acquisition KPIs by country and mkt_source.
       - name: ext__marketing__acquisition__key_dates_by_country
         description: Country-level key dates (holidays + commercial days) for seasonality/weighting.
+      - name: ext__marketing__brand_comms__searches_keyword_planner
+        description: "Manual Google Keyword Planner data uploads containing search volume by keyword, country and date"
+      - name: ext__marketing__brand_comms__marketing_brand_nobrand_daily_goals
+        description: "Daily marketing goals and targets for branded/non-branded performance tracking across Search Console and KWP"
