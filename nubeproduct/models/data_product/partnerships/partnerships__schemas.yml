@@ -434,3 +434,154 @@ models:
         description: "Timestamp of the latest update to the row."
       - name: sys_audit_updated_by
         description: "Source or user responsible for the latest update."
+
+  - name: s__agencies__program_levels__snapshot_monthly
+    config:
+      meta:
+        owner: "felipe.lorenzo@tiendanube.com"
+        domain: "partnerships"
+        business_owner: "Franco Tiberti"
+    description: >
+      Table containing historical program level information for agencies/partners 
+      at monthly snapshot dates. Each row represents the partner's program level classification (Platinum, Gold, 
+      Silver, Starter, Member) at a specific snapshot date, including the raw level calculation, smoothed level 
+      (to prevent level downgrades), and the metrics used to determine the level (active paying stores, new payments).
+      This enables historical tracking of partner level changes over time.
+    columns:
+      - name: partner_id
+        description: "Unique identifier of the partner agency."
+        tests:
+          - not_null
+      - name: snapshot_date
+        description: "First day of the month representing the snapshot date for the program level classification."
+        tests:
+          - not_null
+      - name: year_id
+        description: "Year of the snapshot date."
+        tests:
+          - not_null
+      - name: quarter_id
+        description: "Quarter of the snapshot date."
+        tests:
+          - not_null
+      - name: active_paying_stores
+        description: "Number of active paying stores associated with the partner at the snapshot date."
+        tests:
+          - not_null
+      - name: new_payments_last_quarter
+        description: "Number of new payments received in the quarter prior to the snapshot date."
+        tests:
+          - not_null
+      - name: new_payments_last_365d
+        description: "Number of new payments received in the 365 days prior to the snapshot date."
+        tests:
+          - not_null
+      - name: partner_level_raw
+        description: "Raw program level classification based on current metrics without smoothing (Platinum, Gold, Silver, Starter, Member, or 'Rules undefined for partners country')."
+      - name: raw_rank
+        description: "Numeric rank of the raw program level (higher rank = higher level)."
+        tests:
+          - not_null
+      - name: partner_level
+        description: "Final program level classification after applying smoothing rules to prevent level downgrades (Platinum, Gold, Silver, Starter, Member, or 'Rules undefined for partners country')."
+      - name: smooth_rank
+        description: "Numeric rank of the smoothed program level, which prevents sudden downgrades by limiting level decreases to maximum -1 per period."
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "System or user that created the row."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this table."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row."
+        tests:
+          - not_null
+
+  - name: s__agencies__partners_attributes__ref
+    config:
+      meta:
+        owner: "felipe.lorenzo@tiendanube.com"
+        domain: "partnerships"
+        business_owner: "Franco Tiberti"
+    description: >
+      Table containing consolidated current attributes about agencies/partners 
+      in the partnerships program. This table combines partner basic information (creation date, age classification, 
+      origin), current program level, lifecycle status (Pre-new, New, Established), business unit classification (MM/SMB), 
+      and key dates and flags related to their stores. The table is updated incrementally when any of the source tables 
+      change, maintaining a current snapshot of each partner's status.
+    columns:
+      - name: partner_id
+        description: "Unique identifier of the partner agency."
+        tests:
+          - not_null
+          - unique
+      - name: partner_created_date
+        description: "Date when the partner was created."
+        tests:
+          - not_null
+      - name: partner_level
+        description: "Current program level classification of the partner (Platinum, Gold, Silver, Starter, Member, or 'Rules undefined for partners country'). Retrieved from the most recent snapshot in s__agencies__program_levels__scd."
+      - name: lifecycle_status
+        description: "Lifecycle status of the partner based on recent activity: 'Pre-new' (first trial in previous month), 'New' (first payment in previous month), or 'Established' (all others)."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Pre-new', 'New', 'Established']
+      - name: partner_age_classification
+        description: "Age classification of the partner: 'New partner' (less than 12 months old) or 'Established partner' (12+ months old)."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['New partner', 'Established partner']
+      - name: partner_origin
+        description: "Origin of the partner based on UTM parameters, prioritizing campaign, source, medium, and content. Defaults to 'Unknown' if no UTM parameters are available."
+      - name: partner_business_unit
+        description: "Business unit classification of the partner based on their stores: 'MM' (Mid-Market) if at least one paying store is MM, otherwise 'SMB' (Small and Medium Business)."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['MM', 'SMB']
+      - name: active_paying_stores_flg
+        description: "Boolean flag indicating if the partner has at least one store with paying status (TRUE) or not (FALSE)."
+        tests:
+          - not_null
+      - name: new_payments_lm3_flg
+        description: "Boolean flag indicating if the partner has at least one store that made its first payment in the last 3 months (TRUE) or not (FALSE)."
+        tests:
+          - not_null
+      - name: first_store_trial_date
+        description: "Date of the first store trial created by this partner (acquired_by = 'Partner')."
+      - name: first_store_payment_date
+        description: "Date of the first payment received from a store acquired by this partner."
+      - name: first_store_seller_date
+        description: "Date of the first sale made by a store acquired by this partner."
+      - name: last_store_trial_date
+        description: "Date of the most recent store trial created by this partner."
+      - name: last_store_payment_date
+        description: "Date of the most recent payment received from a store acquired by this partner."
+      - name: last_store_seller_date
+        description: "Date of the most recent sale made by a store acquired by this partner."
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "System or user that created the row."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this table."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row."
+        tests:
+          - not_null

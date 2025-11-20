@@ -20,7 +20,7 @@ def create_profiles_yml():
                     'host': dbt_conn.host,
                     'http_path': '/sql/1.0/warehouses/2f8b52bf3d2088a2',
                     'schema': 'data',
-                    'threads': 4,
+                    'threads': 15,
                     'token': dbt_conn.password,
                     'type': 'databricks'
                 }

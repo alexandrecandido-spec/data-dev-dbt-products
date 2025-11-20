@@ -10,8 +10,8 @@ with metaplans as (  select
     date(created_at) as created_date
     ,store_id
     ,promotion_id
-    ,id as metaplan_id
-    ,name as metaplan_name
+    ,cast(id as string) as metaplan_id
+    ,cast(name as string) as metaplan_name
     ,deleted as is_metaplan_deleted
   from {{ source('stg_subscriptions', 'metaplans') }}
 )

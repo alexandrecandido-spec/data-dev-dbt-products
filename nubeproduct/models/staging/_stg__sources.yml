@@ -46,6 +46,8 @@ sources:
       - name: wp_users
       - name: mwp_apps
         description: "Contains information about apps installed by merchants"
+      - name: mwp_facebook_bussiness_extension
+        description: "Facebook Business Extension (CAPI) configuration by store"
       - name: mwp_zipcodes_ar
         description: "Table with zipcodes from Argentina."
       - name: mwp_zipcodes_mx
@@ -142,14 +144,6 @@ sources:
         description: "Apps table from bronze_risk.ecosystem"
       - name: mwp_countries
         description: "countries table from bronze_risk.ecosystem"
-  
-  - name: bronze_risk_new_admin
-    database: bronze_risk
-    schema: new_admin
-    tables:
-      - name: auth_authentication_factors
-        description: "Authentication factors per user (2FA) from bronze_risk.new_admin"
-  
   
   - name: stg_data_predictors
     database: hive_metastore

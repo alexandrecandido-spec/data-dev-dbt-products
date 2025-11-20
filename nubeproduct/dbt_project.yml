@@ -8,6 +8,10 @@ version: '1.0.0'
 # This setting configures which "profile" dbt uses for this project.
 profile: 'nubeproduct'
 
+dispatch:
+  - macro_namespace: dbt
+    search_order: ['nubeproduct', 'databricks', 'spark', 'dbt']
+
 # These configurations specify where dbt should look for different types of files.
 # The `model-paths` config, for example, states that models in this project can be
 # found in the "models/" directory. You probably won't need to change these!
@@ -186,10 +190,17 @@ seeds:
     +schema: manual
     +file_format: delta
     +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/data_manual/"
+    +post-hook:
+      - "OPTIMIZE {{ this }}"
+      - "ALTER TABLE {{ this }} SET TBLPROPERTIES ( \
+            delta.autoOptimize.optimizeWrite = true, \
+            delta.autoOptimize.autoCompact = true \
+          )"
+      - "VACUUM {{ this }} RETAIN 168 HOURS"
 
 vars:
   mirror_hms_prefix: "{{ 'testing_unity_dev' if target.name == 'dev' else 'testing_unity_prd' }}"
   mirror_catalog: "{{ 'hive_metastore' if target.name == 'dev' else 'hive_metastore' }}" #"{{ 'data_products_dev' if target.name == 'dev' else 'data_products_prd' }}"
   'dbt_date:time_zone': 'America/Argentina/Buenos_Aires'
   required_docs_fail_on_error: true         
-  required_docs_skip_models: []             
+  required_docs_skip_models: []

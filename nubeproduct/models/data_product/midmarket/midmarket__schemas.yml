@@ -1132,6 +1132,8 @@ models:
         description: "Priority flag indicating strategic importance or success level (e.g., Level 1, Level 2, Level 3)."
       - name: vertical
         description: "Vertical or industry segment of the merchant."
+      - name: acquisition_channel
+        description: "Lead acquisition channel from HubSpot (where the original lead came from)."
       - name: closed_lost_reason_1
         description: "Primary reason selected when the deal is lost (custom field)."
       - name: closed_lost_reason_2
@@ -1868,3 +1870,489 @@ models:
           - not_null
           - accepted_values:
               values: ["new_warning", "outgoing_warning"]
+
+
+  - name: g__success__downgrades__agg_snapshot_weekly_monthly
+    config:
+      meta:
+        tech_steward: "guillermo.defelice@tiendanube.com"
+        domain: "midmarket"
+        business_owner: "Franco Tiberti"
+    description: "Snapshot of downgrades (stores moving out of portfolio) for Success stores aggregated by week and month. Captures downgrade events with associated root causes, business context, and acquisition channel information."
+    columns:
+      - name: store_id
+        description: "Unique identifier of the store."
+        tests:
+          - not_null
+      - name: downgrade_root_cause_1
+        description: "Primary root cause of the downgrade (out of portfolio)."
+      - name: downgrade_root_cause_2
+        description: "Secondary root cause of the downgrade (out of portfolio)."
+      - name: downgrade_summary
+        description: "Summary or explanation of the downgrade event (out of portfolio one-liner)."
+      - name: competitor_identified
+        description: "Competitor identified during the downgrade event, if applicable."
+      - name: date_from
+        description: "Start date of the aggregation period (week or month start date)."
+        tests:
+          - not_null
+      - name: event_date
+        description: "Actual date when the store entered the downgrade stage."
+        tests:
+          - not_null
+      - name: city_state_downgrade
+        description: "City and state or sales territory associated with the downgrade."
+      - name: channel
+        description: "Lead acquisition channel (where the lead originally came from)."
+      - name: e_commerce
+        description: "E-commerce platform used by the merchant."
+      - name: business_model_sales
+        description: "Business model classification according to Sales (e.g., B2C, B2B, Hybrid)."
+      - name: onboarding_type
+        description: "Type of onboarding process that was applied to the store."
+      - name: responsavel_marketing
+        description: "Marketing team member responsible for or associated with the lead/store."
+      - name: periodicity
+        description: "Aggregation period: 'weekly' or 'monthly'."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["weekly", "monthly"]
+ 
+ 
+  - name: s__ga4__sessions__hubspot
+    description: >
+      Data product that merges GA4 session and pageview events linked to HubSpot conversions.<br>
+      It applies hierarchical logic to prioritize `session_start` events and supplement missing ones with `page_view` events.<br>
+      The model ensures accurate session attribution, even when GA4 fails to emit `session_start` events.<br>
+      Each record represents a unique session associated with a HubSpot form submission (`hubspot_conversion_id`).
+    columns:
+      - name: date_time
+        description: "Timestamp of the event (converted from microseconds to a readable datetime)."
+        tests:
+          - not_null
+      - name: user_pseudo_id
+        description: "Anonymous GA4 user identifier used to link sessions and HubSpot conversions."
+        tests:
+          - not_null
+      - name: session_number
+        description: "GA4 session number (`ga_session_number`) extracted from the event parameters."
+      - name: session_source
+        description: >
+          Session source.<br>
+          Derived according to event type:<br>
+          1. From `traffic_source.source` for `session_start`.<br>
+          2. From URL UTM parameters for `page_view` without `session_start`.<br>
+          3. Defaults to `(direct)` when both UTM and `traffic_source` are missing.
+      - name: session_medium
+        description: >
+          Session medium (e.g., organic, cpc, referral).<br>
+          Filled with `(none)` when UTM or `traffic_source.medium` is unavailable.
+      - name: session_campaign
+        description: >
+          Campaign name (`utm_campaign` or `traffic_source.name`).<br>
+          Defaults to `(direct)` when no value is available.
+      - name: session_device
+        description: "Device category (e.g., desktop, mobile, tablet)."
+      - name: event_type
+        description: >
+          Indicates the origin of the record:<br>
+          - `session_start`: directly originated from a GA4 session event.<br>
+          - `page_view`: included due to differing UTM parameters or absence of session information.
+      - name: hubspot_conversion_id
+        description: >
+          Conversion GUID (`submissionGuid`) extracted from HubSpot form URLs.<br>
+          Serves as the unique identifier for the lead conversion associated with this session.
+        tests:
+          - not_null
+
+
+
+  - name: g__renewal__aquarium__agg_monthly
+    description: >
+      Midmarket Renewal Aquarium data product. Consolidates Success pipeline deals to identify renewal opportunities,
+      enriched with merchant information, financial metrics, and related renewal deal tracking from the Upsell Success pipeline.
+      This model provides a comprehensive view of stores in the Success portfolio that are candidates for renewal deals,
+      including their last renewal deal status (if any), store attributes, and financial performance metrics.
+    config:
+      meta:
+        owner: "pedro.fregonese@tiendanube.com"
+        domain: "midmarket"
+        business_owner: "Franco Tiberti"
+    columns:
+      - name: store_id
+        description: "Internal store identifier linked to the Success deal."
+      - name: success_deal_id
+        description: "Unique identifier for the HubSpot Success pipeline deal. Primary key."
+        tests:
+          - unique
+          - not_null
+      - name: country
+        description: "Country derived from the Success pipeline (AR/BR/MX)."
+        tests:
+          - accepted_values:
+              values: ["AR", "BR", "MX"]
+      - name: dealname
+        description: "Deal name or title as defined in HubSpot."
+      - name: success_deal_owner
+        description: "HubSpot owner (Success manager) assigned to the Success deal."
+      - name: success_deal_stage
+        description: "Current HubSpot deal stage within the Success pipeline."
+        tests:
+          - not_null
+      - name: pipeline_creation_date
+        description: "Date when the Success deal was created in HubSpot."
+      - name: closedate
+        description: "Date when the Success deal was closed (if applicable)."
+      - name: kick_off_date
+        description: "Kick-off for the Onboarding process (previous to being Success)."
+      - name: potential_gmv
+        description: "Potential GMV (Gross Merchandise Value) from HubSpot Success deal properties."
+      - name: potential_gross_profit_perc
+        description: "Potential gross profit percentage from HubSpot Success deal properties."
+      - name: potential_gross_profit
+        description: "Potential gross profit value from HubSpot Success deal estimates."
+      - name: subscription
+        description: "Monthly subscription fee amount associated with the Success deal."
+      - name: cpt
+        description: "Cost per transaction (transaction fee) for the Success deal."
+      - name: success_priority
+        description: "Priority flag indicating strategic importance or success level (e.g., Level 1, Level 2, Level 3)."
+      - name: renewal_deal_id
+        description: "Unique identifier for the most recent renewal deal from Upsell Success pipeline (if exists). Null if no renewal deal has been created."
+      - name: renewal_deal_stage
+        description: "Current stage of the renewal deal. Defaults to 'Not contacted' when no renewal deal exists."
+        tests:
+          - not_null
+      - name: renewal_deal_owner
+        description: "HubSpot owner assigned to the renewal deal (if exists)."
+      - name: store_name
+        description: "Name of the store from merchant information."
+      - name: domain
+        description: "Domain name of the store."
+      - name: store_creation_date
+        description: "Date when the store was created in the platform."
+      - name: current_plan
+        description: "Current subscription plan of the store."
+      - name: store_churn_date
+        description: "Date when the store churned (if applicable)."
+      - name: vertical
+        description: "Business vertical or industry category of the store."
+      - name: franchise_group
+        description: "Name of the franchise group the store belongs to, if any."
+      - name: contract_end_date
+        description: "End date of the store's current contract."
+      - name: last_finance_month
+        description: "Most recent month with available financial data for the store."
+      - name: last_month_segment
+        description: "Store segment classification based on the last month's financial data."
+      - name: gmv_usd_last_month
+        description: "Gross Merchandise Value in USD for the last available month."
+      - name: gmv_last_month
+        description: "Gross Merchandise Value in local currency for the last available month."
+      - name: orders_on_platform_last_month
+        description: "Number of orders on the platform for the last available month."
+      - name: gmv_usd_six_months_avg
+        description: "Average Gross Merchandise Value in USD over the last six months."
+      - name: gmv_six_months_avg
+        description: "Average Gross Merchandise Value in local currency over the last six months."
+      - name: orders_on_platform_six_months_avg
+        description: "Average number of orders on the platform over the last six months."
+      - name: gmv_usd_three_months_avg
+        description: "Average Gross Merchandise Value in USD over the last three months."
+      - name: gmv_three_months_avg
+        description: "Average Gross Merchandise Value in local currency over the last three months."
+      - name: orders_on_platform_three_months_avg
+        description: "Average number of orders on the platform over the last three months."
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when the record was last processed or refreshed."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run."
+        tests:
+          - not_null
+
+
+  - name: g__upsell__aquarium__agg_monthly
+    description: >
+      Midmarket Upsell Aquarium data product. Identifies potential upsell opportunities by analyzing stores from finance metrics,
+      enriched with Success pipeline status, existing Upsell deal tracking, and comprehensive financial performance data.
+      This model provides a monthly snapshot of stores that are candidates for upsell opportunities, including filters for
+      Brazil-specific GMV thresholds and complete merchant profiles.
+    config:
+      meta:
+        owner: "pedro.fregonese@tiendanube.com"
+        domain: "midmarket"
+        business_owner: "Franco Tiberti"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: 
+            - store_id
+            - datemonth
+    columns:
+      - name: store_id
+        description: "Internal store identifier. Part of composite primary key with datemonth."
+        tests:
+          - not_null
+      - name: created_at
+        description: "Date when the store was created in the platform."
+      - name: days_since_store_creation
+        description: "Number of days since the store was created, calculated from current date."
+      - name: store_antiquity
+        description: "Store age classification or antiquity bucket."
+      - name: domain
+        description: "Domain name of the store."
+      - name: country
+        description: "Country where the store operates (AR/BR/MX)."
+        tests:
+          - accepted_values:
+              values: ["AR", "BR", "MX"]
+      - name: vertical
+        description: "Business vertical or industry category of the store."
+      - name: current_segment
+        description: "Current segment classification of the store based on merchant attributes."
+      - name: mail
+        description: "Email address associated with the store owner."
+      - name: phone
+        description: "Phone number associated with the store."
+      - name: owner_phone_number
+        description: "Store owner's phone number."
+      - name: risk_dropshipping
+        description: "Flag indicating if the store has been tagged as a dropshipping risk."
+      - name: franchise_group
+        description: "Name of the franchise group the store belongs to, if any."
+      - name: plan_name
+        description: "Current subscription plan name of the store."
+      - name: region
+        description: "Geographic region where the store is located."
+      - name: state
+        description: "Geographic state or province where the store is located."
+      - name: city
+        description: "Geographic city where the store is located."
+      - name: is_success
+        description: "Boolean flag indicating if the store has an active Success pipeline deal (stage not 'Out of portfolio' or 'Effective churn')."
+        tests:
+          - not_null
+      - name: is_success_downgrade
+        description: "Boolean flag indicating if the store has been downgraded in the Success pipeline (stage = 'Out of portfolio')."
+        tests:
+          - not_null
+      - name: date_entered_downgrade
+        description: "Date when the store entered the 'Out of portfolio' stage in Success pipeline (if applicable)."
+      - name: deal_stage_hubspot
+        description: "Current stage of the most recent Upsell deal in HubSpot. Defaults to 'Not contacted' when no upsell deal exists."
+        tests:
+          - not_null
+      - name: creation_date_hubspot
+        description: "Date when the most recent Upsell deal was created in HubSpot (if exists)."
+      - name: close_date_hubspot
+        description: "Date when the most recent Upsell deal was closed in HubSpot (if exists)."
+      - name: closed_lost_reason_1_hubspot
+        description: "Primary reason selected when the Upsell deal was marked as lost (if applicable)."
+      - name: closed_lost_reason_2_hubspot
+        description: "Secondary reason selected when the Upsell deal was marked as lost (if applicable)."
+      - name: closed_lost_notes_hubspot
+        description: "Notes entered when the Upsell deal was marked as lost (if applicable)."
+      - name: deal_owner_upsell
+        description: "HubSpot owner (Deal owner) assigned to the most recent Upsell deal (if exists)."
+      - name: sales_dev_responsible_upsell
+        description: "Sales Development team member responsible for the Upsell lead or initial contact (if exists)."
+      - name: last_activity_date
+        description: "Date of the last activity or note update on the Upsell deal (if exists)."
+      - name: last_update_hubspot
+        description: "Timestamp of the last update to the Upsell deal in HubSpot (if exists)."
+      - name: datemonth
+        description: "Reference month for the financial metrics snapshot, truncated to the first day of the month. Part of composite primary key with store_id."
+        tests:
+          - not_null
+      - name: is_paying_merchant
+        description: "Boolean flag indicating if the merchant is a paying merchant for the reference month."
+      - name: total_orders_on_platform
+        description: "Total number of orders processed on the platform during the reference month."
+      - name: total_gmv_usd_on_platform
+        description: "Total Gross Merchandise Value in USD on the platform during the reference month."
+      - name: total_gmv_local_currency_on_platform
+        description: "Total Gross Merchandise Value in local currency on the platform during the reference month."
+      - name: segment_on_platform
+        description: "Segment classification based on on-platform GMV for the reference month."
+      - name: gmv_under_100k_last_3m_br_only
+        description: "Boolean flag (BR only) indicating if the store's GMV in local currency was under 100,000 for any of the last 3 months. Used to filter out low-GMV stores in Brazil."
+      - name: gmv_over_400k_lt_180d_since_creation_br_only
+        description: "Boolean flag (BR only) indicating if the store has GMV over 400,000 in local currency at least once in the last 180 days and was created less than 180 days ago. Used to identify high-potential new stores in Brazil."
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was created by the dbt pipeline."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "System identifier that created the record (data-dev-dbt-products)."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when the record was last updated by the dbt pipeline."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "System identifier that last updated the record (data-dev-dbt-products)."
+        tests:
+          - not_null
+
+
+  - name: g__upsell__renewal__pipeline__enriched__agg_monthly
+    description: >
+      Midmarket Upsell & Renewal pipeline enriched data product. Enriches the base Upsell & Renewal pipeline snapshot
+      with comprehensive merchant information and detailed financial performance metrics. This model provides a complete
+      view of all Upsell and Renewal deals with store attributes, contract details, and multi-period financial averages
+      for better deal evaluation and tracking.
+    config:
+      meta:
+        owner: "pedro.fregonese@tiendanube.com"
+        domain: "midmarket"
+        business_owner: "Franco Tiberti"
+    columns:
+      - name: store_id
+        description: "Internal store identifier linked to the Upsell or Renewal deal."
+      - name: deal_id
+        description: "Unique identifier for the HubSpot Upsell/Renewal deal. Primary key."
+        tests:
+          - unique
+          - not_null
+      - name: country
+        description: "Country derived from the Upsell Success pipeline (AR/BR/MX)."
+        tests:
+          - accepted_values:
+              values: ["AR", "BR", "MX"]
+      - name: company_name
+        description: "Company or merchant name associated with the deal record."
+      - name: dealname
+        description: "Deal name or title as defined in HubSpot."
+      - name: deal_owner
+        description: "HubSpot owner (Deal owner) assigned to the Upsell/Renewal deal."
+      - name: stage
+        description: "Current HubSpot deal stage within the Upsell & Renewal pipeline."
+        tests:
+          - not_null
+      - name: deal_status
+        description: "Business status derived from stage. Possible values: 'On-going' (Suspect, Prospect, Scheduled Meeting, Negotiation, In Signature), 'Lost', or 'Won' (Won, Upsell, NEXT Renewal)."
+        tests:
+          - accepted_values:
+              values: ["On-going", "Lost", "Won"]
+      - name: client_bucket
+        description: "Classification of the deal as either 'Upsell' or 'Renewal' based on the client_upsell_motive field."
+      - name: potential_gmv
+        description: "Potential GMV (Gross Merchandise Value) estimated for this renewal or upsell opportunity from HubSpot."
+      - name: potential_gross_profit_perc
+        description: "Gross profit percentage estimated for the upsell or renewal deal from HubSpot."
+      - name: potential_gross_profit
+        description: "Potential gross profit value derived from deal estimates in HubSpot."
+      - name: contract_end_date
+        description: "End date of the store's current contract."
+      - name: pipeline_creation_date
+        description: "Date when the Upsell/Renewal deal was created in HubSpot."
+        tests:
+          - not_null
+      - name: closedate
+        description: "Date when the deal was successfully won or lost."
+      - name: date_entered_negotiation_upsell_success
+        description: "Date when the deal entered the 'Negotiation' stage in the Upsell/Renewal pipeline. Unified across AR and BR (MX currently null)."
+      - name: success_priority
+        description: "Priority flag indicating strategic importance or success level (e.g., Level 1, Level 2, Level 3)."
+      - name: subscription
+        description: "Monthly subscription fee amount for the upsell or renewal plan."
+      - name: cpt
+        description: "Cost per transaction (transaction fee) for the deal."
+      - name: acquisition_channel
+        description: "Lead acquisition channel from HubSpot (where the original lead came from)."
+      - name: forecast_category
+        description: "HubSpot's forecast category label for the deal."
+      - name: stage_before_closing_deal
+        description: "Deal stage immediately prior to being marked as closed or disqualified."
+      - name: closed_lost_reason_1
+        description: "Primary reason selected when the deal is lost (custom field)."
+      - name: closed_lost_reason_2
+        description: "Secondary reason selected when the deal is lost (custom field)."
+      - name: closed_won_reason_1
+        description: "Primary reason selected when the deal is won (custom field)."
+      - name: closed_won_reason_2
+        description: "Secondary reason selected when the deal is won (custom field)."
+      - name: city_state_sales
+        description: "City and state or sales territory linked to the deal."
+      - name: aspirational_brand
+        description: "Binary flag (1/0) indicating if the deal is tagged as 'Aspirational brand'."
+        tests:
+          - accepted_values:
+              values: [0, 1]
+      - name: store_name
+        description: "Name of the store from merchant information."
+      - name: domain
+        description: "Domain name of the store."
+      - name: store_creation_date
+        description: "Date when the store was created in the platform."
+      - name: current_plan
+        description: "Current subscription plan of the store."
+      - name: first_payment
+        description: "Date of the first payment made by the store."
+      - name: store_churn_date
+        description: "Date when the store churned (if applicable)."
+      - name: vertical
+        description: "Business vertical or industry category of the store."
+      - name: franchise_group
+        description: "Name of the franchise group the store belongs to, if any."
+      - name: last_finance_month
+        description: "Most recent month with available financial data for the store."
+      - name: last_month_segment
+        description: "Store segment classification based on the last month's financial data."
+      - name: gmv_usd_last_month
+        description: "Total Gross Merchandise Value in USD for the last available month (includes on-platform and off-platform)."
+      - name: gmv_last_month
+        description: "Total Gross Merchandise Value in local currency for the last available month (includes on-platform and off-platform)."
+      - name: gmv_usd_on_platform_last_month
+        description: "On-platform Gross Merchandise Value in USD for the last available month."
+      - name: gmv_on_platform_last_month
+        description: "On-platform Gross Merchandise Value in local currency for the last available month."
+      - name: orders_on_platform_last_month
+        description: "Number of orders on the platform for the last available month."
+      - name: gmv_usd_six_months_avg
+        description: "Average total Gross Merchandise Value in USD over the last six months (includes on-platform and off-platform)."
+      - name: gmv_six_months_avg
+        description: "Average total Gross Merchandise Value in local currency over the last six months (includes on-platform and off-platform)."
+      - name: gmv_usd_on_platform_six_months_avg
+        description: "Average on-platform Gross Merchandise Value in USD over the last six months."
+      - name: gmv_on_platform_six_months_avg
+        description: "Average on-platform Gross Merchandise Value in local currency over the last six months."
+      - name: orders_on_platform_six_months_avg
+        description: "Average number of orders on the platform over the last six months."
+      - name: gmv_usd_three_months_avg
+        description: "Average total Gross Merchandise Value in USD over the last three months (includes on-platform and off-platform)."
+      - name: gmv_three_months_avg
+        description: "Average total Gross Merchandise Value in local currency over the last three months (includes on-platform and off-platform)."
+      - name: gmv_usd_on_platform_three_months_avg
+        description: "Average on-platform Gross Merchandise Value in USD over the last three months."
+      - name: gmv_on_platform_three_months_avg
+        description: "Average on-platform Gross Merchandise Value in local currency over the last three months."
+      - name: orders_on_platform_three_months_avg
+        description: "Average number of orders on the platform over the last three months."
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when the record was last processed or refreshed."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run."
+        tests:
+          - not_null

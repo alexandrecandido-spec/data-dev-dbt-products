@@ -559,6 +559,146 @@ models:
         tests:
           - not_null
 
+  - name: s__general__zendesk_tickets_label__ref
+    description: >
+      Reference table containing comprehensive Zendesk ticket information with enriched labels and attributes.
+      Includes ticket metadata, custom fields extracted from Zendesk (store attributes, topics, SLA, satisfaction),
+      and flags derived from tags and external IDs. Materialized incrementally using merge strategy with ticket_id as unique key.
+    meta:
+      domain: "cx"
+      owner: "felipe.lorenzo@tiendanube.com"
+      business_owner: "Carolina Leon"
+    columns:
+      - name: ticket_id
+        description: "Unique identifier of the ticket in Zendesk. Primary key."
+        tests:
+          - not_null
+          - unique
+      - name: external_id
+        description: "External identifier of the ticket in Zendesk. May contain parent ticket reference for side conversations."
+      - name: url
+        description: "URL of the ticket in Zendesk."
+      - name: created_at
+        description: "Timestamp when the ticket was created in Zendesk (UTC)."
+      - name: updated_at
+        description: "Timestamp when the ticket was last updated in Zendesk (UTC). Used for incremental processing."
+      - name: due_at
+        description: "Timestamp when the ticket is due in Zendesk (UTC). Null if no due date set."
+      - name: status
+        description: "Current status of the ticket in Zendesk"
+      - name: type
+        description: "Type of the ticket in Zendesk"
+      - name: priority
+        description: "Priority level of the ticket in Zendesk"
+      - name: ticket_form_id
+        description: "Identifier of the ticket form used to create the ticket."
+      - name: has_incidents
+        description: "Flag indicating if the ticket has associated incidents."
+      - name: is_public
+        description: "Flag indicating if the ticket is public."
+      - name: subject
+        description: "Subject line of the ticket."
+      - name: raw_subject
+        description: "Original subject line of the ticket before any processing."
+      - name: description
+        description: "Description or body content of the ticket."
+      - name: tags
+        description: "JSON array of tags associated with the ticket. Used to derive flags like is_bot, is_automation, is_spam."
+      - name: custom_fields
+        description: "JSON array containing custom field values from Zendesk. Source for extracted fields like store attributes, topics, SLA."
+      - name: requester_id
+        description: "Zendesk user ID of the person who requested the ticket."
+      - name: recipient
+        description: "Email address of the ticket recipient."
+      - name: organization_id
+        description: "Zendesk organization ID associated with the ticket."
+      - name: assignee_id
+        description: "Zendesk user ID of the agent assigned to the ticket. Null if unassigned."
+      - name: group_id
+        description: "Zendesk group ID responsible for the ticket. Null if no group assigned."
+      - name: brand_id
+        description: "Zendesk brand ID associated with the ticket."
+      - name: submitter_id
+        description: "Zendesk user ID of the person who submitted the ticket."
+      - name: parent_ticket_id
+        description: "Ticket ID of the parent ticket (extracted from external_id for side conversations). Null if not a side conversation."
+      - name: problem_id
+        description: "Problem ticket ID if this ticket is linked to a problem. Null otherwise."
+      - name: followup_ids
+        description: "Array of ticket IDs that are follow-ups to this ticket."
+      - name: collaborator_ids
+        description: "Array of Zendesk user IDs who are collaborators on the ticket."
+      - name: follower_ids
+        description: "Array of Zendesk user IDs who are following the ticket."
+      - name: email_cc_ids
+        description: "Array of email addresses or user IDs CC'd on the ticket."
+      - name: forum_topic_id
+        description: "Forum topic ID if the ticket originated from a forum topic. Null otherwise."
+      - name: sharing_agreement_ids
+        description: "Array of sharing agreement IDs associated with the ticket."
+      - name: via_channel
+        description: "Channel through which the ticket was created (extracted from via field)"
+      - name: allow_channelback
+        description: "Flag indicating if channelback is allowed for this ticket."
+      - name: allow_attachments
+        description: "Flag indicating if attachments are allowed for this ticket."
+      - name: satisfaction_score
+        description: "Satisfaction score from the rating (extracted from satisfaction_rating JSON). Null if not rated."
+      - name: satisfaction_reason
+        description: "Reason provided for the satisfaction rating (extracted from satisfaction_rating JSON)."
+      - name: satisfaction_comment
+        description: "Comment provided with the satisfaction rating (extracted from satisfaction_rating JSON)."
+      - name: sla
+        description: "SLA value as stored in custom fields (e.g., '2h', '30m', 'x')."
+      - name: sla_min
+        description: "SLA value converted to minutes. Extracted from sla field: hours multiplied by 60, minutes as-is. Null if sla is null or 'x'."
+      - name: main_topic
+        description: "Main topic classification extracted from custom fields. Used for ticket categorization."
+      - name: secondary_topic
+        description: "Secondary topic classification extracted from custom fields. Provides additional categorization detail."
+      - name: subtopic
+        description: "Subtopic classification extracted from custom fields. Most granular level of topic categorization."
+      - name: is_partner
+        description: "Flag indicating if the ticket is associated with a partner (extracted from custom fields)."
+      - name: store_status
+        description: "Status of the store associated with the ticket (extracted from custom fields)."
+      - name: store_status_by_order
+        description: "Store status classification by order type (extracted from custom fields)."
+      - name: store_tier_np_pn
+        description: "Store tier classification (NP/PN) extracted from custom fields."
+      - name: store_plan
+        description: "Store plan type extracted from custom fields"
+      - name: client_segment
+        description: "Client segment classification extracted from custom fields."
+      - name: client_profile
+        description: "Client profile classification extracted from custom fields."
+      - name: team_guru
+        description: "Team guru assignment extracted from custom fields."
+      - name: squad_guru
+        description: "Squad guru assignment extracted from custom fields."
+      - name: bu_guru
+        description: "Business unit guru assignment extracted from custom fields."
+      - name: is_bot
+        description: "Flag indicating if the ticket was created or handled by a bot. Derived from tags containing 'cloud-humans-csat'."
+      - name: is_automation
+        description: "Flag indicating if the ticket is related to automation. Derived from tags containing 'monitorear_consumers' or 'monitorar_consumers'."
+      - name: is_merged
+        description: "Flag indicating if the ticket was closed by merge. Derived from tags containing 'closed_by_merge'."
+      - name: is_spam
+        description: "Flag indicating if the ticket is marked as spam. Derived from tags containing 'spam'."
+      - name: is_test
+        description: "Flag indicating if the ticket is a test ticket. Derived from tags containing 'prueba'."
+      - name: is_side_conversation
+        description: "Flag indicating if the ticket is a side conversation. Derived from external_id containing 'side_conversation'."
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created."
+      - name: sys_audit_created_by
+        description: "System or user that created the row."
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated."
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row."
+
   - name: s__general__zendesk_assignment__event
     description: >
       Interval-level table that tracks assignee and group intervals per Zendesk ticket.
@@ -619,3 +759,97 @@ models:
         description: "System or user that last updated the row (usually the dbt job user)."
         tests:
           - not_null
+
+
+  - name: s__general__zendesk_users__ref
+    description: >
+      Canonical reference table for Zendesk users (agents and end-users).
+      Each row represents a unique Zendesk user and selected attributes,
+      including organization, identity flags, and custom user_fields.
+    meta:
+      domain: "cx"
+      owner: "valeria.nascimento@nuvemshop.com.br"
+      business_owner: "Operations"
+    columns:
+      - name: user_id
+        description: "Unique identifier of the user in Zendesk (id)."
+        tests: [not_null, unique]
+      - name: name
+        description: "Display name of the user."
+        tests: [not_null]
+      - name: email
+        description: "Primary email address of the user when available."
+      - name: role
+        description: "User role in Zendesk (end-user/agent/admin)."
+        tests:
+          - accepted_values:
+              values: ["end-user", "agent", "admin"]
+      - name: phone
+        description: "Primary phone number if present."
+      - name: active
+        description: "Whether the user is active."
+        tests: [not_null]
+      - name: created_at
+        description: "UTC timestamp when the user was created in Zendesk."
+      - name: updated_at
+        description: "UTC timestamp of the most recent update to the user."
+      - name: external_id
+        description: "External ID for mapping to external systems."
+      - name: iana_time_zone
+        description: "IANA time zone identifier (e.g., America/Sao_Paulo)."
+      - name: locale
+        description: "Locale code for the user (e.g., pt-BR, es-AR)."
+      - name: locale_id
+        description: "Numeric locale identifier."
+      - name: moderator
+        description: "Whether the user is a forum/community moderator."
+      - name: only_private_comments
+        description: "Whether the agent can add only private comments."
+      - name: organization_id
+        description: "Default organization id for the user (if the user belongs to multiple orgs, this is the default)."
+      - name: report_csv
+        description: "Whether the agent can view/download reports (CSV)."
+      - name: restricted_agent
+        description: "Whether the agent has restricted access to tickets."
+      - name: shared
+        description: "Whether the user is shared from a different Zendesk account."
+      - name: shared_agent
+        description: "Whether the user is a shared agent."
+      - name: shared_phone_number
+        description: "Whether the phone number is a shared identity."
+      - name: suspended
+        description: "Whether the user is suspended."
+      - name: tags
+        description: "Array/string of user tags."
+      - name: ticket_restriction
+        description: "Agent ticket visibility setting."
+      - name: time_zone
+        description: "Time zone string for the user."
+      - name: url
+        description: "API URL for this user resource."
+      - name: verified
+        description: "Whether the user's primary identity is verified."
+      - name: user_fields
+        description: "Custom field."
+      - name: user_fields_agent_ooo
+        description: "Custom field: indicates if the agent is out-of-office."
+      - name: user_fields_has_store
+        description: "Custom field: whether the user has a store."
+      - name: user_fields_is_partner
+        description: "Custom field: whether the user is a partner."
+      - name: user_fields_no_recebe_e_mail
+        description: "Custom field: whether the user should not receive emails."
+      - name: user_fields_not_actually_a_partner
+        description: "Custom field: flag for non-partner classification."
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created by the dbt process."
+        tests: [not_null]
+      - name: sys_audit_created_by
+        description: "System or user that created the row (usually the dbt job user)."
+        tests: [not_null]
+      - name: sys_audit_updated_on
+        description: "Timestamp of the most recent update to the row by the dbt process."
+        tests: [not_null]
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row (usually the dbt job user)."
+        tests: [not_null]
