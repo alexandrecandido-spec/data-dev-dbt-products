@@ -28,7 +28,7 @@ base AS (
         fs.is_fallback_active,
         fs.is_freemium,
         o.order_id,
-        o.shipping_method,
+        COALESCE(o.shipping_method, 'Without shipping data') as shipping_method,
         CASE
             WHEN o.shipping_method = 'Fallback' THEN TRUE
             ELSE FALSE

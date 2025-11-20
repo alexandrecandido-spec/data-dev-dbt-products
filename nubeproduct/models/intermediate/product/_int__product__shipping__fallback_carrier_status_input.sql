@@ -59,7 +59,7 @@ SELECT
         WHEN sc.created_at < o.order_completed_at AND (sc.deleted_at > o.order_completed_at OR sc.deleted_at is null) THEN TRUE
         ELSE FALSE
     END AS was_carrier_active_when_fallback,
-    o.shipping_method,
+    COALESCE(o.shipping_method, 'Without shipping data') as shipping_method,
     CASE
         WHEN o.shipping_method = 'Fallback' THEN TRUE
         ELSE FALSE
