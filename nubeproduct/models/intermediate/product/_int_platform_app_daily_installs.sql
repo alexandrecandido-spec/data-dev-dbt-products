@@ -47,8 +47,8 @@ stores as (
         ,date(first_payment) as first_payment
         ,date(churned_at) as churned_at
         ,monthly_fee
-    from {{ source('stg_moltres', 'mwp_store_info') }} s
-    left join {{ source('bronze_risk_ecommerce', 'mwp_store_settings') }} ss
+    from {{ source('int_moltres', 'mwp_store_info') }} s
+    left join {{ source('int_moltres', 'mwp_store_settings') }} ss
         on ss.store_id = s.id
     left join {{ ref('operations_grouping_plans') }} g
         on s.plan = g.plan

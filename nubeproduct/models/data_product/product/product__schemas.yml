@@ -2462,11 +2462,13 @@ models:
       - name: domain
         description: "Domain associated with the metafield (Products, Categories, Orders, Customers or Product variants)."
       - name: assignment_id
-        description: "Unique identifier of the metafield assignment."
+        description: "Unique identifier of the metafield assignment. 0 if unassigned."
       - name: owner_id
         description: "Id of the specific item that was assigned the metafield (product_id, category_id, etc)"
       - name: assignment_date
         description: "Date of the metafield assignment."
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created in this model"
       - name: sys_audit_created_by
         description: "System or user that created the row in this model."
       - name: sys_audit_updated_on
@@ -4690,6 +4692,71 @@ models:
         tests:
           - not_null
 
+
+  - name: s__general__github_issue_zendesk__link
+    description: >
+      Link table between **GitHub issues/problems** and **Zendesk tickets**.  
+      It is built from the latest snapshot in `_int__product__general__github_issues_and_problems_union`
+      and `_int__product__general__github_issues_and_problems_comments_union`, extracting Zendesk IDs
+      from the text (issue body and comments).  
+      It supports the patterns `https://tiendanubehelp.zendesk.com/agent/tickets/<id>` and  
+      `https://tiendanubehelp.zendesk.com/agent/#/tickets/<id>`.  
+      One row per (repo_name, issue_number, zendesk_id, comment_id?, issue_id?).
+    config:
+      meta:
+        owner: "fabricio.crivella@tiendanube.com"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            ["repo_name", "issue_number", "zendesk_id", "comment_id", "issue_id"]
+    columns:
+      - name: id
+        description: >
+          Surrogate identifier (SHA-256) for the link row.  
+          Calculated using (repo_name, issue_number, zendesk_id, comment_id, issue_id).
+        tests:
+          - not_null
+          - unique
+      - name: repo_name
+        description: "Normalized repository name in lowercase. Usually 'issues' or 'problems'."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["issues", "problems"]
+      - name: issue_number
+        description: "Issue/Problem number within the repository (integer)."
+        tests:
+          - not_null
+      - name: zendesk_id
+        description: >
+          Numeric ID of the Zendesk ticket extracted from the text.  
+          Derived from URLs matching the patterns `/agent/tickets/<id>` or `/agent/#/tickets/<id>`.
+        tests:
+          - not_null
+      - name: comment_id
+        description: >
+          ID of the GitHub comment from which the `zendesk_id` was extracted (if applicable).  
+          NULL when the extraction comes from the issue/problem body.
+      - name: issue_id
+        description: >
+          ID of the GitHub comment from which the `zendesk_id` was extracted (if applicable).  
+          NULL when the extraction comes from the issue/problem body.
+      - name: issue_or_comment_created_at
+        description: "Timestamp indicating when the record was originally created, depending on its source. If the Zendesk reference was extracted from a GitHub comment, this field corresponds to the comment creation date. If it was extracted from the issue body, it corresponds to the issue creation date."
+      - name: source
+        description: "Indicates whether the Zendesk link was found in the issue body or within a comment"
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was first inserted into this model."
+      - name: sys_audit_created_by
+        description: "Actor/system that created the row (defaults to 'data-dev-dbt-products')."
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this model."
+      - name: sys_audit_updated_by
+        description: "Actor/system that last updated the row (fixed to 'data-dev-dbt-products')."
+
+
   - name: g__checkout__cvr_and_completion_time__event
     description: >
       Gold layer table with funnel and completion time for Checkout domain.
@@ -4935,3 +5002,269 @@ models:
         description: Vertical associated to the store.
       - name: avg_monthly
         description: Monthly GMV based on the average of the last 4 months.
+
+
+  - name: s__shipping__fallback_status__ref
+    description: >
+      Model representing the current shipping fallback configuration per store.
+      It determines whether fallback shipping is active based on store attributes,
+      country, and specific plan logic. Freemium and churned stores are also identified.
+    config:
+      meta:
+        owner: "matias.scasso@tiendanube.com"
+        domain: "product"
+        business_owner: "Martin Palombo"
+    columns:
+      - name: store_id
+        description: "Unique identifier for each store."
+        tests: [not_null, unique]
+      - name: domain
+        description: "Domain associated with the store."
+      - name: country
+        description: "ISO code of the store's country."
+      - name: plan_group
+        description: "Current plan group the store belongs to (e.g., freemium, paid)."
+      - name: segment
+        description: "Segment classification of the store."
+      - name: state
+        description: "Lifecycle state of the store."
+        tests: [not_null]
+      - name: is_churned
+        description: "Boolean flag indicating whether the store is churned."
+        tests: [not_null]
+      - name: is_fallback_active
+        description: >
+          Boolean indicating whether fallback shipping is enabled for the store.
+          Depends on a combination of store country, plan, and mwp_options setting.
+        tests: [not_null]
+      - name: is_freemium
+        description: "Boolean flag indicating if the store's current plan is freemium."
+        tests: [not_null]
+      - name: sys_audit_created_on
+        description: "Timestamp when this record was first created in the DBT model."
+        tests: [not_null]
+      - name: sys_audit_created_by
+        description: "Identifier of the user or system that created this record."
+        tests: [not_null]
+      - name: sys_audit_updated_on
+        description: "Timestamp when this record was last updated."
+        tests: [not_null]
+      - name: sys_audit_updated_by
+        description: "Identifier of the user or system that last updated this record."
+        tests: [not_null]
+
+
+  - name: s__shipping__fallback_orders__event
+    description: >
+      Event-level data product that captures all paid orders using the "Fallback"
+      shipping method over the last 12 months. Combines store lifecycle attributes
+      and order-level information to enable analysis of fallback shipping usage
+      across different segments, countries, and plan types.
+    config:
+      meta:
+        owner: "matias.scasso@tiendanube.com"
+        domain: "product"
+        business_owner: "Martin Palombo"
+    columns:
+      - name: order_id
+        description: "Unique identifier of the order."
+        tests: [not_null, unique]
+      - name: store_id
+        description: "Unique identifier of the store associated with the order."
+        tests: [not_null]
+      - name: domain
+        description: "Store domain information used for segmentation and filtering."
+      - name: country
+        description: "Country code where the store is located."
+      - name: plan_group
+        description: "Group to which the store's current plan belongs (e.g., freemium, paid)."
+      - name: segment
+        description: "Segment of the store based on internal classification."
+      - name: state
+        description: "Lifecycle state of the store at the time of the order."
+      - name: is_churned
+        description: "Boolean indicating whether the store was churned at the time of the order."
+        tests: [not_null]
+      - name: is_fallback_active
+        description: "Boolean indicating whether fallback shipping was enabled for the store."
+        tests: [not_null]
+      - name: is_freemium
+        description: "Boolean indicating whether the store was on a freemium plan."
+        tests: [not_null]
+      - name: shipping_method
+        description: "Shipping method used in the order (e.g., Fallback, Standard)."
+      - name: is_fallback_order
+        description: "Boolean flag indicating if the order used fallback shipping."
+        tests: [not_null]
+      - name: order_completed_at
+        description: "Timestamp of when the order was completed."
+        tests: [not_null]
+      - name: year_month_day_code
+        description: "Integer date code used for table partitioning (yyyyMMdd format)."
+        tests: [not_null]
+      - name: total_local_currency
+        description: "Total order value in the store’s local currency."
+      - name: total_usd
+        description: "Total order value converted to USD."
+      - name: sys_audit_created_on
+        description: "Timestamp when this record was first created in the DBT model."
+        tests: [not_null]
+      - name: sys_audit_created_by
+        description: "Identifier of the user or system that created this record."
+        tests: [not_null]
+      - name: sys_audit_updated_on
+        description: "Timestamp when this record was last updated."
+        tests: [not_null]
+      - name: sys_audit_updated_by
+        description: "Identifier of the user or system that last updated this record."
+        tests: [not_null]
+
+
+  - name: s__shipping__fallback_carrier_status__event
+    description: >
+      Event-level data product that enriches fallback shipping orders with information
+      about the availability and usage of shipping carrier applications.
+      It enables analysis of the relationship between carrier availability and fallback usage
+      by combining order-level, store-level, and shipping carrier data.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: 
+            - order_id
+            - shipping_carrier_app_id
+    config:
+      meta:
+        owner: "matias.scasso@tiendanube.com"
+        domain: "product"
+        business_owner: "Martin Palombo"
+    columns:
+      - name: order_id
+        description: "Unique identifier for the order."
+        tests: [not_null]
+      - name: shipping_carrier_app_id
+        description: "Identifier of the shipping carrier app associated with the order."
+        tests: [not_null]
+      - name: store_id
+        description: "Unique identifier of the store associated with the order."
+        tests: [not_null]
+      - name: domain
+        description: "Domain to which the store belongs."
+      - name: country
+        description: "ISO code representing the store's country."
+      - name: plan_group
+        description: "Store's current plan group (e.g., freemium, paid)."
+      - name: segment
+        description: "Internal segmentation category of the store (e.g., SMB, MM)."
+      - name: state
+        description: "Lifecycle state of the store at the time of the order."
+      - name: is_churned
+        description: "Flag indicating whether the store was churned at the time of the order."
+        tests: [not_null]
+      - name: is_fallback_active
+        description: "Flag indicating whether fallback shipping was active for the store."
+        tests: [not_null]
+      - name: is_freemium
+        description: "Boolean indicating if the store had a freemium plan."
+        tests: [not_null]
+      - name: shipping_carrier_name
+        description: "Name of the shipping carrier app used (if any)."
+      - name: was_carrier_active_when_fallback
+        description: >
+          Flag indicating whether the shipping carrier app was active
+          at the time the fallback shipping was used.
+        tests: [not_null]
+      - name: shipping_method
+        description: "Shipping method used in the order (e.g., Fallback, Standard)."
+      - name: is_fallback_order
+        description: "Boolean indicating whether the order used fallback shipping."
+        tests: [not_null]
+      - name: order_completed_at
+        description: "Timestamp when the order was completed."
+        tests: [not_null]
+      - name: year_month_day_code
+        description: "Date partition column in YYYYMMDD integer format."
+        tests: [not_null]
+      - name: sys_audit_created_on
+        description: "Timestamp when this record was first created in the DBT model."
+        tests: [not_null]
+      - name: sys_audit_created_by
+        description: "Identifier of the user or system that created this record."
+        tests: [not_null]
+      - name: sys_audit_updated_on
+        description: "Timestamp when this record was last updated."
+        tests: [not_null]
+      - name: sys_audit_updated_by
+        description: "Identifier of the user or system that last updated this record."
+        tests: [not_null]
+
+
+  - name: g__shipping__fallback_status_orders__agg_daily
+    description: >
+      Daily aggregated data product summarizing paid orders by store and shipping method,
+      enriched with store segmentation and lifecycle attributes. It allows tracking of
+      fallback shipping usage and its relationship with store plan, segment, and country.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: 
+            - store_id
+            - order_completed_at
+            - shipping_method
+    config:
+      meta:
+        owner: "matias.scasso@tiendanube.com"
+        domain: "product"
+        business_owner: "Martin Palombo"
+    columns:
+      - name: store_id
+        description: "Unique identifier of the store."
+        tests: [not_null]
+      - name: domain
+        description: "Store's domain name used for internal classification."
+      - name: country
+        description: "Country code where the store is located."
+      - name: plan_group
+        description: "Store's plan classification (e.g., freemium, paid)."
+      - name: segment
+        description: "Store's business segment category (e.g., SMB, MM)."
+      - name: state
+        description: "Lifecycle state of the store."
+      - name: is_churned
+        description: "Boolean flag indicating if the store was churned at the order date."
+        tests: [not_null]
+      - name: is_fallback_active
+        description: "Flag indicating if fallback shipping was active for the store."
+        tests: [not_null]
+      - name: is_freemium
+        description: "Boolean indicating whether the store was on a freemium plan."
+        tests: [not_null]
+      - name: shipping_method
+        description: "Shipping method used in the order (e.g., Fallback, Standard)."
+      - name: is_fallback_order
+        description: "Flag indicating whether the orders used fallback shipping."
+        tests: [not_null]
+      - name: order_completed_at
+        description: "Date the order was completed."
+        tests: [not_null]
+      - name: year_month_day_code
+        description: "Integer date field used for partitioning (YYYYMMDD)."
+        tests: [not_null]
+      - name: total_local_currency
+        description: "Total value of orders in local currency for the day and store."
+        tests: [not_null]
+      - name: total_usd
+        description: "Total value of orders in USD for the day and store."
+        tests: [not_null]
+      - name: total_orders
+        description: "Count of distinct orders for the given day, store, and shipping method."
+        tests: [not_null]
+      - name: sys_audit_created_on
+        description: "Timestamp when this record was first created in the DBT model."
+        tests: [not_null]
+      - name: sys_audit_created_by
+        description: "User or system who created this record."
+        tests: [not_null]
+      - name: sys_audit_updated_on
+        description: "Timestamp when this record was last updated."
+        tests: [not_null]
+      - name: sys_audit_updated_by
+        description: "User or system who last updated this record."
+        tests: [not_null]
