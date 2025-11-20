@@ -121,7 +121,7 @@ models:
         +tags: ["logistics"]
         +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/data_product/logistics/"
       marketing:
-        +schema: marketing
+        +schema: data_marketing
         +tags: ["marketing"]
         +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/data_product/marketing/"
       marketing_automation:
