@@ -1,6 +1,6 @@
 {{
     config(
-        materialized='table',
+        materialized='incremental',
         unique_key='store_id',
         on_schema_change='fail',
         partition_by= 'year_month_code',
