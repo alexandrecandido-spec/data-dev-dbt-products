@@ -2613,49 +2613,6 @@ models:
         description: "MD5 over exposed payload to detect content changes."
         tests: [not_null]
 
-  - name: g__product_marketing__user_information_store__agg
-    description: "**Data Product GOLD: User Information Consolidated by Store**\n\nModelo consolidado con información de usuario/tienda para uso en HubSpot y otros sistemas.\nConsolida información de múltiples data products: store core, store identity, midmarket success, main payment method, admin access, layout, etc.\n\n**Domain:** marketing\n**Sub-domain:** product_marketing\n**Granularity:** agg (one row per store_id)\n**Materialization:** incremental con MERGE strategy"
-    meta:
-      owner: "jhu.boggio@tiendanube.com"
-      domain: "marketing"
-      business_owner: "Analytics Engineering"
-    columns:
-      - name: store_id
-        description: "ID único de la tienda"
-        tests:
-          - not_null
-          - unique
-      - name: created_at
-        description: "Fecha de creación de la tienda"
-      - name: country
-        description: "País de la tienda (código de país)"
-      - name: vertical
-        description: "Vertical de la tienda"
-      - name: is_midmarket
-        description: "Flag indicando si la tienda es Mid Market (true/false)"
-      - name: rep
-        description: "HubSpot owner (account manager) asignado a la tienda. Null si no hay representante asignado o no es Mid Market"
-      - name: layout_name
-        description: "Nombre del layout/tema activo actual (ej: 'sydney', 'tokyo')"
-      - name: main_payment_method
-        description: "Método de pago principal por GMV desde 2024-01-01. Null si la tienda no tiene órdenes"
-      - name: sys_audit_created_on
-        description: "Timestamp cuando el registro fue creado por primera vez en el modelo"
-        tests:
-          - not_null
-      - name: sys_audit_created_by
-        description: "Usuario o proceso que creó el registro por primera vez. Defaults a 'data-dev-dbt-products'"
-        tests:
-          - not_null
-      - name: sys_audit_updated_on
-        description: "Timestamp de la ejecución actual del modelo cuando el registro fue procesado"
-        tests:
-          - not_null
-      - name: sys_audit_updated_by
-        description: "Usuario o proceso responsable de la ejecución actual del modelo. Defaults a 'data-dev-dbt-products'"
-        tests:
-          - not_null
-
   - name: g__product_marketing__gmv_rolling_windows_store__agg
     description: "**Data Product GOLD: GMV Rolling Windows by Store**\n\nGMV y órdenes en ventanas rolling (30, 60, 90, 360 días desde hoy) por tienda.\nFiltra órdenes con total_in_usd <= 10000 (ya aplicado en g__operations__orders_gmv_store__agg_daily).\n\n**Domain:** marketing\n**Sub-domain:** product_marketing\n**Granularity:** agg (one row per store_id)\n**Materialization:** incremental con MERGE strategy"
     meta:
