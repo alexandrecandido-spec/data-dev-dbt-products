@@ -426,7 +426,7 @@ models:
         tests: [not_null]
 
   - name: g__attributes__main_payment_method__agg
-    description: "Data Product gold that contains the main payment method by GMV for each store. Calculates which payment method has the highest GMV since 2024-01-01."
+    description: "Data Product gold that contains the main payment method by GMV for each store (aggregation by store). Calculates which payment method has the highest GMV since 2024-01-01. Only includes stores that have paid orders (does not include stores without sales)."
     config:
       meta:
         owner: "jhu.boggio@tiendanube.com"
@@ -434,12 +434,12 @@ models:
         business_owner: "Analytics Engineering"
     columns:
       - name: store_id
-        description: "Unique identifier of the store"
+        description: "Unique identifier of the store (only stores with paid orders)"
         tests:
           - not_null
           - unique
       - name: main_payment_method
-        description: "Payment method (gateway) with the highest GMV since 2024-01-01. NULL if store has no orders."
+        description: "Payment method (gateway) with the highest GMV since 2024-01-01"
       - name: main_payment_method_gmv
         description: "Total GMV (in local currency) for the main payment method since 2024-01-01"
       - name: main_payment_method_orders

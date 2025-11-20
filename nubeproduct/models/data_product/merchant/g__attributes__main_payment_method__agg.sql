@@ -11,8 +11,8 @@
 }}
 
 /*
-Data Product: Main Payment Method by GMV (GOLD AGG)
-Description: Método de pago principal por GMV para cada tienda (desde 2024-01-01)
+Data Product: Main Payment Method by GMV (GOLD AGG by Store)
+Description: Método de pago principal por GMV para cada tienda (agregación por store desde 2024-01-01)
 Owner: jhu.boggio@tiendanube.com
 Domain: merchant
 
@@ -23,6 +23,7 @@ de cálculo. Este modelo solo maneja la incrementalidad y los campos de auditor�
    - Procesa tiendas nuevas y existentes con cambios en órdenes
    - Estrategia MERGE con unique_key=store_id
    - Actualiza cuando hay nuevas órdenes que cambian el método principal por GMV
+   - Solo incluye tiendas que tienen órdenes pagadas (no incluye tiendas sin ventas)
 */
 
 WITH existing_data AS (
@@ -36,8 +37,7 @@ source_data AS (
         mpm.main_payment_method_orders,
         mpm.main_payment_method_last_order_date
     FROM {{ ref('_int__attributes__main_payment_method') }} mpm
-    WHERE
-        mpm.store_id IN (SELECT store_id FROM {{ ref('s__attributes__store_core__ref') }})
+    WHERE 1=1
     {% if not is_incremental() %}
         AND mpm.change_timestamp >= TIMESTAMP '1900-01-01'
     {% endif %}
@@ -55,4 +55,3 @@ SELECT
     'data-dev-dbt-products' AS sys_audit_updated_by
 FROM source_data sd
 LEFT JOIN existing_data ed ON sd.store_id = ed.store_id
-

@@ -1,6 +1,6 @@
 /*
 Intermediate Model: Main Payment Method by GMV Consolidation
-Description: Calcula el método de pago principal por GMV para cada tienda
+Description: Calcula el método de pago principal por GMV para cada tienda (agregación por store)
 Owner: jhu.boggio@tiendanube.com
 Domain: merchant
 
@@ -8,20 +8,14 @@ Este modelo intermedio consolida la lógica de cálculo del método de pago prin
 - Agrupa órdenes por store_id y payment desde 2024-01-01
 - Calcula SUM(total) como GMV por método de pago
 - Ranks por GMV DESC para identificar el método principal
+- Solo incluye tiendas que tienen órdenes (no hace join con store_core)
 
 El modelo GOLD solo consumirá este intermediate y manejará la incrementalidad.
 */
 
 WITH 
--- Base: todas las tiendas desde store_core
-all_stores AS (
-    SELECT 
-        store_id,
-        sys_audit_updated_on
-    FROM {{ ref('s__attributes__store_core__ref') }}
-),
-
 -- Agregación de GMV por store_id y payment desde 2024-01-01
+-- Solo incluye tiendas que tienen órdenes pagadas
 payment_gmv AS (
     SELECT
         o.store_id,
@@ -30,7 +24,6 @@ payment_gmv AS (
         COUNT(DISTINCT o.id) AS orders,
         MAX(o.completed_at) AS last_order_date
     FROM {{ ref('company_metrics_paid_orders') }} o
-    INNER JOIN all_stores s ON o.store_id = s.store_id
     WHERE o.completed_at >= '2024-01-01'
         AND o.completed_at IS NOT NULL
         AND o.total > 0
@@ -67,16 +60,10 @@ main_payment_method AS (
 )
 
 SELECT
-    as_base.store_id,
+    mpm.store_id,
     mpm.main_payment_method,
     mpm.main_payment_method_gmv,
     mpm.main_payment_method_orders,
     mpm.main_payment_method_last_order_date,
-    -- Timestamp para incrementalidad (máximo entre store_core y payment method)
-    GREATEST(
-        as_base.sys_audit_updated_on,
-        COALESCE(mpm.change_timestamp, TIMESTAMP '1900-01-01')
-    ) AS change_timestamp
-FROM all_stores as_base
-LEFT JOIN main_payment_method mpm ON as_base.store_id = mpm.store_id
-
+    mpm.change_timestamp
+FROM main_payment_method mpm
