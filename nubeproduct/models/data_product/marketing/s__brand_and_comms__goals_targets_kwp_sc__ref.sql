@@ -1,7 +1,6 @@
 {{
   config(
-    materialized='table',
-    tags=['marketing', 'goals', 'targets', 'silver']
+    materialized='table'
   )
 }}
 
