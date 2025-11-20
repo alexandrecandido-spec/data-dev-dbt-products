@@ -6,7 +6,7 @@
   tags = ['daily-9am']
 ) }}
 
--- s__shipping__fallback_shipping_status__ref
+-- s__shipping__fallback_status__ref
 
 WITH existing_data AS (
     {{ get_existing_data(this, ['store_id', 'sys_audit_created_on', 'sys_audit_created_by']) }}

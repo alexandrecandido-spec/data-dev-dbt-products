@@ -9,7 +9,7 @@
     )
 }}
 
--- g__shipping__fallback_shipping_orders__agg_daily
+-- g__shipping__fallback_status_orders__agg_daily
 
 WITH existing_data AS (
     {{ get_existing_data(this, ['store_id', 'order_completed_at', 'shipping_method', 'sys_audit_created_on', 'sys_audit_created_by']) }}
@@ -19,21 +19,21 @@ base AS (
     
     SELECT
         o.store_id,
-        fss.domain,
-        fss.country,
-        fss.plan_group,
-        fss.segment,
-        fss.state,
-        fss.is_churned,
-        fss.is_fallback_active,
-        fss.is_freemium,
+        fs.domain,
+        fs.country,
+        fs.plan_group,
+        fs.segment,
+        fs.state,
+        fs.is_churned,
+        fs.is_fallback_active,
+        fs.is_freemium,
         o.shipping_method,
         CASE
             WHEN o.shipping_method = 'Fallback' THEN TRUE
             ELSE FALSE
         END AS is_fallback_order,
         DATE(o.order_completed_at) AS order_completed_at,
-        o.year_month_day_code,
+        CAST(date_format(o.order_completed_at, 'yyyyMMdd') AS INTEGER) AS year_month_day_code,
         SUM(o.total) as total_local_currency,
         SUM(o.total_in_usd) as total_usd,
         COUNT(DISTINCT o.order_id) as total_orders
@@ -41,8 +41,8 @@ base AS (
 
 FROM {{ ref('s__orders__orders_last_12_months__event') }} o
 
-JOIN {{ ref('s__shipping__fallback_shipping_status__ref') }} fss
-    ON o.store_id = fss.store_id
+JOIN {{ ref('s__shipping__fallback_status__ref') }} fs
+    ON o.store_id = fs.store_id
 
 
 WHERE 1=1
@@ -54,7 +54,7 @@ WHERE 1=1
 
 {% if is_incremental() %}
 AND GREATEST(
-    COALESCE(fss.sys_audit_updated_on, CAST('1900-01-01' AS TIMESTAMP)),
+    COALESCE(fs.sys_audit_updated_on, CAST('1900-01-01' AS TIMESTAMP)),
     COALESCE(o.sys_audit_updated_on, CAST('1900-01-01' AS TIMESTAMP))
 ) >= (
     SELECT COALESCE(MAX(sys_audit_updated_on), CAST('1900-01-01' AS TIMESTAMP)) FROM {{ this }}
