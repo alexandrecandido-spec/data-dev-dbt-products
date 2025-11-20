@@ -39,10 +39,10 @@ source_data AS (
     WHERE
         mpm.store_id IN (SELECT store_id FROM {{ ref('s__attributes__store_core__ref') }})
     {% if not is_incremental() %}
-        AND mpm.change_timestamp >= DATE '1900-01-01'
+        AND mpm.change_timestamp >= TIMESTAMP '1900-01-01'
     {% endif %}
     {% if is_incremental() %}
-        AND mpm.change_timestamp > (SELECT COALESCE(MAX(sys_audit_updated_on), DATE '1900-01-01') FROM {{ this }})
+        AND mpm.change_timestamp > (SELECT COALESCE(MAX(sys_audit_updated_on), TIMESTAMP '1900-01-01') FROM {{ this }})
     {% endif %}
 )
 
