@@ -1,8 +1,4 @@
-{{
-  config(
-    materialized='table'
-  )
-}}
+-- Intermediate models are ephemeral by default (no config needed)
 
 -- =============================================================================
 -- Google Keyword Planner Intermediate - Clean Data
@@ -13,7 +9,7 @@
 --   - Date format conversion (M/d/yyyy string → DATE)
 --   - Basic data quality filters  
 --   - Historical data filtering (>= 2020-01-01)
--- Next Layer: s__google_keyword_planner__enriched (brand detection + classification)
+-- Next Layer: s__brand_and_comms__keyword_planner_enriched__event (brand detection + classification)
 -- =============================================================================
 
 WITH base_data AS (
