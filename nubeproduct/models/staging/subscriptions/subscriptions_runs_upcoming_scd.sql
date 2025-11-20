@@ -8,10 +8,10 @@
 
 with runs as (
     select
-        subscription_id
+        cast(subscription_id as string) as subscription_id
         ,instance_number
         ,attempt
-        ,status
+        ,cast(status as string) as status
         ,date(next_attempt_date) as next_attempt_date
         ,date(next_instance_date) as next_instance_date
         from {{ source('stg_subscriptions', 'runs_upcoming') }}

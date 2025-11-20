@@ -8,13 +8,13 @@
 
 with subscriptions as (
       select
-      id as subscription_id
-      ,subscription_option_id
+      cast(id as string) as subscription_id
+      ,cast(subscription_option_id as string) as subscription_option_id
       ,store_id
       ,customer_id
       ,initial_order_id
-      ,email as customer_mail
-      ,status as subscription_status
+      ,cast(email as string) as customer_mail
+      ,cast(status as string) as subscription_status
       ,date(initial_date) as initial_subscription_date
       ,date(created_at) as subscription_created_date
       ,date(cancellation_date) as subscription_cancellation_date
