@@ -367,7 +367,7 @@ final_data_base AS (
     -- Optimización: LEFT JOIN en lugar de IN para mejor rendimiento
     LEFT JOIN stores_with_changes swc ON sc.store_id = swc.store_id
     {% endif %}
-    WHERE sc.created_at >= '{{ var("onboarding_start_date") }}'
+    WHERE sc.created_at >= '2024-01-01'
         -- Nota: s__attributes__store_core__ref ya filtra tiendas con state = 4 en su post_hook
     {% if is_incremental() %}
         -- Solo procesar tiendas que realmente cambiaron:

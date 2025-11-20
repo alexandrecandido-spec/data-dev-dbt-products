@@ -44,7 +44,7 @@ SELECT
 FROM {{ ref('company_metrics_paid_orders') }} o
 INNER JOIN {{ ref('s__attributes__store_core__ref') }} sc
     ON o.store_id = sc.store_id
-    AND sc.created_at >= '{{ var("onboarding_start_date") }}'  -- Optimización: Filtro aplicado en el JOIN
+    AND sc.created_at >= '2024-01-01'
 WHERE o.completed_at IS NOT NULL
     AND o.total_in_usd >= 0
     AND o.total_in_usd < 10000  -- Filtrar outliers según especificación
