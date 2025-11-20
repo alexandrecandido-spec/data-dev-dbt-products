@@ -2212,6 +2212,14 @@ models:
         description: "Fecha del primer acceso al admin"
       - name: last_date_admin_access
         description: "Fecha del último acceso al admin"
+      - name: all_platform_sessions
+        description: "Total histórico de accesos al panel de administración (sin límite de tiempo)"
+      - name: platform_sessions_30
+        description: "Cantidad de accesos al panel de administración en los últimos 30 días desde current_date"
+      - name: platform_sessions_90
+        description: "Cantidad de accesos al panel de administración en los últimos 90 días desde current_date"
+      - name: platform_last_access
+        description: "Fecha del último acceso al panel de administración (alias de last_date_admin_access para compatibilidad)"
       - name: sys_audit_created_on
         description: "Timestamp of when this record was created in our data warehouse"
       - name: sys_audit_created_by
@@ -2612,6 +2620,59 @@ models:
       - name: row_hash
         description: "MD5 over exposed payload to detect content changes."
         tests: [not_null]
+
+  - name: g__product_marketing__gmv_rolling_windows_store__agg
+    description: "**Data Product GOLD: GMV Rolling Windows by Store**\n\nGMV y órdenes en ventanas rolling (30, 60, 90, 360 días desde hoy) por tienda.\nFiltra órdenes con total_in_usd <= 10000 (ya aplicado en g__operations__orders_gmv_store__agg_daily).\n\n**Domain:** marketing\n**Sub-domain:** product_marketing\n**Granularity:** agg (one row per store_id)\n**Materialization:** incremental con MERGE strategy"
+    meta:
+      owner: "jhu.boggio@tiendanube.com"
+      domain: "marketing"
+      business_owner: "Analytics Engineering"
+    columns:
+      - name: store_id
+        description: "ID único de la tienda"
+        tests:
+          - not_null
+          - unique
+      - name: gmv30
+        description: "Total GMV (en moneda local) en los últimos 30 días desde hoy"
+      - name: gmv60
+        description: "Total GMV (en moneda local) en los últimos 60 días desde hoy"
+      - name: gmv90
+        description: "Total GMV (en moneda local) en los últimos 90 días desde hoy"
+      - name: gmv360
+        description: "Total GMV (en moneda local) en los últimos 360 días desde hoy"
+      - name: gmv_dol_30
+        description: "Total GMV (en USD) en los últimos 30 días desde hoy"
+      - name: gmv_dol_60
+        description: "Total GMV (en USD) en los últimos 60 días desde hoy"
+      - name: gmv_dol_90
+        description: "Total GMV (en USD) en los últimos 90 días desde hoy"
+      - name: gmv_dol_360
+        description: "Total GMV (en USD) en los últimos 360 días desde hoy"
+      - name: orders30
+        description: "Total de órdenes en los últimos 30 días desde hoy"
+      - name: orders60
+        description: "Total de órdenes en los últimos 60 días desde hoy"
+      - name: orders90
+        description: "Total de órdenes en los últimos 90 días desde hoy"
+      - name: orders360
+        description: "Total de órdenes en los últimos 360 días desde hoy"
+      - name: sys_audit_created_on
+        description: "Timestamp cuando el registro fue creado por primera vez en el modelo"
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "Usuario o proceso que creó el registro por primera vez. Defaults a 'data-dev-dbt-products'"
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp de la ejecución actual del modelo cuando el registro fue procesado"
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "Usuario o proceso responsable de la ejecución actual del modelo. Defaults a 'data-dev-dbt-products'"
+        tests:
+          - not_null
 
   - name: g__general__deepdive_gmv_store__agg_monthly
     description: "One row per (store_id, reported_month). Aggregates GMV, orders, products, on/off-platform splits, avg tickets, last-3-months-with-activity averages, bands (monthly/current/avg3m), lifecycle classification, SMB movements, tenures, and audits. reported_month is the calendar month end."
@@ -3373,3 +3434,148 @@ models:
       - name: sys_audit_updated_by
         description: "Process/user that last updated the record."
         tests: [not_null]
+
+
+  - name: s__brand_and_comms__search_console_enriched__event
+    description: "Advanced Google Search Console analytics model with competitive intelligence, brand monitoring, and search intent classification. Provides automated detection of 65+ competitor brands and detailed search intent analysis across all markets."
+    config:
+      materialized: incremental
+      meta:
+        owner: "beto.martinez@tiendanube.com"
+        business_owner: "Giselle Galli"
+        domain: "marketing"
+    columns:
+      - name: date
+        description: "Date of the search data (YYYY-MM-DD)"
+        tests:
+          - not_null
+      - name: date_day
+        description: "Date formatted as YYYY-MM-DD for day-level analysis"
+      - name: date_month
+        description: "Date formatted as YYYY-MM for month-level analysis"
+      - name: date_quarter
+        description: "Date formatted as YYYY-QN for quarter-level analysis"
+      - name: date_week
+        description: "Week start date formatted as YYYY-MM-DD (Monday start)"
+      - name: date_year
+        description: "Year formatted as YYYY for year-level analysis"
+      - name: date_day_of_week
+        description: "Day of week name (Monday, Tuesday, etc.)"
+      - name: country_detail
+        description: "Full country name from source data (e.g., 'Argentina', 'Brazil')"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Argentina', 'Mexico', 'Brazil', 'Colombia', 'Chile', 'Peru']
+      - name: country
+        description: "Standardized country code based on site mapping (AR, BR, MX, CO, CL, PE)"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['AR', 'BR', 'MX', 'CO', 'CL', 'PE']
+      - name: search_query
+        description: "The actual search query from Google Search Console"
+        tests:
+          - not_null
+      - name: d2c_brand_names
+        description: "D2C platform brand detected in search query. Returns brand name if detected, NULL otherwise. Prioritizes Tiendanube/Nuvemshop, then other D2C platforms by country."
+      - name: marketplace_brand_names
+        description: "Marketplace brand detected in search query. Returns brand name if detected, NULL otherwise. Includes major marketplaces by country (Mercado Libre, Amazon, etc.)."
+      - name: d2c_match_type
+        description: "Type of D2C brand match detected"
+        tests:
+          - accepted_values:
+              values: ['exact', 'broad']
+      - name: marketplace_match_type
+        description: "Type of marketplace brand match detected"
+        tests:
+          - accepted_values:
+              values: ['exact', 'broad']
+      - name: is_nuvemshop_tiendanube
+        description: "Boolean flag indicating if search query contains any variant of our brands: tiendanube, tienda nube, nuvemshop, nuvem shop, including country-specific variations (tiendanube mexico, tiendanube colombia, etc.)"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]
+      - name: is_next_evolucion  
+        description: "Boolean flag indicating if search contains our brand AND mentions of next-generation features (next, evolution, evolucion). Used for product roadmap intelligence."
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]
+      - name: non_brand_term
+        description: "Specific non-branded term detected in search query. Returns the first matching term based on priority order (Intention Verbs > D2C > Vendas > etc.)."
+      - name: non_brand_category
+        description: "Category of non-branded search intent detected: - 'Intention Verbs': Action keywords (crear, hacer, trabajar, etc.) - 'D2C': Platform-related terms (tienda, loja, sitio, etc.) - 'Vendas': Sales-related terms (venta, venda, vender) - 'Dropshipping': Dropshipping-related searches - 'Envios': Shipping/logistics terms - 'Ecommerce': General ecommerce terms - 'Producto': Product-related searches - 'Redes Sociales': Social media integration terms"
+        tests:
+          - accepted_values:
+              values: ['Intention Verbs', 'D2C', 'Vendas', 'Dropshipping', 'Envios', 'Ecommerce', 'Producto', 'Redes Sociales']
+      - name: non_brand_match_type
+        description: "Type of non-branded term match detected"
+        tests:
+          - accepted_values:
+              values: ['exact', 'broad']
+      - name: branded_non_branded
+        description: "Primary classification of search query: 'branded' if contains Tiendanube/Nuvemshop, 'nonbranded' otherwise"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['branded', 'nonbranded']
+      - name: non_adquisition_terms
+        description: "Specific non-acquisition term detected in search query. Only populated when is_nuvemshop_tiendanube is true. Used to identify existing users searching for login/support rather than potential new customers."
+      - name: is_non_adquisition_term
+        description: "Boolean flag for non-acquisition term detection (only for Tiendanube/Nuvemshop queries)"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]
+      - name: flag_d2c_oficial
+        description: "Boolean flag indicating if D2C brand is officially monitored"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]
+      - name: flag_marketplace_oficial
+        description: "Boolean flag indicating if marketplace brand is officially monitored"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]
+      - name: device
+        description: "Device type (DESKTOP, mobile, tablet). NULL values converted to DESKTOP"
+        tests:
+          - not_null
+      - name: site
+        description: "Website URL from Google Search Console"
+        tests:
+          - not_null
+      - name: impressions
+        description: "Number of times the URL appeared in search results"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+      - name: clicks
+        description: "Number of clicks from search results to the URL"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+      - name: average_position
+        description: "Average position in search results (lower is better)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 1
+              max_value: 100
+      - name: click_through_rate
+        description: "Click-through rate calculated as clicks/impressions"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+      - name: sys_audit_created_on
+        description: "Timestamp when record was created in data warehouse"
+      - name: sys_audit_updated_on
+        description: "Timestamp when record was last updated in data warehouse"
+
+
