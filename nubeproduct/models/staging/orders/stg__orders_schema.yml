@@ -24,6 +24,8 @@ models:
         description: "Timestamp when the user started the checkout process."
       - name: completed_contact_at
         description: "Timestamp when the customer provided contact information during checkout."
+      - name: completed_at_date
+        description: "Date when the order was successfully completed."
       - name: completed_at
         description: "Timestamp when the order was successfully completed."
       - name: cancelled_at
@@ -170,12 +172,12 @@ models:
   
   
   - name: orders__mwp_orders_source
-    description: Staging da origem de tráfego dos pedidos, com normalização dos parâmetros UTM e referrer.
+    description: "Staging da origem de tráfego dos pedidos, com normalização dos parâmetros UTM e referrer."
     config:
       meta:
         owner: "gustavo.braga@nuvemshop.com.br"
         domain: "product"
-        owner: "Francisco Ramirez"
+        business_owner: "Giselle Galli"
     columns:
       - name: order_id
         description: ID do pedido

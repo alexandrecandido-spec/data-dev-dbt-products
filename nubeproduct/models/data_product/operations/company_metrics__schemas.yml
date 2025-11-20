@@ -977,3 +977,35 @@ models:
         description: Timestamp of the latest update to the row.
       - name: sys_audit_updated_by
         description: Source or user responsible for the latest update.
+
+  - name: g__orders__order_total_paid__agg_daily
+    meta:
+      owner: "gustavo.braga@nuvemshop.com.br"
+      domain: "operations"
+      business_owner: "Nico Loreti"
+    description: >
+      Contains daily aggregated payment information for orders, including total amounts paid
+      in original currency and USD, payment timestamps, and currency information.
+      This table aggregates order money flows to provide a summary of payment data per order.
+    columns:
+      - name: order_id
+        description: Unique identifier of the order. Primary key.
+        tests:
+          - not_null
+          - unique
+      - name: currency
+        description: Currency in which the payment was made.
+      - name: year_month_day_code
+        description: YYYYMMDD code used for partitioning the data. Partition Key.
+        tests:
+          - not_null
+      - name: paid_at
+        description: Timestamp of the first payment for the order.
+      - name: last_payment_at
+        description: Timestamp of the most recent payment for the order.
+      - name: total_amount
+        description: Total amount paid in the original currency.
+      - name: total_amount_usd
+        description: Total amount paid converted to USD.
+      - name: sys_audit_updated_on
+        description: Timestamp of the latest update to the row.

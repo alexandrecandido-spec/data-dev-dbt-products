@@ -5,7 +5,11 @@
         incremental_strategy='merge',
         on_schema_change='fail',
         partition_by=['year_month_day_code', 'flg_gmv'],
-        tags=["daily-9am-9pm"]
+        tags=["daily-9am-9pm"],
+        cluster_by = ['store_id'],
+        post_hook = [
+            "OPTIMIZE {{ this }} ZORDER BY (store_id, created_at)"
+        ]
     )
 }}
 -- TODO: arrumar partition_by, pois hoje é em base a completed_at e dever ser com paid_at
@@ -118,3 +122,12 @@ LEFT JOIN existing_data e ON orders.id = e.id
 WHERE
     orders.sys_audit_updated_on > (SELECT MAX(sys_audit_updated_on) FROM {{ this }})
 {% endif %}
+
+
+--consumir somente o que vamos atualizar! 
+-- LEFT JOIN (
+--   SELECT id, sys_audit_created_on, sys_audit_created_by
+--   FROM {{ this }}
+--   WHERE year_month_day_code >= (SELECT MAX(year_month_day_code) - 1 FROM {{ this }})
+-- ) e
+-- ON source.id = e.id

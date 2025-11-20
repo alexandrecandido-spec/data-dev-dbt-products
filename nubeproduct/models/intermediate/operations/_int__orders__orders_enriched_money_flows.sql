@@ -9,19 +9,25 @@ blocked_store__info AS (
   WHERE bl.blocked_reason is not null
 ),
 
+exchange_rate AS (
+    SELECT
+        *
+    FROM {{ ref('finance_exchange_rate') }}
+),
+
 payment_date AS (
     SELECT
         order_id,
         currency,
-        MIN(happened_at) as paid_at,
-        MAX(happened_at) as last_payment_at,
-        sum(amount) as total_amount,
-        sum(amount_usd) as total_amount_usd,
-        max(sys_audit_updated_on) as sys_audit_updated_on
+        year_month_day_code,
+        paid_at,
+        last_payment_at,
+        total_amount,
+        total_amount_usd,
+        sys_audit_updated_on
     FROM
-        {{ ref('orders__order_money_flows__event') }}
-    WHERE happened_at >= '2025-11-01' --Dívida técnica order_money_flow começa com a lógica de data de pagamento a partir de novembro de 2025. Time ferá rollout historico
-    GROUP BY order_id,currency)
+        {{ ref('g__orders__order_total_paid__agg_daily') }}
+)
 
 , payment_date_legacy AS (
     SELECT
@@ -49,12 +55,10 @@ payment_date AS (
 , order_products_quantity AS (
     SELECT
         order_id,
-        SUM(
-            quantity
-        ) AS product_quantity,
-        max(sys_audit_updated_on) as sys_audit_updated_on
-    FROM {{ ref('orders__mwp_order_products') }} products
-    GROUP BY order_id
+        product_quantity,
+        sys_audit_updated_on
+    FROM
+        {{ ref('company_metrics_products_per_order') }}
 )
 
 SELECT 
@@ -157,17 +161,17 @@ SELECT
         date(COALESCE(order_products_quantity.sys_audit_updated_on, '1900-01-01'))
     ) as sys_audit_updated_on
 FROM {{ ref('orders__mwp_orders') }} carts_orders
-INNER JOIN {{ ref('moltres__mwp_store_info') }} store_info on carts_orders.store_id = store_info.store_id
+LEFT JOIN {{ ref('merchant__attributes__store_info__ref') }}  store_info on carts_orders.store_id = store_info.store_id 
 LEFT JOIN order_products_quantity on carts_orders.id = order_products_quantity.order_id
 LEFT JOIN {{ source('int_moltres', 'mwp_apps') }} apps on CONCAT("app_",apps.id) = carts_orders.gateway
 LEFT JOIN {{ source('int_moltres', 'mwp_shipping_carriers') }} shipping_carriers on CONCAT("api_",shipping_carriers.id) = carts_orders.shipping_method
 LEFT JOIN {{ source('int_moltres', 'mwp_apps') }} apps_2 on apps_2.id = shipping_carriers.app_id
 LEFT JOIN payment_date on carts_orders.id = payment_date.order_id
-LEFT JOIN {{ ref('finance_exchange_rate') }} exchange_rate on DATE(carts_orders.completed_at) = DATE(exchange_rate.processed_at) 
+LEFT JOIN exchange_rate on carts_orders.completed_at_date = exchange_rate.processed_at 
     AND carts_orders.currency = exchange_rate.isocode
-LEFT JOIN {{ ref('finance_exchange_rate') }} exchange_rate_country on DATE(carts_orders.completed_at) = DATE(exchange_rate_country.processed_at) 
+LEFT JOIN exchange_rate as exchange_rate_country on carts_orders.completed_at_date = exchange_rate_country.processed_at 
     AND store_info.country = exchange_rate_country.country_currency_code
-LEFT JOIN {{ ref('_int_logistics_gsv__shipments')}} all_shipments on carts_orders.id = all_shipments.order_id
+LEFT JOIN {{ ref('logistics_gsv__orders')}} all_shipments on carts_orders.id = all_shipments.order_id
 LEFT JOIN blocked_store__info on carts_orders.store_id = blocked_store__info.store_id
 LEFT JOIN session_info on carts_orders.id = session_info.cart_id
 LEFT JOIN payment_date_legacy on carts_orders.id = payment_date_legacy.order_id
