@@ -80,9 +80,13 @@ SELECT
     gr.orders90,
     gr.orders360,
     -- Timestamp para incrementalidad
+    -- IMPORTANTE: Incluye CURRENT_DATE para forzar recálculo diario de ventanas rolling
+    -- Las ventanas rolling (30, 60, 90, 360 días) dependen de CURRENT_DATE, por lo que
+    -- deben recalcularse cada día incluso si no hay nuevas órdenes
     GREATEST(
         as_base.sys_audit_updated_on,
-        COALESCE(CAST(gr.last_gmv_date AS TIMESTAMP), TIMESTAMP '1900-01-01')
+        COALESCE(CAST(gr.last_gmv_date AS TIMESTAMP), TIMESTAMP '1900-01-01'),
+        CAST(CURRENT_DATE AS TIMESTAMP)
     ) AS change_timestamp
 FROM all_stores as_base
 LEFT JOIN gmv_rolling gr ON as_base.store_id = gr.store_id

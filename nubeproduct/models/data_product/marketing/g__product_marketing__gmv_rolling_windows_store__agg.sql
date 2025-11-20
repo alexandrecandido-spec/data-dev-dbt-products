@@ -21,7 +21,8 @@ de cálculo. Este modelo solo maneja la incrementalidad y los campos de auditor�
 ✅ Materialización INCREMENTAL:
    - Procesa tiendas nuevas y existentes con cambios en órdenes
    - Estrategia MERGE con unique_key=store_id
-   - Actualiza cuando hay nuevas órdenes que cambian las métricas en las ventanas rolling
+   - **Recalcula diariamente todas las tiendas** porque las ventanas rolling dependen de CURRENT_DATE
+   - El change_timestamp incluye CURRENT_DATE para forzar recálculo diario incluso sin nuevas órdenes
    - Filtra órdenes con total_in_usd <= 10000 (ya aplicado en g__operations__orders_gmv_store__agg_daily)
 */
 
@@ -50,7 +51,13 @@ source_data AS (
         AND gmv.change_timestamp >= DATE '1900-01-01'
     {% endif %}
     {% if is_incremental() %}
-        AND gmv.change_timestamp > (SELECT COALESCE(MAX(sys_audit_updated_on), DATE '1900-01-01') FROM {{ this }})
+        -- Filtro incremental: procesa tiendas donde la fecha de change_timestamp >= fecha del último update
+        -- Como change_timestamp incluye CURRENT_DATE, todas las tiendas se procesan diariamente
+        -- Usamos DATE() para comparar solo fechas (no horas) y asegurar recálculo diario
+        AND DATE(gmv.change_timestamp) >= COALESCE(
+            (SELECT DATE(MAX(sys_audit_updated_on)) FROM {{ this }}),
+            DATE '1900-01-01'
+        )
     {% endif %}
 )
 
