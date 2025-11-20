@@ -93,10 +93,12 @@ SELECT
     -- ACTIVE MERCHANTS: Agregado por pedido de Gi para el data product user_information
     , CASE 
         WHEN af.store_id IS NOT NULL 
-            AND COALESCE(pl.grupo, 'not informed') != 'freemium' 
+            AND pl.grupo IS NOT NULL
+            AND pl.grupo != 'freemium' 
         THEN 'paying'
         WHEN af.store_id IS NOT NULL 
-            AND COALESCE(pl.grupo, 'not informed') = 'freemium' 
+            AND pl.grupo IS NOT NULL
+            AND pl.grupo = 'freemium' 
         THEN 'free'
         ELSE 'not_active'
     END AS merchant_finance_status
