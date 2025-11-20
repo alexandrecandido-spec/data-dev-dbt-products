@@ -83,7 +83,7 @@ JOIN {{ source('int_moltres', 'mwp_shipping_carriers') }} sc
     ON o.store_id = sc.store_id
 
 JOIN row_number rn
-    ON rn = 1
+    ON rn.rn = 1
     AND rn.sc_id = sc.id
     AND rn.order_id = o.order_id
     AND rn.shipping_carrier_app_id = sc.app_id
