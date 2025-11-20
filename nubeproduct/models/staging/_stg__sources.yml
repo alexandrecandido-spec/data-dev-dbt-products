@@ -529,3 +529,11 @@ sources:
     tables:
       - name: transactions
         description: "Contains all the order transactions info"
+
+  - name: stg_checkout
+    database: hive_metastore
+    schema: checkout
+    description: "Source containing tables related to Checkout domain"
+    tables:
+      - name: mwp_configuration_payment_option
+        description: "Contains every custom configuration of payment method order display"
