@@ -462,6 +462,44 @@ models:
         description: "System or user that last updated the row."
         tests: [not_null]
 
+  - name: g__attributes__main_payment_method__agg
+    description: "Data Product gold that contains the main payment method by GMV for each store (aggregation by store). Calculates which payment method has the highest GMV since 2024-01-01. Only includes stores that have paid orders (does not include stores without sales)."
+    config:
+      meta:
+        owner: "jhu.boggio@tiendanube.com"
+        domain: "merchant"
+        business_owner: "Giselle Galli"
+    columns:
+      - name: store_id
+        description: "Unique identifier of the store (only stores with paid orders)"
+        tests:
+          - not_null
+          - unique
+      - name: main_payment_method
+        description: "Payment method (gateway) with the highest GMV since 2024-01-01"
+      - name: main_payment_method_gmv
+        description: "Total GMV (in local currency) for the main payment method since 2024-01-01"
+      - name: main_payment_method_orders
+        description: "Total number of orders using the main payment method since 2024-01-01"
+      - name: main_payment_method_last_order_date
+        description: "Date of the last order using the main payment method"
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model. Defaults to current_timestamp if not available."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model. Defaults to 'data-dev-dbt-products'."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
+        tests:
+          - not_null
+
   - name: s__lifecycle__competitor_crawler__ref
     description: "Data Product silver that contains the competitor crawler data of each store. This data is used to identify the competitor of each store. The crawler stopped working in 2023"
     config:
