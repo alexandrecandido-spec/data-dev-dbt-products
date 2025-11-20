@@ -33,7 +33,7 @@ WITH base_data AS (
     CURRENT_TIMESTAMP() AS sys_audit_created_on,
     CURRENT_TIMESTAMP() AS sys_audit_updated_on
     
-  FROM data_products_prd.data_manual.ext__marketing__brand_comms__searches_keyword_planner
+  FROM {{ source('data_manual', 'ext__marketing__brand_comms__searches_keyword_planner') }}
   
   -- Basic data quality filters
   WHERE searches IS NOT NULL 
