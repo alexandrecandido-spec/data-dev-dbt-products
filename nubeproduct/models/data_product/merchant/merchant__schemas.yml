@@ -158,7 +158,7 @@ models:
 
 
   - name: s__attributes__midmarket_success__ref
-    description: "Data Product silver that contains Mid Market Success information for each store. Includes flag indicating if the store is Mid Market (is_midmarket) and the assigned representative (rep)."
+    description: "Data Product silver that contains Mid Market Success information for each store. Includes flag indicating if the store is Mid Market (is_midmarket) and the assigned account manager (am)."
     config:
       meta:
         owner: "jhu.boggio@tiendanube.com"
@@ -174,8 +174,8 @@ models:
         description: "Flag indicating if the store is Mid Market Success (true if in_portfolio = true in midmarket_success_stores, false otherwise)"
         tests:
           - not_null
-      - name: rep
-        description: "HubSpot owner (account manager) assigned to the store. Retrieved from the most recent record in midmarket_weekly_business_review. NULL if store is not in WBR or has no assigned rep."
+      - name: am
+        description: "HubSpot owner (Account Manager) assigned to the store. Retrieved from the most recent record in midmarket_weekly_business_review. NULL if store is not in WBR or has no assigned account manager."
       - name: sys_audit_created_on
         description: "Timestamp when the record was first loaded into the model. Defaults to current_timestamp if not available."
         tests:
