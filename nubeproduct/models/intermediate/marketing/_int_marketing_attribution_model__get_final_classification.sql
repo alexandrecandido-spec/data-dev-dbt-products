@@ -48,17 +48,8 @@ base_classification AS (
 				AND att.source IS NULL AND att.medium IS NULL AND att.campaign IS NULL THEN 'Partners'			
 			WHEN att.source IN ('yahoo', 'google', 'bing') AND att.medium = 'organic'
 				AND (position(urls.landing_page_path IN att.landing_page_path) > 0)				
-				AND (position(urls.landing_page_domain IN att.landing_page_domain) > 0) 
-				AND att.partner_id IS NOT NULL 
-				AND att.flag_partner_exception = 1 THEN att.partner_exception_team					
-			WHEN att.source IN ('yahoo', 'google', 'bing') AND att.medium = 'organic'
-				AND (position(urls.landing_page_path IN att.landing_page_path) > 0)				
 				AND (position(urls.landing_page_domain IN att.landing_page_domain) > 0) THEN urls.team					
-			WHEN aflp.landing_page IS NOT NULL AND (position('/partners/' IN att.landing_page_path) > 0) 
-				AND att.partner_id IS NOT NULL 
-				AND att.flag_partner_exception = 1 THEN att.partner_exception_team
-			WHEN aflp.landing_page IS NOT NULL AND (position('/partners/' IN att.landing_page_path) > 0) 				
-				AND att.flag_partner_exception = 0 THEN 'Affiliates'
+			WHEN aflp.landing_page IS NOT NULL AND (position('/partners/' IN att.landing_page_path) > 0) THEN 'Affiliates'
 			WHEN att.source IN ('yahoo', 'google', 'bing') AND att.medium = 'organic'				
 				AND (position(gii.landing_page_path IN att.landing_page_path) > 0)
 				AND (position(gii.landing_page_domain IN att.landing_page_domain) > 0) THEN gii.team
@@ -74,50 +65,24 @@ base_classification AS (
 			WHEN utms.source_mkt = 'Performance' THEN 'Performance No Brand'
 			WHEN (att.source = '' OR att.source IS NULL) AND att.referrer_domain = 'direct' 
 				AND (position(urls.landing_page_path IN att.landing_page_path) > 0) 
-				AND (position(urls.landing_page_domain IN att.landing_page_domain) > 0) 
-				AND att.flag_partner_exception = 1 THEN att.partner_exception_team --- Agregamos esta línea porque en urls tenemos las landing de afiliados 			
-			WHEN (att.source = '' OR att.source IS NULL) AND att.referrer_domain = 'direct' 
-				AND (position(urls.landing_page_path IN att.landing_page_path) > 0) 
 				AND (position(urls.landing_page_domain IN att.landing_page_domain) > 0) THEN urls.team		
 			WHEN (att.source = '' OR att.source IS NULL) AND att.referrer_domain = 'direct' AND att.partner_id IS NULL THEN 'Direct'
-			WHEN utms.source_mkt IS NULL 
-				AND att.partner_id IS NOT NULL 
-				AND att.flag_partner_exception = 1 THEN att.partner_exception_team	
-			WHEN utms.source_mkt IS NULL 
-				AND att.medium = 'direct' 
-				AND att.campaign = 'direct' 
-				AND att.partner_id IS NOT NULL 
+			WHEN utms.source_mkt IS NULL AND att.partner_id IS NOT NULL AND att.flag_partner_exception = 1 THEN att.partner_exception_team	
+			WHEN utms.source_mkt IS NULL AND att.medium = 'direct' AND att.campaign = 'direct' 
 				AND (position(urls.landing_page_path IN att.landing_page_path) > 0)
 				AND (position(urls.landing_page_domain IN att.landing_page_domain) > 0) THEN urls.team
 			WHEN utms.source_mkt IS NULL AND att.medium = 'direct' AND att.campaign='direct' AND att.partner_id IS NULL 
 				AND (position(referrer.referrer IN att.referrer_domain) > 0) THEN 'Growth'		
 			WHEN utms.source_mkt IS NULL AND att.medium = 'direct' AND att.campaign = 'direct' AND att.partner_id IS NULL THEN 'Direct'				
 			WHEN utms.source_mkt IS NULL AND (att.referrer_domain = 'direct' OR (att.medium = 'direct' )) AND att.partner_id IS NULL THEN 'Direct'			
-			--WHEN utms.source_mkt IS NULL AND att.partner_id IS NOT NULL AND att.partnership_type = 'affiliate' THEN 'Affiliates'				
-			WHEN utms.source_mkt IS NULL 
-				AND att.partner_id IS NOT NULL 
-				AND att.partnership_type = 'affiliate' 
-				AND att.flag_partner_exception = 1 THEN att.partner_exception_team --- si el afiliado es partner exception, asignamos el team de mkt que lo gestiona
-			WHEN utms.source_mkt IS NULL 
-				AND att.partner_id IS NOT NULL 
-				AND att.partnership_type = 'affiliate' 
-				AND att.flag_partner_exception = 0 THEN	'Affiliates' --- si el afiliado es affiliate puro, asignamos "Affiliates" general				
-			WHEN utms.source_mkt IS NULL 
-				AND att.partner_id IS NOT NULL 
-				AND att.partnership_type = 'store_development' THEN 'Partners'				
+			WHEN utms.source_mkt IS NULL AND att.partner_id IS NOT NULL AND att.partnership_type = 'affiliate' THEN 'Affiliates'				
+			WHEN utms.source_mkt IS NULL AND att.partner_id IS NOT NULL AND att.partnership_type = 'store_development' THEN 'Partners'				
 			WHEN utms.source_mkt IS NULL AND att.source = 'youtube' AND att.medium = 'social' 
 				AND (position(urls.landing_page_path IN att.landing_page_path) > 0)
 				AND (position(urls.landing_page_domain IN att.landing_page_domain) > 0) THEN urls.team	
-			WHEN utms.source_mkt IS NULL 
-				AND att.medium = 'affiliates' 
-				AND att.flag_partner_exception = 1 THEN att.partner_exception_team
-			WHEN utms.source_mkt IS NULL 
-				AND att.medium = 'affiliates' 
-				AND att.flag_partner_exception = 0 THEN 'Affiliates'			
+			WHEN utms.source_mkt IS NULL AND att.medium = 'affiliates' THEN 'Affiliates'			
 			WHEN (att.source = '' OR att.source IS NULL) AND (att.medium = '' OR att.medium IS NULL) AND att.partner_id IS NULL THEN 'Others'				
-			WHEN utms.source_mkt IS NULL THEN 'Others'	
-			WHEN utms.source_mkt = 'Affiliates' 
-				AND att.flag_partner_exception = 1 THEN att.partner_exception_team
+			WHEN utms.source_mkt IS NULL THEN 'Others'				
 			ELSE utms.source_mkt END AS mkt_source
         , ROW_NUMBER() OVER (PARTITION BY att.store_id, att.click_id ORDER BY att.click_timestamp DESC) AS rownumber
 
@@ -143,11 +108,8 @@ final_classification AS (
         WHEN bc.source = 'google' AND bc.medium = 'organic' AND bc.referrer_domain = 'gemini.google.com' THEN 'AI'              
         WHEN bc.source = 'chatgpt.com' AND (bc.medium  = '' OR bc.medium  IS NULL) THEN 'AI'
 		WHEN bc.mkt_source = 'Organic' and (position('chatgpt' IN bc.source) > 0) THEN 'AI'
-        WHEN bc.partner_id IS NOT NULL 
-			AND bc.mkt_source = bc.partner_exception_team 
-			AND bc.flag_partner_exception = 1 THEN bc.partner_exception_subteam  --- asignamos el subteam de mkt que lo gestiona         
-		WHEN bc.mkt_source = 'Affiliates' THEN bc.affiliate_classification     --- tomamos el affiliate_classification de la tabla de acquisition_profile?         
-		WHEN bc.utms_subteam IS NULL AND bc.mkt_source = bc.sub_team 
+		WHEN bc.mkt_source = 'Affiliates' THEN bc.affiliate_classification             
+        WHEN bc.utms_subteam IS NULL AND bc.mkt_source = bc.sub_team 
             AND (position(bc.sub_utm_campaign IN bc.campaign) > 0) THEN bc.sub_subteam      
         WHEN bc.utms_subteam IS NULL AND bc.mkt_source = bc.urls_team 
             AND (position(bc.urls_landing_page_path IN bc.landing_page_path) > 0)
@@ -157,11 +119,7 @@ final_classification AS (
             AND (position(bc.gii_landing_page_domain IN bc.landing_page_domain) > 0) THEN bc.gii_subteam
         WHEN bc.utms_subteam IS NULL AND bc.mkt_source = bc.referrer_team 
             AND (position(bc.referrer IN bc.referrer_domain) > 0) THEN bc.referrer_subteam  
-        WHEN bc.utms_subteam IS NULL 
-			AND bc.partner_id IS NOT NULL AND bc.flag_partner_exception = 1
-			AND bc.mkt_source = bc.partner_exception_team THEN bc.partner_exception_subteam --- si el afiliado es partner exception, asignamos el subteam de mkt que lo gestiona
-		WHEN bc.partner_id IS NOT NULL AND bc.flag_partner_exception = 1
-			AND bc.mkt_source = bc.partner_exception_team THEN bc.partner_exception_subteam  --- si el afiliado es partner exception, asignamos el subteam de mkt que lo gestiona
+        WHEN bc.utms_subteam IS NULL AND bc.mkt_source = bc.partner_exception_team AND bc.flag_partner_exception = 1 AND bc.partner_id IS NOT NULL THEN bc.partner_exception_subteam
 		WHEN bc.utms_source_mkt IS NULL THEN bc.mkt_source              
         WHEN bc.utms_subteam IS NOT NULL THEN bc.utms_subteam               
         ELSE bc.mkt_source END, bc.mkt_source) AS mkt_subteam
