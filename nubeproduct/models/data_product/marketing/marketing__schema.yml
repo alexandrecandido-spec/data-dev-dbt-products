@@ -1196,6 +1196,14 @@ models:
         description: "GMV in local currency over the last closed month."
       - name: gmv_local_currency_on_platform_90d
         description: "GMV in local currency over the last 90 days."
+      - name: config_layout_completed
+        description: "Flag indicating if the store completed the layout configuration step (Step 1 of onboarding). Values: 1 = completed, 0 = not completed, NULL = store not in onboarding model (does not apply or no information available)."
+      - name: config_products_completed
+        description: "Flag indicating if the store completed the products configuration step (Step 2 of onboarding). Values: 1 = completed (6+ valid products), 0 = not completed, NULL = store not in onboarding model (does not apply or no information available)."
+      - name: config_payment_completed
+        description: "Flag indicating if the store completed the payment methods configuration step (Step 3 of onboarding). Values: 1 = completed, 0 = not completed, NULL = store not in onboarding model (does not apply or no information available)."
+      - name: config_shipping_completed
+        description: "Flag indicating if the store completed the shipping methods configuration step (Step 4 of onboarding). Values: 1 = completed, 0 = not completed, NULL = store not in onboarding model (does not apply or no information available)."
       - name: sys_audit_created_on
         description: "Timestamp when the row was originally created."
       - name: sys_audit_created_by
@@ -2620,59 +2628,6 @@ models:
       - name: row_hash
         description: "MD5 over exposed payload to detect content changes."
         tests: [not_null]
-
-  - name: g__product_marketing__gmv_rolling_windows_store__agg
-    description: "**Data Product GOLD: GMV Rolling Windows by Store**\n\nGMV y órdenes en ventanas rolling (30, 60, 90, 360 días desde hoy) por tienda.\nFiltra órdenes con total_in_usd <= 10000 (ya aplicado en g__operations__orders_gmv_store__agg_daily).\n\n**Domain:** marketing\n**Sub-domain:** product_marketing\n**Granularity:** agg (one row per store_id)\n**Materialization:** incremental con MERGE strategy"
-    meta:
-      owner: "jhu.boggio@tiendanube.com"
-      domain: "marketing"
-      business_owner: "Analytics Engineering"
-    columns:
-      - name: store_id
-        description: "ID único de la tienda"
-        tests:
-          - not_null
-          - unique
-      - name: gmv30
-        description: "Total GMV (en moneda local) en los últimos 30 días desde hoy"
-      - name: gmv60
-        description: "Total GMV (en moneda local) en los últimos 60 días desde hoy"
-      - name: gmv90
-        description: "Total GMV (en moneda local) en los últimos 90 días desde hoy"
-      - name: gmv360
-        description: "Total GMV (en moneda local) en los últimos 360 días desde hoy"
-      - name: gmv_dol_30
-        description: "Total GMV (en USD) en los últimos 30 días desde hoy"
-      - name: gmv_dol_60
-        description: "Total GMV (en USD) en los últimos 60 días desde hoy"
-      - name: gmv_dol_90
-        description: "Total GMV (en USD) en los últimos 90 días desde hoy"
-      - name: gmv_dol_360
-        description: "Total GMV (en USD) en los últimos 360 días desde hoy"
-      - name: orders30
-        description: "Total de órdenes en los últimos 30 días desde hoy"
-      - name: orders60
-        description: "Total de órdenes en los últimos 60 días desde hoy"
-      - name: orders90
-        description: "Total de órdenes en los últimos 90 días desde hoy"
-      - name: orders360
-        description: "Total de órdenes en los últimos 360 días desde hoy"
-      - name: sys_audit_created_on
-        description: "Timestamp cuando el registro fue creado por primera vez en el modelo"
-        tests:
-          - not_null
-      - name: sys_audit_created_by
-        description: "Usuario o proceso que creó el registro por primera vez. Defaults a 'data-dev-dbt-products'"
-        tests:
-          - not_null
-      - name: sys_audit_updated_on
-        description: "Timestamp de la ejecución actual del modelo cuando el registro fue procesado"
-        tests:
-          - not_null
-      - name: sys_audit_updated_by
-        description: "Usuario o proceso responsable de la ejecución actual del modelo. Defaults a 'data-dev-dbt-products'"
-        tests:
-          - not_null
 
   - name: g__general__deepdive_gmv_store__agg_monthly
     description: "One row per (store_id, reported_month). Aggregates GMV, orders, products, on/off-platform splits, avg tickets, last-3-months-with-activity averages, bands (monthly/current/avg3m), lifecycle classification, SMB movements, tenures, and audits. reported_month is the calendar month end."
