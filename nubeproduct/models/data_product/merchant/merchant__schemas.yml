@@ -289,6 +289,18 @@ models:
         tests:
           - dbt_expectations.expect_column_values_to_be_null:
               row_condition: "churned_at IS NULL"
+      - name: is_free_or_paying_merchant
+        description: "Indica si la tienda forma parte de la base de clientes pagantes (active_merchants) en la última fecha disponible, INCLUYENDO tiendas freemium. Agregado por pedido de Gi para el data product user_information. Diferencia con is_paying_merchant: este campo incluye todas las tiendas en active_merchants (freemium y pagantes), mientras que is_paying_merchant excluye freemium. Valores: TRUE si está en active_merchants (independientemente del plan), FALSE en caso contrario."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_set:
+              value_set: [true, false]
+      - name: is_paying_merchant
+        description: "Indica si la tienda forma parte de la base de clientes pagantes (active_merchants) en la última fecha disponible Y NO es freemium (excluye freemium). Agregado por pedido de Gi para el data product user_information. Diferencia con is_free_or_paying_merchant: este campo excluye tiendas freemium, mientras que is_free_or_paying_merchant las incluye. Valores: TRUE si está en active_merchants Y current_plan_type != 'freemium', FALSE en caso contrario."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_set:
+              value_set: [true, false]
       - name: sys_audit_created_on
         description: "Timestamp when the record was first loaded into the model. Defaults to current_timestamp if not available."
       - name: sys_audit_created_by
