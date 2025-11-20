@@ -4662,7 +4662,6 @@ models:
           - dbt_expectations.expect_column_values_to_be_between:
               min_value: 0.00000000001
               max_value: 1
-              inclusive: true
 
       - name: threshold
         description: "Threshold applied to the probability for classification."
