@@ -163,7 +163,7 @@ models:
       meta:
         owner: "jhu.boggio@tiendanube.com"
         domain: "merchant"
-        business_owner: "Analytics Engineering"
+        business_owner: "Franco Tiberti"
     columns:
       - name: store_id
         description: "Unique identifier of the store"
