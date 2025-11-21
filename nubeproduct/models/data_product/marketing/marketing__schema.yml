@@ -3437,50 +3437,88 @@ models:
 
 
   - name: s__brand_and_comms__search_console_enriched__event
-    description: "Advanced Google Search Console analytics model with competitive intelligence, brand monitoring, and search intent classification. Provides automated detection of 65+ competitor brands and detailed search intent analysis across all markets."
-    config:
-      materialized: incremental
-      meta:
-        owner: "beto.martinez@tiendanube.com"
-        business_owner: "Giselle Galli"
-        domain: "marketing"
+    description: "Enriched Google Search Console data with brand detection, non-brand categorization, and marketing intelligence. Each row represents a search query performance event by date, country, and device."
+    meta:
+      owner: "beto.martinez@tiendanube.com"
+      business_owner: "Beto Martinez"
+      domain: "marketing"
     columns:
       - name: date
-        description: "Date of the search data (YYYY-MM-DD)"
+        description: "Date of the search console data"
+        tests:
+          - not_null
+      - name: date_month
+        description: "Month extracted from date (YYYY-MM format)"
+        tests:
+          - not_null
+      - name: date_quarter
+        description: "Quarter extracted from date (YYYY-QN format)"
+        tests:
+          - not_null
+      - name: date_year
+        description: "Year extracted from date"
         tests:
           - not_null
       - name: date_day
-        description: "Date formatted as YYYY-MM-DD for day-level analysis"
-      - name: date_month
-        description: "Date formatted as YYYY-MM for month-level analysis"
-      - name: date_quarter
-        description: "Date formatted as YYYY-QN for quarter-level analysis"
+        description: "Day extracted from date (DD format)"
+        tests:
+          - not_null
       - name: date_week
-        description: "Week start date formatted as YYYY-MM-DD (Monday start)"
-      - name: date_year
-        description: "Year formatted as YYYY for year-level analysis"
+        description: "Week extracted from date (YYYY-MM-DD format, Monday of the week)"
+        tests:
+          - not_null
       - name: date_day_of_week
         description: "Day of week name (Monday, Tuesday, etc.)"
+        tests:
+          - not_null
       - name: country_detail
-        description: "Full country name from source data (e.g., 'Argentina', 'Brazil')"
+        description: "Detailed country name from Google Search Console"
         tests:
           - not_null
           - accepted_values:
               values: ['Argentina', 'Mexico', 'Brazil', 'Colombia', 'Chile', 'Peru']
       - name: country
-        description: "Standardized country code based on site mapping (AR, BR, MX, CO, CL, PE)"
+        description: "Standardized country code (AR, BR, MX, CO, CL, PE)"
         tests:
           - not_null
           - accepted_values:
               values: ['AR', 'BR', 'MX', 'CO', 'CL', 'PE']
       - name: search_query
-        description: "The actual search query from Google Search Console"
+        description: "The search term/query from Google Search Console"
         tests:
           - not_null
+      - name: device
+        description: "Device type (DESKTOP, MOBILE, TABLET)"
+        tests:
+          - not_null
+      - name: site
+        description: "Website URL where the search result appeared"
+        tests:
+          - not_null
+      - name: impressions
+        description: "Number of times the search result was shown"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+      - name: clicks
+        description: "Number of times the search result was clicked"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+      - name: click_through_rate
+        description: "Click-through rate (clicks/impressions)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+      - name: average_position
+        description: "Average position in search results (lower is better)"
       - name: d2c_brand_names
-        description: "D2C platform brand detected in search query. Returns brand name if detected, NULL otherwise. Prioritizes Tiendanube/Nuvemshop, then other D2C platforms by country."
+        description: "Detected D2C/ecommerce platform brands in the search query"
       - name: marketplace_brand_names
-        description: "Marketplace brand detected in search query. Returns brand name if detected, NULL otherwise. Includes major marketplaces by country (Mercado Libre, Amazon, etc.)."
+        description: "Detected marketplace brands in the search query"
       - name: d2c_match_type
         description: "Type of D2C brand match detected"
         tests:
@@ -3496,86 +3534,162 @@ models:
         tests:
           - not_null
           - accepted_values:
-              values: [true, false]
-      - name: is_next_evolucion  
-        description: "Boolean flag indicating if search contains our brand AND mentions of next-generation features (next, evolution, evolucion). Used for product roadmap intelligence."
+              values: ['True', 'False']
+      - name: is_next_evolucion
+        description: "Boolean flag indicating if search query contains 'next' or 'evolucion' terms"
         tests:
           - not_null
           - accepted_values:
-              values: [true, false]
+              values: ['True', 'False']
       - name: non_brand_term
-        description: "Specific non-branded term detected in search query. Returns the first matching term based on priority order (Intention Verbs > D2C > Vendas > etc.)."
+        description: "Detected non-branded term from the search query"
       - name: non_brand_category
         description: "Category of non-branded search intent detected: - 'Intention Verbs': Action keywords (crear, hacer, trabajar, etc.) - 'D2C': Platform-related terms (tienda, loja, sitio, etc.) - 'Vendas': Sales-related terms (venta, venda, vender) - 'Dropshipping': Dropshipping-related searches - 'Envios': Shipping/logistics terms - 'Ecommerce': General ecommerce terms - 'Producto': Product-related searches - 'Redes Sociales': Social media integration terms"
-        tests:
-          - accepted_values:
-              values: ['Intention Verbs', 'D2C', 'Vendas', 'Dropshipping', 'Envios', 'Ecommerce', 'Producto', 'Redes Sociales']
       - name: non_brand_match_type
         description: "Type of non-branded term match detected"
         tests:
           - accepted_values:
               values: ['exact', 'broad']
       - name: branded_non_branded
-        description: "Primary classification of search query: 'branded' if contains Tiendanube/Nuvemshop, 'nonbranded' otherwise"
+        description: "Classification of search query as 'branded' or 'nonbranded'"
         tests:
           - not_null
           - accepted_values:
               values: ['branded', 'nonbranded']
       - name: non_adquisition_terms
-        description: "Specific non-acquisition term detected in search query. Only populated when is_nuvemshop_tiendanube is true. Used to identify existing users searching for login/support rather than potential new customers."
+        description: "Detected non-acquisition terms (login, support, admin, etc.)"
       - name: is_non_adquisition_term
-        description: "Boolean flag for non-acquisition term detection (only for Tiendanube/Nuvemshop queries)"
+        description: "Boolean flag indicating if query contains non-acquisition terms and is related to our brand"
         tests:
           - not_null
           - accepted_values:
-              values: [true, false]
+              values: ['True', 'False']
       - name: flag_d2c_oficial
-        description: "Boolean flag indicating if D2C brand is officially monitored"
+        description: "Boolean flag indicating if detected D2C brand is officially monitored for this country"
         tests:
           - not_null
           - accepted_values:
-              values: [true, false]
+              values: ['True', 'False']
       - name: flag_marketplace_oficial
-        description: "Boolean flag indicating if marketplace brand is officially monitored"
+        description: "Boolean flag indicating if detected marketplace brand is officially monitored for this country"
         tests:
           - not_null
           - accepted_values:
-              values: [true, false]
-      - name: device
-        description: "Device type (DESKTOP, mobile, tablet). NULL values converted to DESKTOP"
-        tests:
-          - not_null
-      - name: site
-        description: "Website URL from Google Search Console"
-        tests:
-          - not_null
-      - name: impressions
-        description: "Number of times the URL appeared in search results"
-        tests:
-          - not_null
-          - dbt_utils.accepted_range:
-              min_value: 0
-      - name: clicks
-        description: "Number of clicks from search results to the URL"
-        tests:
-          - not_null
-          - dbt_utils.accepted_range:
-              min_value: 0
-      - name: average_position
-        description: "Average position in search results (lower is better)"
-        tests:
-          - dbt_utils.accepted_range:
-              min_value: 1
-              max_value: 100
-      - name: click_through_rate
-        description: "Click-through rate calculated as clicks/impressions"
-        tests:
-          - dbt_utils.accepted_range:
-              min_value: 0
-              max_value: 1
+              values: ['True', 'False']
       - name: sys_audit_created_on
         description: "Timestamp when record was created in data warehouse"
+        tests:
+          - not_null
       - name: sys_audit_updated_on
         description: "Timestamp when record was last updated in data warehouse"
+        tests:
+          - not_null
 
 
+  - name: g__general__mkt_attribution_model__agg_daily
+    description: "A data product that contains the aggregated daily marketing attribution model by store and attribution information. This model calculate the attribution metrics by store and attribution information of trials, qls, new payments and new sellers by last click, first click and mean click. It also calculates metrics by creation date, first payment date and first seller date."
+    config:
+      materialized: incremental
+      meta:
+        owner: "malen.correa@tiendanube.com"
+        business_owner: "Giselle Galli"
+        domain: "marketing"
+    columns:
+      - name: date
+        description: "Date of the metric results (for trials, qls, payments_created_at and new_sellers_created_at it refers to creation date; for new_sellers it refers to first_seller_at; for new_payments and new_sellers_fpd it refers to first_payment_date)"
+        tests:
+          - not_null
+      - name: year_month_day_code
+        description: "Year-month-day code for date column"
+        tests:
+          - not_null
+      - name: store_id
+        description: "Store ID for the attribution model"
+        tests: [not_null]
+      - name: country_code
+        description: "Country code for the store"
+        tests: [not_null]
+      - name: source
+        description: "utm_source of the attribution model"        
+      - name: medium
+        description: "utm_medium of the attribution model"        
+      - name: campaign
+        description: "utm_campaign of the attribution model"
+      - name: content
+        description: "utm_content of the attribution model"
+      - name: referrer_domain
+        description: "referrer_domain of the attribution model"
+      - name: referrer_path
+        description: "referrer_path of the attribution model"
+      - name: landing_page_domain
+        description: "landing_page_domain of the attribution model"
+      - name: landing_page_path
+        description: "landing_page_path of the attribution model"
+      - name: register_url
+        description: "url of registration of the store"
+      - name: partner_id
+        description: "partner_id asigned for the store"
+      - name: mkt_source
+        description: "mkt_source of the attribution model"
+      - name: mkt_subteam
+        description: "mkt_subteam of the attribution model"
+      - name: trials_last_click
+        description: "trials quantity attributed to the last click model, calculated by creation date"
+      - name: trials_first_click
+        description: "trials quantity attributed to the first click model, calculated by creation date"
+      - name: trials_mean_click
+        description: "trials quantity attributed to mean click model, calculated by creation date"
+      - name: qls_last_click
+        description: "qls quantity attributed to the last click model, calculated by creation date"
+      - name: qls_first_click
+        description: "qls quantity attributed to the first click model, calculated by creation date"
+      - name: qls_mean_click
+        description: "qls quantity attributed to mean click model, calculated by creation date"
+      - name: new_payments_last_click
+        description: "new payments quantity attributed to the last click model, calculated by first payment date"
+      - name: new_payments_first_click
+        description: "new payments quantity attributed to the first click model, calculated by first payment date"
+      - name: new_payments_mean_click
+        description: "new payments quantity attributed to mean click model, calculated by first payment date"
+      - name: new_sellers_last_click
+        description: "new sellers quantity attributed to the last click model, calculated by first seller date"
+      - name: new_sellers_first_click
+        description: "new sellers quantity attributed to the first click model, calculated by first seller date"
+      - name: new_sellers_mean_click
+        description: "new sellers quantity attributed to mean click model, calculated by first seller date" 
+      - name: payment_created_at_last_click
+        description: "payments quantity attributed to the last click model, calculated by creation date. Use for CVR calculation of trial to payment"
+      - name: payment_created_at_first_click
+        description: "payments quantity attributed to the first click model, calculated by creation date. Use for CVR calculation of trial to payment"
+      - name: payment_created_at_mean_click
+        description: "payments quantity attributed to mean click model, calculated by creation date. Use for CVR calculation of trial to payment"
+      - name: new_seller_created_at_last_click
+        description: "new sellers quantity attributed to the last click model, calculated by creation date. Use for CVR calculation of trial to seller"
+      - name: new_seller_created_at_first_click
+        description: "new sellers quantity attributed to the first click model, calculated by creation date. Use for CVR calculation of trial to seller"
+      - name: new_seller_created_at_mean_click
+        description: "new sellers quantity attributed to mean click model, calculated by creation date. Use for CVR calculation of trial to seller"
+      - name: new_seller_fpd_last_click
+        description: "new sellers quantity attributed to the last click model, calculated by first payment date. Use for CVR calculation of new payment to seller"
+      - name: new_seller_fpd_first_click
+        description: "new sellers quantity attributed to the first click model, calculated by first payment date. Use for CVR calculation of new payment to seller"
+      - name: new_seller_fpd_mean_click
+        description: "new sellers quantity attributed to mean click model, calculated by first payment date. Use for CVR calculation of new payment to seller"
+      - name: max_sys_audit_updated_on
+        description: "Timestamp of the last update of the record. It is used to track the last update of the record in the data warehouse for incremental loading."
+        tests: [not_null]
+      - name: row_key
+        description: "Row key for the record. It is used to identify the record in the data warehouse."
+        tests: [not_null]
+      - name: sys_audit_created_on
+        description: "Timestamp of when this record was created in our data warehouse"
+        tests: [not_null]
+      - name: sys_audit_created_by
+        description: "System identifier of the process that created this record"
+        tests: [not_null]
+      - name: sys_audit_updated_on
+        description: "Timestamp of when this record was last updated in our data warehouse"
+        tests: [not_null]
+      - name: sys_audit_updated_by
+        description: "System identifier of the process that last updated this record"
+        tests: [not_null]
