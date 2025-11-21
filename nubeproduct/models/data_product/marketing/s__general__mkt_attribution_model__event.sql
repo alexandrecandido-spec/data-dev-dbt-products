@@ -1,7 +1,7 @@
 {{ config(
     materialized = 'incremental',
     incremental_strategy = 'merge',
-    unique_key = ['click_id', 'store_id'],
+    unique_key = ['click_id'],
     partition_by = 'year_month_day_code',
     on_schema_change = 'fail',
     tags = ['daily-10am'],
@@ -15,14 +15,14 @@
 ) }}
 
 WITH existing_data AS (
-  {{ get_existing_data(this, ['click_id', 'store_id', 'input_sources', 'sys_audit_created_on', 'sys_audit_created_by']) }}
+  {{ get_existing_data(this, ['click_id', 'input_sources', 'sys_audit_created_on', 'sys_audit_created_by']) }}
 )
 
 SELECT 
   main_source.store_id
 , main_source.click_order
 , main_source.click_qty
-, main_source.click_id
+, COALESCE(main_source.click_id, CAST(CONV(SUBSTRING(md5(CAST(main_source.store_id AS STRING)), 1, 15), 16, 10) * -1 AS BIGINT)) AS click_id
 , main_source.click_timestamp
 , main_source.source
 , main_source.medium
@@ -52,7 +52,7 @@ SELECT
 , 'data-dev-dbt-products' AS sys_audit_updated_by
 FROM {{ ref('_int_marketing_attribution_model__get_final_classification') }} main_source
 LEFT JOIN existing_data e
-                          ON main_source.click_id = e.click_id AND main_source.store_id = e.store_id
+                          ON main_source.click_id = e.click_id
 WHERE
     {% if not is_incremental() %}
     main_source.created_at >= DATE '2010-01-01' 
