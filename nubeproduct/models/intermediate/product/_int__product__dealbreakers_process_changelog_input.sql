@@ -28,9 +28,25 @@ deleted AS (
 ),
 
 combined_new_data AS (
-    SELECT * FROM current
+    SELECT
+     *,
+     CASE
+          WHEN impact = 'dealbreaker' THEN is_dealbreaker_closed
+          WHEN impact = 'high' THEN is_high_closed
+          ELSE FALSE
+     END AS is_closed
+    FROM current
+
     UNION ALL
-    SELECT * FROM deleted
+
+    SELECT
+     *,
+     CASE
+          WHEN impact = 'dealbreaker' THEN is_dealbreaker_closed
+          WHEN impact = 'high' THEN is_high_closed
+          ELSE FALSE
+     END AS is_closed
+    FROM deleted
 ),
 
 -- STEP 2: Hash de fila para comparar cambios
@@ -43,8 +59,7 @@ new_data_hashed AS (
         coalesce(cast(issue_number AS string), ''),
         coalesce(cast(store_id AS string), ''),
         coalesce(impact, ''),
-        coalesce(cast(is_dealbreaker_closed AS string), ''),
-        coalesce(cast(is_high_closed AS string), '')
+        coalesce(cast(is_closed AS string), '')
       )
     ) AS row_hash
   FROM combined_new_data

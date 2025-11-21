@@ -17,8 +17,7 @@ WITH base AS (
     issue_number,
     store_id,
     impact,
-    is_dealbreaker_closed,
-    is_high_closed,
+    is_closed,
     valid_from,
     is_valid,
     invalid_reason,
@@ -66,8 +65,7 @@ ordered AS (
     issue_number,
     store_id,
     impact,
-    is_dealbreaker_closed,
-    is_high_closed,
+    is_closed,
     valid_from,
 
     CASE
