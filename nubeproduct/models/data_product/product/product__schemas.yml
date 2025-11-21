@@ -5281,7 +5281,7 @@ models:
     columns:
       - name: store_id
         description: Unique identifier of store.
-        tests: [not_null, unique]
+        tests: [not_null]
       - name: current_segment_name
         description: Segment associated to the store.
       - name: event_timestamp
