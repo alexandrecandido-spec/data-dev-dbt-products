@@ -157,6 +157,43 @@ models:
           - not_null
 
 
+  - name: s__attributes__midmarket_success__ref
+    description: "Data Product silver that contains Mid Market Success information for each store. Includes flag indicating if the store is Mid Market (is_midmarket) and the assigned account manager (account_manager)."
+    config:
+      meta:
+        owner: "jhu.boggio@tiendanube.com"
+        domain: "merchant"
+        business_owner: "Franco Tiberti"
+    columns:
+      - name: store_id
+        description: "Unique identifier of the store"
+        tests:
+          - not_null
+          - unique
+      - name: is_midmarket
+        description: "Flag indicating if the store is Mid Market Success (true if in_portfolio = true in midmarket_success_stores, false otherwise). Business logic validated with Franco."
+        tests:
+          - not_null
+      - name: account_manager
+        description: "HubSpot owner (Account Manager) assigned to the store. Retrieved from the most recent record in midmarket_weekly_business_review. NULL if store is not in WBR or has no assigned account manager."
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model. Defaults to current_timestamp if not available."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model. Defaults to 'data-dev-dbt-products'."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
+        tests:
+          - not_null
+
+
   - name: s__lifecycle__first_seller_date__ref
     description: "This data product identifies the first date on which a store qualified as a “seller”, based on sales performance, and aligns it with the store’s presence in the moltres_store_info. The main goal is to determine when each store first achieved at least 7 sales in a rolling 90-day window, according to data from company_metrics_paid_orders."
     config:
