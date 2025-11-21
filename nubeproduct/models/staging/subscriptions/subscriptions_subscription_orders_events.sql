@@ -12,12 +12,12 @@ with orders as (
       ,store_id
       ,customer_id
       ,order_id
-      ,subscription_id
-      ,status
+      ,cast(subscription_id as string) as subscription_id
+      ,cast(status as string) as status
       ,instance_number
       ,attempt
-      ,case when error_code = '' then null else error_code end as error_code
-      ,case when error_description = '' then null else error_description end as error_description
+      ,cast(case when error_code = '' then null else error_code end as string) as error_code
+      ,cast(case when error_description = '' then null else error_description end as string) as error_description
   from {{ source('stg_subscriptions', 'subscription_orders') }}
 )
 SELECT
