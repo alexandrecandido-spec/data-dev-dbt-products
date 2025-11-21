@@ -367,6 +367,7 @@ models:
         description: "System or user that last updated the row."
         tests: [not_null]
 
+
   - name: s__lifecycle__store_sales_milestones__ref
     description: "Data Product silver that contains the sales milestones of each store, including the first and last sale date, payment method, shipping method, storefront and totals"
     config:
@@ -424,6 +425,7 @@ models:
       - name: sys_audit_updated_by
         description: "System or user that last updated the row."
         tests: [not_null]
+
 
   - name: s__lifecycle__competitor_crawler__ref
     description: "Data Product silver that contains the competitor crawler data of each store. This data is used to identify the competitor of each store. The crawler stopped working in 2023"
