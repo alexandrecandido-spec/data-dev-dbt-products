@@ -373,6 +373,7 @@ models:
         description: "System or user that last updated the row."
         tests: [not_null]
 
+
   - name: s__lifecycle__store_sales_milestones__ref
     description: "Data Product silver that contains the sales milestones of each store, including the first and last sale date, payment method, shipping method, storefront and totals"
     config:
