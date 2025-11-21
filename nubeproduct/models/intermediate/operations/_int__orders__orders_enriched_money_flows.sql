@@ -26,7 +26,7 @@ payment_date AS (
         total_amount_usd,
         sys_audit_updated_on
     FROM
-        {{ ref('g__orders__order_total_paid__agg_daily') }}
+        {{ ref('s__orders__order_total_paid__event') }}
 )
 
 , payment_date_legacy AS (
