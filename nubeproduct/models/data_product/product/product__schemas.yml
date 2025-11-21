@@ -5268,3 +5268,57 @@ models:
       - name: sys_audit_updated_by
         description: "User or system who last updated this record."
         tests: [not_null]
+
+  - name: g__checkout__payment_method_position__event
+    description: >
+      Gold layer table with orders that used payment method position feature.
+    config:
+      meta:
+        owner: "fabrizio.crivella@tiendanube.com"
+        business_owner: "Rocio Diez"
+        openmetadata:
+          domain: "product"
+    columns:
+      - name: store_id
+        description: Unique identifier of store.
+        tests: [not_null, unique]
+      - name: current_segment_name
+        description: Segment associated to the store.
+      - name: event_timestamp
+        description: Timestamp when the event was registered.
+      - name: completed_at
+        description: Timestamp when the cart was completed.
+      - name: started_checkout_at
+        description: Timestamp when the cart started checkout.
+      - name: started_to_completed_time
+        description: Time elapsed between started checkout and complete order.
+      - name: started_to_completed_contact_time
+        description: Time elapsed between started checkout and complete contact information.
+      - name: completed_contact_to_completed_time
+        description: Time elapsed between started checkout and completed order.
+      - name: completed_contact_to_completed_payment_method
+        description: Time elapsed between completed contact and and select payment method.
+      - name: completed_contact_at
+        description: Timestamp when the cart completed contact information.
+      - name: storefront
+        description: Storefront used in the order.
+      - name: gateway_method
+        description: Gateway selected by the Consumer to pay the order.
+      - name: gateway
+        description: Gateway provider selected by the Consumer to pay the order.
+      - name: device_type
+        description: Device used by the consumer in the order.
+      - name: sort_type
+        description: Type of sorting used by the store for available payment methods. Custom or default.
+      - name: created_at
+        description: Timestamp when the type of sorting was created.
+      - name: updated_at
+        description: Timestamp when the type of sorting was updated.
+      - name: payment
+        description: Name of the Gateway provider selected by the Consumer to pay the order.
+      - name: cart_id
+        description: Unique identifier of cart.
+      - name: payment_method_position
+        description: Position of the payment method selected by the Consumer.
+      - name: year_month_code
+        description: Date code used for partitioning.
