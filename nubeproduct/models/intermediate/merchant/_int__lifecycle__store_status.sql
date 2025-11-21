@@ -53,6 +53,16 @@ midmarket_success_stores AS (
   store_id
   FROM {{ ref('midmarket_success_stores') }}
   WHERE in_portfolio = true
+),
+-- ACTIVE MERCHANTS: Obtener última fecha disponible y tiendas activas
+-- Nota: Agregado por pedido de Gi para el data product user_information
+active_finance AS (
+    SELECT DISTINCT store_id
+    FROM {{ source('int_finance', 'active_merchants') }}
+    WHERE date = (
+        SELECT MAX(date)
+        FROM {{ source('int_finance', 'active_merchants') }}
+    )
 )
 
 
@@ -80,6 +90,18 @@ SELECT
     , CASE WHEN ss.churned_at IS NOT NULL THEN ci.cancellation_reason ELSE NULL END AS cancellation_reason
     , CASE WHEN ss.churned_at IS NOT NULL THEN ci.cancellation_comment ELSE NULL END AS cancellation_comment
     , CASE WHEN ss.churned_at IS NOT NULL THEN ci.cancellation_comment_at ELSE NULL END AS cancellation_comment_at
+    -- ACTIVE MERCHANTS: Agregado por pedido de Gi para el data product user_information
+    , CASE 
+        WHEN af.store_id IS NOT NULL 
+            AND pl.grupo IS NOT NULL
+            AND pl.grupo != 'freemium' 
+        THEN 'paying'
+        WHEN af.store_id IS NOT NULL 
+            AND pl.grupo IS NOT NULL
+            AND pl.grupo = 'freemium' 
+        THEN 'free'
+        ELSE 'not_active'
+    END AS merchant_finance_status
     , GREATEST(ss.sys_audit_updated_on, si.sys_audit_updated_on, bl.blocked_last_updated_at, fs.sys_audit_updated_on) as change_timestamp
 FROM store_source ss 
 LEFT JOIN segment_info si ON ss.store_id = si.store_id
@@ -88,3 +110,4 @@ LEFT JOIN cancellations_info ci ON ss.store_id = ci.store_id
 LEFT JOIN midmarket_success_stores ms ON ss.store_id = ms.store_id
 LEFT JOIN {{ ref('s__general__grouping_plans__ref') }} pl ON ss.current_plan_id = pl.plan
 LEFT JOIN {{ ref('s__lifecycle__first_seller_date__ref') }} fs ON ss.store_id = fs.store_id
+LEFT JOIN active_finance af ON ss.store_id = af.store_id

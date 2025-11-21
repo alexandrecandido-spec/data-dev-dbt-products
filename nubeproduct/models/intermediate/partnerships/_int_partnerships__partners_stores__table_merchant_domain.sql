@@ -16,6 +16,7 @@ WITH partners_stores AS
         SC.currency,
         SC.partner_id,
         SC.partnership_type,
+        PI.partner_country_code,
         SC.vertical_name,
         SS.first_payment,
         SS.churned_at,
@@ -43,14 +44,17 @@ WITH partners_stores AS
             WHEN SS.current_plan_type = 'freemium'   
             THEN 'Freemium'
         ELSE 'Trial'
-        END AS payment_lifecycle_status
+        END AS payment_lifecycle_status,
+        GREATEST(SC.sys_audit_updated_on, SS.sys_audit_updated_on, AP.sys_audit_updated_on, SI.sys_audit_updated_on, PI.sys_audit_updated_on) AS table_merchant_change_timestamp
     FROM {{ ref('s__attributes__store_core__ref') }} AS SC
     LEFT JOIN {{ ref('s__lifecycle__store_status__ref') }} AS SS
-    ON SC.store_id = SS.store_id
+        ON SC.store_id = SS.store_id
     LEFT JOIN {{ ref('s__attributes__acquisition_profile__ref') }} AS AP
-    ON SC.store_id = AP.store_id
+        ON SC.store_id = AP.store_id
     LEFT JOIN {{ ref('s__attributes__store_identity__ref') }} AS SI
-    ON SC.store_id = SI.store_id
+        ON SC.store_id = SI.store_id
+    LEFT JOIN {{ ref('s__general__partners_info__ref') }} AS PI 
+        ON SC.partner_id = PI.partner_id
     WHERE SC.partner_id IS NOT NULL
 )
 SELECT * FROM partners_stores
