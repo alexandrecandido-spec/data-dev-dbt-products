@@ -11,43 +11,40 @@ with base_orders as (
       o.id,
       o.store_id,
       o.country,
-      cast(o.completed_at as date)                                   as date,
-      cast(date_format(o.completed_at, 'yyyyMMdd') as integer)         as year_month_day_code,
-      last_day(o.completed_at)                              as mes,
+      cast(coalesce(paid_at, coalesce(o.completed_at, o.created_at)) as date)                                   as date,
+      o.year_month_day_code,
+      last_day(coalesce(paid_at, coalesce(o.completed_at, o.created_at)))                              as mes,
       o.platform_type,
       o.storefront,
       case when o.storefront = 'mobile' then 'Mobile' else 'Desktop' end as device,
       coalesce(
         case 
-          when o.payment = 'mercado-pago' then 'mercadopago'
-          when o.payment = 'custom'       then 'pagos-personalizados'
-          else o.payment
+          when o.payment_handler = 'mercado-pago' then 'mercadopago'
+          when o.payment_handler = 'custom'       then 'pagos-personalizados'
+          else o.payment_handler
         end, 'undefined'
       ) as payment_provider,
       coalesce(o.gateway_method, 'undefined')                         as payment_method,
-      coalesce(o.shipping, 'undefined')                               as shipping_method,
+      coalesce(o.shipping_method, 'undefined')                               as shipping_method,
       coalesce(o.shipping_province, 'Undefined Province')             as shipping_province,
       o.gateway_installments,
       -- métricas ao nível do pedido
-      coalesce(o.total, 0) as total,
+      coalesce(o.total_in_local_currency, 0) as total_in_local_currency,
       coalesce(o.total_in_usd, 0) as total_in_usd,
       o.shipping_cost,
       o.product_quantity,
+      -- metrics session data
+      coalesce(o.source_name, 'No Source') as source_name,
+      coalesce(o.source_group, 'No Source Group') as source_group,
+      coalesce(o.google_subchannel, 'No Google Subchannel') as google_subchannel,
+      coalesce(o.traffic_type, 'No Traffic Type') as traffic_type,
+      coalesce(o.is_end_user, FALSE) as is_end_user,
+      coalesce(o.visitor_country, 'No Visitor Country') as visitor_country,
+
       -- auditoria para incrementalidade no DP
       o.sys_audit_updated_on
-  from {{ ref('company_metrics_paid_orders') }} o
-),
-
-orders_plus_source as (
-  select
-      bo.*,
-      coalesce(os.source, 'No Source')               as order_source,
-      coalesce(os.source_name, 'Sin Source Details') as social_network,
-      coalesce(os.source_details,'No Details') as source_details,
-      coalesce(os.source_type,'Without Type Information') as source_type
-  from base_orders bo
-  left join {{ ref('product_social_order_source') }} os
-    on bo.id = os.order_id
+  from {{ ref('s__orders__carts_orders_heads__events') }} o
+  where flg_gmv = true
 ),
 
 orders_plus_store_attributes as (
@@ -59,7 +56,7 @@ orders_plus_store_attributes as (
       coalesce(mi.city_name,     'Undefined City')     as city, 
       coalesce(mi.region_name,   'Undefined Region')   as region, 
       coalesce(mi.business_size_name, 'Undefined')          as business_size      
-  from orders_plus_source ops
+  from base_orders ops
   left join {{ ref('s__attributes__store_core__ref') }} mi 
     on ops.store_id = mi.store_id
 ),
@@ -67,6 +64,7 @@ orders_plus_store_attributes as (
 orders_plus_store_plan_group as (
   select
       ops.*,
+      last_day(ops.date) as datemonth_order,
       mi.current_plan_type                                         as current_plan,  
       coalesce(mi.max_segment,   'Undefined')          as max_seller_segment,
       mi.current_segment as current_seller_segment,
@@ -98,7 +96,7 @@ plans_snapshot as (
   from orders_plus_store_plan_group ops 
   LEFT JOIN {{ ref('company_metrics_gmv_and_segments') }} gs
       on ops.store_id = gs.store_id
-      and date_trunc(ops.date, 'month') = gs.datemonth
+      and datemonth_order = gs.datemonth
 )
 
   select
@@ -130,15 +128,20 @@ plans_snapshot as (
       s.shipping_method,
       s.shipping_province,
       s.gateway_installments,
-      s.order_source,
-      s.social_network,
-      s.source_details,
-      s.source_type,
+      
+      source_name,
+      source_group,
+      google_subchannel,
+      traffic_type,
+      is_end_user,
+      visitor_country,
 
-      s.total,
+      s.total_in_local_currency,
       s.total_in_usd,
       s.shipping_cost,
-      s.product_quantity
+      s.product_quantity,
+
+      s.sys_audit_updated_on
       
   from orders_with_historical_segment s
   left join plans_snapshot p
