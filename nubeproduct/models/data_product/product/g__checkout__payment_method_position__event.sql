@@ -16,7 +16,6 @@ WITH source AS (
         ev.event_timestamp AS event_timestamp,
         mo.completed_at,
         mo.started_checkout_at,
-        -- Campos calculados de tiempo
         date_diff(second, mo.started_checkout_at, mo.completed_at) AS started_to_completed_time,
         date_diff(second, mo.started_checkout_at, mo.completed_contact_at) AS started_to_completed_contact_time,
         date_diff(second, mo.completed_contact_at, mo.completed_at) AS completed_contact_to_completed_time,
