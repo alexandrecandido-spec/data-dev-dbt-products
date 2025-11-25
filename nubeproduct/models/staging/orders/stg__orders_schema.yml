@@ -291,6 +291,9 @@ models:
         owner: "sol.abelleyro@tiendanube.com"
         domain: "product"
         business_owner: "Francisco Ramirez"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: ["year_month_code","promotional_discount_id","order_id","promotional_discount_contents","total_discount_amount"]
     columns:
       - name: year_month_code
         description: "Date code in YYYYMMDD format used for partitioning or filtering."
