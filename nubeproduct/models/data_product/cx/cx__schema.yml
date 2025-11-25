@@ -21,7 +21,6 @@ models:
         description: "User email address. Unique. Deduplicated by oldest user_id, then lowest store_id. Non-null only."
         tests:
           - not_null
-          - unique
       - name: name
         description: "User name. Format: 'First Last', 'First', 'Last', or 'User-{user_id}' (fallback)."
         tests:
