@@ -27,6 +27,7 @@ main_source.store_id
 , main_source.current_plan_id
 , main_source.current_plan_name
 , main_source.current_plan_type
+, main_source.current_plan_context
 , main_source.current_segment
 , main_source.is_seller
 , main_source.max_segment
