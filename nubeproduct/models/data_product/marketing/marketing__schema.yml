@@ -1202,6 +1202,14 @@ models:
         description: "GMV in local currency over the last closed month."
       - name: gmv_local_currency_on_platform_90d
         description: "GMV in local currency over the last 90 days."
+      - name: config_layout_completed
+        description: "Flag indicating if the store completed the layout configuration step (Step 1 of onboarding). Values: 1 = completed, 0 = not completed, NULL = store not in onboarding model (does not apply or no information available)."
+      - name: config_products_completed
+        description: "Flag indicating if the store completed the products configuration step (Step 2 of onboarding). Values: 1 = completed (6+ valid products), 0 = not completed, NULL = store not in onboarding model (does not apply or no information available)."
+      - name: config_payment_completed
+        description: "Flag indicating if the store completed the payment methods configuration step (Step 3 of onboarding). Values: 1 = completed, 0 = not completed, NULL = store not in onboarding model (does not apply or no information available)."
+      - name: config_shipping_completed
+        description: "Flag indicating if the store completed the shipping methods configuration step (Step 4 of onboarding). Values: 1 = completed, 0 = not completed, NULL = store not in onboarding model (does not apply or no information available)."
       - name: sys_audit_created_on
         description: "Timestamp when the row was originally created."
       - name: sys_audit_created_by
