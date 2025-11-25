@@ -3752,3 +3752,65 @@ models:
         description: "Timestamp of the last update of the record in the Data Warehouse."
       - name: sys_audit_updated_by
         description: "Process or user that last updated the record."
+
+  - name: s__brand_and_comms__goals_targets_kwp_sc__ref
+    description: "Silver layer model for marketing goals and targets used in Search Console and Keyword Planner performance comparison. Contains daily goals for branded and non-branded search performance tracking."
+    meta:
+      owner: "beto.martinez@tiendanube.com"
+      business_owner: "Beto Martinez"
+      domain: "marketing"
+    columns:
+      - name: date
+        description: "Date of the goal target"
+        tests:
+          - not_null
+      - name: date_month
+        description: "Month extracted from the date (YYYY-MM format)"
+        tests:
+          - not_null
+      - name: date_quarter
+        description: "Quarter extracted from the date (YYYY-QN format)"
+        tests:
+          - not_null
+      - name: date_year
+        description: "Year extracted from the date"
+        tests:
+          - not_null
+      - name: country
+        description: "Country code for the goal target"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['AR', 'BR', 'MX', 'CO', 'CL']
+      - name: expected_branded_sc
+        description: "Expected daily impressions for branded exact searches in Search Console"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+      - name: expected_branded_share_kwp
+        description: "Expected market share for branded searches in Keyword Planner (percentage as decimal)"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+      - name: expected_nonbranded_kwp
+        description: "Expected daily search volume for non-branded terms in Keyword Planner"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+      - name: goal_source
+        description: "Source of the goal data for auditing purposes"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['data_manual_upload']
+      - name: sys_audit_created_on
+        description: "Timestamp when record was created in data warehouse"
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when record was last updated in data warehouse"
+        tests:
+          - not_null
