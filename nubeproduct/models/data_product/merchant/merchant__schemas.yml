@@ -259,6 +259,10 @@ models:
         description: "Type of the current plan"
         tests:
           - not_null
+      - name: current_plan_context
+        description: "Context of the current plan (Indicates the specific context in which the plan was applied — combining information like country, period (year and month), plan type, and version)."
+        tests:
+          - not_null
       - name: current_segment
         description: "Current segment of the store"
         tests:
@@ -469,6 +473,7 @@ models:
         description: "System or user that last updated the row."
         tests: [not_null]
 
+
   - name: g__attributes__main_payment_method__agg
     description: "Data Product gold that contains the main payment method by GMV for each store (aggregation by store). Calculates which payment method has the highest GMV since 2024-01-01. Only includes stores that have paid orders (does not include stores without sales)."
     config:
@@ -506,6 +511,7 @@ models:
         description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
         tests:
           - not_null
+
 
   - name: s__lifecycle__competitor_crawler__ref
     description: "Data Product silver that contains the competitor crawler data of each store. This data is used to identify the competitor of each store. The crawler stopped working in 2023"

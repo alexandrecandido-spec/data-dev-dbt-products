@@ -595,6 +595,8 @@ models:
         description: If the plan existed before freemium launch.
       - name: namev2
         description: Name of the plan as seen by the merchant.
+      - name: plan_context
+        description: Context of the plan (Indicates the specific context in which the plan was applied — combining information like country, period (year and month), plan type, and version).
       - name: sys_audit_created_on
         description: Timestamp when the row was initially created in the summary table.
       - name: sys_audit_created_by

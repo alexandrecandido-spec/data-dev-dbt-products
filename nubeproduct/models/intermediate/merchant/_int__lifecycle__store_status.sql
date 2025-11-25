@@ -54,8 +54,6 @@ midmarket_success_stores AS (
   FROM {{ ref('midmarket_success_stores') }}
   WHERE in_portfolio = true
 ),
--- ACTIVE MERCHANTS: Obtener última fecha disponible y tiendas activas
--- Nota: Agregado por pedido de Gi para el data product user_information
 active_finance AS (
     SELECT DISTINCT store_id
     FROM {{ source('int_finance', 'active_merchants') }}
@@ -76,6 +74,7 @@ SELECT
     , ss.current_plan_id
     , COALESCE(pl.namev2, 'not informed') AS current_plan_name
     , COALESCE(pl.grupo, 'not informed') AS current_plan_type
+    , COALESCE(pl.plan_context, 'not informed') AS current_plan_context
     , si.current_segment
     , si.is_seller
     , si.max_segment
