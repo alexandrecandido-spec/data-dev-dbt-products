@@ -27,6 +27,10 @@ with
             coalesce(credit_limit.available_limit_admin, 0.0) as np_lending_available_credit,
             gmv.gmv_local_currency_on_platform_monthly,
             gmv.gmv_local_currency_on_platform_90d,
+            layout.config_layout as config_layout_completed,
+            products.config_products as config_products_completed,
+            payments.config_payment as config_payment_completed,
+            shipping.config_shipping as config_shipping_completed,
             active_stores.store_id
         from {{ ref("hubspot_active_stores") }} active_stores
         left join
@@ -49,6 +53,18 @@ with
         left join
             {{ ref("_int__midmarket__hubspot_gmv_by_store") }} gmv
             on active_stores.store_id = gmv.store_id
+        left join
+            {{ ref("s__product_marketing__layout__ref") }} layout
+            on active_stores.store_id = layout.store_id
+        left join
+            {{ ref("s__product_marketing__products__ref") }} products
+            on active_stores.store_id = products.store_id
+        left join
+            {{ ref("s__product_marketing__payments__ref") }} payments
+            on active_stores.store_id = payments.store_id
+        left join
+            {{ ref("s__product_marketing__shipping__ref") }} shipping
+            on active_stores.store_id = shipping.store_id
     )
 
 select
@@ -61,6 +77,10 @@ select
     info.np_lending_available_credit,
     info.gmv_local_currency_on_platform_monthly,
     info.gmv_local_currency_on_platform_90d,
+    info.config_layout_completed,
+    info.config_products_completed,
+    info.config_payment_completed,
+    info.config_shipping_completed,
     {% if is_incremental() %}
         coalesce(
             existing_data.sys_audit_created_on, current_timestamp
@@ -86,7 +106,11 @@ from source_data as info
             "website",
             "np_lending_available_credit",
             "gmv_local_currency_on_platform_monthly",
-            "gmv_local_currency_on_platform_90d"
+            "gmv_local_currency_on_platform_90d",
+            "config_layout_completed",
+            "config_products_completed",
+            "config_payment_completed",
+            "config_shipping_completed"
         ] %}
     where
         existing_data.store_id is null

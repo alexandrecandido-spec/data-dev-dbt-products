@@ -9,10 +9,10 @@
 with options as (
     select
       date(created_at) as creation_date
-      ,id as subs_option_id
-      ,metaplan_id
-      ,frequency_type
-      ,frequency_param
+      ,cast(id as string) as subs_option_id
+      ,cast(metaplan_id as string) as metaplan_id
+      ,cast(frequency_type as string) as frequency_type
+      ,cast(frequency_param as integer) as frequency_param
       ,discount_percentage
       ,deleted as is_subs_option_deleted
     from {{ source('stg_subscriptions', 'subscription_options') }}
@@ -27,4 +27,5 @@ from options o
 {% if is_incremental() %}
   WHERE
   creation_date >= (select coalesce(max(creation_date),'1900-01-01') from {{ this }} )
+  or (is_subs_option_deleted = true and subs_option_id in (select subs_option_id from {{ this }} where is_subs_option_deleted = false))
 {% endif %}

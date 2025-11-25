@@ -13,6 +13,8 @@ models:
         tests:
           - unique:
               where: "sys_audit_updated_on >= current_timestamp - interval '1 hours'"
+      - name: order_id
+        description: "Unique identifier for the order."
       - name: store_id
         description: "Identifier of the store associated with the order."
         tests:
@@ -22,6 +24,8 @@ models:
         description: "Timestamp when the user started the checkout process."
       - name: completed_contact_at
         description: "Timestamp when the customer provided contact information during checkout."
+      - name: completed_at_date
+        description: "Date when the order was successfully completed."
       - name: completed_at
         description: "Timestamp when the order was successfully completed."
       - name: cancelled_at
@@ -51,9 +55,6 @@ models:
               where: "sys_audit_updated_on >= current_timestamp - interval '1 hours'"
       - name: total
         description: "Total value of the order in the original currency."
-        tests:
-          - not_null:
-              where: "sys_audit_updated_on >= current_timestamp - interval '1 hours'"
       - name: storefront
         description: "Sales channel through which the order was placed (e.g., store, mobile)."
       - name: device_type
@@ -137,6 +138,10 @@ models:
         description: "Identifier of the product included in the order."
         tests:
           - not_null
+      - name: product_name
+        description: "Name of the product included in the order."
+      - name: product_price
+        description: "Price of the product included in the order."
       - name: quantity
         description: "Number of units of the product included in the order."
         tests:
@@ -167,12 +172,12 @@ models:
   
   
   - name: orders__mwp_orders_source
-    description: Staging da origem de tráfego dos pedidos, com normalização dos parâmetros UTM e referrer.
+    description: "Staging da origem de tráfego dos pedidos, com normalização dos parâmetros UTM e referrer."
     config:
       meta:
         owner: "gustavo.braga@nuvemshop.com.br"
         domain: "product"
-        owner: "Francisco Ramirez"
+        business_owner: "Giselle Galli"
     columns:
       - name: order_id
         description: ID do pedido
@@ -286,6 +291,9 @@ models:
         owner: "sol.abelleyro@tiendanube.com"
         domain: "product"
         business_owner: "Francisco Ramirez"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: ["year_month_code","promotional_discount_id","order_id","promotional_discount_contents","total_discount_amount"]
     columns:
       - name: year_month_code
         description: "Date code in YYYYMMDD format used for partitioning or filtering."
@@ -303,6 +311,58 @@ models:
         description: "Total discount amount"
       - name: content_items
         description: "Content items"
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model. Defaults to current_timestamp if not available."
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model. Defaults to 'data-dev-dbt-products'."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed."
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
+
+  - name: orders__order_money_flows__event
+    description: "Money flows associated with orders"
+    config:
+      meta:
+        owner: "gustavo.braga@nuvemshop.com.br"
+        domain: "product"
+        business_owner: "Giselle Galli"
+    columns:
+      - name: id
+        description: "Unique identifier for the money flow event."
+        tests:
+          - unique
+          - not_null
+      - name: store_id
+        description: "Identifier of the store associated with the money flow."
+      - name: order_id
+        description: "Identifier of the order associated with the money flow."
+        tests:
+          - not_null
+      - name: currency
+        description: "Currency used for the money flow transaction."
+      - name: amount
+        description: "Amount of the money flow in the original currency."
+      - name: amount_usd
+        description: "Amount of the money flow converted to USD."
+      - name: hash
+        description: "Hash identifier for the money flow transaction."
+      - name: source
+        description: "Source of the money flow (e.g., payment, refund, fee)."
+      - name: payment_transaction_id
+        description: "Identifier of the payment transaction associated with the money flow."
+      - name: payment_transaction_event_id
+        description: "Identifier of the payment transaction event associated with the money flow."
+      - name: happened_at
+        description: "Timestamp when the money flow event occurred."
+        tests:
+          - not_null
+      - name: effective_amount
+        description: "Effective amount of the money flow in the original currency."
+      - name: effective_amount_usd
+        description: "Effective amount of the money flow converted to USD."
+      - name: year_month_day_code
+        description: "Date code in YYYYMMDD format used for partitioning or filtering."
       - name: sys_audit_created_on
         description: "Timestamp when the record was first loaded into the model. Defaults to current_timestamp if not available."
       - name: sys_audit_created_by

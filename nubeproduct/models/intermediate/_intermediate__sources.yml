@@ -90,6 +90,8 @@ sources:
       - name: finance_exchange_rate_ars_to_usd
       - name: marketing_github_mkt_attribution
         description: "List of marketing github issues/inputs created by the marketing team"
+      - name: marketing_google_search_console_keyword_searches
+        description: "Raw Google Search Console keyword performance data including impressions, clicks, positions by country and device"
       - name: midmarket_hubspot_deals
       - name: midmarket_hubspot_calls
       - name: midmarket_hubspot_meetings
@@ -390,3 +392,22 @@ sources:
         description: "Manual Google Keyword Planner data uploads containing search volume by keyword, country and date"
       - name: ext__marketing__brand_comms__marketing_brand_nobrand_daily_goals
         description: "Daily marketing goals and targets for branded/non-branded performance tracking across Search Console and KWP"
+<<<<<<< HEAD
+=======
+      - name: ext__marketing__acquisition__content_classification_br_blog
+        description: "Manual classification of Blog content for Brazil (Growth Acquisition), including funnel stage and persona."
+      - name: ext__marketing__acquisition__content_classification_br_cases
+        description: "Manual classification of Success Cases pages for Brazil."
+      - name: ext__marketing__acquisition__content_classification_br_downloadables
+        description: "Manual classification of Rich Materials (Ebooks, spreadsheets) for Brazil."
+      - name: ext__marketing__acquisition__content_classification_br_tools
+        description: "Manual classification of Tools and Calculators for Brazil."
+      - name: ext__marketing__acquisition__content_classification_latam_blog
+        description: "Manual classification of Blog content for Latam (Spanish), including funnel stage and persona."
+      - name: ext__marketing__acquisition__content_classification_latam_cases
+        description: "Manual classification of Success Cases pages for Latam."
+      - name: ext__marketing__acquisition__content_classification_latam_downloadables
+        description: "Manual classification of Rich Materials (Recursos) for Latam."
+      - name: ext__marketing__acquisition__content_classification_latam_tools
+        description: "Manual classification of Tools and Calculators for Latam."
+>>>>>>> main
