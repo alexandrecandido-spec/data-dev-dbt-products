@@ -4668,7 +4668,6 @@ models:
               min_value: 0
               max_value: 1
               strictly: true          # 0 and 1 are not allowed
-              catch_violations: true  # store the invalid rows for review
       - name: prediction
         description: "Binary output of the churn prediction model:
                       - 0 = retain --> probability < cutoff
