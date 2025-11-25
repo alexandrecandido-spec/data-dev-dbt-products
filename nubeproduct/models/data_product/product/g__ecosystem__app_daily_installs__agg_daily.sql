@@ -4,7 +4,14 @@
     unique_key = 'unique_id',
     partition_by = 'registered_date',
     on_schema_change = 'fail',
-    tags = ['daily-8am']
+    tags = ['daily-8am'],
+    pre_hook = [
+        """
+        {% if is_incremental() %}
+            DELETE FROM {{ this }} WHERE registered_date >= date_trunc('day', current_date())
+        {% endif %}
+        """
+    ]
 ) }}
 
 with app_daily_installs as (
@@ -48,5 +55,5 @@ SELECT distinct
     ,'data-dev-dbt-products' AS sys_audit_updated_by
     from app_daily_installs a
     {% if is_incremental() %}
-    where a.registered_date >= (select coalesce(max(registered_date),'1900-01-01') from {{ this }} )
+        where a.registered_date >= date_trunc('day', current_date())
     {% endif %}

@@ -16,14 +16,14 @@ WITH source AS (
     select
         cast(o.started_checkout_at as date) as fecha,
         o.store_id,
-        o.storefront,
-        o.device_type,
-        o.gateway_method,
+        coalesce(o.storefront, 'No storefront') as storefront,
+        coalesce(o.device_type, 'No Device type') as device_type,
+        coalesce(o.gateway_method, 'No Gateway Method') as gateway_method,
         o.status,
         o.payment_status,
         o.completed_contact_at,
         o.completed_at
-    from data_products_prd.data_staging.orders__mwp_orders o
+    from {{ ref('orders__mwp_orders') }} o
     where o.started_checkout_at >= date '2024-01-01'
         {% if is_incremental() %}
             and o.sys_audit_updated_on >= DATE_SUB( (SELECT COALESCE(MAX(fecha), DATE('1900-01-01')) FROM {{ this }}), 1 ) and o.started_checkout_at> DATE('2024-06-01')
@@ -84,25 +84,25 @@ WITH source AS (
         )
         )
         select ft.*,
-            si.current_segment_name,
-            si.country_code
+            coalesce(si.current_segment_name, 'No Segment') as current_segment_name,
+            coalesce(si.country_code, 'No Country') as country_code
         from final_table ft
-        left join data_products_prd.data_operations.company_metrics_merchant_info si on ft.store_id = si.store_id
+        left join {{ ref('company_metrics_merchant_info') }} si on ft.store_id = si.store_id
 ),
     existing_data AS (
         {{ get_existing_data(this, ['fecha','step','store_id','storefront','device_type','gateway_method','orders', 'country_code', 'current_segment_name',
         'sys_audit_created_on', 'sys_audit_created_by', 'sys_audit_updated_on', 'sys_audit_updated_by']) }}
     )
 select
-    coalesce(s.fecha, e.fecha) as fecha,
-    coalesce(s.step, e.step) as step,
-    coalesce(s.store_id, e.store_id) as store_id,
-    coalesce(s.storefront, e.storefront) as storefront,
-    coalesce(s.device_type, e.device_type) as device_type,
-    coalesce(s.gateway_method, e.gateway_method) as gateway_method,
-    coalesce(s.country_code, e.country_code) as country_code,
-    coalesce(s.current_segment_name, e.current_segment_name) as current_segment_name,
-    coalesce(s.orders, e.orders) as orders,
+    s.fecha,
+    s.step,
+    s.store_id,
+    s.storefront,
+    s.device_type,
+    s.gateway_method,
+    s.country_code,
+    s.current_segment_name,
+    s.orders,
     COALESCE(e.sys_audit_created_on, current_timestamp) AS sys_audit_created_on,
     COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by,
     current_timestamp AS sys_audit_updated_on,

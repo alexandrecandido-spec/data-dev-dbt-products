@@ -595,6 +595,8 @@ models:
         description: If the plan existed before freemium launch.
       - name: namev2
         description: Name of the plan as seen by the merchant.
+      - name: plan_context
+        description: Context of the plan (Indicates the specific context in which the plan was applied — combining information like country, period (year and month), plan type, and version).
       - name: sys_audit_created_on
         description: Timestamp when the row was initially created in the summary table.
       - name: sys_audit_created_by
@@ -819,3 +821,193 @@ models:
         description: Timestamp of the latest update to the row.
       - name: sys_audit_updated_by
         description: Source or user responsible for the latest update.
+
+  - name: s__orders__carts_orders_heads__events
+    meta:
+      owner: "gustavo.braga@nuvemshop.com.br"
+      domain: "operations"
+      business_owner: "Nico Loreti"
+    description: >
+      Contains detailed event-level data for orders, carts, and order heads, including order lifecycle dates,
+      payment information, shipping details, storefront attributes, session data, and audit metadata.
+      This table provides a comprehensive view of order events with enriched money flows and session information.
+    columns:
+      - name: id
+        description: Unique identifier of the order. Primary key.
+        tests:
+          - not_null
+          - unique
+      - name: order_id
+        description: External order identifier.
+      - name: store_id
+        description: Identifier of the store that received the order. External key.
+        tests:
+          - not_null:
+              where: "sys_audit_updated_on >= current_timestamp - interval '1 hours'"
+      - name: country
+        description: Country where the store is located.
+      - name: created_at
+        description: Timestamp when the order was initially created.
+      - name: started_checkout_at
+        description: Timestamp when the customer started the checkout process.
+      - name: completed_contact_at
+        description: Timestamp when the customer completed the contact information step.
+      - name: completed_at
+        description: Timestamp when the order was completed.
+      - name: cancelled_at
+        description: Timestamp when the order was cancelled, if applicable.
+      - name: paid_at
+        description: Timestamp when the order was paid. Information obtained from order money flows or order log.
+      - name: reporting_month
+        description: First day of the month used for reporting purposes, based on paid_at or completed_at.
+      - name: order_traits
+        description: Additional traits or characteristics associated with the order.
+      - name: cancel_reason
+        description: Reason for order cancellation, if applicable.
+      - name: contact_email
+        description: Customer's contact email address.
+      - name: contact_name
+        description: Customer's contact name.
+      - name: storefront
+        description: Storefront from which the order originated (mobile, store, form, social, pos, api, others).
+      - name: device
+        description: Device type used for the order.
+      - name: device_type
+        description: Detailed device type classification.
+      - name: platform_type
+        description: Whether the order was placed on or off platform. 'on' for platform orders, 'off' for API orders with app_id different from 12217.
+      - name: status
+        description: Current status of the order.
+      - name: payment_status
+        description: Payment status of the order (e.g., paid, partially_paid, partially_refunded).
+      - name: order_currency
+        description: Original currency used in the order.
+      - name: country_currency
+        description: Expected local currency based on the store's country (ARS for Argentina, BRL for Brazil, MXN for Mexico, COP for Colombia, CLP for Chile).
+      - name: order_in_foreign_currency
+        description: Boolean indicating whether the order was paid in a currency different from the expected local currency.
+      - name: product_quantity
+        description: Total number of items in the order, including repeated products.
+      - name: total_in_usd
+        description: Total amount converted to USD considering exchange rates. Exchange rate value obtained from finance_exchange_rate.
+      - name: total_in_local_currency
+        description: Total amount converted to the expected local currency considering exchange rates. Exchange rate value obtained from finance_exchange_rate.
+      - name: total_in_original_currency
+        description: Total amount in the original currency used in the order.
+      - name: discount
+        description: Discount amount applied to the order.
+      - name: discount_gateway
+        description: Discount amount provided by the payment gateway.
+      - name: promotional_discount_id
+        description: Identifier of the promotional discount applied, if any.
+      - name: payment_handler
+        description: Payment handler used for the order (gateway name or app handle).
+      - name: payment_handler_category
+        description: Category classification of the payment handler.
+      - name: gateway
+        description: Payment gateway used for the order.
+      - name: internal_extra
+        description: Internal extra information related to the payment gateway.
+      - name: gateway_integration_type
+        description: Type of integration with the payment gateway.
+      - name: gateway_installments
+        description: Number of installments used in the payment.
+      - name: gateway_method
+        description: Payment method used through the gateway.
+      - name: order_date_store_id
+        description: Store identifier used for order date calculations.
+      - name: app_id
+        description: Application identifier for API-based orders.
+      - name: shipping_method
+        description: Shipping method selected for the order.
+      - name: shipping_cost
+        description: Shipping cost in the original currency.
+      - name: shipping_option
+        description: Shipping option selected.
+      - name: shipping_pickup_type
+        description: Type of pickup for shipping.
+      - name: shipping_province
+        description: Province or region to which the order was shipped.
+      - name: selected_shipping_partner
+        description: Shipping partner selected for fulfillment.
+      - name: flg_gsv
+        description: Flag indicating if the order uses GSV (Global Shipping Value) shipping.
+      - name: flg_multicd
+        description: Flag indicating if the order uses multi-CD (multi-warehouse) shipping.
+      - name: flg_ne_selected
+        description: Flag indicating if Nuvem Envio (shipping service) was selected.
+      - name: flg_ne_enabled
+        description: Flag indicating if Nuvem Envio (shipping service) was enabled.
+      - name: shipping_cost_owner
+        description: Entity responsible for the shipping cost (store or customer).
+      - name: fulfillment_status
+        description: Current fulfillment status of the order.
+      - name: shipping_handler
+        description: Shipping handler used for the order (shipping method or app handle).
+      - name: shipping_handler_category
+        description: Category classification of the shipping handler.
+      - name: last_payment_at
+        description: Timestamp of the last payment event for the order.
+      - name: flg_gmv
+        description: Flag indicating if the order qualifies for GMV (Gross Merchandise Value) calculation. True when payment_status is paid/partially_paid/partially_refunded, store is not blocked, total_in_usd is between 0 and 10000, and store is not a test store.
+      - name: possible_fraud_order
+        description: Boolean flag indicating if the order is from a store that has been blocked for fraud.
+      - name: is_test_store
+        description: Boolean flag indicating if the order is from a test store.
+      - name: source_name
+        description: Traffic source name from the session data.
+      - name: source_group
+        description: Traffic source group classification from the session data.
+      - name: google_subchannel
+        description: Google subchannel classification from the session data.
+      - name: traffic_type
+        description: Type of traffic from the session data.
+      - name: is_end_user
+        description: Boolean indicating if the traffic is from an end user.
+      - name: visitor_country
+        description: Country of the visitor from the session data.
+      - name: year_month_day_code
+        description: YYYYMMDD code used for partitioning the data. Partition Key. Based on paid_at, completed_at, or created_at.
+        tests:
+          - not_null:
+              where: "sys_audit_updated_on >= current_timestamp - interval '1 hours'"
+      - name: sys_audit_created_on
+        description: Timestamp when the row was initially created in the summary table.
+      - name: sys_audit_created_by
+        description: Source or user responsible for the initial row creation.
+      - name: sys_audit_updated_on
+        description: Timestamp of the latest update to the row.
+      - name: sys_audit_updated_by
+        description: Source or user responsible for the latest update.
+
+  - name: g__orders__order_total_paid__agg_daily
+    meta:
+      owner: "gustavo.braga@nuvemshop.com.br"
+      domain: "operations"
+      business_owner: "Nico Loreti"
+    description: >
+      Contains daily aggregated payment information for orders, including total amounts paid
+      in original currency and USD, payment timestamps, and currency information.
+      This table aggregates order money flows to provide a summary of payment data per order.
+    columns:
+      - name: order_id
+        description: Unique identifier of the order. Primary key.
+        tests:
+          - not_null
+          - unique
+      - name: currency
+        description: Currency in which the payment was made.
+      - name: year_month_day_code
+        description: YYYYMMDD code used for partitioning the data. Partition Key.
+        tests:
+          - not_null
+      - name: paid_at
+        description: Timestamp of the first payment for the order.
+      - name: last_payment_at
+        description: Timestamp of the most recent payment for the order.
+      - name: total_amount
+        description: Total amount paid in the original currency.
+      - name: total_amount_usd
+        description: Total amount paid converted to USD.
+      - name: sys_audit_updated_on
+        description: Timestamp of the latest update to the row.
