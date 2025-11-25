@@ -49,7 +49,7 @@ ordered AS (
         sys_audit_updated_on,
         LAG(end_date) OVER (PARTITION BY store_id ORDER BY id) AS prev_end_date,
         LAG(plan_name) OVER (PARTITION BY store_id ORDER BY id) AS prev_plan,
-        LAG(type) OVER (PARTITION BY store_id ORDER BY start_date, end_date) AS prev_type
+        LAG(type) OVER (PARTITION BY store_id ORDER BY start_date, id) AS prev_type
     FROM base
 ),
 
@@ -135,7 +135,8 @@ SELECT
              ORDER BY
                 created_at_contract DESC,   -- 🥇 contrato creado más recientemente
                 start_date DESC,            -- 🥈 si hay empate, el que empezó más recientemente
-                end_date DESC               -- 🥉 si aún hay empate, el que termina más tarde
+                end_date DESC,              -- 🥉 si hay empate, el que termina más tarde
+                contract_id DESC            -- ✅ desempate determinístico
            ) as rn_current
 FROM block_agg
 ),
