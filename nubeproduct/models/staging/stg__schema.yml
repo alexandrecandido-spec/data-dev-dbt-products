@@ -4589,7 +4589,7 @@ models:
       meta:
         owner: "ianca.leite@nuvemshop.com.br"  
         business_owner: "Giselle Galli"
-        domain: "models"
+        domain: "marketing"
     columns:
       - name: store_id
         description: "Unique identifier of the store."
