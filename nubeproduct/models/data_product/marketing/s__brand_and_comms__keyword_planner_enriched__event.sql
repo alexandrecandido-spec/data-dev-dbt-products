@@ -28,16 +28,16 @@ brand_detection AS (
     
     -- Tiendanube/Nuvemshop Detection (our brands)
     CASE 
-      WHEN LOWER(search_query) RLIKE '.*(tienda\\s*nube|nuvem\\s*shop).*' THEN TRUE
-      ELSE FALSE
+      WHEN LOWER(search_query) RLIKE '.*(tienda\\s*nube|nuvem\\s*shop).*' THEN 'True'
+      ELSE 'False'
     END AS is_nuvemshop_tiendanube,
     
     -- Next/Evolution Detection (product roadmap intelligence)
     CASE 
       WHEN LOWER(search_query) RLIKE '.*(tienda\\s*nube|nuvem\\s*shop).*(next|evoluci[oó]n).*'
         OR LOWER(search_query) RLIKE '.*(next|evoluci[oó]n).*(tienda\\s*nube|nuvem\\s*shop).*'
-      THEN TRUE
-      ELSE FALSE  
+      THEN 'True'
+      ELSE 'False'  
     END AS is_next_evolucion
     
   FROM base_data
@@ -55,20 +55,20 @@ official_flags AS (
   SELECT *,
     -- Official D2C Flag (false if is_next_evolucion = true)
     CASE 
-      WHEN is_next_evolucion = true THEN false
+      WHEN is_next_evolucion = 'True' THEN 'False'
       WHEN d2c_detected.brand_name IS NOT NULL 
         AND d2c_detected.brand_name IN ('tiendanube', 'nuvemshop', 'nuvem shop', 'tienda nube')
-      THEN true
-      ELSE false
+      THEN 'True'
+      ELSE 'False'
     END AS flag_d2c_oficial,
     
     -- Official Marketplace Flag (false if is_next_evolucion = true)
     CASE 
-      WHEN is_next_evolucion = true THEN false  
+      WHEN is_next_evolucion = 'True' THEN 'False'  
       WHEN marketplace_detected.brand_name IS NOT NULL
         AND marketplace_detected.brand_name IN ('tiendanube', 'nuvemshop', 'nuvem shop', 'tienda nube')
-      THEN true
-      ELSE false
+      THEN 'True'
+      ELSE 'False'
     END AS flag_marketplace_oficial
     
   FROM kwp_classification

@@ -3569,25 +3569,25 @@ models:
         tests:
           - not_null
           - accepted_values:
-              values: [true, false]
+              values: ['True', 'False']
       - name: is_next_evolucion
         description: "Boolean flag for Next/Evolution product detection"
         tests:
           - not_null
           - accepted_values:
-              values: [true, false]
+              values: ['True', 'False']
       - name: flag_d2c_oficial
         description: "Boolean flag indicating if D2C brand is officially monitored"
         tests:
           - not_null
           - accepted_values:
-              values: [true, false]
+              values: ['True', 'False']
       - name: flag_marketplace_oficial
         description: "Boolean flag indicating if marketplace brand is officially monitored"
         tests:
           - not_null
           - accepted_values:
-              values: [true, false]
+              values: ['True', 'False']
       - name: impressions
         description: "Number of searches/search volume for the keyword"
         tests:
