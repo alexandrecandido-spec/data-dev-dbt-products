@@ -27,4 +27,5 @@ from options o
 {% if is_incremental() %}
   WHERE
   creation_date >= (select coalesce(max(creation_date),'1900-01-01') from {{ this }} )
+  or (is_subs_option_deleted = true and subs_option_id in (select subs_option_id from {{ this }} where is_subs_option_deleted = false))
 {% endif %}

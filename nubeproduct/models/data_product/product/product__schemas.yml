@@ -5269,6 +5269,242 @@ models:
         description: "User or system who last updated this record."
         tests: [not_null]
 
+
+  - name: s__general__dealbreakers_process_changelog_input__scd
+    description: >
+      Silver data product that tracks raw historical changes of dealbreaker records, both current and deleted, 
+      as sourced from HubSpot. It performs row-level change detection and validation.
+      It includes 'row_hash', validity period tracking, and flags for invalid records.
+      This data products is used as input for the final changelog data product.
+      If the process is run more than once a day and some data changed during this runs, the data product will be updated incrementally.
+      It includes audit tracking and is updated incrementally.
+      This shortened version of the original is used for the Dealbreakers registration process and control.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:   
+          - dealbreaker_id
+          - valid_from
+          - row_hash
+    columns:
+      - name: dealbreaker_id
+        description: "Unique identifier for the dealbreaker."
+        tests: 
+          - not_null
+      - name: processed_at
+        description: "Timestamp when the record was processed by DBT."    
+      - name: is_archived
+        description: "Boolean flag indicating if the dealbreaker is archived in HubSpot."
+      - name: repo_name
+        description: "Name of the GitHub repository related to the issue/problem."
+      - name: issue_number
+        description: "GitHub issue number associated with the dealbreaker."
+      - name: store_id
+        description: "Internal store identifier mapped to the HubSpot company."
+      - name: impact
+        description: "Impact level of the dealbreaker ('high' or 'dealbreaker')."
+      - name: is_closed
+        description: "Flag that determines whether the record is closed or not."
+      - name: valid_from
+        description: "Start date when this version of the record became valid. It is set as the previous day of the processed_at timestamp."
+        tests:
+          - not_null
+      - name: is_valid
+        description: "Boolean flag indicating if the record passed validation checks associated to manual data from Hubspot."
+      - name: invalid_reason
+        description: "Reason why the record was marked as invalid (if applicable)."
+      - name: sys_audit_created_on
+        description: "Timestamp when this record was first created in the DBT model."
+      - name: sys_audit_created_by
+        description: "Identifier for the user or system that created this record."
+      - name: sys_audit_updated_on
+        description: "Timestamp when this record was last updated."
+      - name: sys_audit_updated_by
+        description: "Identifier for the user or system that last updated this record."
+      - name: row_hash
+        description: "MD5 hash of the row content to detect changes."
+
+
+  - name: s__general__dealbreakers_process_changelog__scd
+    description: >
+      Silver data product that implements a clean Slowly Changing Dimension (SCD Type 2) changelog 
+      for dealbreaker records. It removes duplicates by 'valid_from', calculates 'valid_to', 
+      and flags the current active record.
+      This shortened version of the original is used for the Dealbreakers registration process and control.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:   
+          - dealbreaker_id
+          - valid_from
+    columns:
+      - name: dealbreaker_id
+        description: "Unique identifier for the dealbreaker."
+        tests: 
+          - not_null
+      - name: processed_at
+        description: "Timestamp when the record was processed by DBT."    
+      - name: is_archived
+        description: "Boolean flag indicating if the dealbreaker is archived in HubSpot."
+      - name: repo_name
+        description: "Name of the GitHub repository related to the issue/problem."
+      - name: issue_number
+        description: "GitHub issue number associated with the dealbreaker."
+      - name: store_id
+        description: "Internal store identifier mapped to the HubSpot company."
+      - name: impact
+        description: "Impact level of the dealbreaker ('high' or 'dealbreaker')."
+      - name: is_closed
+        description: "Flag that determines whether the record is closed or not."
+      - name: valid_from
+        description: "Start date when this version of the record became valid. It is set as the previous day of the processed_at timestamp as this model runs daily."
+        tests:
+          - not_null
+      - name: valid_to
+        description: "End date for which this record version is valid."
+        tests:
+          - not_null
+      - name: is_current
+        description: "Flag indicating if this is the current version of the record."
+        tests:
+          - not_null
+      - name: is_valid
+        description: "Boolean flag indicating if the record passed validation checks associated to manual data from Hubspot."
+      - name: invalid_reason
+        description: "Reason why the record was marked as invalid (if applicable)."
+      - name: sys_audit_created_on
+        description: "Timestamp when this record was first created in the DBT model."
+      - name: sys_audit_created_by
+        description: "Identifier for the user or system that created this record."
+      - name: sys_audit_updated_on
+        description: "Timestamp when this record was last updated."
+      - name: sys_audit_updated_by
+        description: "Identifier for the user or system that last updated this record."
+
+
+  - name: s__general__dealbreakers_process_valid__event
+    description: >
+      Model representing the consolidated and deduplicated state of dealbreakers,
+      both open and closed, filtering archived records and removing duplicates.
+      It contains business logic to maintain the health of the processes involved.
+      Built from the historical changelog and current HubSpot events.
+      This shortened version of the original is used for the Dealbreakers registration process and control.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: 
+            - dealbreaker_id
+            - valid_from
+    config:
+      meta:
+        owner: "matias.scasso@tiendanube.com"
+        domain: "product"
+        business_owner: "Martin Palombo"
+    columns:
+      - name: repo_name
+        description: "Determines if row is related to an Issue or Problem."
+        tests:
+            - not_null
+      - name: issue_number
+        description: "Issue/problem identification number. Must be combined with repo_name to correctly identify the issue/problem."
+        tests:
+            - not_null
+      - name: dealbreaker_source
+        description: "Source of the dealbreaker (e.g., HubSpot)."
+      - name: dealbreaker_id
+        description: "Unique identifier for the dealbreaker."
+        tests:
+            - not_null
+      - name: author
+        description: "Author of the dealbreaker (created/updated user with 'h' prefix for Hubspot users)."
+      - name: is_relevant
+        description: "Boolean indicating whether the record is relevant."
+        tests:
+            - not_null
+      - name: valid_from
+        description: "Date from which the data associated with the record is valid."
+        tests:
+            - not_null
+      - name: store_id
+        description: "ID of the store affected by the dealbreaker."
+        tests:
+            - not_null
+      - name: impact
+        description: "Impact of the comment. It is only included for Mid Market stores."
+      - name: sys_audit_created_on
+        description: "Timestamp when this record was first created in the DBT model."
+        tests:
+            - not_null
+      - name: sys_audit_created_by
+        description: "Identifier of the user or system that created this record."
+        tests:
+            - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when this record was last updated."
+        tests:
+            - not_null
+      - name: sys_audit_updated_by
+        description: "Identifier of the user or system that last updated this record."
+        tests:
+            - not_null
+
+
+  - name: s__general__dealbreakers_process_comment_like__event
+    description: >
+      Model representing the consolidated and deduplicated state of dealbreakers,
+      both open and closed, filtering archived records and removing duplicates.
+      It contains business logic to maintain the health of the processes involved.
+      This model is similar to the s__general__dealbreakers_valid__event model, but it is formatted to match Github comments.
+      This shortened version of the original is used for the Dealbreakers registration process and control.
+    config:
+      meta:
+        owner: "matias.scasso@tiendanube.com"
+        domain: "product"
+        business_owner: "Martin Palombo"
+    columns:
+      - name: repo_name
+        description: "Determines if row is related to an Issue or Problem."
+        tests:
+            - not_null
+      - name: issue_number
+        description: "Issue/problem identification number. Must be combined with repo_name to correctly identify the issue/problem."
+        tests:
+            - not_null
+      - name: comment_id
+        description: "Unique key created from the combination of the dealbreaker_id and the valid_from date."
+        tests:
+            - not_null
+            - unique
+      - name: author
+        description: "Author of the dealbreaker (created/updated user with 'h' prefix for Hubspot users)."
+      - name: is_relevant
+        description: "Boolean indicating whether the record is relevant."
+        tests:
+            - not_null
+      - name: comment_date
+        description: "Date from which the data associated with the record is valid."
+        tests:
+            - not_null
+      - name: store_id
+        description: "ID of the store affected by the dealbreaker."
+        tests:
+            - not_null
+      - name: impact
+        description: "Impact of the comment. It is only included for Mid Market stores."
+      - name: sys_audit_created_on
+        description: "Timestamp when this record was first created in the DBT model."
+        tests:
+            - not_null
+      - name: sys_audit_created_by
+        description: "Identifier of the user or system that created this record."
+        tests:
+            - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when this record was last updated."
+        tests:
+            - not_null
+      - name: sys_audit_updated_by
+        description: "Identifier of the user or system that last updated this record."
+        tests:
+            - not_null
+
   - name: g__checkout__payment_method_position__event
     description: >
       Gold layer table with orders that used payment method position feature.
