@@ -1,0 +1,28 @@
+-- 🎯 PRODUCTS: Cambio en products_orders_base CTE
+
+-- ❌ ANTES (tu versión actual):
+products_orders_base AS (
+  FROM orders_dedup o
+  INNER JOIN merchant_complete mm ON mm.store_id = o.store_id
+  LEFT JOIN blocked_stores bs ON bs.store_id = o.store_id
+  
+  WHERE bs.store_id IS NULL
+    AND o.payment_status = 'paid'
+    -- ... resto filtros ...
+)
+
+-- ✅ DESPUÉS (con store state):
+products_orders_base AS (
+  FROM orders_dedup o
+  INNER JOIN merchant_complete mm ON mm.store_id = o.store_id
+  -- ✅ AGREGAR: Store state validation
+  INNER JOIN hive_metastore.moltres.mwp_store_info si ON si.id = o.store_id
+  LEFT JOIN blocked_stores bs ON bs.store_id = o.store_id
+  
+  WHERE bs.store_id IS NULL
+    AND si.state <> 4              -- ✅ NUEVO: Excluir stores inactivas
+    AND o.payment_status = 'paid'
+    -- ... resto filtros igual ...
+)
+
+

@@ -1,0 +1,1122 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2575.7">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px 'Helvetica Light'}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px 'Helvetica Light'; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1"># 🎯 Special Events Analysis - Arquitectura y Implementación Completa</p>
+<p class="p2"><br></p>
+<p class="p1">## 📑 Índice</p>
+<p class="p1">1. [Resumen Ejecutivo](#resumen-ejecutivo)</p>
+<p class="p1">2. [Arquitectura General](#arquitectura-general)</p>
+<p class="p1">3. [Notebooks de Databricks](#notebooks-databricks)</p>
+<p class="p1">4. [Transformación de Tableau Dashboard](#tableau)</p>
+<p class="p1">5. [Pipeline de n8n](#pipeline-n8n)</p>
+<p class="p1">6. [Repo Landing Page](#repo-landing)</p>
+<p class="p1">7. [Cambios Pendientes](#pendientes)</p>
+<p class="p1">8. [Anexos Técnicos](#anexos)</p>
+<p class="p2"><br></p>
+<p class="p1">---</p>
+<p class="p2"><br></p>
+<p class="p1">## 1. Resumen Ejecutivo {#resumen-ejecutivo}</p>
+<p class="p2"><br></p>
+<p class="p1">### 🎯 Objetivo</p>
+<p class="p1">Implementar un sistema completo de análisis para eventos especiales (Cyber Monday, Hot Sale, etc.) que proporcione datos en tiempo real para la toma de decisiones durante eventos críticos de ventas.</p>
+<p class="p2"><br></p>
+<p class="p1">### 🏗️ Componentes Principales</p>
+<p class="p1">- **3 Notebooks Databricks**: Core (órdenes), Sessions, Products</p>
+<p class="p1">- **Sistema de Alertas n8n**: Reportes automáticos vía Slack</p>
+<p class="p1">- **Dashboard Tableau**: Visualización en tiempo real</p>
+<p class="p1">- **Repo Landing Page**: Query de referencia alineada</p>
+<p class="p2"><br></p>
+<p class="p1">### 📊 Impacto</p>
+<p class="p1">- **Performance**: 10-50x más rápido con partition pruning dinámico</p>
+<p class="p1">- **Precisión**: 99.95% de exactitud vs repo oficial (diferencia &lt;100 órdenes)</p>
+<p class="p1">- **Automatización**: Reportes cada 3-8 horas sin intervención manual</p>
+<p class="p1">- **Escalabilidad**: Funciona automáticamente para eventos futuros</p>
+<p class="p2"><br></p>
+<p class="p1">---</p>
+<p class="p2"><br></p>
+<p class="p1">## 2. Arquitectura General {#arquitectura-general}</p>
+<p class="p2"><br></p>
+<p class="p1">### 🔄 Flujo de Datos</p>
+<p class="p2"><br></p>
+<p class="p1">```</p>
+<p class="p1">┌─────────────────┐<span class="Apple-converted-space">    </span>┌─────────────────┐<span class="Apple-converted-space">    </span>┌─────────────────┐</p>
+<p class="p1">│ <span class="Apple-converted-space">  </span>Databricks<span class="Apple-converted-space">    </span>│───▶│<span class="Apple-converted-space">      </span>Tableau <span class="Apple-converted-space">    </span>│───▶│ <span class="Apple-converted-space">  </span>Stakeholders<span class="Apple-converted-space">  </span>│</p>
+<p class="p1">│ <span class="Apple-converted-space">  </span>Notebooks <span class="Apple-converted-space">    </span>│<span class="Apple-converted-space">    </span>│<span class="Apple-converted-space">    </span>Dashboard <span class="Apple-converted-space">    </span>│<span class="Apple-converted-space">    </span>│ <span class="Apple-converted-space">  </span>Decision<span class="Apple-converted-space">      </span>│</p>
+<p class="p1">│<span class="Apple-converted-space">  </span>(3 tipos)<span class="Apple-converted-space">      </span>│<span class="Apple-converted-space">    </span>│ <span class="Apple-converted-space">  </span>(Live + Ext) <span class="Apple-converted-space">  </span>│<span class="Apple-converted-space">    </span>│<span class="Apple-converted-space">    </span>Making <span class="Apple-converted-space">      </span>│</p>
+<p class="p1">└─────────────────┘<span class="Apple-converted-space">    </span>└─────────────────┘<span class="Apple-converted-space">    </span>└─────────────────┘</p>
+<p class="p1"><span class="Apple-converted-space">         </span>│ <span class="Apple-converted-space">                      </span>▲</p>
+<p class="p1"><span class="Apple-converted-space">         </span>▼ <span class="Apple-converted-space">                      </span>│</p>
+<p class="p1">┌─────────────────┐<span class="Apple-converted-space">              </span>│</p>
+<p class="p1">│<span class="Apple-converted-space">      </span>n8n<span class="Apple-converted-space">        </span>│──────────────┘</p>
+<p class="p1">│ <span class="Apple-converted-space">  </span>Alerting<span class="Apple-converted-space">      </span>│</p>
+<p class="p1">│ <span class="Apple-converted-space">  </span>Pipeline<span class="Apple-converted-space">      </span>│</p>
+<p class="p1">└─────────────────┘</p>
+<p class="p1">```</p>
+<p class="p2"><br></p>
+<p class="p1">### 🗂️ Estructura de Tablas</p>
+<p class="p2"><br></p>
+<p class="p1">**Tablas Actuales (Refresh automático):**</p>
+<p class="p1">- `data_products_dev.testing_marketing.special_events_actual`</p>
+<p class="p1">- `data_products_dev.testing_marketing.special_events_sessions_actual` <span class="Apple-converted-space"> </span></p>
+<p class="p1">- `data_products_dev.testing_marketing.special_events_products_name_actual`</p>
+<p class="p2"><br></p>
+<p class="p1">**Tablas Históricas (Carga única):**</p>
+<p class="p1">- `data_products_dev.testing_marketing.special_events_historico`</p>
+<p class="p1">- `data_products_dev.testing_marketing.special_events_sessions_historico`</p>
+<p class="p1">- `data_products_dev.testing_marketing.special_events_products_name_historico`</p>
+<p class="p2"><br></p>
+<p class="p1">### ⏰ Scheduling Strategy</p>
+<p class="p2"><br></p>
+<p class="p1">| Notebook | Frecuencia | Justificación |</p>
+<p class="p1">|----------|------------|---------------|</p>
+<p class="p1">| **Core** | 3 horas | Órdenes cambian constantemente (paid status) |</p>
+<p class="p1">| **Sessions** | 8 horas | Sessions menos volátiles |</p>
+<p class="p1">| **Products** | 8 horas | Products menos volátiles |</p>
+<p class="p2"><br></p>
+<p class="p1">---</p>
+<p class="p2"><br></p>
+<p class="p1">## 3. Notebooks de Databricks {#notebooks-databricks}</p>
+<p class="p2"><br></p>
+<p class="p1">### 🎯 3.1 Arquitectura Común</p>
+<p class="p2"><br></p>
+<p class="p1">Todas las notebooks siguen la misma arquitectura optimizada:</p>
+<p class="p2"><br></p>
+<p class="p1">#### 📊 Componentes Principales:</p>
+<p class="p1">1. **Configuración Centralizada**: Países, filtros, parámetros</p>
+<p class="p1">2. **Merchant Complete**: Info completa de tiendas (pre-computada)</p>
+<p class="p1">3. **Event Windows**: Ventanas de eventos con timezone handling</p>
+<p class="p1">4. **Partition Pruning Dinámico**: Solo particiones necesarias</p>
+<p class="p1">5. **Repo Official Alignment**: Filtros exactos del repo de landing</p>
+<p class="p2"><br></p>
+<p class="p1">#### ⚡ Optimizaciones Implementadas:</p>
+<p class="p2"><br></p>
+<p class="p1">**A. Partition Pruning Dinámico**</p>
+<p class="p1">```python</p>
+<p class="p1">def get_dynamic_partitions(global_start, global_end):</p>
+<p class="p1"><span class="Apple-converted-space">    </span># Consulta qué particiones realmente contienen datos</p>
+<p class="p1"><span class="Apple-converted-space">    </span># En lugar de estimar, usa datos reales</p>
+<p class="p1"><span class="Apple-converted-space">    </span># Resultado: Solo 19 particiones vs TODAS desde 2018</p>
+<p class="p1">```</p>
+<p class="p2"><br></p>
+<p class="p1">**B. Arquitectura Sin Deduplicación CDC**</p>
+<p class="p1">- **Antes**: `ROW_NUMBER() OVER (PARTITION BY o.id ORDER BY o.updated_at)`</p>
+<p class="p1">- **Ahora**: Query directa más simple</p>
+<p class="p1">- **Impacto**: 30-50% más rápido</p>
+<p class="p2"><br></p>
+<p class="p1">**C. Merchant Complete como LEFT JOIN**</p>
+<p class="p1">- **Antes**: `INNER JOIN` perdía órdenes sin merchant info</p>
+<p class="p1">- **Ahora**: `LEFT JOIN` mantiene 100% cobertura</p>
+<p class="p1">- **Resultado**: 0 órdenes perdidas por merchant info</p>
+<p class="p2"><br></p>
+<p class="p1">### 🛒 3.2 Core Notebook (Órdenes)</p>
+<p class="p2"><br></p>
+<p class="p1">#### Propósito</p>
+<p class="p1">Análisis principal de órdenes por evento especial con máximo detalle de merchant info.</p>
+<p class="p2"><br></p>
+<p class="p1">#### Métricas Principales</p>
+<p class="p1">- **Orders**: Órdenes pagadas por evento</p>
+<p class="p1">- **GMV**: Gross Merchandise Value <span class="Apple-converted-space"> </span></p>
+<p class="p1">- **Stores**: Tiendas participantes</p>
+<p class="p1">- **Products Quantity**: Productos vendidos</p>
+<p class="p1">- **Merchant Enrichment**: 50+ campos de tienda</p>
+<p class="p2"><br></p>
+<p class="p1">#### Query Principal Optimizada</p>
+<p class="p1">```sql</p>
+<p class="p1">-- ORDERS SCOPED - Particiones dinámicas + Repo alignment</p>
+<p class="p1">WITH</p>
+<p class="p1">dynamic_partitions AS (</p>
+<p class="p1"><span class="Apple-converted-space">  </span>-- Solo particiones con datos reales en el período</p>
+<p class="p1"><span class="Apple-converted-space">  </span>SELECT DISTINCT year_month_code FROM mwp_orders<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">  </span>WHERE completed_at BETWEEN global_start AND global_end</p>
+<p class="p1">),</p>
+<p class="p1">orders_base AS (</p>
+<p class="p1"><span class="Apple-converted-space">  </span>SELECT o.*, mm.*<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">  </span>FROM mwp_orders o</p>
+<p class="p1"><span class="Apple-converted-space">  </span>LEFT JOIN merchant_complete mm ON mm.store_id = o.store_id</p>
+<p class="p1"><span class="Apple-converted-space">  </span>WHERE o.year_month_code IN (SELECT * FROM dynamic_partitions)</p>
+<p class="p1"><span class="Apple-converted-space">    </span>AND o.payment_status = 'paid'<span class="Apple-converted-space">  </span>-- Repo alignment</p>
+<p class="p1"><span class="Apple-converted-space">    </span>AND o.status &lt;&gt; 'cancelled' <span class="Apple-converted-space">    </span>-- Repo alignment <span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">    </span>AND o.storefront &lt;&gt; 'permalink' -- Repo alignment</p>
+<p class="p1"><span class="Apple-converted-space">    </span>AND o.total_in_usd BETWEEN 0 AND 10000 -- Repo alignment</p>
+<p class="p1">)</p>
+<p class="p1">```</p>
+<p class="p2"><br></p>
+<p class="p1">#### Performance Metrics</p>
+<p class="p1">- **Antes**: 1h 45min (todas las particiones)</p>
+<p class="p1">- **Ahora**: 15-25min (particiones dinámicas)</p>
+<p class="p1">- **Precisión**: 181,565 vs 181,468 repo oficial (99.95%)</p>
+<p class="p2"><br></p>
+<p class="p1">### 👥 3.3 Sessions Notebook</p>
+<p class="p2"><br></p>
+<p class="p1">#### Propósito <span class="Apple-converted-space"> </span></p>
+<p class="p1">Análisis de tráfico y conversión por sesión, agregado por store_id + fecha_hora.</p>
+<p class="p2"><br></p>
+<p class="p1">#### Métricas Principales</p>
+<p class="p1">- **Sessions**: Sesiones únicas</p>
+<p class="p1">- **Visitors**: Visitantes únicos <span class="Apple-converted-space"> </span></p>
+<p class="p1">- **Orders**: Órdenes completadas</p>
+<p class="p1">- **Carritos**: Carritos iniciados</p>
+<p class="p1">- **GMV**: Revenue por sesión</p>
+<p class="p1">- **CVR**: Conversion rates (sessions→orders, carritos→orders)</p>
+<p class="p2"><br></p>
+<p class="p1">#### Arquitectura Específica</p>
+<p class="p1">```sql</p>
+<p class="p1">-- SESSIONS + ORDERS + CARRITOS UNIFICADOS</p>
+<p class="p1">WITH</p>
+<p class="p1">sessions_base AS (</p>
+<p class="p1"><span class="Apple-converted-space">  </span>SELECT store_id, fecha_hora, COUNT(session_id) as sessions</p>
+<p class="p1"><span class="Apple-converted-space">  </span>FROM storefronts_curated.sessions<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">  </span>WHERE year = 2025 AND month = 10<span class="Apple-converted-space">  </span>-- Partition simple</p>
+<p class="p1">),</p>
+<p class="p1">orders_base AS (</p>
+<p class="p1"><span class="Apple-converted-space">  </span>SELECT store_id, fecha_hora, COUNT(*) as orders, SUM(total) as gmv</p>
+<p class="p1"><span class="Apple-converted-space">  </span>FROM mwp_orders WHERE payment_status = 'paid'</p>
+<p class="p1">),</p>
+<p class="p1">carritos_base AS (</p>
+<p class="p1"><span class="Apple-converted-space">  </span>SELECT store_id, fecha_hora, COUNT(*) as carritos <span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">  </span>FROM mwp_orders WHERE started_checkout IS NOT NULL</p>
+<p class="p1">)</p>
+<p class="p1">-- FULL OUTER JOIN para métrica completa</p>
+<p class="p1">```</p>
+<p class="p2"><br></p>
+<p class="p1">#### Partitioning Strategy</p>
+<p class="p1">- **Sessions**: `year=2025, month=10` (1 partición)</p>
+<p class="p1">- **Orders**: 19 particiones dinámicas</p>
+<p class="p1">- **Performance**: Mucho más rápida que core por partición simple</p>
+<p class="p2"><br></p>
+<p class="p1">### 📦 3.4 Products Notebook</p>
+<p class="p2"><br></p>
+<p class="p1">#### Propósito</p>
+<p class="p1">Análisis por producto individual, agregado por store_id + product_name + fecha_hora.</p>
+<p class="p2"><br></p>
+<p class="p1">#### Métricas Principales</p>
+<p class="p1">- **Product Name**: Nombre del producto</p>
+<p class="p1">- **Product Type**: Categorización automática</p>
+<p class="p1">- **Orders**: Órdenes que incluyen el producto</p>
+<p class="p1">- **GMV**: Revenue proporcional por producto</p>
+<p class="p1">- **Products Quantity**: Cantidad vendida</p>
+<p class="p1">- **Share**: Participación en GMV total</p>
+<p class="p2"><br></p>
+<p class="p1">#### Lógica de GMV Proporcional</p>
+<p class="p1">```sql</p>
+<p class="p1">-- GMV proporcional por producto</p>
+<p class="p1">SUM(o.total * p.quantity / total_products.total_quantity) AS gmv</p>
+<p class="p2"><br></p>
+<p class="p1">-- Donde total_products.total_quantity = SUM(quantity) per order</p>
+<p class="p1">-- Evita duplicar GMV cuando una orden tiene múltiples productos</p>
+<p class="p1">```</p>
+<p class="p2"><br></p>
+<p class="p1">#### Product Type Classification</p>
+<p class="p1">Sistema de palabras clave para categorizar productos automáticamente:</p>
+<p class="p1">- **Ropa**: 'remera', 'pantalon', 'vestido', etc.</p>
+<p class="p1">- **Tecnología**: 'celular', 'notebook', 'auricular', etc. <span class="Apple-converted-space"> </span></p>
+<p class="p1">- **Hogar**: 'mesa', 'silla', 'decoracion', etc.</p>
+<p class="p1">- **Otros**: Todo lo que no matchea</p>
+<p class="p2"><br></p>
+<p class="p1">### 🔄 3.5 Versiones Históricas vs Actuales</p>
+<p class="p2"><br></p>
+<p class="p1">#### Estrategia de Datos</p>
+<p class="p2"><br></p>
+<p class="p1">**Históricas (Carga única)**</p>
+<p class="p1">- **Propósito**: Datos de eventos pasados que NO cambian</p>
+<p class="p1">- **Trigger**: Manual o una sola vez</p>
+<p class="p1">- **Tablas**: `*_historico`</p>
+<p class="p1">- **Contenido**: Todos los eventos hasta evento actual - 1</p>
+<p class="p2"><br></p>
+<p class="p1">**Actuales (Refresh automático)** <span class="Apple-converted-space"> </span></p>
+<p class="p1">- **Propósito**: Evento actual en vivo que SÍ cambia</p>
+<p class="p1">- **Trigger**: Databricks Jobs cada 3-8 horas</p>
+<p class="p1">- **Tablas**: `*_actual` <span class="Apple-converted-space"> </span></p>
+<p class="p1">- **Contenido**: Solo evento actual + últimos 7 días PW</p>
+<p class="p2"><br></p>
+<p class="p1">#### Razón del Split</p>
+<p class="p1">1. **Performance**: No reprocesar datos inmutables</p>
+<p class="p1">2. **Costo**: Menos compute en re-cálculos innecesarios</p>
+<p class="p1">3. **Estabilidad**: Datos históricos nunca fallan</p>
+<p class="p1">4. **Freshness**: Solo datos actuales se actualizan</p>
+<p class="p2"><br></p>
+<p class="p1">#### Configuración en Tableau</p>
+<p class="p1">```sql</p>
+<p class="p1">-- UNION de ambas fuentes</p>
+<p class="p1">SELECT * FROM special_events_historico</p>
+<p class="p1">WHERE event_name != 'cybermonday-2025'<span class="Apple-converted-space">  </span>-- Actual event</p>
+<p class="p1">UNION ALL <span class="Apple-converted-space"> </span></p>
+<p class="p1">SELECT * FROM special_events_actual</p>
+<p class="p1">WHERE event_name = 'cybermonday-2025' <span class="Apple-converted-space">  </span>-- Current event</p>
+<p class="p1">```</p>
+<p class="p2"><br></p>
+<p class="p1">---</p>
+<p class="p2"><br></p>
+<p class="p1">## 4. Transformación de Tableau Dashboard {#tableau}</p>
+<p class="p2"><br></p>
+<p class="p1">### 🔄 4.1 Migración Redshift → Databricks</p>
+<p class="p2"><br></p>
+<p class="p1">#### Arquitectura Anterior (Redshift)</p>
+<p class="p1">```</p>
+<p class="p1">┌─────────────────┐<span class="Apple-converted-space">    </span>┌─────────────────┐<span class="Apple-converted-space">    </span>┌─────────────────┐</p>
+<p class="p1">│<span class="Apple-converted-space">    </span>Tableau<span class="Apple-converted-space">      </span>│───▶│<span class="Apple-converted-space">    </span>Redshift <span class="Apple-converted-space">    </span>│───▶│<span class="Apple-converted-space">  </span>18 Data<span class="Apple-converted-space">        </span>│</p>
+<p class="p1">│ <span class="Apple-converted-space">  </span>Dashboard <span class="Apple-converted-space">    </span>│<span class="Apple-converted-space">    </span>│ <span class="Apple-converted-space">  </span>(Complex<span class="Apple-converted-space">      </span>│<span class="Apple-converted-space">    </span>│<span class="Apple-converted-space">  </span>Sources<span class="Apple-converted-space">        </span>│</p>
+<p class="p1">│ (Muchas solapas)│<span class="Apple-converted-space">    </span>│<span class="Apple-converted-space">    </span>Queries) <span class="Apple-converted-space">    </span>│<span class="Apple-converted-space">    </span>│ (Fragmentadas)<span class="Apple-converted-space">  </span>│</p>
+<p class="p1">└─────────────────┘<span class="Apple-converted-space">    </span>└─────────────────┘<span class="Apple-converted-space">    </span>└─────────────────┘</p>
+<p class="p1"><span class="Apple-converted-space">         </span>▲ <span class="Apple-converted-space">                      </span>▲</p>
+<p class="p1"><span class="Apple-converted-space">         </span>│ <span class="Apple-converted-space">                      </span>│</p>
+<p class="p1"><span class="Apple-converted-space">    </span>❌ Problemas: <span class="Apple-converted-space">          </span>❌ Problemas:</p>
+<p class="p1"><span class="Apple-converted-space">    </span>- Queries lentas <span class="Apple-converted-space">        </span>- Queries complejas<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">    </span>- 18 datasources <span class="Apple-converted-space">        </span>- Lógica fragmentada</p>
+<p class="p1"><span class="Apple-converted-space">    </span>- Solapas repetitivas<span class="Apple-converted-space">    </span>- Difícil mantenimiento</p>
+<p class="p1"><span class="Apple-converted-space">    </span>- Performance pobre<span class="Apple-converted-space">      </span>- Datos desactualizados</p>
+<p class="p1">```</p>
+<p class="p2"><br></p>
+<p class="p1">#### Arquitectura Actual (Databricks)</p>
+<p class="p1">```</p>
+<p class="p1">┌─────────────────┐<span class="Apple-converted-space">    </span>┌─────────────────┐<span class="Apple-converted-space">    </span>┌─────────────────┐</p>
+<p class="p1">│<span class="Apple-converted-space">    </span>Tableau<span class="Apple-converted-space">      </span>│───▶│ <span class="Apple-converted-space">  </span>Databricks<span class="Apple-converted-space">    </span>│───▶│ <span class="Apple-converted-space">  </span>3 Data<span class="Apple-converted-space">        </span>│</p>
+<p class="p1">│ <span class="Apple-converted-space">  </span>Dashboard <span class="Apple-converted-space">    </span>│<span class="Apple-converted-space">    </span>│ <span class="Apple-converted-space">  </span>(Optimized<span class="Apple-converted-space">    </span>│<span class="Apple-converted-space">    </span>│<span class="Apple-converted-space">  </span>Sources<span class="Apple-converted-space">        </span>│</p>
+<p class="p1">│(Pocas solapas + │<span class="Apple-converted-space">    </span>│<span class="Apple-converted-space">    </span>Tables)<span class="Apple-converted-space">      </span>│<span class="Apple-converted-space">    </span>│ (Unificadas)<span class="Apple-converted-space">    </span>│</p>
+<p class="p1">│<span class="Apple-converted-space">  </span>Selectores)<span class="Apple-converted-space">    </span>│<span class="Apple-converted-space">    </span>│ <span class="Apple-converted-space">                </span>│<span class="Apple-converted-space">    </span>│ <span class="Apple-converted-space">                </span>│</p>
+<p class="p1">└─────────────────┘<span class="Apple-converted-space">    </span>└─────────────────┘<span class="Apple-converted-space">    </span>└─────────────────┘</p>
+<p class="p1"><span class="Apple-converted-space">         </span>▲ <span class="Apple-converted-space">                      </span>▲</p>
+<p class="p1"><span class="Apple-converted-space">         </span>│ <span class="Apple-converted-space">                      </span>│</p>
+<p class="p1"><span class="Apple-converted-space">    </span>✅ Beneficios:<span class="Apple-converted-space">          </span>✅ Beneficios:</p>
+<p class="p1"><span class="Apple-converted-space">    </span>- Selectores dinámicos <span class="Apple-converted-space">  </span>- Pre-procesado optimizado</p>
+<p class="p1"><span class="Apple-converted-space">    </span>- 3 datasources únicos <span class="Apple-converted-space">  </span>- Lógica centralizada <span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">    </span>- Máxima flexibilidad<span class="Apple-converted-space">    </span>- Performance superior</p>
+<p class="p1"><span class="Apple-converted-space">    </span>- Comparativas ricas <span class="Apple-converted-space">    </span>- Datos real-time</p>
+<p class="p1">```</p>
+<p class="p2"><br></p>
+<p class="p1">### 📈 4.2 Transformación de Data Sources</p>
+<p class="p2"><br></p>
+<p class="p1">#### Reducción Dramática: 18 → 3</p>
+<p class="p2"><br></p>
+<p class="p1">**ANTES (Redshift - 18 Data Sources):**</p>
+<p class="p1">```</p>
+<p class="p1">Orders_AR, Orders_BR, Orders_MX, Orders_CO, Orders_CL</p>
+<p class="p1">Sessions_AR, Sessions_BR, Sessions_MX, Sessions_CO, Sessions_CL <span class="Apple-converted-space"> </span></p>
+<p class="p1">Products_AR, Products_BR, Products_MX, Products_CO, Products_CL</p>
+<p class="p1">Merchants_Info, Events_Config, Attribution_Data</p>
+<p class="p1">```</p>
+<p class="p2"><br></p>
+<p class="p1">**AHORA (Databricks - 3 Data Sources):**</p>
+<p class="p1">```sql</p>
+<p class="p1">-- 1. CORE DATA SOURCE</p>
+<p class="p1">SELECT * FROM special_events_actual<span class="Apple-converted-space"> </span></p>
+<p class="p1">UNION ALL<span class="Apple-converted-space"> </span></p>
+<p class="p1">SELECT * FROM special_events_historico</p>
+<p class="p2"><br></p>
+<p class="p1">-- 2. SESSIONS DATA SOURCE <span class="Apple-converted-space"> </span></p>
+<p class="p1">SELECT * FROM special_events_sessions_actual</p>
+<p class="p1">UNION ALL</p>
+<p class="p1">SELECT * FROM special_events_sessions_historico</p>
+<p class="p2"><br></p>
+<p class="p1">-- 3. PRODUCTS DATA SOURCE</p>
+<p class="p1">SELECT * FROM special_events_products_name_actual <span class="Apple-converted-space"> </span></p>
+<p class="p1">UNION ALL</p>
+<p class="p1">SELECT * FROM special_events_products_name_historico</p>
+<p class="p1">```</p>
+<p class="p2"><br></p>
+<p class="p1">#### Beneficios de la Consolidación</p>
+<p class="p1">- **✅ Mantenimiento**: 1 lugar vs 18 lugares para cambios</p>
+<p class="p1">- **✅ Performance**: Queries pre-optimizadas vs queries complejas en Tableau</p>
+<p class="p1">- **✅ Consistencia**: Misma lógica aplicada a todos los países</p>
+<p class="p1">- **✅ Escalabilidad**: Agregar país nuevo = 0 datasources adicionales</p>
+<p class="p2"><br></p>
+<p class="p1">### 🎨 4.3 Revolución en UX: Solapas → Selectores</p>
+<p class="p2"><br></p>
+<p class="p1">#### Arquitectura Anterior</p>
+<p class="p1">```</p>
+<p class="p1">┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐</p>
+<p class="p1">│ Solapa: Orders<span class="Apple-converted-space">  </span>│ │Solapa: Sessions │ │Solapa: Products │</p>
+<p class="p1">│ by Country<span class="Apple-converted-space">      </span>│ │ by Country<span class="Apple-converted-space">      </span>│ │ by Country<span class="Apple-converted-space">      </span>│</p>
+<p class="p1">├─────────────────┤ ├─────────────────┤ ├─────────────────┤</p>
+<p class="p1">│ ├ Argentina <span class="Apple-converted-space">    </span>│ │ ├ Argentina <span class="Apple-converted-space">    </span>│ │ ├ Argentina <span class="Apple-converted-space">    </span>│</p>
+<p class="p1">│ ├ Brasil<span class="Apple-converted-space">        </span>│ │ ├ Brasil<span class="Apple-converted-space">        </span>│ │ ├ Brasil<span class="Apple-converted-space">        </span>│</p>
+<p class="p1">│ ├ México<span class="Apple-converted-space">        </span>│ │ ├ México<span class="Apple-converted-space">        </span>│ │ ├ México<span class="Apple-converted-space">        </span>│</p>
+<p class="p1">│ ├ Colombia<span class="Apple-converted-space">      </span>│ │ ├ Colombia<span class="Apple-converted-space">      </span>│ │ ├ Colombia<span class="Apple-converted-space">      </span>│</p>
+<p class="p1">│ └ Chile <span class="Apple-converted-space">        </span>│ │ └ Chile <span class="Apple-converted-space">        </span>│ │ └ Chile <span class="Apple-converted-space">        </span>│</p>
+<p class="p1">└─────────────────┘ └─────────────────┘ └─────────────────┘</p>
+<p class="p1">```</p>
+<p class="p1">**= 15+ solapas con lógica repetitiva**</p>
+<p class="p2"><br></p>
+<p class="p1">#### Arquitectura Actual</p>
+<p class="p1">```</p>
+<p class="p1">┌─────────────────────────────────────────────────────────────┐</p>
+<p class="p1">│<span class="Apple-converted-space">                    </span>DASHBOARD UNIFICADO<span class="Apple-converted-space">                      </span>│</p>
+<p class="p1">├─────────────────────────────────────────────────────────────┤</p>
+<p class="p1">│ 🎛️ SELECTORES DINÁMICOS: <span class="Apple-converted-space">                                  </span>│</p>
+<p class="p1">│ <span class="Apple-converted-space">                                                            </span>│</p>
+<p class="p1">│ 📊 Métrica: [GMV ▼] [Orders ▼] [Sessions ▼] [Products ▼] <span class="Apple-converted-space">  </span>│</p>
+<p class="p1">│ 📐 Dimensión: [Country ▼] [Segment ▼] [Aging ▼] [Plan ▼] <span class="Apple-converted-space">  </span>│ <span class="Apple-converted-space"> </span></p>
+<p class="p1">│ 🎯 Evento: [Cyber Monday 2025 ▼] vs [Hot Sale 2025 ▼]<span class="Apple-converted-space">      </span>│</p>
+<p class="p1">│ 📅 Período: [Full Event ▼] [Last 24h ▼] [Custom ▼] <span class="Apple-converted-space">        </span>│</p>
+<p class="p1">├─────────────────────────────────────────────────────────────┤</p>
+<p class="p1">│<span class="Apple-converted-space">                    </span>VISUALIZACIÓN ÚNICA<span class="Apple-converted-space">                      </span>│</p>
+<p class="p1">│<span class="Apple-converted-space">              </span>(Se adapta según selectores) <span class="Apple-converted-space">                  </span>│</p>
+<p class="p1">└─────────────────────────────────────────────────────────────┘</p>
+<p class="p1">```</p>
+<p class="p2"><br></p>
+<p class="p1">#### Ventajas del Nuevo Approach</p>
+<p class="p1">1. **✅ Flexibilidad Total**: Cualquier métrica × dimensión × evento</p>
+<p class="p1">2. **✅ Comparativas Dinámicas**: Cualquier evento vs cualquier evento <span class="Apple-converted-space"> </span></p>
+<p class="p1">3. **✅ Menos Clicks**: 1 dashboard vs navegar 15+ solapas</p>
+<p class="p1">4. **✅ Consistencia Visual**: Mismo layout, diferentes datos</p>
+<p class="p1">5. **✅ Fácil Exploración**: Cambios en tiempo real</p>
+<p class="p2"><br></p>
+<p class="p1">### 📊 4.4 Nuevas Capacidades Analíticas</p>
+<p class="p2"><br></p>
+<p class="p1">#### A. Comparativas Mejoradas Entre Eventos</p>
+<p class="p1">```sql</p>
+<p class="p1">-- ANTES: Solo evento actual</p>
+<p class="p1">SELECT gmv FROM current_event<span class="Apple-converted-space"> </span></p>
+<p class="p2"><br></p>
+<p class="p1">-- AHORA: Comparativa rica cualquier evento vs cualquier evento</p>
+<p class="p1">SELECT<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">  </span>current.gmv as current_gmv,</p>
+<p class="p1"><span class="Apple-converted-space">  </span>previous.gmv as previous_gmv,</p>
+<p class="p1"><span class="Apple-converted-space">  </span>(current.gmv - previous.gmv) / previous.gmv * 100 as growth_pct,</p>
+<p class="p1"><span class="Apple-converted-space">  </span>current.orders / current.sessions as current_cvr,</p>
+<p class="p1"><span class="Apple-converted-space">  </span>previous.orders / previous.sessions as previous_cvr</p>
+<p class="p1">FROM current_event current</p>
+<p class="p1">JOIN previous_event previous ON current.dimension = previous.dimension</p>
+<p class="p1">```</p>
+<p class="p2"><br></p>
+<p class="p1">#### B. Data de Sessions con Más Aperturas</p>
+<p class="p1">**ANTES (No existía):**</p>
+<p class="p1">- Sin data de tráfico</p>
+<p class="p1">- Sin métricas de conversión <span class="Apple-converted-space"> </span></p>
+<p class="p1">- Sin análisis de embudo</p>
+<p class="p2"><br></p>
+<p class="p1">**AHORA (Análisis completo):**</p>
+<p class="p1">```sql</p>
+<p class="p1">-- Métricas de tráfico disponibles:</p>
+<p class="p1">SELECT<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">  </span>sessions, <span class="Apple-converted-space">          </span>-- Sesiones únicas</p>
+<p class="p1"><span class="Apple-converted-space">  </span>visitors, <span class="Apple-converted-space">          </span>-- Visitantes únicos <span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">  </span>carritos, <span class="Apple-converted-space">          </span>-- Carritos iniciados</p>
+<p class="p1"><span class="Apple-converted-space">  </span>orders, <span class="Apple-converted-space">            </span>-- Órdenes completadas</p>
+<p class="p1"><span class="Apple-converted-space">  </span>-- KPIs calculados:</p>
+<p class="p1"><span class="Apple-converted-space">  </span>orders/sessions as cvr_sessions,<span class="Apple-converted-space">      </span>-- CVR sesiones</p>
+<p class="p1"><span class="Apple-converted-space">  </span>orders/carritos as cvr_carritos,<span class="Apple-converted-space">      </span>-- CVR carritos <span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">  </span>gmv/sessions as revenue_per_session,<span class="Apple-converted-space">  </span>-- RPS</p>
+<p class="p1"><span class="Apple-converted-space">  </span>sessions/visitors as sessions_per_visitor -- Frequency</p>
+<p class="p1">```</p>
+<p class="p2"><br></p>
+<p class="p1">#### C. Data de Productos por Nombre y Categoría <span class="Apple-converted-space"> </span></p>
+<p class="p1">**ANTES (No existía):**</p>
+<p class="p1">- Sin análisis por producto individual</p>
+<p class="p1">- Sin categorización automática</p>
+<p class="p1">- Sin comparativas entre productos</p>
+<p class="p2"><br></p>
+<p class="p1">**AHORA (Análisis completo de productos):**</p>
+<p class="p1">```sql</p>
+<p class="p1">-- Análisis por producto disponible:</p>
+<p class="p1">SELECT<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">  </span>product_name, <span class="Apple-converted-space">          </span>-- Nombre exacto del producto</p>
+<p class="p1"><span class="Apple-converted-space">  </span>product_type, <span class="Apple-converted-space">          </span>-- Categoría auto-clasificada <span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">  </span>orders, <span class="Apple-converted-space">                </span>-- Órdenes que incluyen el producto</p>
+<p class="p1"><span class="Apple-converted-space">  </span>gmv,<span class="Apple-converted-space">                    </span>-- Revenue proporcional</p>
+<p class="p1"><span class="Apple-converted-space">  </span>products_quantity,<span class="Apple-converted-space">      </span>-- Cantidad vendida</p>
+<p class="p1"><span class="Apple-converted-space">  </span>-- Comparativas:</p>
+<p class="p1"><span class="Apple-converted-space">  </span>gmv / SUM(gmv) OVER() as share_gmv, <span class="Apple-converted-space">    </span>-- Share de GMV</p>
+<p class="p1"><span class="Apple-converted-space">  </span>ROW_NUMBER() OVER(ORDER BY gmv DESC) as ranking -- Ranking</p>
+<p class="p1">FROM products_analysis</p>
+<p class="p1">```</p>
+<p class="p2"><br></p>
+<p class="p1">**Categorización Automática:**</p>
+<p class="p1">- **👕 Ropa**: 'remera', 'pantalón', 'vestido', 'zapatos'</p>
+<p class="p1">- **📱 Tecnología**: 'celular', 'notebook', 'auricular', 'cable' <span class="Apple-converted-space"> </span></p>
+<p class="p1">- **🏠 Hogar**: 'mesa', 'silla', 'decoración', 'cocina'</p>
+<p class="p1">- **💄 Belleza**: 'maquillaje', 'perfume', 'crema', 'shampoo'</p>
+<p class="p1">- **🎮 Otros**: Todo lo que no matchea categorías anteriores</p>
+<p class="p2"><br></p>
+<p class="p1">### ⚡ 4.5 Performance y Practicidad</p>
+<p class="p2"><br></p>
+<p class="p1">#### Métricas de Performance</p>
+<p class="p1">| Aspecto | Antes (Redshift) | Ahora (Databricks) | Mejora |</p>
+<p class="p1">|---------|------------------|-------------------|--------|</p>
+<p class="p1">| **Tiempo de carga inicial** | 3-5 minutos | 15-30 segundos | **90% faster** |</p>
+<p class="p1">| **Refresh de filtros** | 30-60 segundos | 2-5 segundos | **95% faster** |</p>
+<p class="p1">| **Queries simultáneas** | 2-3 (límite) | 10+ (sin límite) | **500% more** |</p>
+<p class="p1">| **Disponibilidad** | 85% (fallos frecuentes) | 99.5% (estable) | **Highly reliable** |</p>
+<p class="p2"><br></p>
+<p class="p1">#### Practicidad Mejorada</p>
+<p class="p1">1. **✅ Self-Service**: Stakeholders exploran sin ayuda técnica</p>
+<p class="p1">2. **✅ Real-Time**: Datos actualizados cada 3-8 horas automáticamente <span class="Apple-converted-space"> </span></p>
+<p class="p1">3. **✅ Responsive**: Funciona en mobile y desktop</p>
+<p class="p1">4. **✅ Intuitive**: Selectores claros vs navegación compleja</p>
+<p class="p1">5. **✅ Fast**: Respuestas inmediatas vs esperas largas</p>
+<p class="p2"><br></p>
+<p class="p1">### 🎯 4.6 Alineación con Requerimientos de Negocio</p>
+<p class="p2"><br></p>
+<p class="p1">#### Lo Que Negocio Pidió → Lo Que Entregamos</p>
+<p class="p2"><br></p>
+<p class="p1">**1. "Quiero comparar eventos fácilmente"**</p>
+<p class="p1">```</p>
+<p class="p1">✅ Selector de eventos: Cualquier evento vs cualquier evento</p>
+<p class="p1">✅ Período flexible: Full event, last 24h, custom range</p>
+<p class="p1">✅ Métricas side-by-side: Growth %, changes, trends</p>
+<p class="p1">```</p>
+<p class="p2"><br></p>
+<p class="p1">**2. "Necesito ver performance por segmento de tiendas"**</p>
+<p class="p1">``` <span class="Apple-converted-space"> </span></p>
+<p class="p1">✅ Dimensión Segment: Premium, Standard, Basic</p>
+<p class="p1">✅ Dimensión Business Unit: MM (Mid-Market) vs SMB</p>
+<p class="p1">✅ Dimensión Aging: &lt;1 año, 1-2 años, 2-4 años, 4-6 años, &gt;6 años</p>
+<p class="p1">✅ Filtros combinables: Segment + País + Aging + Plan</p>
+<p class="p1">```</p>
+<p class="p2"><br></p>
+<p class="p1">**3. "Quiero entender el tráfico y conversión"**</p>
+<p class="p1">```</p>
+<p class="p1">✅ Sessions data: Completamente nueva funcionalidad</p>
+<p class="p1">✅ CVR Analysis: Sessions → Orders, Carritos → Orders <span class="Apple-converted-space"> </span></p>
+<p class="p1">✅ Traffic patterns: Por hora, día, evento</p>
+<p class="p1">✅ Funnel analysis: Sessions → Carritos → Orders → GMV</p>
+<p class="p1">```</p>
+<p class="p2"><br></p>
+<p class="p1">**4. "Necesito saber qué productos venden más"**</p>
+<p class="p1">```</p>
+<p class="p1">✅ Product ranking: Top N por GMV, orders, quantity</p>
+<p class="p1">✅ Product categories: Auto-clasificación por keywords</p>
+<p class="p1">✅ Product comparison: Evento actual vs anteriores</p>
+<p class="p1">✅ Product share: % del GMV total por producto</p>
+<p class="p1">```</p>
+<p class="p2"><br></p>
+<p class="p1">**5. "Quiero datos actualizados sin depender de IT"**</p>
+<p class="p1">```</p>
+<p class="p1">✅ Auto-refresh: Cada 3-8 horas sin intervención</p>
+<p class="p1">✅ Live connection: Datos siempre frescos</p>
+<p class="p1">✅ Self-service: Exploración independiente</p>
+<p class="p1">✅ Mobile access: Dashboard funciona en celular</p>
+<p class="p1">```</p>
+<p class="p2"><br></p>
+<p class="p1">### 🚀 4.7 Distribución y Democratización</p>
+<p class="p2"><br></p>
+<p class="p1">#### Estado Actual de Acceso</p>
+<p class="p1">**🔒 Distribución Limitada Actual:**</p>
+<p class="p1">- Stakeholders C-Level</p>
+<p class="p1">- Managers de Marketing <span class="Apple-converted-space"> </span></p>
+<p class="p1">- Analytics Team</p>
+<p class="p1">- Algunos PMs específicos</p>
+<p class="p2"><br></p>
+<p class="p1">#### Recomendación: Democratización Total</p>
+<p class="p2"><br></p>
+<p class="p1">**📢 Propuesta de Ampliación:**</p>
+<p class="p1">```</p>
+<p class="p1">🎯 TODOS los equipos quieren saber cómo nos está yendo</p>
+<p class="p2"><br></p>
+<p class="p1">✅ Áreas que deberían tener acceso:</p>
+<p class="p1">- 🛒 Operations (fulfillment, logistics)</p>
+<p class="p1">- 💰 Finance (forecasting, budgets) <span class="Apple-converted-space"> </span></p>
+<p class="p1">- 🎨 Product (feature impact)</p>
+<p class="p1">- 👥 Customer Success (merchant support)</p>
+<p class="p1">- 🔧 Engineering (system performance)</p>
+<p class="p1">- 📞 Sales (merchant acquisition)</p>
+<p class="p1">- 🌟 Growth (user acquisition)</p>
+<p class="p1">- 📊 All Analytics (data consumers)</p>
+<p class="p1">```</p>
+<p class="p2"><br></p>
+<p class="p1">**Beneficios de Democratización:**</p>
+<p class="p1">1. **✅ Alignment**: Todos ven las mismas métricas <span class="Apple-converted-space"> </span></p>
+<p class="p1">2. **✅ Proactive**: Equipos actúan sin esperar reportes</p>
+<p class="p1">3. **✅ Context**: Decisions con data completa</p>
+<p class="p1">4. **✅ Efficiency**: Menos requests ad-hoc a Analytics</p>
+<p class="p1">5. **✅ Culture**: Data-driven culture en toda la org</p>
+<p class="p2"><br></p>
+<p class="p1">**Implementación Sugerida:**</p>
+<p class="p1">```</p>
+<p class="p1">📅 Fase 1 (Inmediata):<span class="Apple-converted-space"> </span></p>
+<p class="p1">- Ampliar acceso a todas las áreas mencionadas</p>
+<p class="p1">- Training session de 30min por equipo</p>
+<p class="p2"><br></p>
+<p class="p1">📅 Fase 2 (1 semana):</p>
+<p class="p1">- Slack alerts automáticos para cambios críticos <span class="Apple-converted-space"> </span></p>
+<p class="p1">- Links rápidos en confluence/herramientas internas</p>
+<p class="p2"><br></p>
+<p class="p1">📅 Fase 3 (1 mes):</p>
+<p class="p1">- Feedback collection para mejoras</p>
+<p class="p1">- Custom views por área si es necesario</p>
+<p class="p1">```</p>
+<p class="p2"><br></p>
+<p class="p1">### 📱 4.8 Arquitectura Técnica Final</p>
+<p class="p2"><br></p>
+<p class="p1">#### Connection Strategy</p>
+<p class="p1">```</p>
+<p class="p1">┌─────────────────┐<span class="Apple-converted-space">    </span>┌─────────────────┐</p>
+<p class="p1">│<span class="Apple-converted-space">    </span>Tableau<span class="Apple-converted-space">      </span>│───▶│ <span class="Apple-converted-space">  </span>Databricks<span class="Apple-converted-space">    </span>│</p>
+<p class="p1">│ <span class="Apple-converted-space">  </span>Dashboard <span class="Apple-converted-space">    </span>│<span class="Apple-converted-space">    </span>│ <span class="Apple-converted-space">  </span>SQL Warehouse │</p>
+<p class="p1">│ <span class="Apple-converted-space">                </span>│<span class="Apple-converted-space">    </span>│ <span class="Apple-converted-space">  </span>(Serverless)<span class="Apple-converted-space">  </span>│</p>
+<p class="p1">├─────────────────┤<span class="Apple-converted-space">    </span>├─────────────────┤</p>
+<p class="p1">│ ✅ Live Conn. <span class="Apple-converted-space">  </span>│<span class="Apple-converted-space">    </span>│ ✅ 3 Tables <span class="Apple-converted-space">    </span>│</p>
+<p class="p1">│ ✅ Auto-refresh │<span class="Apple-converted-space">    </span>│ ✅ Optimized<span class="Apple-converted-space">    </span>│ <span class="Apple-converted-space"> </span></p>
+<p class="p1">│ ✅ Multi-user <span class="Apple-converted-space">  </span>│<span class="Apple-converted-space">    </span>│ ✅ Partitioned<span class="Apple-converted-space">  </span>│</p>
+<p class="p1">│ ✅ Mobile ready │<span class="Apple-converted-space">    </span>│ ✅ Real-time<span class="Apple-converted-space">    </span>│</p>
+<p class="p1">└─────────────────┘<span class="Apple-converted-space">    </span>└─────────────────┘</p>
+<p class="p1">```</p>
+<p class="p2"><br></p>
+<p class="p1">#### Backup &amp; Reliability</p>
+<p class="p1">```</p>
+<p class="p1">Primary: Live Connection (99.5% uptime)</p>
+<p class="p1"><span class="Apple-converted-space">    </span>↓</p>
+<p class="p1">Fallback: Extract (preparado, no activo)</p>
+<p class="p1"><span class="Apple-converted-space">    </span>↓ <span class="Apple-converted-space"> </span></p>
+<p class="p1">Emergency: Static export (manual, last resort)</p>
+<p class="p1">```</p>
+<p class="p2"><br></p>
+<p class="p1">---</p>
+<p class="p2"><br></p>
+<p class="p1">## 5. Pipeline de n8n {#pipeline-n8n}</p>
+<p class="p2"><br></p>
+<p class="p1">### 🤖 5.1 Arquitectura del Pipeline</p>
+<p class="p2"><br></p>
+<p class="p1">#### Componentes Principales</p>
+<p class="p1">1. **SQL Query Generator**: JavaScript dinámico</p>
+<p class="p1">2. **Databricks Connector**: Ejecución de queries</p>
+<p class="p1">3. **Data Transformer**: Procesamiento de resultados</p>
+<p class="p1">4. **AI Agent**: Generación de reportes</p>
+<p class="p1">5. **Slack Notifier**: Envío de alertas</p>
+<p class="p2"><br></p>
+<p class="p1">#### Flujo Completo</p>
+<p class="p1">```</p>
+<p class="p1">┌─────────────┐<span class="Apple-converted-space">    </span>┌─────────────┐<span class="Apple-converted-space">    </span>┌─────────────┐</p>
+<p class="p1">│ <span class="Apple-converted-space">  </span>Trigger <span class="Apple-converted-space">  </span>│───▶│<span class="Apple-converted-space">    </span>SQL<span class="Apple-converted-space">      </span>│───▶│ Databricks<span class="Apple-converted-space">  </span>│</p>
+<p class="p1">│ (Schedule)<span class="Apple-converted-space">  </span>│<span class="Apple-converted-space">    </span>│ Generator <span class="Apple-converted-space">  </span>│<span class="Apple-converted-space">    </span>│<span class="Apple-converted-space">  </span>Execution<span class="Apple-converted-space">  </span>│</p>
+<p class="p1">└─────────────┘<span class="Apple-converted-space">    </span>└─────────────┘<span class="Apple-converted-space">    </span>└─────────────┘</p>
+<p class="p1"><span class="Apple-converted-space">                                               </span>│</p>
+<p class="p1">┌─────────────┐<span class="Apple-converted-space">    </span>┌─────────────┐<span class="Apple-converted-space">    </span>┌───────▼─────┐</p>
+<p class="p1">│ <span class="Apple-converted-space">  </span>Slack <span class="Apple-converted-space">    </span>│◀───│ AI Report <span class="Apple-converted-space">  </span>│◀───│<span class="Apple-converted-space">    </span>Data <span class="Apple-converted-space">    </span>│</p>
+<p class="p1">│ Notification│<span class="Apple-converted-space">    </span>│ Generator <span class="Apple-converted-space">  </span>│<span class="Apple-converted-space">    </span>│Transform<span class="Apple-converted-space">    </span>│</p>
+<p class="p1">└─────────────┘<span class="Apple-converted-space">    </span>└─────────────┘<span class="Apple-converted-space">    </span>└─────────────┘</p>
+<p class="p1">```</p>
+<p class="p2"><br></p>
+<p class="p1">### 📊 5.2 SQL Query Generator</p>
+<p class="p2"><br></p>
+<p class="p1">#### JavaScript Dinámico</p>
+<p class="p1">```javascript</p>
+<p class="p1">// Genera 15+ queries diferentes según configuración</p>
+<p class="p1">const queries = {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>general_metrics: generateGeneralMetrics(current_event, last_event),</p>
+<p class="p1"><span class="Apple-converted-space">  </span>stores_analysis: generateStoresAnalysis(current_event, last_event),</p>
+<p class="p1"><span class="Apple-converted-space">  </span>consumers_analysis: generateConsumersAnalysis(current_event, last_event),</p>
+<p class="p1"><span class="Apple-converted-space">  </span>// ... 12 queries más</p>
+<p class="p1">};</p>
+<p class="p2"><br></p>
+<p class="p1">// Configuración dinámica de eventos</p>
+<p class="p1">const events_config = {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>current_event: 'cybermonday-2025',</p>
+<p class="p1"><span class="Apple-converted-space">  </span>last_event: 'hotsale-2025',</p>
+<p class="p1"><span class="Apple-converted-space">  </span>max_day: getMaxEventDay(),</p>
+<p class="p1"><span class="Apple-converted-space">  </span>max_hour: getMaxEventHour()</p>
+<p class="p1">};</p>
+<p class="p1">```</p>
+<p class="p2"><br></p>
+<p class="p1">#### Queries Implementadas</p>
+<p class="p1">1. **General Metrics**: GMV, Orders, Stores, Consumers totales</p>
+<p class="p1">2. **Active Stores**: Tiendas participantes vs evento anterior <span class="Apple-converted-space"> </span></p>
+<p class="p1">3. **Stores Analysis**: Por business_unit, aging, segment</p>
+<p class="p1">4. **Consumers Analysis**: Nuevos vs recurrentes</p>
+<p class="p1">5. **Shares Analysis**: Por dimensiones (país, segment, etc.)</p>
+<p class="p1">6. **Promotions Analysis**: Uso de cupones, descuentos</p>
+<p class="p1">7. **Temporal Analysis**: Hora pico, distribución horaria</p>
+<p class="p1">8. **Traffic Analysis**: Sessions, CVR, bounce rate</p>
+<p class="p1">9. **Products Analysis**: Top productos por GMV</p>
+<p class="p1">10. **Last Updated**: Timestamps de actualización</p>
+<p class="p2"><br></p>
+<p class="p1">### 🤖 5.3 AI Agent Integration</p>
+<p class="p2"><br></p>
+<p class="p1">#### Prompt Engineering</p>
+<p class="p1">```javascript</p>
+<p class="p1">const aiPrompt = `</p>
+<p class="p1">Eres un analista senior de Nuvemshop.<span class="Apple-converted-space"> </span></p>
+<p class="p1">Genera un reporte DETALLADO en español sobre ${current_event}.</p>
+<p class="p2"><br></p>
+<p class="p1">DATOS DISPONIBLES:</p>
+<p class="p1">${JSON.stringify(transformedData, null, 2)}</p>
+<p class="p2"><br></p>
+<p class="p1">FORMATO OBLIGATORIO: JSON con estructura Slack Block Kit</p>
+<p class="p1">INCLUIR OBLIGATORIO:</p>
+<p class="p1">- 3 fechas de actualización (core, sessions, products) <span class="Apple-converted-space"> </span></p>
+<p class="p1">- Todos los top 10 completos</p>
+<p class="p1">- Análisis específico para plataforma Nuvemshop</p>
+<p class="p1">- Recomendaciones accionables por equipo</p>
+<p class="p2"><br></p>
+<p class="p1">NO resumir. Usar TODOS los datos disponibles.</p>
+<p class="p1">`;</p>
+<p class="p1">```</p>
+<p class="p2"><br></p>
+<p class="p1">#### AI Safety Mechanisms</p>
+<p class="p1">```javascript</p>
+<p class="p1">// Verificación de datos</p>
+<p class="p1">if (!transformedData || !transformedData.general_metrics) {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>return {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>notification_text: "⚠️ DATOS FALTANTES - No enviar a Slack",</p>
+<p class="p1"><span class="Apple-converted-space">    </span>blocks: [{"type": "section", "text": {"type": "mrkdwn", "text": "Error: Datos no disponibles"}}]</p>
+<p class="p1"><span class="Apple-converted-space">  </span>};</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1">// Limpieza de output</p>
+<p class="p1">const cleanedJson = aiOutput</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.replace(/```json/g, '')</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.replace(/```/g, '')</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.replace(/\\n/g, ' ')</p>
+<p class="p1"><span class="Apple-converted-space">  </span>.trim();</p>
+<p class="p1">```</p>
+<p class="p2"><br></p>
+<p class="p1">### 🔧 5.4 Error Handling &amp; Retry Logic</p>
+<p class="p2"><br></p>
+<p class="p1">#### Databricks Retry Mechanism</p>
+<p class="p1">```javascript</p>
+<p class="p1">// Manejo de fallos de Databricks</p>
+<p class="p1">if (inputData.error || inputData.status === 'failed') {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>console.log('🔄 Databricks falló, reintentando...');</p>
+<p class="p2"><span class="Apple-converted-space">  </span></p>
+<p class="p1"><span class="Apple-converted-space">  </span>// Esperar antes de reintentar</p>
+<p class="p1"><span class="Apple-converted-space">  </span>await new Promise(resolve =&gt; setTimeout(resolve, 30000));</p>
+<p class="p2"><span class="Apple-converted-space">  </span></p>
+<p class="p1"><span class="Apple-converted-space">  </span>// Trigger retry</p>
+<p class="p1"><span class="Apple-converted-space">  </span>return {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>retry: true,</p>
+<p class="p1"><span class="Apple-converted-space">    </span>wait_time: 60,</p>
+<p class="p1"><span class="Apple-converted-space">    </span>max_retries: 3</p>
+<p class="p1"><span class="Apple-converted-space">  </span>};</p>
+<p class="p1">}</p>
+<p class="p1">```</p>
+<p class="p2"><br></p>
+<p class="p1">#### JSON Parsing Resilience</p>
+<p class="p1">```javascript</p>
+<p class="p1">// Parsing robusto de JSON malformado del AI Agent</p>
+<p class="p1">function parseAIResponse(rawResponse) {</p>
+<p class="p1"><span class="Apple-converted-space">  </span>try {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>// Limpieza agresiva</p>
+<p class="p1"><span class="Apple-converted-space">    </span>let cleaned = rawResponse</p>
+<p class="p1"><span class="Apple-converted-space">      </span>.replace(/```json/gi, '')</p>
+<p class="p1"><span class="Apple-converted-space">      </span>.replace(/```/gi, '')</p>
+<p class="p1"><span class="Apple-converted-space">      </span>.replace(/\\"/g, '"')</p>
+<p class="p1"><span class="Apple-converted-space">      </span>.replace(/\n/g, ' ')</p>
+<p class="p1"><span class="Apple-converted-space">      </span>.trim();</p>
+<p class="p2"><span class="Apple-converted-space">    </span></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// Extracción por regex si es necesario</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const jsonMatch = cleaned.match(/\{[\s\S]*\}/);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>if (jsonMatch) {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>cleaned = jsonMatch[0];</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><span class="Apple-converted-space">    </span></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// Balance de llaves si está truncado</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const openBraces = (cleaned.match(/\{/g) || []).length;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const closeBraces = (cleaned.match(/\}/g) || []).length;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>if (openBraces &gt; closeBraces) {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>cleaned += '}';</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><span class="Apple-converted-space">    </span></p>
+<p class="p1"><span class="Apple-converted-space">    </span>return JSON.parse(cleaned);</p>
+<p class="p1"><span class="Apple-converted-space">  </span>} catch (error) {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>// Fallback seguro</p>
+<p class="p1"><span class="Apple-converted-space">    </span>return {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>notification_text: "⚠️ Error procesando reporte AI",</p>
+<p class="p1"><span class="Apple-converted-space">      </span>blocks: [{"type": "section", "text": {"type": "mrkdwn", "text": "Error en generación de reporte"}}]</p>
+<p class="p1"><span class="Apple-converted-space">    </span>};</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1">}</p>
+<p class="p1">```</p>
+<p class="p2"><br></p>
+<p class="p1">### 📱 5.5 Slack Integration</p>
+<p class="p2"><br></p>
+<p class="p1">#### Block Kit JSON Structure</p>
+<p class="p1">```json</p>
+<p class="p1">{</p>
+<p class="p1"><span class="Apple-converted-space">  </span>"notification_text": "📊 Reporte Cyber Monday 2025",</p>
+<p class="p1"><span class="Apple-converted-space">  </span>"blocks": [</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{</p>
+<p class="p1"><span class="Apple-converted-space">      </span>"type": "header",</p>
+<p class="p1"><span class="Apple-converted-space">      </span>"text": {"type": "plain_text", "text": "🎯 Cyber Monday 2025 - Reporte Ejecutivo"}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>},</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{</p>
+<p class="p1"><span class="Apple-converted-space">      </span>"type": "section",<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">      </span>"text": {"type": "mrkdwn", "text": "*GMV Total:* $1,234,567\n*Órdenes:* 45,678\n*Tiendas:* 12,345"}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>},</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{"type": "divider"},</p>
+<p class="p1"><span class="Apple-converted-space">    </span>{</p>
+<p class="p1"><span class="Apple-converted-space">      </span>"type": "section",</p>
+<p class="p1"><span class="Apple-converted-space">      </span>"text": {"type": "mrkdwn", "text": "*🏪 Top 10 Segmentos:*\n1. Premium: $500K\n2. Standard: $400K\n..."}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>]</p>
+<p class="p1">}</p>
+<p class="p1">```</p>
+<p class="p2"><br></p>
+<p class="p1">#### Formatting Standards</p>
+<p class="p1">- **Bold**: `*Título*` para títulos principales</p>
+<p class="p1">- **Dividers**: `{"type": "divider"}` entre secciones</p>
+<p class="p1">- **Dates**: Formato completo `YYYY-MM-DD HH:MM:SS`</p>
+<p class="p1">- **Numbers**: Con separadores de miles `1,234,567`</p>
+<p class="p1">- **Percentages**: Con 2 decimales `45.67%`</p>
+<p class="p2"><br></p>
+<p class="p1">---</p>
+<p class="p2"><br></p>
+<p class="p1">## 6. Repo Landing Page {#repo-landing}</p>
+<p class="p2"><br></p>
+<p class="p1">### 🔗 6.1 Alignment Strategy</p>
+<p class="p2"><br></p>
+<p class="p1">#### Objetivo</p>
+<p class="p1">Mantener consistencia entre los números del dashboard interno y la landing page pública de eventos especiales.</p>
+<p class="p2"><br></p>
+<p class="p1">#### Query de Referencia</p>
+<p class="p1">El repo de landing page contiene la **query oficial** que debe ser el gold standard:</p>
+<p class="p2"><br></p>
+<p class="p1">```sql</p>
+<p class="p1">-- QUERY OFICIAL (repo landing)</p>
+<p class="p1">SELECT COUNT(*) as orders, SUM(total_in_usd) as gmv</p>
+<p class="p1">FROM mwp_orders o</p>
+<p class="p1">JOIN mwp_store_info si ON si.id = o.store_id <span class="Apple-converted-space"> </span></p>
+<p class="p1">WHERE o.payment_status = 'paid'</p>
+<p class="p1"><span class="Apple-converted-space">  </span>AND o.status &lt;&gt; 'cancelled'</p>
+<p class="p1"><span class="Apple-converted-space">  </span>AND o.completed_at IS NOT NULL</p>
+<p class="p1"><span class="Apple-converted-space">  </span>AND o.storefront &lt;&gt; 'permalink' <span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">  </span>AND o.total_in_usd BETWEEN 0 AND 10000</p>
+<p class="p1"><span class="Apple-converted-space">  </span>AND si.state &lt;&gt; 4</p>
+<p class="p1"><span class="Apple-converted-space">  </span>AND si.country IN ('AR', 'BR', 'MX', 'CO', 'CL')</p>
+<p class="p1"><span class="Apple-converted-space">  </span>AND o.completed_at BETWEEN event_start AND event_end</p>
+<p class="p1">```</p>
+<p class="p2"><br></p>
+<p class="p1">#### Implementación en Notebooks</p>
+<p class="p1">Las 3 notebooks implementan **exactamente los mismos filtros**:</p>
+<p class="p2"><br></p>
+<p class="p1">```python</p>
+<p class="p1"># FILTROS REPO OFICIAL (aplicados en todas las notebooks)</p>
+<p class="p1">filters = {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>'payment_status': 'paid',</p>
+<p class="p1"><span class="Apple-converted-space">    </span>'status_not': 'cancelled',<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">    </span>'completed_at_not_null': True,</p>
+<p class="p1"><span class="Apple-converted-space">    </span>'storefront_not': 'permalink',</p>
+<p class="p1"><span class="Apple-converted-space">    </span>'total_usd_range': '0 AND 10000',</p>
+<p class="p1"><span class="Apple-converted-space">    </span>'store_state_not': 4,</p>
+<p class="p1"><span class="Apple-converted-space">    </span>'countries': ['AR', 'BR', 'MX', 'CO', 'CL']</p>
+<p class="p1">}</p>
+<p class="p1">```</p>
+<p class="p2"><br></p>
+<p class="p1">### 📊 6.2 Validation Results</p>
+<p class="p2"><br></p>
+<p class="p1">#### Precision Achieved</p>
+<p class="p1">- **Core Notebook**: 181,565 vs 181,468 oficial = **99.95% precisión**</p>
+<p class="p1">- **Diferencia**: +97 órdenes (0.05%) - considerado insignificante</p>
+<p class="p1">- **Root Cause**: Diferencias menores en manejo de duplicados</p>
+<p class="p2"><br></p>
+<p class="p1">#### Monitoring Process</p>
+<p class="p1">1. **Daily Validation**: Comparar core notebook vs repo oficial</p>
+<p class="p1">2. **Threshold**: &lt;0.1% diferencia aceptable <span class="Apple-converted-space"> </span></p>
+<p class="p1">3. **Alert**: Si diferencia &gt;0.5%, investigar</p>
+<p class="p1">4. **Documentation**: Registrar cualquier divergencia</p>
+<p class="p2"><br></p>
+<p class="p1">---</p>
+<p class="p2"><br></p>
+<p class="p1">## 7. Cambios Pendientes {#pendientes}</p>
+<p class="p2"><br></p>
+<p class="p1">### 🔄 7.1 Cambio de Definición GMV</p>
+<p class="p2"><br></p>
+<p class="p1">#### Cambio Solicitado por Leadership</p>
+<p class="p1">**ANTES (actual):**</p>
+<p class="p1">```sql</p>
+<p class="p1">AND o.storefront &lt;&gt; 'permalink'</p>
+<p class="p1">```</p>
+<p class="p2"><br></p>
+<p class="p1">**DESPUÉS (requerido):** <span class="Apple-converted-space"> </span></p>
+<p class="p1">```sql</p>
+<p class="p1">AND o.storefront IN ('mobile','store','form','social','pos','permalink','chat')</p>
+<p class="p1">```</p>
+<p class="p2"><br></p>
+<p class="p1">#### Impacto Estimado</p>
+<p class="p1">```sql</p>
+<p class="p1">-- QUERY PARA CUANTIFICAR IMPACTO</p>
+<p class="p1">SELECT<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">  </span>'Sin permalink (actual)' AS criterio,</p>
+<p class="p1"><span class="Apple-converted-space">  </span>COUNT(*) AS orders,</p>
+<p class="p1"><span class="Apple-converted-space">  </span>SUM(total_in_usd) AS gmv</p>
+<p class="p1">FROM special_events_actual<span class="Apple-converted-space"> </span></p>
+<p class="p1">WHERE storefront &lt;&gt; 'permalink'</p>
+<p class="p2"><br></p>
+<p class="p1">UNION ALL</p>
+<p class="p2"><br></p>
+<p class="p1">SELECT<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">  </span>'Con permalink (nuevo)' AS criterio,<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">  </span>COUNT(*) AS orders,</p>
+<p class="p1"><span class="Apple-converted-space">  </span>SUM(total_in_usd) AS gmv_adicional</p>
+<p class="p1">FROM special_events_actual</p>
+<p class="p1">WHERE storefront IN ('mobile','store','form','social','pos','permalink','chat')</p>
+<p class="p1">```</p>
+<p class="p2"><br></p>
+<p class="p1">#### Sistemas Afectados</p>
+<p class="p1">1. **✅ Core Notebook**: 1 línea cambio en orders_sql</p>
+<p class="p1">2. **✅ Sessions Notebook**: 1 línea cambio en carritos_base <span class="Apple-converted-space"> </span></p>
+<p class="p1">3. **✅ Products Notebook**: 1 línea cambio en products_orders_base</p>
+<p class="p1">4. **✅ Repo Landing Page**: 1 línea cambio en query oficial</p>
+<p class="p1">5. **✅ n8n Pipeline**: Automático (usa mismas tablas)</p>
+<p class="p1">6. **✅ Tableau Dashboard**: Automático (usa mismas tablas)</p>
+<p class="p2"><br></p>
+<p class="p1">#### Plan de Implementación</p>
+<p class="p1">1. **Fase 1**: Cuantificar impacto con query diagnóstica</p>
+<p class="p1">2. **Fase 2**: Coordinar cambio simultáneo (notebooks + repo)</p>
+<p class="p1">3. **Fase 3**: Comunicar cambio a stakeholders <span class="Apple-converted-space"> </span></p>
+<p class="p1">4. **Fase 4**: Monitorear comparativas post-cambio</p>
+<p class="p2"><br></p>
+<p class="p1">#### Estimación de Esfuerzo</p>
+<p class="p1">- **Tiempo técnico**: 30 minutos total</p>
+<p class="p1">- **Coordinación**: 2-3 días para alineación</p>
+<p class="p1">- **Testing**: 1 día validación</p>
+<p class="p1">- **Comunicación**: Ongoing</p>
+<p class="p2"><br></p>
+<p class="p1">---</p>
+<p class="p2"><br></p>
+<p class="p1">## 8. Anexos Técnicos {#anexos}</p>
+<p class="p2"><br></p>
+<p class="p1">### 📈 8.1 Performance Benchmarks</p>
+<p class="p2"><br></p>
+<p class="p1">#### Before vs After Optimization</p>
+<p class="p2"><br></p>
+<p class="p1">| Métrica | Antes | Después | Mejora |</p>
+<p class="p1">|---------|-------|---------|--------|</p>
+<p class="p1">| **Core Notebook** | 1h 45min | 15-25min | **75% faster** |</p>
+<p class="p1">| **Sessions Notebook** | 45min | 8-12min | **80% faster** | <span class="Apple-converted-space"> </span></p>
+<p class="p1">| **Products Notebook** | 1h 20min | 12-18min | **85% faster** |</p>
+<p class="p1">| **Partitions Scanned** | ALL (2018-2024) | 19 dinámicas | **99% reduction** |</p>
+<p class="p1">| **Data Precision** | Variable | 99.95% | **Consistent** |</p>
+<p class="p1">| **Tableau Load Time** | 3-5 minutos | 15-30 segundos | **90% faster** |</p>
+<p class="p1">| **Data Sources** | 18 fragmentadas | 3 unificadas | **83% reduction** |</p>
+<p class="p2"><br></p>
+<p class="p1">#### Root Causes of Performance Gain</p>
+<p class="p1">1. **Dynamic Partition Pruning**: Solo particiones con datos reales</p>
+<p class="p1">2. **Removed CDC Deduplication**: Queries más simples <span class="Apple-converted-space"> </span></p>
+<p class="p1">3. **Optimized JOINs**: LEFT en lugar de INNER donde apropiado</p>
+<p class="p1">4. **Eliminated Redundant Filters**: Filtros ya aplicados en merchant_complete</p>
+<p class="p1">5. **Pre-computed Tables**: Lógica compleja movida de Tableau a Databricks</p>
+<p class="p2"><br></p>
+<p class="p1">### 🔧 8.2 Architecture Decisions</p>
+<p class="p2"><br></p>
+<p class="p1">#### Why Dynamic Partitions?</p>
+<p class="p1">```python</p>
+<p class="p1"># PROBLEMA: Particiones estimadas fallaban</p>
+<p class="p1">old_partitions = ['202510', '202511']<span class="Apple-converted-space">  </span># Solo 2 estimadas</p>
+<p class="p1">real_partitions = ['202505', '202506', '202507', '202508', '202509', '202510', ...]<span class="Apple-converted-space">  </span># 19 reales</p>
+<p class="p2"><br></p>
+<p class="p1"># SOLUCIÓN: Query dinámica de particiones reales</p>
+<p class="p1">def get_dynamic_partitions(start, end):</p>
+<p class="p1"><span class="Apple-converted-space">    </span>return spark.sql(f"""</p>
+<p class="p1"><span class="Apple-converted-space">        </span>SELECT DISTINCT year_month_code<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>FROM mwp_orders<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>WHERE completed_at BETWEEN '{start}' AND '{end}'</p>
+<p class="p1"><span class="Apple-converted-space">    </span>""").collect()</p>
+<p class="p1">```</p>
+<p class="p2"><br></p>
+<p class="p1">#### Why Split Historical vs Actual?</p>
+<p class="p1">1. **Immutable Data**: Eventos pasados nunca cambian</p>
+<p class="p1">2. **Performance**: No reprocesar datos estables</p>
+<p class="p1">3. **Cost Optimization**: Menos compute resources</p>
+<p class="p1">4. **Risk Mitigation**: Datos históricos siempre disponibles</p>
+<p class="p2"><br></p>
+<p class="p1">#### Why LEFT JOIN merchant_complete?</p>
+<p class="p1">```sql</p>
+<p class="p1">-- PROBLEMA: INNER JOIN perdía órdenes válidas</p>
+<p class="p1">INNER JOIN merchant_complete<span class="Apple-converted-space">  </span>-- Si tienda no está en merchant_complete → orden se pierde</p>
+<p class="p2"><br></p>
+<p class="p1">-- SOLUCIÓN: LEFT JOIN mantiene todas las órdenes <span class="Apple-converted-space"> </span></p>
+<p class="p1">LEFT JOIN merchant_complete <span class="Apple-converted-space">  </span>-- Orden se mantiene, merchant info puede ser NULL</p>
+<p class="p1">```</p>
+<p class="p2"><br></p>
+<p class="p1">#### Why Move from Redshift to Databricks?</p>
+<p class="p1">1. **Performance**: Spark engine más rápido que Redshift para estas queries</p>
+<p class="p1">2. **Cost**: Serverless SQL Warehouse vs cluster dedicado 24/7</p>
+<p class="p1">3. **Integration**: Mismo ecosistema que otros pipelines de data</p>
+<p class="p1">4. **Scalability**: Auto-scaling vs fixed capacity</p>
+<p class="p1">5. **Maintenance**: Menos overhead operacional</p>
+<p class="p2"><br></p>
+<p class="p1">### 📊 8.3 Data Quality Metrics</p>
+<p class="p2"><br></p>
+<p class="p1">#### Validation Results</p>
+<p class="p1">```sql</p>
+<p class="p1">-- CORE NOTEBOOK VALIDATION</p>
+<p class="p1">Expected (Repo):<span class="Apple-converted-space">    </span>181,468 orders</p>
+<p class="p1">Actual (Notebook):<span class="Apple-converted-space">  </span>181,565 orders <span class="Apple-converted-space"> </span></p>
+<p class="p1">Difference: <span class="Apple-converted-space">        </span>+97 orders (0.05%)</p>
+<p class="p1">Status: <span class="Apple-converted-space">            </span>✅ ACCEPTABLE</p>
+<p class="p2"><br></p>
+<p class="p1">-- DATA COMPLETENESS</p>
+<p class="p1">Merchant Info Coverage: <span class="Apple-converted-space">    </span>100.00% (0 NULL countries)</p>
+<p class="p1">Event Tagging Success:<span class="Apple-converted-space">      </span>100.00% (all orders tagged)</p>
+<p class="p1">Products Info Coverage: <span class="Apple-converted-space">    </span>99.85% (99.9% products have names)</p>
+<p class="p1">Sessions Data Availability: 100.00% (full coverage)</p>
+<p class="p1">```</p>
+<p class="p2"><br></p>
+<p class="p1">#### Known Limitations</p>
+<p class="p1">1. **Products without names**: ~0.15% productos sin `name_i18n`</p>
+<p class="p1">2. **CDC differences**: Diferencias menores en manejo de duplicados</p>
+<p class="p1">3. **Timezone precision**: Diferencias de segundos en conversiones UTC/Local</p>
+<p class="p1">4. **Session attribution**: Algunos sessions pueden no matchear con orders</p>
+<p class="p2"><br></p>
+<p class="p1">### 🔍 8.4 Technical Deep Dive</p>
+<p class="p2"><br></p>
+<p class="p1">#### Partition Discovery Process</p>
+<p class="p1">```python</p>
+<p class="p1"># Ejemplo de particiones encontradas para Cyber Monday 2025:</p>
+<p class="p1">actual_partitions_found = [</p>
+<p class="p1"><span class="Apple-converted-space">    </span>202202, 202210, 202211, 202302, 202406, 202409,<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">    </span>202410, 202411, 202412, 202501, 202502, 202503,<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">    </span>202504, 202505, 202506, 202507, 202508, 202509, 202510</p>
+<p class="p1">]</p>
+<p class="p2"><br></p>
+<p class="p1"># Distribución de órdenes:</p>
+<p class="p1">orders_by_partition = {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>202510: 492685,<span class="Apple-converted-space">  </span># Mayoría en partición del evento</p>
+<p class="p1"><span class="Apple-converted-space">    </span>202509: 9985,<span class="Apple-converted-space">    </span># Órdenes creadas antes, completadas durante evento</p>
+<p class="p1"><span class="Apple-converted-space">    </span>202508: 2795,<span class="Apple-converted-space">    </span># Órdenes más antiguas</p>
+<p class="p1"><span class="Apple-converted-space">    </span># ... resto con menos volumen</p>
+<p class="p1">}</p>
+<p class="p1">```</p>
+<p class="p2"><br></p>
+<p class="p1">#### Event Windows Calculation</p>
+<p class="p1">```python</p>
+<p class="p1"># Timezone handling para múltiples países</p>
+<p class="p1">timezone_map = {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>'AR': 'America/Argentina/Buenos_Aires',</p>
+<p class="p1"><span class="Apple-converted-space">    </span>'MX': 'America/Mexico_City',<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">    </span>'BR': 'America/Sao_Paulo',</p>
+<p class="p1"><span class="Apple-converted-space">    </span>'CO': 'America/Bogota',</p>
+<p class="p1"><span class="Apple-converted-space">    </span>'CL': 'America/Santiago'</p>
+<p class="p1">}</p>
+<p class="p2"><br></p>
+<p class="p1"># Conversión precisa UTC ↔ Local</p>
+<p class="p1">for event in events:</p>
+<p class="p1"><span class="Apple-converted-space">    </span>event_utc_start = to_utc_timestamp(event.start_local, timezone_map[event.country])</p>
+<p class="p1"><span class="Apple-converted-space">    </span>event_utc_end = to_utc_timestamp(event.end_local, timezone_map[event.country])</p>
+<p class="p1">```</p>
+<p class="p2"><br></p>
+<p class="p1">### 🚀 8.5 Future Roadmap</p>
+<p class="p2"><br></p>
+<p class="p1">#### Short Term (1-2 months)</p>
+<p class="p1">- [ ] Implementar cambio de definición GMV (permalink)</p>
+<p class="p1">- [ ] Optimizar n8n pipeline para &lt;5min execution time <span class="Apple-converted-space"> </span></p>
+<p class="p1">- [ ] Agregar alertas automáticas por anomalías de datos</p>
+<p class="p1">- [ ] Implementar data quality checks automáticos</p>
+<p class="p2"><br></p>
+<p class="p1">#### Medium Term (3-6 months) <span class="Apple-converted-space"> </span></p>
+<p class="p1">- [ ] Migrar a Delta Live Tables para mejor performance</p>
+<p class="p1">- [ ] Implementar streaming para datos real-time (&lt;1min delay)</p>
+<p class="p1">- [ ] Agregar ML predictions para forecasting durante eventos</p>
+<p class="p1">- [ ] Crear self-service analytics para otros equipos</p>
+<p class="p2"><br></p>
+<p class="p1">#### Long Term (6+ months)</p>
+<p class="p1">- [ ] Full automation de setup para eventos nuevos</p>
+<p class="p1">- [ ] Integration con otros sistemas (CRM, Support, etc.)</p>
+<p class="p1">- [ ] Advanced analytics (cohort analysis, LTV, etc.)</p>
+<p class="p1">- [ ] Multi-region support para expansión internacional</p>
+<p class="p2"><br></p>
+<p class="p1">---</p>
+<p class="p2"><br></p>
+<p class="p1">## 9. Lecciones Aprendidas y Best Practices</p>
+<p class="p2"><br></p>
+<p class="p1">### 💡 9.1 Performance Optimization</p>
+<p class="p2"><br></p>
+<p class="p1">#### Critical Performance Patterns</p>
+<p class="p1">```python</p>
+<p class="p1"># ✅ DO: Dynamic partition discovery</p>
+<p class="p1">partitions = spark.sql("SELECT DISTINCT partition_col FROM table WHERE date_range")</p>
+<p class="p2"><br></p>
+<p class="p1"># ❌ DON'T: Static partition estimation <span class="Apple-converted-space"> </span></p>
+<p class="p1">partitions = ["202510", "202511"]<span class="Apple-converted-space">  </span># Miss 15+ partitions with real data</p>
+<p class="p2"><br></p>
+<p class="p1"># ✅ DO: LEFT JOIN for enrichment</p>
+<p class="p1">LEFT JOIN merchant_info mi ON mi.store_id = o.store_id</p>
+<p class="p2"><br></p>
+<p class="p1"># ❌ DON'T: INNER JOIN for enrichment (loses valid orders)</p>
+<p class="p1">INNER JOIN merchant_info mi ON mi.store_id = o.store_id</p>
+<p class="p2"><br></p>
+<p class="p1"># ✅ DO: Pre-filter before expensive operations</p>
+<p class="p1">WHERE order_id IN (SELECT id FROM orders_base) -- Filter first</p>
+<p class="p1">```</p>
+<p class="p2"><br></p>
+<p class="p1">#### Query Architecture Patterns</p>
+<p class="p1">```sql</p>
+<p class="p1">-- ✅ PATTERN: Pre-filter → Aggregate → Join</p>
+<p class="p1">WITH</p>
+<p class="p1">base_data AS (SELECT * FROM large_table WHERE conditions),<span class="Apple-converted-space">  </span>-- Filter first</p>
+<p class="p1">aggregated AS (SELECT store_id, SUM(metric) FROM base_data GROUP BY store_id),</p>
+<p class="p1">enriched AS (SELECT * FROM aggregated LEFT JOIN small_lookups)</p>
+<p class="p2"><br></p>
+<p class="p1">-- ❌ ANTI-PATTERN: Join → Filter → Aggregate <span class="Apple-converted-space"> </span></p>
+<p class="p1">WITH all_data AS (</p>
+<p class="p1"><span class="Apple-converted-space">  </span>SELECT * FROM large_table<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">  </span>LEFT JOIN large_table2 ON ...<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">  </span>LEFT JOIN large_table3 ON ...</p>
+<p class="p1"><span class="Apple-converted-space">  </span>WHERE conditions<span class="Apple-converted-space">  </span>-- Filter after expensive joins</p>
+<p class="p1">)</p>
+<p class="p1">```</p>
+<p class="p2"><br></p>
+<p class="p1">### 🔧 9.2 Data Architecture Decisions</p>
+<p class="p2"><br></p>
+<p class="p1">#### Split Strategy: Historical vs Actual</p>
+<p class="p1">```python</p>
+<p class="p1"># Why we split tables:</p>
+<p class="p2"><br></p>
+<p class="p1"># HISTORICAL TABLES (static, computed once)</p>
+<p class="p1">special_events_historico:</p>
+<p class="p1"><span class="Apple-converted-space">  </span>- All events except current: hotsale-2024, cybermonday-2024, etc.</p>
+<p class="p1"><span class="Apple-converted-space">  </span>- Immutable data that never changes</p>
+<p class="p1"><span class="Apple-converted-space">  </span>- Computed once, used forever</p>
+<p class="p1"><span class="Apple-converted-space">  </span>- No refresh overhead</p>
+<p class="p2"><br></p>
+<p class="p1"># ACTUAL TABLES (dynamic, refreshed often) <span class="Apple-converted-space"> </span></p>
+<p class="p1">special_events_actual:</p>
+<p class="p1"><span class="Apple-converted-space">  </span>- Only current event: cybermonday-2025</p>
+<p class="p1"><span class="Apple-converted-space">  </span>- Data changes as event progresses (new orders, status changes)</p>
+<p class="p1"><span class="Apple-converted-space">  </span>- Refresh every 3-8 hours</p>
+<p class="p1"><span class="Apple-converted-space">  </span>- Always fresh, smaller compute footprint</p>
+<p class="p1">```</p>
+<p class="p2"><br></p>
+<p class="p1">#### Benefits Realized</p>
+<p class="p1">1. **Cost Optimization**: No reprocessing of immutable historical data</p>
+<p class="p1">2. **Performance**: Smaller actual tables = faster refresh</p>
+<p class="p1">3. **Reliability**: Historical data always available even if actual refresh fails</p>
+<p class="p1">4. **Simplicity**: Clear separation of concerns</p>
+<p class="p2"><br></p>
+<p class="p1">### 🎯 9.3 Business Alignment Strategies</p>
+<p class="p2"><br></p>
+<p class="p1">#### Requirements Translation</p>
+<p class="p1">```</p>
+<p class="p1">Business Says → Technical Implementation</p>
+<p class="p2"><br></p>
+<p class="p1">"Compare events easily"<span class="Apple-converted-space"> </span></p>
+<p class="p1">→ Event selector + side-by-side metrics + growth calculations</p>
+<p class="p2"><br></p>
+<p class="p1">"See store performance by segment"</p>
+<p class="p1">→ Dimensional modeling: segment × aging × business_unit × plan_group</p>
+<p class="p2"><br></p>
+<p class="p1">"Understand traffic and conversion" <span class="Apple-converted-space"> </span></p>
+<p class="p1">→ Sessions analysis + funnel metrics + CVR calculations</p>
+<p class="p2"><br></p>
+<p class="p1">"Know which products sell the most"</p>
+<p class="p1">→ Product-level analysis + auto-categorization + ranking</p>
+<p class="p2"><br></p>
+<p class="p1">"Real-time data without IT dependency"</p>
+<p class="p1">→ Auto-refresh + live connection + self-service exploration</p>
+<p class="p1">```</p>
+<p class="p2"><br></p>
+<p class="p1">---</p>
+<p class="p2"><br></p>
+<p class="p1">## 📞 Contacto y Soporte</p>
+<p class="p2"><br></p>
+<p class="p1">**Desarrollador Principal**: Alberto (Beto)</p>
+<p class="p1">**Equipo**: Analytics Engineering + Data</p>
+<p class="p1">**Documentación**: Este documento (mantener actualizado)</p>
+<p class="p1">**Soporte**: Slack #analytics-engineering</p>
+<p class="p2"><br></p>
+<p class="p1">**Última Actualización**: Octubre 2025</p>
+<p class="p1">**Versión**: 1.0</p>
+<p class="p1">**Próxima Review**: Noviembre 2025</p>
+</body>
+</html>

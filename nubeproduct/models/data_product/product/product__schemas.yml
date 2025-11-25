@@ -5002,3 +5002,505 @@ models:
         description: Vertical associated to the store.
       - name: avg_monthly
         description: Monthly GMV based on the average of the last 4 months.
+
+
+  - name: s__shipping__fallback_status__ref
+    description: >
+      Model representing the current shipping fallback configuration per store.
+      It determines whether fallback shipping is active based on store attributes,
+      country, and specific plan logic. Freemium and churned stores are also identified.
+    config:
+      meta:
+        owner: "matias.scasso@tiendanube.com"
+        domain: "product"
+        business_owner: "Martin Palombo"
+    columns:
+      - name: store_id
+        description: "Unique identifier for each store."
+        tests: [not_null, unique]
+      - name: domain
+        description: "Domain associated with the store."
+      - name: country
+        description: "ISO code of the store's country."
+      - name: plan_group
+        description: "Current plan group the store belongs to (e.g., freemium, paid)."
+      - name: segment
+        description: "Segment classification of the store."
+      - name: state
+        description: "Lifecycle state of the store."
+        tests: [not_null]
+      - name: is_churned
+        description: "Boolean flag indicating whether the store is churned."
+        tests: [not_null]
+      - name: is_fallback_active
+        description: >
+          Boolean indicating whether fallback shipping is enabled for the store.
+          Depends on a combination of store country, plan, and mwp_options setting.
+        tests: [not_null]
+      - name: is_freemium
+        description: "Boolean flag indicating if the store's current plan is freemium."
+        tests: [not_null]
+      - name: sys_audit_created_on
+        description: "Timestamp when this record was first created in the DBT model."
+        tests: [not_null]
+      - name: sys_audit_created_by
+        description: "Identifier of the user or system that created this record."
+        tests: [not_null]
+      - name: sys_audit_updated_on
+        description: "Timestamp when this record was last updated."
+        tests: [not_null]
+      - name: sys_audit_updated_by
+        description: "Identifier of the user or system that last updated this record."
+        tests: [not_null]
+
+
+  - name: s__shipping__fallback_orders__event
+    description: >
+      Event-level data product that captures all paid orders using the "Fallback"
+      shipping method over the last 12 months. Combines store lifecycle attributes
+      and order-level information to enable analysis of fallback shipping usage
+      across different segments, countries, and plan types.
+    config:
+      meta:
+        owner: "matias.scasso@tiendanube.com"
+        domain: "product"
+        business_owner: "Martin Palombo"
+    columns:
+      - name: order_id
+        description: "Unique identifier of the order."
+        tests: [not_null, unique]
+      - name: store_id
+        description: "Unique identifier of the store associated with the order."
+        tests: [not_null]
+      - name: domain
+        description: "Store domain information used for segmentation and filtering."
+      - name: country
+        description: "Country code where the store is located."
+      - name: plan_group
+        description: "Group to which the store's current plan belongs (e.g., freemium, paid)."
+      - name: segment
+        description: "Segment of the store based on internal classification."
+      - name: state
+        description: "Lifecycle state of the store at the time of the order."
+      - name: is_churned
+        description: "Boolean indicating whether the store was churned at the time of the order."
+        tests: [not_null]
+      - name: is_fallback_active
+        description: "Boolean indicating whether fallback shipping was enabled for the store."
+        tests: [not_null]
+      - name: is_freemium
+        description: "Boolean indicating whether the store was on a freemium plan."
+        tests: [not_null]
+      - name: shipping_method
+        description: "Shipping method used in the order (e.g., Fallback, Standard)."
+      - name: is_fallback_order
+        description: "Boolean flag indicating if the order used fallback shipping."
+        tests: [not_null]
+      - name: order_completed_at
+        description: "Timestamp of when the order was completed."
+        tests: [not_null]
+      - name: year_month_day_code
+        description: "Integer date code used for table partitioning (yyyyMMdd format)."
+        tests: [not_null]
+      - name: total_local_currency
+        description: "Total order value in the store’s local currency."
+      - name: total_usd
+        description: "Total order value converted to USD."
+      - name: sys_audit_created_on
+        description: "Timestamp when this record was first created in the DBT model."
+        tests: [not_null]
+      - name: sys_audit_created_by
+        description: "Identifier of the user or system that created this record."
+        tests: [not_null]
+      - name: sys_audit_updated_on
+        description: "Timestamp when this record was last updated."
+        tests: [not_null]
+      - name: sys_audit_updated_by
+        description: "Identifier of the user or system that last updated this record."
+        tests: [not_null]
+
+
+  - name: s__shipping__fallback_carrier_status__event
+    description: >
+      Event-level data product that enriches fallback shipping orders with information
+      about the availability and usage of shipping carrier applications.
+      It enables analysis of the relationship between carrier availability and fallback usage
+      by combining order-level, store-level, and shipping carrier data.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: 
+            - order_id
+            - shipping_carrier_app_id
+    config:
+      meta:
+        owner: "matias.scasso@tiendanube.com"
+        domain: "product"
+        business_owner: "Martin Palombo"
+    columns:
+      - name: order_id
+        description: "Unique identifier for the order."
+        tests: [not_null]
+      - name: shipping_carrier_app_id
+        description: "Identifier of the shipping carrier app associated with the order."
+        tests: [not_null]
+      - name: store_id
+        description: "Unique identifier of the store associated with the order."
+        tests: [not_null]
+      - name: domain
+        description: "Domain to which the store belongs."
+      - name: country
+        description: "ISO code representing the store's country."
+      - name: plan_group
+        description: "Store's current plan group (e.g., freemium, paid)."
+      - name: segment
+        description: "Internal segmentation category of the store (e.g., SMB, MM)."
+      - name: state
+        description: "Lifecycle state of the store at the time of the order."
+      - name: is_churned
+        description: "Flag indicating whether the store was churned at the time of the order."
+        tests: [not_null]
+      - name: is_fallback_active
+        description: "Flag indicating whether fallback shipping was active for the store."
+        tests: [not_null]
+      - name: is_freemium
+        description: "Boolean indicating if the store had a freemium plan."
+        tests: [not_null]
+      - name: shipping_carrier_name
+        description: "Name of the shipping carrier app used (if any)."
+      - name: was_carrier_active_when_fallback
+        description: >
+          Flag indicating whether the shipping carrier app was active
+          at the time the fallback shipping was used.
+        tests: [not_null]
+      - name: shipping_method
+        description: "Shipping method used in the order (e.g., Fallback, Standard)."
+      - name: is_fallback_order
+        description: "Boolean indicating whether the order used fallback shipping."
+        tests: [not_null]
+      - name: order_completed_at
+        description: "Timestamp when the order was completed."
+        tests: [not_null]
+      - name: year_month_day_code
+        description: "Date partition column in YYYYMMDD integer format."
+        tests: [not_null]
+      - name: sys_audit_created_on
+        description: "Timestamp when this record was first created in the DBT model."
+        tests: [not_null]
+      - name: sys_audit_created_by
+        description: "Identifier of the user or system that created this record."
+        tests: [not_null]
+      - name: sys_audit_updated_on
+        description: "Timestamp when this record was last updated."
+        tests: [not_null]
+      - name: sys_audit_updated_by
+        description: "Identifier of the user or system that last updated this record."
+        tests: [not_null]
+
+
+  - name: g__shipping__fallback_status_orders__agg_daily
+    description: >
+      Daily aggregated data product summarizing paid orders by store and shipping method,
+      enriched with store segmentation and lifecycle attributes. It allows tracking of
+      fallback shipping usage and its relationship with store plan, segment, and country.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: 
+            - store_id
+            - order_completed_at
+            - shipping_method
+    config:
+      meta:
+        owner: "matias.scasso@tiendanube.com"
+        domain: "product"
+        business_owner: "Martin Palombo"
+    columns:
+      - name: store_id
+        description: "Unique identifier of the store."
+        tests: [not_null]
+      - name: domain
+        description: "Store's domain name used for internal classification."
+      - name: country
+        description: "Country code where the store is located."
+      - name: plan_group
+        description: "Store's plan classification (e.g., freemium, paid)."
+      - name: segment
+        description: "Store's business segment category (e.g., SMB, MM)."
+      - name: state
+        description: "Lifecycle state of the store."
+      - name: is_churned
+        description: "Boolean flag indicating if the store was churned at the order date."
+        tests: [not_null]
+      - name: is_fallback_active
+        description: "Flag indicating if fallback shipping was active for the store."
+        tests: [not_null]
+      - name: is_freemium
+        description: "Boolean indicating whether the store was on a freemium plan."
+        tests: [not_null]
+      - name: shipping_method
+        description: "Shipping method used in the order (e.g., Fallback, Standard)."
+      - name: is_fallback_order
+        description: "Flag indicating whether the orders used fallback shipping."
+        tests: [not_null]
+      - name: order_completed_at
+        description: "Date the order was completed."
+        tests: [not_null]
+      - name: year_month_day_code
+        description: "Integer date field used for partitioning (YYYYMMDD)."
+        tests: [not_null]
+      - name: total_local_currency
+        description: "Total value of orders in local currency for the day and store."
+        tests: [not_null]
+      - name: total_usd
+        description: "Total value of orders in USD for the day and store."
+        tests: [not_null]
+      - name: total_orders
+        description: "Count of distinct orders for the given day, store, and shipping method."
+        tests: [not_null]
+      - name: sys_audit_created_on
+        description: "Timestamp when this record was first created in the DBT model."
+        tests: [not_null]
+      - name: sys_audit_created_by
+        description: "User or system who created this record."
+        tests: [not_null]
+      - name: sys_audit_updated_on
+        description: "Timestamp when this record was last updated."
+        tests: [not_null]
+      - name: sys_audit_updated_by
+        description: "User or system who last updated this record."
+        tests: [not_null]
+
+
+  - name: s__general__dealbreakers_process_changelog_input__scd
+    description: >
+      Silver data product that tracks raw historical changes of dealbreaker records, both current and deleted, 
+      as sourced from HubSpot. It performs row-level change detection and validation.
+      It includes 'row_hash', validity period tracking, and flags for invalid records.
+      This data products is used as input for the final changelog data product.
+      If the process is run more than once a day and some data changed during this runs, the data product will be updated incrementally.
+      It includes audit tracking and is updated incrementally.
+      This shortened version of the original is used for the Dealbreakers registration process and control.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:   
+          - dealbreaker_id
+          - valid_from
+          - row_hash
+    columns:
+      - name: dealbreaker_id
+        description: "Unique identifier for the dealbreaker."
+        tests: 
+          - not_null
+      - name: processed_at
+        description: "Timestamp when the record was processed by DBT."    
+      - name: is_archived
+        description: "Boolean flag indicating if the dealbreaker is archived in HubSpot."
+      - name: repo_name
+        description: "Name of the GitHub repository related to the issue/problem."
+      - name: issue_number
+        description: "GitHub issue number associated with the dealbreaker."
+      - name: store_id
+        description: "Internal store identifier mapped to the HubSpot company."
+      - name: impact
+        description: "Impact level of the dealbreaker ('high' or 'dealbreaker')."
+      - name: is_closed
+        description: "Flag that determines whether the record is closed or not."
+      - name: valid_from
+        description: "Start date when this version of the record became valid. It is set as the previous day of the processed_at timestamp."
+        tests:
+          - not_null
+      - name: is_valid
+        description: "Boolean flag indicating if the record passed validation checks associated to manual data from Hubspot."
+      - name: invalid_reason
+        description: "Reason why the record was marked as invalid (if applicable)."
+      - name: sys_audit_created_on
+        description: "Timestamp when this record was first created in the DBT model."
+      - name: sys_audit_created_by
+        description: "Identifier for the user or system that created this record."
+      - name: sys_audit_updated_on
+        description: "Timestamp when this record was last updated."
+      - name: sys_audit_updated_by
+        description: "Identifier for the user or system that last updated this record."
+      - name: row_hash
+        description: "MD5 hash of the row content to detect changes."
+
+
+  - name: s__general__dealbreakers_process_changelog__scd
+    description: >
+      Silver data product that implements a clean Slowly Changing Dimension (SCD Type 2) changelog 
+      for dealbreaker records. It removes duplicates by 'valid_from', calculates 'valid_to', 
+      and flags the current active record.
+      This shortened version of the original is used for the Dealbreakers registration process and control.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:   
+          - dealbreaker_id
+          - valid_from
+    columns:
+      - name: dealbreaker_id
+        description: "Unique identifier for the dealbreaker."
+        tests: 
+          - not_null
+      - name: processed_at
+        description: "Timestamp when the record was processed by DBT."    
+      - name: is_archived
+        description: "Boolean flag indicating if the dealbreaker is archived in HubSpot."
+      - name: repo_name
+        description: "Name of the GitHub repository related to the issue/problem."
+      - name: issue_number
+        description: "GitHub issue number associated with the dealbreaker."
+      - name: store_id
+        description: "Internal store identifier mapped to the HubSpot company."
+      - name: impact
+        description: "Impact level of the dealbreaker ('high' or 'dealbreaker')."
+      - name: is_closed
+        description: "Flag that determines whether the record is closed or not."
+      - name: valid_from
+        description: "Start date when this version of the record became valid. It is set as the previous day of the processed_at timestamp as this model runs daily."
+        tests:
+          - not_null
+      - name: valid_to
+        description: "End date for which this record version is valid."
+        tests:
+          - not_null
+      - name: is_current
+        description: "Flag indicating if this is the current version of the record."
+        tests:
+          - not_null
+      - name: is_valid
+        description: "Boolean flag indicating if the record passed validation checks associated to manual data from Hubspot."
+      - name: invalid_reason
+        description: "Reason why the record was marked as invalid (if applicable)."
+      - name: sys_audit_created_on
+        description: "Timestamp when this record was first created in the DBT model."
+      - name: sys_audit_created_by
+        description: "Identifier for the user or system that created this record."
+      - name: sys_audit_updated_on
+        description: "Timestamp when this record was last updated."
+      - name: sys_audit_updated_by
+        description: "Identifier for the user or system that last updated this record."
+
+
+  - name: s__general__dealbreakers_process_valid__event
+    description: >
+      Model representing the consolidated and deduplicated state of dealbreakers,
+      both open and closed, filtering archived records and removing duplicates.
+      It contains business logic to maintain the health of the processes involved.
+      Built from the historical changelog and current HubSpot events.
+      This shortened version of the original is used for the Dealbreakers registration process and control.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: 
+            - dealbreaker_id
+            - valid_from
+    config:
+      meta:
+        owner: "matias.scasso@tiendanube.com"
+        domain: "product"
+        business_owner: "Martin Palombo"
+    columns:
+      - name: repo_name
+        description: "Determines if row is related to an Issue or Problem."
+        tests:
+            - not_null
+      - name: issue_number
+        description: "Issue/problem identification number. Must be combined with repo_name to correctly identify the issue/problem."
+        tests:
+            - not_null
+      - name: dealbreaker_source
+        description: "Source of the dealbreaker (e.g., HubSpot)."
+      - name: dealbreaker_id
+        description: "Unique identifier for the dealbreaker."
+        tests:
+            - not_null
+      - name: author
+        description: "Author of the dealbreaker (created/updated user with 'h' prefix for Hubspot users)."
+      - name: is_relevant
+        description: "Boolean indicating whether the record is relevant."
+        tests:
+            - not_null
+      - name: valid_from
+        description: "Date from which the data associated with the record is valid."
+        tests:
+            - not_null
+      - name: store_id
+        description: "ID of the store affected by the dealbreaker."
+        tests:
+            - not_null
+      - name: impact
+        description: "Impact of the comment. It is only included for Mid Market stores."
+      - name: sys_audit_created_on
+        description: "Timestamp when this record was first created in the DBT model."
+        tests:
+            - not_null
+      - name: sys_audit_created_by
+        description: "Identifier of the user or system that created this record."
+        tests:
+            - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when this record was last updated."
+        tests:
+            - not_null
+      - name: sys_audit_updated_by
+        description: "Identifier of the user or system that last updated this record."
+        tests:
+            - not_null
+
+
+  - name: s__general__dealbreakers_process_comment_like__event
+    description: >
+      Model representing the consolidated and deduplicated state of dealbreakers,
+      both open and closed, filtering archived records and removing duplicates.
+      It contains business logic to maintain the health of the processes involved.
+      This model is similar to the s__general__dealbreakers_valid__event model, but it is formatted to match Github comments.
+      This shortened version of the original is used for the Dealbreakers registration process and control.
+    config:
+      meta:
+        owner: "matias.scasso@tiendanube.com"
+        domain: "product"
+        business_owner: "Martin Palombo"
+    columns:
+      - name: repo_name
+        description: "Determines if row is related to an Issue or Problem."
+        tests:
+            - not_null
+      - name: issue_number
+        description: "Issue/problem identification number. Must be combined with repo_name to correctly identify the issue/problem."
+        tests:
+            - not_null
+      - name: comment_id
+        description: "Unique key created from the combination of the dealbreaker_id and the valid_from date."
+        tests:
+            - not_null
+            - unique
+      - name: author
+        description: "Author of the dealbreaker (created/updated user with 'h' prefix for Hubspot users)."
+      - name: is_relevant
+        description: "Boolean indicating whether the record is relevant."
+        tests:
+            - not_null
+      - name: comment_date
+        description: "Date from which the data associated with the record is valid."
+        tests:
+            - not_null
+      - name: store_id
+        description: "ID of the store affected by the dealbreaker."
+        tests:
+            - not_null
+      - name: impact
+        description: "Impact of the comment. It is only included for Mid Market stores."
+      - name: sys_audit_created_on
+        description: "Timestamp when this record was first created in the DBT model."
+        tests:
+            - not_null
+      - name: sys_audit_created_by
+        description: "Identifier of the user or system that created this record."
+        tests:
+            - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when this record was last updated."
+        tests:
+            - not_null
+      - name: sys_audit_updated_by
+        description: "Identifier of the user or system that last updated this record."
+        tests:
+            - not_null
