@@ -4599,6 +4599,13 @@ models:
         description: "Unique identifier of the store."
         tests:
           - not_null
+      
+      - name: country
+        description: "Country code (e.g., BR, AR, MX, CL, CO) representing the store’s creation country."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['BR', 'AR', 'MX', 'CL', 'CO']
 
       - name: snapshot_month_end
         description: "Last day of the observed month (reference period for prediction)."
