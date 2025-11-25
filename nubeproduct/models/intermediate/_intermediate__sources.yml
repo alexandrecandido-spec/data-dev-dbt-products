@@ -378,7 +378,11 @@ sources:
     description: "Intermediate tables from newadmin schema used in intermediate models"
     tables:
       - name: authentication_factors
-        description: "Contains authentication factors (2FA) configuration for users"
+        description: "Contains authentication factors (2FA) configuration for users."
+      - name: authentication_log
+        description: "Contains users authentication log info with timestamp and type of action (login, password reset, password change)."
+      - name: security_requirements
+        description: "Contains security requirements information on a store level, such as mfa requirements and creation date."
 
   - name: data_manual
     database: data_products_prd
