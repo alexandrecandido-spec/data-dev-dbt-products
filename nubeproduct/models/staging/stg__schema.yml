@@ -4580,50 +4580,45 @@ models:
   - name: marketing__models__churn_predictor__snapshot_monthly
     description: |
       **Staging model** that stores monthly churn prediction outputs from the *Potential Churn* machine learning model.
-
       - The model runs on the **1st day of each month** for all active stores with paid subscriptions.  
       - If a store remains subscribed for multiple months, its `store_id` appears multiple times (one per month).  
       - Normally, the model runs once per month; however, **reprocessing** may occur after the 5th day.  
       - In such cases, always consider the **most recent run for each month** as the valid record.  
-
       🔗 [Internal documentation](https://docs.google.com/document/d/1VOUsUj_KOQp7krS9WcusGtmO1X8Yq-VJEvIaxCB8ozo/edit?tab=t.7yr9b3opplss)
-
     config:
       meta:
         owner: "ianca.leite@nuvemshop.com.br"  
         business_owner: "Giselle Galli"
         domain: "models"
-
     columns:
       - name: store_id
         description: "Unique identifier of the store."
         tests:
           - not_null
-      
       - name: country
         description: "Country code (e.g., BR, AR, MX, CL, CO) representing the store’s creation country."
         tests:
           - not_null
           - accepted_values:
               values: ['BR', 'AR', 'MX', 'CL', 'CO']
-
       - name: snapshot_month_end
         description: "Last day of the observed month (reference period for prediction)."
         tests:
           - not_null
-
       - name: prediction_timestamp
         description: "Timestamp of the model execution that generated the prediction."
         tests:
           - not_null
-
       - name: life_stage
-        description: "Store lifecycle stage at prediction time (coded)."
+        description: "Store lifecycle stage at the time of prediction:
+                    - A1 = Up to 30 days old
+                    - A2 = Between 1 and 6 months old
+                    - B  = More than 6 months old
+                    - C = More than 12 months old"
         tests:
           - not_null
           - accepted_values:
               values: ['A1', 'A2', 'B', 'C']
-
       - name: month_segment
         description: "Segment the store belonged to at the time of prediction."
         tests:
@@ -4631,7 +4626,6 @@ models:
               value_set:
                 ['no-seller', 'struggling-seller', 'tiny-seller', 'small-seller',
                  'medium-seller', 'large-seller', 'top-seller']
-
       - name: max_segment
         description: "Highest segment ever reached by the store historically."
         tests:
@@ -4640,14 +4634,12 @@ models:
               values:
                 ['no-seller', 'struggling-seller', 'tiny-seller', 'small-seller',
                  'medium-seller', 'large-seller', 'top-seller']
-
       - name: seller_type
         description: "Binary classification indicating if the store is a seller or not."
         tests:
           - not_null
           - accepted_values:
               values: ['seller', 'no-seller']
-
       - name: profile
         description: |
           Segmentation label derived from life_stage and behavioral model features  
@@ -4661,7 +4653,6 @@ models:
                  '3. Baixa conversão','3. Configurado','3. Newbie','3. Regular',
                  '4. Potencial','4. Promissor','4. Regular',
                  '5. Extraordinário','5. Profissional','6. NA']
-
       - name: probability
         description: "Predicted probability (0–1) that the store will remain a seller."
         tests:
@@ -4669,7 +4660,6 @@ models:
           - dbt_expectations.expect_column_values_to_be_between:
               min_value: 0.00000000001
               max_value: 1
-
       - name: threshold
         description: "Threshold applied to the probability for classification."
         tests:
@@ -4678,45 +4668,39 @@ models:
               min_value: 0
               max_value: 1
               inclusive: false
-
       - name: prediction
-        description: "Binary output of the churn prediction model (0 = retain, 1 = churn)."
+        description: "Binary output of the churn prediction model:
+                      - 0 = retain --> probability < cutoff
+                      - 1 = churn --> probability ≥ cutoff"
         tests:
           - not_null
           - accepted_values:
               values: [0, 1]
-
       - name: model_id
-        description: "Unique identifier of the ML model version used to generate the prediction."
+        description: "Unique identifier of the ML model version used to generate the prediction. Format: model_name/version_number"
         tests:
           - not_null
           # TODO: optionally validate model_id exists in Databricks Catalog
-
       - name: prediction_year_month_code
         description: "YYYYMM numeric code derived from the prediction timestamp for easy period grouping."
         tests:
           - not_null
-
       - name: sys_audit_created_on
         description: "Timestamp when the record was first loaded into this model (defaults to current_timestamp)."
         tests:
           - not_null
-
       - name: sys_audit_created_by
         description: "User or process that created the record (defaults to 'data-dev-dbt-products')."
         tests:
           - not_null
-
       - name: sys_audit_updated_on
         description: "Timestamp of the most recent model run that processed this record."
         tests:
           - not_null
-
       - name: sys_audit_updated_by
         description: "User or process responsible for the latest model update (defaults to 'data-dev-dbt-products')."
         tests:
           - not_null
-
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [store_id, snapshot_month_end]
