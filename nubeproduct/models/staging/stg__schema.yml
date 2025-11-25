@@ -4664,10 +4664,11 @@ models:
         description: "Threshold applied to the probability for classification."
         tests:
           - not_null
-          - dbt_utils.accepted_range:
+          - dbt_expectations.expect_column_values_to_be_between:
               min_value: 0
               max_value: 1
-              inclusive: false
+              strictly: true          # 0 and 1 are not allowed
+              catch_violations: true  # store the invalid rows for review
       - name: prediction
         description: "Binary output of the churn prediction model:
                       - 0 = retain --> probability < cutoff
