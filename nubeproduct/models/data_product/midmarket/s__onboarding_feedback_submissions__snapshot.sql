@@ -1,3 +1,10 @@
+{{ config(
+    materialized='table',
+    on_schema_change='fail',
+    unique_key=['feedback_id'],
+    tags=['midmarket','daily-8am']
+) }}
+
 WITH deals AS (
   SELECT
       d.deal_id,
@@ -39,7 +46,11 @@ SELECT DISTINCT
     d.country,
     d.dealname,
     d.deal_owner,
-    d.go_live_real_date
+    d.go_live_real_date,
+    current_timestamp AS sys_audit_created_on,
+    'data-dev-dbt-products' AS sys_audit_created_by,
+    current_timestamp AS sys_audit_updated_on,
+    'data-dev-dbt-products' AS sys_audit_updated_by
 FROM {{source('int_third_party', 'midmarket_hubspot_feedback_submissions')}} fs2
 LEFT JOIN (SELECT * FROM deals WHERE feedbacks = 1) d
   ON fs2.feedback_id = d.last_survey_answered

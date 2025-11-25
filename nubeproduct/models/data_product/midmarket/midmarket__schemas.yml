@@ -502,6 +502,23 @@ models:
         description: "HubSpot owner (user) identifier assigned to the associated Onboarding deal."
       - name: go_live_real_date
         description: "Actual go-live date from the associated Onboarding deal."
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model. Typically 'data-dev-dbt-products'."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when the record was last processed or refreshed."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run. Always 'data-dev-dbt-products' for this automated process."
+        tests:
+          - not_null
+
 
   - name: s__sales__dev__pipeline__snapshot
     description: >
