@@ -38,6 +38,7 @@ ordered AS (
     SELECT
         id,
         store_id,
+        plan_id,
         plan_name,
         type,
         total,
@@ -101,7 +102,8 @@ typed AS (
             THEN type END) 
             IGNORE NULLS OVER (PARTITION BY store_id, group_id ORDER BY start_date, id) AS main_type,
         FIRST_VALUE(change_reason_trigger) IGNORE NULLS
-            OVER (PARTITION BY store_id, group_id ORDER BY start_date, id) AS change_reason
+            OVER (PARTITION BY store_id, group_id ORDER BY start_date, id) AS change_reason,
+        FIRST_VALUE(plan_id) OVER (PARTITION BY store_id, group_id ORDER BY created_at_contract ASC) AS main_plan_id
     FROM grouped g
 ),
 
@@ -109,7 +111,8 @@ typed AS (
 block_agg AS (
 SELECT
     store_id,
-    plan_name AS plan_name,
+    main_plan_id AS plan_id,
+    plan_name,
     main_type AS contract_type,
     tag,
     SUM(total) AS contracts_total,
@@ -120,7 +123,7 @@ SELECT
     MAX(sys_audit_updated_on) AS sys_audit_updated_on,
     MAX(change_reason)        AS change_reason
 FROM typed
-GROUP BY store_id, plan_name, main_type, tag, group_id
+GROUP BY store_id, main_plan_id, plan_name, main_type, tag, group_id
 ),
 
 -- 6️⃣ Marcamos el contrato actual por store
@@ -157,13 +160,14 @@ data_anomaly_fix AS (
 
 SELECT
   store_id,
+  plan_id,
   main_plan_name AS plan_name,
   contract_type,
   contracts_total,
   contract_id,
   created_at_contract,
-  main_start_date AS start_date,
-  main_end_date AS end_date,
+  main_start_date AS start_date_contract,
+  main_end_date AS end_date_contract,
   sys_audit_updated_on,
   change_reason,
   CASE WHEN rn_current = 1 THEN TRUE ELSE FALSE END AS is_current,

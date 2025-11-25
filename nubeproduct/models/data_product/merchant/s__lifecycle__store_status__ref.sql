@@ -27,6 +27,7 @@ main_source.store_id
 , main_source.current_plan_id
 , main_source.current_plan_name
 , main_source.current_plan_type
+, main_source.current_plan_context
 , main_source.current_segment
 , main_source.is_seller
 , main_source.max_segment
@@ -41,6 +42,7 @@ main_source.store_id
 , main_source.cancellation_reason
 , main_source.cancellation_comment
 , main_source.cancellation_comment_at
+, main_source.merchant_finance_status
 , main_source.change_timestamp
 FROM {{ ref('_int__lifecycle__store_status') }} main_source
 {% if not is_incremental() %}
@@ -57,12 +59,13 @@ FROM {{ ref('_int__lifecycle__store_status') }} main_source
             "cancellation_reason",
             "cancellation_comment",
             "cancellation_comment_at",
-            "business_unit"
+            "business_unit",
+            "merchant_finance_status"
         ] %}
 
   WHERE main_source.state != 4
-  
-  AND current_data.store_id IS NULL
+  AND (
+    current_data.store_id IS NULL
     OR (
         -- cambios en upstream detectados por timestamps
         main_source.change_timestamp > current_data.sys_audit_updated_on
@@ -70,7 +73,8 @@ FROM {{ ref('_int__lifecycle__store_status') }} main_source
         {%- for col in monitored_cols %}
             OR (main_source.{{ col }} IS DISTINCT FROM current_data.{{ col }})
         {%- endfor %}
-              )
+    )
+  )
 {% endif %}
 )
 
