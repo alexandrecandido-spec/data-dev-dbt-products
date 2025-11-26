@@ -1,1 +1,0 @@
-SELECT keyword, date, country, searches FROM data_products_prd.data_manual.ext__marketing__brand_comms__searches_keyword_planner WHERE keyword = 'tienda nube' AND country = 'AR' ORDER BY date LIMIT 20;
