@@ -54,7 +54,7 @@ left join {{ ref('midmarket_weekly_business_review') }}  wbr on ccfe.store_id = 
     and ccfe.base_date >= wbr.date_from and ccfe.base_date < wbr.date_to
     and playbook not in ('Out of portfolio', 'Effective churn')
 left join {{ ref('_int__product__orders__paid_event_timestamp') }} paid_timestamp on ccfe.cart_id = paid_timestamp.order_id
-WHERE
+WHERE 
     {% if is_incremental() %}
 
     -- this filter will only be applied on an incremental run
@@ -67,7 +67,7 @@ WHERE
     base_date> DATE('2025-01-01')
 
      {% endif %}
-
+    and ccfe.store_id <> 6926745
 ),
 existing_data AS (
     {{ get_existing_data(this, ['base_date','cart_id','store_id','diff_first_and_last_event_minutes','diff_selected_payment_to_paid_seconds','diff_completed_contact_to_selected_payment_seconds','first_event','first_event_timestamp',
