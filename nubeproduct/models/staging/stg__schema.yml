@@ -2916,8 +2916,6 @@ models:
         description: "Type of relationship between the dealbreaker and the company (HubSpot-defined)."
       - name: company_id
         description: "Unique identifier for the associated company."
-        tests: 
-          - not_null
       - name: row_hash
         description: "MD5 hash of the dealbreaker_id, association_type and company_id used to detect changes in the association and persist audit fields."
         tests: 
@@ -2953,6 +2951,10 @@ models:
         description: "Timestamp of the last update of the dealbreaker in the current table in Hubspot."
       - name: row_hash
         description: "MD5 hash of the dealbreaker_id and record_updated_at used to detect changes in the snapshot and persist audit fields."
+        tests: 
+          - not_null
+      - name: is_current
+        description: "Indicates whether the record is current. It exists to make the model incremental."
         tests: 
           - not_null
       - name: sys_audit_created_on
