@@ -332,3 +332,82 @@ models:
         description: Timestamp of the latest update to the row.
       - name: sys_audit_updated_by
         description: Source or user responsible for the latest update.
+  
+
+  - name: dimension__attributes__calendar__ref
+    config:
+      meta:
+        owner: "djalma.dias@nuvemshop.com.br"
+        domain: "dimensions"
+        business_owner: "Analytics Engineering"
+    description: "A comprehensive date dimension table containing daily records from 2000-01-01 to 2050-12-31. It provides calendar-based attributes to support time-based analysis in reporting and analytics, including year, month, week, and day components."
+    columns:
+      - name: date_id
+        description: Full date in yyyy-MM-dd format (primary key).
+        tests:
+          - not_null
+          - unique
+      - name: date_number
+        description: Numeric representation of the date in yyyyMMdd format (e.g., 20250620).
+        tests:
+          - not_null
+      - name: year_id
+        description: Four-digit calendar year (e.g., 2025).
+        tests:
+          - not_null
+      - name: month_id
+        description: Numeric month of the year (1 = January, ..., 12 = December).
+        tests:
+          - not_null
+      - name: month_name
+        description: Full month name (e.g., June).
+        tests:
+          - not_null
+      - name: day_name
+        description: Full name of the day of the week (e.g., Monday).
+        tests:
+          - not_null
+      - name: quarter_id
+        description: Numeric quarter of the year (1 to 4).
+        tests:
+          - not_null
+      - name: quarter_name
+        description: Quarter label as string (e.g., Q1, Q2).
+        tests:
+          - not_null
+      - name: day_of_year
+        description: Day of the year (1 to 366).
+        tests:
+          - not_null
+      - name: day_of_month
+        description: Day of the month (1 to 31).
+        tests:
+          - not_null
+      - name: day_of_week_number
+        description: Numeric weekday (1 = Monday, ..., 7 = Sunday). Adjusted from Sparks dayofweek.
+        tests:
+          - not_null
+      - name: is_weekend
+        description: Boolean flag indicating if the date is Saturday or Sunday.
+        tests:
+          - not_null
+      - name: first_day_of_month
+        description: The first calendar day of the month for the date.
+        tests:
+          - not_null
+      - name: last_day_of_month
+        description: The last calendar day of the month for the date.
+        tests:
+          - not_null
+      - name: first_day_of_week
+        description: The starting date (Monday) of the week that contains date_id.
+        tests:
+          - not_null
+      - name: last_day_of_week
+        description: The ending date (Sunday) of the week that contains date_id.
+        tests:
+          - not_null
+      - name: week_of_year
+        description: ISO week number of the year (1 to 53).
+        tests:
+          - not_null

@@ -12,7 +12,7 @@ WITH source AS (
     select
         year_month_code,
         store_id,
-        sort_type,
+        CAST(sort_type AS STRING) AS sort_type,
         created_at,
         updated_at
     from {{ source('stg_checkout', 'mwp_configuration_payment_option') }}
@@ -32,7 +32,7 @@ existing_data AS (
 select
 year_month_code,
 s.store_id,
-sort_type,
+CAST(s.sort_type AS STRING) AS sort_type,
 created_at,
 updated_at,
 COALESCE(e.sys_audit_created_on, current_timestamp) AS sys_audit_created_on,
