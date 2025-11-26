@@ -29,7 +29,8 @@ with plan_group as (
             WHEN pc.id <= 2575 THEN 1
             ELSE 0
         END AS before_freemium_launch,
-        gpa.namev2
+        gpa.namev2,
+        pc.context as plan_context
     from {{ source("dp_moltres", "mwp_plans_countries") }} pc
         left join {{ source("dp_moltres", "mwp_plans") }} p
             on pc.plan = p.id
@@ -67,6 +68,7 @@ select
         -- Group: zero-fee
         WHEN grupo = 'zero-fee' THEN 'colaboradores' -- Same for all
     END AS namev2,
+    plan_context,
     current_timestamp AS sys_audit_updated_on,
     'data-dev-dbt-products' AS sys_audit_updated_by,
     current_timestamp AS sys_audit_created_on,

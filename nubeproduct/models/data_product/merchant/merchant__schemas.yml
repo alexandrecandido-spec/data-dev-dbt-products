@@ -157,6 +157,43 @@ models:
           - not_null
 
 
+  - name: s__attributes__midmarket_success__ref
+    description: "Data Product silver that contains Mid Market Success information for each store. Includes flag indicating if the store is Mid Market (is_midmarket) and the assigned account manager (account_manager)."
+    config:
+      meta:
+        owner: "jhu.boggio@tiendanube.com"
+        domain: "merchant"
+        business_owner: "Franco Tiberti"
+    columns:
+      - name: store_id
+        description: "Unique identifier of the store"
+        tests:
+          - not_null
+          - unique
+      - name: is_midmarket
+        description: "Flag indicating if the store is Mid Market Success (true if in_portfolio = true in midmarket_success_stores, false otherwise). Business logic validated with Franco."
+        tests:
+          - not_null
+      - name: account_manager
+        description: "HubSpot owner (Account Manager) assigned to the store. Retrieved from the most recent record in midmarket_weekly_business_review. NULL if store is not in WBR or has no assigned account manager."
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model. Defaults to current_timestamp if not available."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model. Defaults to 'data-dev-dbt-products'."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."
+        tests:
+          - not_null
+
+
   - name: s__lifecycle__first_seller_date__ref
     description: "This data product identifies the first date on which a store qualified as a “seller”, based on sales performance, and aligns it with the store’s presence in the moltres_store_info. The main goal is to determine when each store first achieved at least 7 sales in a rolling 90-day window, according to data from company_metrics_paid_orders."
     config:
@@ -220,6 +257,10 @@ models:
           - not_null
       - name: current_plan_type
         description: "Type of the current plan"
+        tests:
+          - not_null
+      - name: current_plan_context
+        description: "Context of the current plan (Indicates the specific context in which the plan was applied — combining information like country, period (year and month), plan type, and version)."
         tests:
           - not_null
       - name: current_segment
@@ -432,6 +473,7 @@ models:
         description: "System or user that last updated the row."
         tests: [not_null]
 
+
   - name: g__attributes__main_payment_method__agg
     description: "Data Product gold that contains the main payment method by GMV for each store (aggregation by store). Calculates which payment method has the highest GMV since 2024-01-01. Only includes stores that have paid orders (does not include stores without sales)."
     config:
@@ -470,6 +512,7 @@ models:
         tests:
           - not_null
 
+
   - name: s__lifecycle__competitor_crawler__ref
     description: "Data Product silver that contains the competitor crawler data of each store. This data is used to identify the competitor of each store. The crawler stopped working in 2023"
     config:
@@ -501,3 +544,41 @@ models:
       - name: sys_audit_updated_by
         description: "System or user that last updated the row."
         tests: [not_null]
+
+  
+  - name: s__lifecycle__first_payment_merchants__event
+    description: "Data Product silver that contains the first payment merchants, including the first payment date, plan, country, created at and date. This data is used to identify the first payment merchants to the merchant base."
+    config:
+      meta:
+        owner: "ronald.corcho@tiendanube.com"
+        domain: "merchant"
+        business_owner: "Giselle Galli"
+    columns:
+      - name: store_id
+        description: "Unique identifier for each store"
+        tests: [not_null, unique]
+      - name: store_country
+        description: "Country of the store"
+        tests: [not_null]
+      - name: store_created_at
+        description: "Date when the store was created"
+        tests: [not_null]
+      - name: store_first_payment
+        description: "Date when the store made the first payment"
+        tests: [not_null]
+      - name: store_plan_id
+        description: "Plan ID of the store"
+        tests: 
+          - not_null:
+                severity: warn
+      - name: year_month_day_code
+        description: Full date in yyyy-MM-dd format (partition key).
+        tests: [not_null]
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created."
+      - name: sys_audit_created_by
+        description: "System or user that created the row."
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this table."
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row."
