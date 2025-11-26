@@ -22,10 +22,11 @@ WITH source AS (
         mc.total,
         mc.sys_audit_updated_on
     FROM {{ source('stg_moltres', 'mwp_contracts') }} AS mc
+    WHERE mc.created_at is not null
 
     {% if is_incremental() %}
       -- Traz apenas contratos que foram atualizados desde a última execução
-      WHERE mc.sys_audit_updated_on >= (
+      AND mc.sys_audit_updated_on >= (
         SELECT COALESCE(MAX(sys_audit_updated_on), '1900-01-01') FROM {{ this }}
       )
     {% endif %}

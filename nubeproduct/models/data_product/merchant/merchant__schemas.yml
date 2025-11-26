@@ -571,6 +571,12 @@ models:
         tests: 
           - not_null:
                 severity: warn
+      - name: deleted_contract
+        description: "Indicates if the contract is deleted."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_set:
+              value_set: [true, false]
       - name: year_month_day_code
         description: Full date in yyyy-MM-dd format (partition key).
         tests: [not_null]
