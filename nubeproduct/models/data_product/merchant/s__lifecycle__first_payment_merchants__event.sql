@@ -59,7 +59,7 @@
         on_schema_change = "fail",
         partition_by = ["year_month_day_code"],
         cluster_by = ["store_country", "store_created_at"],
-        tags = ["daily-8am-8pm"],
+        tags = ["daily-9am"],
         pre_hook = pre_hook_commands,
         post_hook = post_hooks_commands
     )
@@ -73,6 +73,7 @@ WITH source_data AS (
     , main_source.store_created_at
     , main_source.store_first_payment
     , main_source.store_plan_id
+    , main_source.deleted_contract
     , date(main_source.store_first_payment) AS year_month_day_code
     FROM {{ ref('_int__lifecycle__first_payment_merchants') }} main_source
     WHERE main_source.first_payment_timestamp >= '{{ last_run_date }}'
