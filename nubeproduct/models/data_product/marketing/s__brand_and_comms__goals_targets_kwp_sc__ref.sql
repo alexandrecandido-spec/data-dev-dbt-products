@@ -44,6 +44,7 @@ enriched_goals AS (
 SELECT
   -- Core date dimensions
   date,
+  date_dimensions.day AS date_day,
   date_dimensions.month AS date_month,
   date_dimensions.quarter AS date_quarter, 
   date_dimensions.year AS date_year,

@@ -3764,6 +3764,10 @@ models:
         description: "Date of the goal target"
         tests:
           - not_null
+      - name: date_day
+        description: "Day of the month extracted from the date"
+        tests:
+          - not_null
       - name: date_month
         description: "Month extracted from the date (YYYY-MM format)"
         tests:
