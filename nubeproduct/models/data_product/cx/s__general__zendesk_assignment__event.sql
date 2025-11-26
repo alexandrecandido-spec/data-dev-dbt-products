@@ -2,7 +2,7 @@
   config(
     materialized='table',
     on_schema_change='fail',
-    tags=["cx","daily-7am"]
+    tags=["daily-7am"]
   )
 }}
 
