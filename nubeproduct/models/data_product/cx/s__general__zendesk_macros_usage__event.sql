@@ -5,7 +5,7 @@
         unique_key=['ticket_id','macro_id','audit_id'],
         partition_by=['year_month_day_code'],
         on_schema_change='fail',
-        tags=["cx","daily-6am"]
+        tags=["daily-6am"]
     )
 }}
 

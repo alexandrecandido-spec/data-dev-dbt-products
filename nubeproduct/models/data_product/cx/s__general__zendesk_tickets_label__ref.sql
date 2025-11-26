@@ -4,7 +4,7 @@
         incremental_strategy = 'merge',
         unique_key = ['ticket_id'],
         on_schema_change = 'fail',
-        tags = ['cx','daily-6am']
+        tags = ['daily-6am']
 ) }}    
 
 WITH existing_data AS (
