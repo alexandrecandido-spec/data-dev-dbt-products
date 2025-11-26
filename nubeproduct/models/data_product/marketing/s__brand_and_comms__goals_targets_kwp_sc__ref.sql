@@ -47,7 +47,9 @@ SELECT
   date_dimensions.day AS date_day,
   date_dimensions.month AS date_month,
   date_dimensions.quarter AS date_quarter, 
+  date_dimensions.week AS date_week,
   date_dimensions.year AS date_year,
+  date_dimensions.day_of_week AS date_day_of_week,
   
   -- Geography
   country,

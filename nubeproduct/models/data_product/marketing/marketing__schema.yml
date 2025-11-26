@@ -3776,8 +3776,16 @@ models:
         description: "Quarter extracted from the date (YYYY-QN format)"
         tests:
           - not_null
+      - name: date_week
+        description: "Week extracted from the date (YYYY-WW format)"
+        tests:
+          - not_null
       - name: date_year
         description: "Year extracted from the date"
+        tests:
+          - not_null
+      - name: date_day_of_week
+        description: "Day of the week name (Monday, Tuesday, etc.)"
         tests:
           - not_null
       - name: country
