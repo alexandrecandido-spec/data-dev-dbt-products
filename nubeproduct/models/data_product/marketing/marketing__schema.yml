@@ -3749,3 +3749,74 @@ models:
         description: "Timestamp of the last update of the record in the Data Warehouse."
       - name: sys_audit_updated_by
         description: "Process or user that last updated the record."
+
+  - name: s__brand_and_comms__keyword_planner_enriched__event
+    description: "Silver layer model for Google Keyword Planner data with brand detection and classification. Currently uses manual data upload process until API integration is implemented by Engineering team. Provides enriched KWP data with automated brand classification, category mapping, and competitive intelligence."
+    meta:
+      owner: "beto.martinez@tiendanube.com"
+      business_owner: "Giselle Galli"
+      domain: "marketing"
+    columns:
+      - name: date
+        description: "Date of the keyword search data (monthly KWP data)"
+        tests:
+          - not_null
+      - name: date_month
+        description: "Date formatted as YYYY-MM for month-level analysis"
+      - name: date_quarter
+        description: "Date formatted as YYYY-QN for quarter-level analysis"
+      - name: date_year
+        description: "Date formatted as YYYY for year-level analysis"
+      - name: country
+        description: "Country code (AR, BR, MX, CO, CL)"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['AR', 'BR', 'MX', 'CO', 'CL']
+      - name: search_query
+        description: "Search keyword/query from KWP data"
+        tests:
+          - not_null
+      - name: kwp_category
+        description: "Auto-generated category using business-specific classification macro"
+        tests:
+          - accepted_values:
+              values: ['Branded', 'Marketplace', 'DTC', 'Ecommerce', 'E-commerce', 'Vendas', 'Envios', 'Envíos', 'Dropshipping', 'Drop', 'Producto', 'Redes Sociales', 'Intention Verbs', 'Catálogo', 'Página web', 'Canales', 'Canais', 'Tienda', 'Vender']
+      - name: d2c_brand_names
+        description: "D2C brand name detected via automated macros"
+      - name: marketplace_brand_names
+        description: "Marketplace brand name detected via automated macros"
+      - name: is_nuvemshop_tiendanube
+        description: "Boolean flag for Tiendanube/Nuvemshop brand detection"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['True', 'False']
+      - name: is_next_evolucion
+        description: "Boolean flag for Next/Evolution product detection"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['True', 'False']
+      - name: flag_d2c_oficial
+        description: "Boolean flag indicating if D2C brand is officially monitored"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['True', 'False']
+      - name: flag_marketplace_oficial
+        description: "Boolean flag indicating if marketplace brand is officially monitored"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['True', 'False']
+      - name: impressions
+        description: "Number of searches/search volume for the keyword"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+      - name: sys_audit_created_on
+        description: "Timestamp when record was created in data warehouse"
+      - name: sys_audit_updated_on
+        description: "Timestamp when record was last updated in data warehouse"
