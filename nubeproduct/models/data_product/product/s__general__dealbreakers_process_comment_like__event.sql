@@ -1,3 +1,5 @@
+-- s__general__dealbreakers_process_comment_like__event
+
 {{ config(
   materialized = 'table',
   unique_key = ['comment_id'],
@@ -24,4 +26,4 @@ SELECT
     current_timestamp AS sys_audit_updated_on,
     'data-dev-dbt-products' AS sys_audit_updated_by
 
-FROM {{ ref('s__general__dealbreakers_valid__event') }}
+FROM {{ ref('s__general__dealbreakers_process_valid__event') }}

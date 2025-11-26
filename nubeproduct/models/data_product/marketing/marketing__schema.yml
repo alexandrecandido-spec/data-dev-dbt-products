@@ -1706,62 +1706,59 @@ models:
         description: "Process/system that last updated the record."
 
 
-  - name: s__general__google_search_console__ref
+  - name: g__general__gsc_url_results__agg_daily
     description: "Aggregated and classified Google Search Console results with audit fields."
     config:
       meta:
-        owner: "yan.santos@nuvemshop.com.br"
+        owner: "sofia.torres@nuvemshop.com.br"
         business_owner: "Giselle Galli"
         domain: "marketing"
     columns:
       - name: year_month_day_code
-        description: "Year and month day code in YYYYMMDD format"
+        description: "Date in YYYYMMDD integer format, used for partitioning."
       - name: date
-        description: "Date of the record."
+        description: "Date of the metrics."
         tests: [not_null]
       - name: full_url
-        description: "Canonical page URL."
+        description: "Full URL of the landing page."
+        tests: [not_null]
       - name: path
-        description: "URL path portion."
+        description: "URL path portion extracted from the full URL."
       - name: search_type
-        description: "Google Search Console search type."
-        tests:
-          - not_null
+        description: "Google Search Console search type (e.g., WEB, IMAGE, VIDEO)."
       - name: country_name
-        description: "Country reported by Google Search Console."
+        description: "Country name as reported by Google Search Console raw data."
       - name: device
-        description: "Device category reported by Google Search Console."
-      - name: impressions
-        description: "Total impressions for the URL, search type, country, and device."
-        tests:
-          - not_null
-          - dbt_expectations.expect_column_values_to_be_between:
-              min_value: 0
-      - name: clicks
-        description: "Total clicks for the URL, search type, country, and device."
-        tests:
-          - not_null
-          - dbt_expectations.expect_column_values_to_be_between:
-              min_value: 0
+        description: "Device category (DESKTOP, MOBILE, TABLET) reported by GSC."
       - name: average_position
-        description: "Average position in Google Search results."
-      - name: subteam
-        description: "Marketing subteam classification inferred from URL patterns."
+        description: "Average ranking position of the URL in search results."
+      - name: page_group
+        description: High-level content grouping. 
+      - name: page_subgroup
+        description: Granular classification within the Page Group. 
       - name: classified_country
-        description: "Country classification inferred from URL and context."
+        description: "Country inferred from the URL structure or GSC country name (e.g., AR, BR, MX)."
+      - name: impressions
+        description: "Corrected impressions count (using unsplit logic)."
+      - name: clicks
+        description: "Corrected clicks count (using unsplit logic)."
+      - name: dp_input_sources
+        description: "List of input sources (e.g., 'url') that contributed to the classification of this record."
+      - name: dp_change_timestamp_incremental
+        description: "Timestamp used to detect changes in classification inputs for incremental reprocessing."
+      - name: row_hash
+        description: "Unique hash of the row content generated via marketing_mpt_hash, used for incremental merges."
+        tests: 
+          - unique
+          - not_null
       - name: sys_audit_created_on
-        description: "Timestamp when the row was originally created."
-        tests: [not_null]
+        description: "Timestamp of when this record was created in our data warehouse"
       - name: sys_audit_created_by
-        description: "System or user that created the row."
-        tests: [not_null]
+        description: "System identifier of the process that created this record"
       - name: sys_audit_updated_on
-        description: "Timestamp when the row was last updated in this table."
-        tests: [not_null]
+        description: "Timestamp of when this record was last updated in our data warehouse"
       - name: sys_audit_updated_by
-        description: "System or user that last updated the row."
-        tests: [not_null]
-
+        description: "System identifier of the process that last updated this record"
 
   - name: g__general__gmv_by_mkt_source__agg_daily
     description: "Daily GMV metrics by marketing source combining store performance data with marketing attribution and segment information for comprehensive performance analysis"
