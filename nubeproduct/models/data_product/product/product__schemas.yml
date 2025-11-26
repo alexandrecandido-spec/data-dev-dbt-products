@@ -5608,3 +5608,63 @@ models:
         description: "Timestamp of the current model run when the record was processed."
       - name: sys_audit_updated_by
         description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."  
+
+
+  - name: s__general__issues_and_problems_comments__event
+    description: >
+      Contains the summary of Issues and Problems with their respective comments and associated stores. 
+    config:
+      meta:
+        owner: "fabrizio.crivella@tiendanube.com"
+        business_owner: "Martin Palombo"
+        openmetadata:
+          domain: "product"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: 
+            - repo_name
+            - issue_number
+            - store_id
+    columns:
+      - name: repo_name
+        description: Type Issue/Problem
+      - name: issue_number
+        description: Unique identifier of the Issue/Problem.
+      - name: title
+        description: Title of the Issue/Problem
+      - name: comment_id
+        description: unique identifier of comment on the Issue/Problem
+      - name: author
+        description: Author of the comment on the Issue/Problem
+      - name: is_relevant
+        description: if the comment on the Issue/Problem is considered a +1
+      - name: impact
+        description: If the comment is considered high priority, medium or dealbreaker
+      - name: store_id
+        description: Unique identifier of store
+      - name: comment_date
+        description: Date hen the comment was created
+      - name: created_at
+        description: Date when the Issue/Problem was created
+      - name: closed_at
+        description: Date when the Issue/Problem was closed
+      - name: labels_tipo
+        description: Labels associated to the Issue/Problem related to the business that it is affecting. Core, App
+      - name: labels_domain
+        description: Labels associated to the Issue/Problem related to the domain
+      - name: labels_country
+        description: Labels associated to the Issue/Problem related to the countries it is affecting. Used mainly on App Problems
+      - name: labels
+        description: Lists every label associated to the Issue/Problem
+      - name: store_country
+        description: Country of the store that commented
+      - name: store_segment
+        description: Segment of the store that commented
+      - name: onboarding_ar
+        description: If the store is on onboarding AR portfolio
+      - name: onboarding_br
+        description: If the store is on onboarding BR portfolio
+      - name: mm_ar
+        description: If the store is on success AR portfolio
+      - name: mm_br
+        description: If the store is on success BR portfolio
