@@ -3760,6 +3760,9 @@ models:
       domain: "marketing"
       business_owner: "Giselle Galli"
     columns:
+      - name: store_id
+        description: "Store ID for the attribution model"
+        tests: [not_null]
       - name: date
         description: "Date of the metric aggregation."
         tests: [not_null]

@@ -18,8 +18,9 @@ SELECT
         md5(
           concat_ws(
             '|',
-            cast(date as varchar(10)),
-            cast(country_code as varchar(10)),
+            cast(store_id as varchar(30)),
+            cast(date as varchar(30)),
+            cast(country_code as varchar(30)),
             coalesce(source, ''),
             coalesce(medium, ''),
             coalesce(campaign, ''),

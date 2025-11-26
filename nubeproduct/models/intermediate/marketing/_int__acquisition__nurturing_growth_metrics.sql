@@ -4,6 +4,7 @@
 WITH base_trials_clicks AS (
     -- Métrica: Trials e Clicks (atribuídos por created_at)
     SELECT
+        ag.store_id,
         ag.country_code,
         ag.created_at AS date,
         ag.source,
@@ -43,12 +44,13 @@ WITH base_trials_clicks AS (
     FROM {{ ref('_int__acquisition__nurturing_growth') }} AS ag
     LEFT JOIN {{ ref('s__general__mkt_attribution_model__event') }} att
         ON ag.click_id = att.click_id AND ag.store_id = att.store_id
-    GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13
+    GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14
 ),
 
 base_new_payment AS (
     -- Métrica: New Payments (atribuídos por first_payment)
     SELECT
+        ag.store_id,
         ag.country_code,
         ag.first_payment AS date,
         ag.source,
@@ -87,12 +89,13 @@ base_new_payment AS (
     LEFT JOIN {{ ref('s__general__mkt_attribution_model__event') }} att
         ON ag.click_id = att.click_id AND ag.store_id = att.store_id
     WHERE ag.new_payment = TRUE -- Considera apenas eventos que levaram a um New Payment
-    GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13
+    GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14
 ),
 
 base_new_seller AS (
     -- Métrica: New Sellers (atribuídos por first_seller_at)
     SELECT
+        ag.store_id,
         ag.country_code,
         ag.first_seller_at AS date,
         ag.source,
@@ -129,7 +132,7 @@ base_new_seller AS (
     LEFT JOIN {{ ref('s__general__mkt_attribution_model__event') }} att
         ON ag.click_id = att.click_id AND ag.store_id = att.store_id
     WHERE ag.new_seller = TRUE -- Considera apenas eventos que levaram a um New Seller
-    GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13
+    GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14
 ),
 
 all_metrics AS (
@@ -142,6 +145,7 @@ all_metrics AS (
 )
 
 SELECT
+    store_id,
     date,
     country_code,
     source,
@@ -179,4 +183,4 @@ SELECT
 
     MAX(change_timestamp) as change_timestamp
 FROM all_metrics
-GROUP BY 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13
+GROUP BY 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14
