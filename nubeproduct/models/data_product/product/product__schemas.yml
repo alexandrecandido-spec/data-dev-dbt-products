@@ -5558,3 +5558,113 @@ models:
         description: Position of the payment method selected by the Consumer.
       - name: year_month_code
         description: Date code used for partitioning.
+
+  - name: s__general__users_authentication_info__ref
+    description: "Silver layer model that contains authentication information on all users registered within Nuvemshop."
+    config:
+      meta:
+        owner: "ynara.oliveira@nuvemshop.com.br"
+        domain: "product"
+        business_owner: "Francisco Ramirez"
+    columns:
+      - name: user_id
+        description: "Unique identifier of the user."
+        tests:
+          - not_null
+          - unique
+      - name: store_id
+        description: "ID of the store the user belongs to (NULL if the user is an internal employee)."
+      - name: user_name
+        description: "User full name as registered on the onboarding process."
+      - name: user_email
+        description: "Primary email address of the user."
+      - name: user_role
+        description: "Role or permission level of the user."
+      - name: nube_employee
+        description: "Boolean flag indicating if the user is an internal employee (TRUE) or a store user (FALSE). Derived from store_id IS NULL."
+      - name: user_registered_at
+        description: "Date when the user was registered on the platform."
+      - name: user_deleted_at
+        description: "Date when the user was deleted (NULL if active)."  
+      - name: mfa_enabled
+        description: "Boolean flag indicating if the TOTP factor (Google Authenticator, etc.) has been configured."
+      - name: mfa_deleted_at
+        description: "Date when the MFA factor (TOTP) was disabled/removed (NULL if active)."
+      - name: mfa_activated
+        description: "Consolidated boolean flag (TRUE/FALSE) indicating active and undeleted TOTP MFA."
+      - name: mfa_first_activation_date
+        description: "The earliest registered date of any MFA factor activation."
+      - name: recovery_code_generated
+        description: "Boolean flag indicating if the user has active recovery codes."
+      - name: mfa_forced_date
+        description: "Deadline date for the store user to activate MFA, if a security policy is enforced (NULL if not applicable)."
+      - name: mfa_required
+        description: "Boolean flag indicating if the store has mandatory MFA requirements."
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model. Defaults to current_timestamp if not available."
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model. Defaults to 'data-dev-dbt-products'."
+      - name: sys_audit_updated_on
+        description: "Timestamp of the current model run when the record was processed."
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."  
+
+
+  - name: s__general__issues_and_problems_comments__event
+    description: >
+      Contains the summary of Issues and Problems with their respective comments and associated stores. 
+    config:
+      meta:
+        owner: "fabrizio.crivella@tiendanube.com"
+        business_owner: "Martin Palombo"
+        openmetadata:
+          domain: "product"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: 
+            - repo_name
+            - issue_number
+            - store_id
+    columns:
+      - name: repo_name
+        description: Type Issue/Problem
+      - name: issue_number
+        description: Unique identifier of the Issue/Problem.
+      - name: title
+        description: Title of the Issue/Problem
+      - name: comment_id
+        description: unique identifier of comment on the Issue/Problem
+      - name: author
+        description: Author of the comment on the Issue/Problem
+      - name: is_relevant
+        description: if the comment on the Issue/Problem is considered a +1
+      - name: impact
+        description: If the comment is considered high priority, medium or dealbreaker
+      - name: store_id
+        description: Unique identifier of store
+      - name: comment_date
+        description: Date hen the comment was created
+      - name: created_at
+        description: Date when the Issue/Problem was created
+      - name: closed_at
+        description: Date when the Issue/Problem was closed
+      - name: labels_tipo
+        description: Labels associated to the Issue/Problem related to the business that it is affecting. Core, App
+      - name: labels_domain
+        description: Labels associated to the Issue/Problem related to the domain
+      - name: labels_country
+        description: Labels associated to the Issue/Problem related to the countries it is affecting. Used mainly on App Problems
+      - name: labels
+        description: Lists every label associated to the Issue/Problem
+      - name: store_country
+        description: Country of the store that commented
+      - name: store_segment
+        description: Segment of the store that commented
+      - name: onboarding_ar
+        description: If the store is on onboarding AR portfolio
+      - name: onboarding_br
+        description: If the store is on onboarding BR portfolio
+      - name: mm_ar
+        description: If the store is on success AR portfolio
+      - name: mm_br
+        description: If the store is on success BR portfolio

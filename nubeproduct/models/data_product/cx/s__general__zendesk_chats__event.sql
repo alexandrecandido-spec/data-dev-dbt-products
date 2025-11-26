@@ -4,7 +4,7 @@
     incremental_strategy='merge',
     unique_key=['actor_id','actor_type','audit_id','timestamp','ticket_id'],
     on_schema_change='fail',
-    tags=["cx","daily-6am"]
+    tags=["daily-6am"]
   )
 }}
 
