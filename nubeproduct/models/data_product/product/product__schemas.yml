@@ -5451,7 +5451,7 @@ models:
       Model representing the consolidated and deduplicated state of dealbreakers,
       both open and closed, filtering archived records and removing duplicates.
       It contains business logic to maintain the health of the processes involved.
-      This model is similar to the s__general__dealbreakers_valid__event model, but it is formatted to match Github comments.
+      This model is similar to the s__general__dealbreakers_process_valid__event model, but it is formatted to match Github comments.
       This shortened version of the original is used for the Dealbreakers registration process and control.
     config:
       meta:
