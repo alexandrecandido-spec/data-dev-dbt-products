@@ -98,6 +98,10 @@ sources:
       - name: midmarket_hubspot_email
       - name: midmarket_hubspot_communications
       - name: midmarket_hubspot_tasks
+      - name: marketing_google_search_console_urls_results
+        description: "Raw GSC URL results ingestion."
+      - name: marketing_google_search_console_urls_unsplit_results
+        description: "Raw GSC URL Unsplit results ingestion."
 
   - name: int_midmarket
     database: hive_metastore
