@@ -5624,6 +5624,7 @@ models:
           combination_of_columns: 
             - repo_name
             - issue_number
+            - comment_id
             - store_id
     columns:
       - name: repo_name
