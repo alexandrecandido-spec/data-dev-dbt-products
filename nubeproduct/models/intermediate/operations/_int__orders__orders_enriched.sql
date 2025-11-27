@@ -13,7 +13,7 @@ with base_orders as (
       o.country,
       cast(coalesce(paid_at, coalesce(o.completed_at, o.created_at)) as date)                                   as date,
       o.year_month_day_code,
-      last_day(coalesce(paid_at, coalesce(o.completed_at, o.created_at)))                              as mes,
+      last_day(coalesce(paid_at, coalesce(o.completed_at, o.created_at)))                              as datemonth,
       o.platform_type,
       o.storefront,
       case when o.storefront = 'mobile' then 'Mobile' else 'Desktop' end as device,
@@ -119,7 +119,7 @@ plans_snapshot as (
 
       s.date,
       s.year_month_day_code,
-      s.mes,
+      s.datemonth,
       s.platform_type,
       s.storefront,
       s.device,

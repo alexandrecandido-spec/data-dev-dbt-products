@@ -28,7 +28,7 @@ select
     -- Dimensões do Pedido (por dia)
     o.date,
     o.year_month_day_code,
-    o.mes,
+    o.datemonth,
     o.platform_type,
     o.storefront,
     o.device,
@@ -57,7 +57,7 @@ select
     o.store_id, o.country, o.domain, o.vertical, o.province, o.city, o.region,
     o.business_size, o.max_seller_segment, o.current_seller_segment, o.historical_seller_segment,
     o.current_plan, o.historical_plan, o.current_bu, o.historical_bu,
-    o.date, o.year_month_day_code, o.mes, o.platform_type, o.storefront, o.device,
+    o.date, o.year_month_day_code, o.datemonth, o.platform_type, o.storefront, o.device,
     o.payment_provider, o.payment_method, o.shipping_method, o.shipping_province,
     o.gateway_installments, o.source_name,
     o.source_group, o.google_subchannel, o.traffic_type, o.is_end_user, o.visitor_country
