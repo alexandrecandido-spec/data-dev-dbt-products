@@ -68,8 +68,13 @@ models:
         description: Source or user responsible for the initial row creation.
 
 
-  - name: plan_change_midmarket
+  - name: midmarket_plan_change
     description: "Final model of plan changes (Escala and Enterprise) per store_id, year, and month, with indicators of interest and implicit churn."
+    config:
+      meta:
+        owner: "renan.ferrari@nuvemshop.com.br"
+        domain: "midmarket"
+        business_owner: "Franco Tiberti"
     columns:
       - name: store_id
         description: "Unique identifier of the store"
@@ -2028,6 +2033,11 @@ models:
       It applies hierarchical logic to prioritize `session_start` events and supplement missing ones with `page_view` events.<br>
       The model ensures accurate session attribution, even when GA4 fails to emit `session_start` events.<br>
       Each record represents a unique session associated with a HubSpot form submission (`hubspot_conversion_id`).
+    config:
+      meta:
+        owner: "renan.ferrari@nuvemshop.com.br"
+        domain: "midmarket"
+        business_owner: "Franco Tiberti"
     columns:
       - name: date_time
         description: "Timestamp of the event (converted from microseconds to a readable datetime)."

@@ -404,6 +404,8 @@ models:
         description: "Date when the contract ended."
       - name: created_at
         description: "Timestamp when the contract entry was created."
+        tests:
+          - not_null
       - name: deleted_at
         description: "Timestamp when the contract entry was deleted."
       - name: total
