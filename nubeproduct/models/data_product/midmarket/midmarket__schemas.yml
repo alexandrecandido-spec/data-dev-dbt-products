@@ -406,6 +406,28 @@ models:
         description: "Merchant vertical/category."
       - name: city_state_sales
         description: "City and state/territory label used by Sales."
+      - name: segmento_nuvemshop
+        description: "Segment or tier of the merchant according to Nuvemshop classification during the Sales Development pipeline."
+      - name: produto_nuvemshop
+        description: "Segment or tier of the merchant according to Nuvemshop classification during the Sales pipeline."
+      - name: associated_deal_ids
+        description: "List of related deals associated with the same company or merchant."
+      - name: forecast
+        description: "Deal outcome forecast."
+      - name: last_survey_answered
+        description: "Identifier of the last survey answered by the merchant, if applicable."
+      - name: subscription
+        description: "Monthly subscription fee amount."
+      - name: cpt
+        description: "Cost per transaction (transaction fee)."
+      - name: churn_downgrade_root_cause
+        description: "Primary root cause for churn or downgrade (coalesced from effective_churn_root_cause and out_of_portfolio_root_cause)."
+      - name: churn_downgrade_root_cause_2
+        description: "Secondary root cause for churn or downgrade (coalesced from effective_churn_root_cause_2 and out_of_portfolio_root_cause_2)."
+      - name: churn_downgrade_one_liner
+        description: "Summary description of the churn or downgrade reason (coalesced from effective_churn_one_liner and out_of_portfolio_one_liner)."
+      - name: warning_date
+        description: "Date when the deal entered a Warning stage (unified across AR, BR, and MX)."
       - name: sys_audit_created_on
         description: "Timestamp when the record was first loaded into the model. Preserved from staging models and maintains historical tracking of when each deal was first processed."
         tests:
@@ -422,6 +444,86 @@ models:
         description: "User or process responsible for the current model run. Always 'data-dev-dbt-products' for this automated process."
         tests:
           - not_null
+
+
+  - name: s__onboarding_feedback_submissions__snapshot
+    description: >
+      Midmarket Onboarding Feedback Submissions data product. Consolidates HubSpot feedback survey submissions related to onboarding processes with associated deal information.
+    config:
+      meta:
+        owner: "pedro.fregonese@tiendanube.com"
+        domain: "midmarket"
+        business_owner: "Franco Tiberti"
+    columns:
+      - name: feedback_id
+        description: "Unique identifier for the feedback submission from HubSpot. Primary key."
+        tests:
+          - unique
+          - not_null
+      - name: date_submitted
+        description: "Date when the feedback survey was submitted by the merchant."
+        tests:
+          - not_null
+      - name: name_and_website_of_the_store
+        description: "Store name and website URL as reported in the feedback submission."
+      - name: survey_name
+        description: "Name of the survey template used (filtered to onboarding-related surveys only)."
+        tests:
+          - not_null
+      - name: general_product_score
+        description: "Overall product satisfaction score provided by the merchant (numeric rating)."
+      - name: onboarding_experience_score
+        description: "Onboarding experience satisfaction score provided by the merchant (numeric rating)."
+      - name: tiendanube_helps_growth
+        description: "Rating indicating how much the merchant believes Tiendanube/Nuvemshop helps their business growth (numeric rating)."
+      - name: tiendanube_recommendation_probability
+        description: "Net Promoter Score (NPS) - likelihood that the merchant would recommend Tiendanube/Nuvemshop to others (numeric rating, typically 0-10)."
+      - name: experience_with_apps
+        description: "Rating of the merchant's experience with Tiendanube/Nuvemshop apps and integrations (numeric rating)."
+      - name: extra_feedback
+        description: "Free-text comments and additional feedback provided by the merchant."
+      - name: value_quality_hired_agency
+        description: "Quality rating for hired agency services, if applicable."
+      - name: value_quality_pro_serv
+        description: "Quality rating for professional services provided by Tiendanube/Nuvemshop, if applicable."
+      - name: value_service_hired_agency
+        description: "Service rating for hired agency, if applicable."
+      - name: value_service_pro_serv
+        description: "Service rating for professional services provided by Tiendanube/Nuvemshop, if applicable."
+      - name: value_hired_agency_deadline
+        description: "Rating for hired agency's adherence to deadlines and timelines, if applicable."
+      - name: value_pro_serv_deadline
+        description: "Rating for professional services' adherence to deadlines and timelines, if applicable."
+      - name: deal_id
+        description: "HubSpot deal identifier from the Onboarding pipeline associated with this feedback. When multiple deals share the same feedback_id, the deal with the highest GMV is selected."
+      - name: country
+        description: "Country derived from the associated Onboarding deal (AR/BR/MX)."
+        tests:
+          - accepted_values:
+              values: ["AR", "BR", "MX"]
+      - name: dealname
+        description: "Deal name from the associated Onboarding pipeline deal."
+      - name: deal_owner
+        description: "HubSpot owner (user) identifier assigned to the associated Onboarding deal."
+      - name: go_live_real_date
+        description: "Actual go-live date from the associated Onboarding deal."
+      - name: sys_audit_created_on
+        description: "Timestamp when the record was first loaded into the model."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "User or process that first loaded the record into the model. Typically 'data-dev-dbt-products'."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when the record was last processed or refreshed."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "User or process responsible for the current model run. Always 'data-dev-dbt-products' for this automated process."
+        tests:
+          - not_null
+
 
   - name: s__sales__dev__pipeline__snapshot
     description: >
