@@ -36,6 +36,16 @@ select
     d.segmento_nuvemshop,
     d.produto_nuvemshop,
     d.associated_deal_ids,
+    d.last_survey_answered,
+    d.subscription,
+	  d.cpt,
+	  d.potential_gross_profit_perc,
+    d.effective_churn_root_cause,
+    d.effective_churn_root_cause_2,
+    d.effective_churn_one_liner,
+    d.out_of_portfolio_root_cause,
+    d.out_of_portfolio_root_cause_2,
+    d.out_of_portfolio_one_liner,
     
     CASE WHEN d.data_go_live IS NOT NULL
       THEN DATEDIFF(d.data_go_live, d.kickoff_date)
