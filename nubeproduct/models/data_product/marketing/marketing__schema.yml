@@ -3877,6 +3877,93 @@ models:
       - name: sys_audit_updated_by
         description: "Process or user that last updated the record."
 
+  - name: g__acquisition__growth_nurturing__agg_daily
+    description: "Daily aggregated metrics for acquisition growth nurturing campaigns, including trials, payments, and seller metrics with multi-click attribution models."
+    meta:
+      owner: "yan.santo@nuvemshop.com.br"
+      domain: "marketing"
+      business_owner: "Giselle Galli"
+    columns:
+      - name: store_id
+        description: "Store ID for the attribution model"
+        tests: [not_null]
+      - name: date
+        description: "Date of the metric aggregation."
+        tests: [not_null]
+      - name: country_code
+        description: "Country code where the metric was recorded."
+        tests: [not_null]
+      - name: source
+        description: "Traffic source identifier."
+      - name: medium
+        description: "Marketing medium identifier."
+      - name: campaign
+        description: "Campaign identifier."
+      - name: content
+        description: "Content identifier."
+      - name: http_referrer
+        description: "HTTP referrer URL."
+      - name: landing_page
+        description: "Landing page URL."
+      - name: device
+        description: "Device type identifier."
+      - name: tipo
+        description: "Type classification."
+      - name: status
+        description: "Status classification."
+        tests: [not_null]
+      - name: flux
+        description: "Flow classification."
+      - name: email_name
+        description: "Email campaign name."
+      - name: trials_multi_click
+        description: "Number of trials attributed using multi-click model."
+      - name: clicks
+        description: "Total number of clicks."
+      - name: trials_mean_click
+        description: "Number of trials attributed using mean click model."
+      - name: trials_last_click
+        description: "Number of trials attributed using last click model."
+      - name: payment_multi_click
+        description: "Number of payments attributed using multi-click model."
+      - name: payment_last_click
+        description: "Number of payments attributed using last click model."
+      - name: payment_mean_click
+        description: "Number of payments attributed using mean click model."
+      - name: new_payment_multi_click
+        description: "Number of new payments attributed using multi-click model."
+      - name: new_payment_last_click
+        description: "Number of new payments attributed using last click model."
+      - name: new_payment_mean_click
+        description: "Number of new payments attributed using mean click model."
+      - name: new_seller_multi_click
+        description: "Number of new sellers attributed using multi-click model."
+      - name: new_seller_last_click
+        description: "Number of new sellers attributed using last click model."
+      - name: new_seller_mean_click
+        description: "Number of new sellers attributed using mean click model."
+      - name: change_timestamp
+        description: "Timestamp of the last change in source data."
+      - name: year_month_day_code
+        description: "Date code in format yyyyMMdd as integer."
+        tests: [not_null]
+      - name: row_key
+        description: "Unique row identifier generated from MD5 hash of key dimensions."
+        tests: [not_null, unique]
+      - name: max_change_timestamp
+        description: "Maximum change timestamp from aggregated source data."
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created."
+        tests: [not_null]
+      - name: sys_audit_created_by
+        description: "System or user that created the row."
+        tests: [not_null]
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this table."
+        tests: [not_null]
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row."
+        tests: [not_null]
   - name: s__brand_and_comms__keyword_planner_enriched__event
     description: "Silver layer model for Google Keyword Planner data with brand detection and classification. Currently uses manual data upload process until API integration is implemented by Engineering team. Provides enriched KWP data with automated brand classification, category mapping, and competitive intelligence."
     meta:
