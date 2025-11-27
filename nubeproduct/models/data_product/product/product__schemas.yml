@@ -5506,14 +5506,13 @@ models:
             - not_null
 
   - name: g__checkout__payment_method_position__event
-    description: >
-      Gold layer table with orders that used payment method position feature.
+    description:  >
+      Gold layer table with orders that used payment method position feature
     config:
       meta:
         owner: "fabrizio.crivella@tiendanube.com"
+        domain: "product"
         business_owner: "Rocio Diez"
-        openmetadata:
-          domain: "product"
     columns:
       - name: store_id
         description: Unique identifier of store.
