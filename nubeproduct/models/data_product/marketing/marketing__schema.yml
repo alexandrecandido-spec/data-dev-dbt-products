@@ -2687,6 +2687,133 @@ models:
         tests:
           - not_null
 
+  - name: g__product_marketing__user_information_store__agg
+    description: "**Data Product GOLD: User Information Consolidated by Store**\n\nInformación consolidada de usuario/tienda para uso en HubSpot y otros sistemas.\nConsolida información de múltiples data products: store core, store identity, midmarket success, main payment method, admin access, layout, active merchants, phone, social ads, etc.\n\n**Domain:** marketing\n**Sub-domain:** product_marketing\n**Granularity:** agg (one row per store_id)\n**Materialization:** incremental con MERGE strategy\n**Owner:** jhu.boggio@tiendanube.com\n**Business Use:** Propiedades de HubSpot y análisis de información de usuarios/tiendas"
+    config:
+      meta:
+        owner: "jhu.boggio@tiendanube.com"
+        domain: "marketing"
+        business_owner: "Giselle Galli"
+    columns:
+      - name: store_id
+        description: "ID único de la tienda (primary key)"
+        tests:
+          - not_null
+          - unique
+      - name: created_at
+        description: "Fecha de creación de la tienda"
+      - name: country
+        description: "País de la tienda (código de país)"
+      - name: region
+        description: "Región de la tienda (actualmente es el código de país, ya que la empresa opera solo en Latinoamérica)"
+      - name: city
+        description: "Ciudad de la tienda"
+      - name: store_name
+        description: "Nombre de la tienda (domain)"
+      - name: vertical
+        description: "Vertical de la tienda"
+      - name: current_segment
+        description: "Segmento actual de la tienda"
+      - name: first_payment
+        description: "Fecha del primer pago de la tienda"
+      - name: store_plan_general
+        description: "Nombre general del plan actual de la tienda"
+      - name: store_plan
+        description: "Tipo de plan actual de la tienda"
+      - name: store_plan2
+        description: "Nombre alternativo del plan (namev2 desde grouping_plans)"
+      - name: store_plan_value
+        description: "Valor mensual del plan actual de la tienda (desde mwp_plans_countries.monthly)"
+      - name: is_midmarket
+        description: "Indica si la tienda es Mid Market (temporalmente placeholder hasta PR 609)"
+        tests:
+          - accepted_values:
+              values: [true, false]
+      - name: am
+        description: "Account manager asignado a la tienda (HubSpot owner). Temporalmente NULL hasta PR 609"
+      - name: layout_name
+        description: "Nombre del layout/tema actual de la tienda"
+      - name: main_payment_method
+        description: "Método de pago principal por GMV (desde g__attributes__main_payment_method__agg)"
+      - name: all_platform_sessions
+        description: "Total histórico de accesos al panel de administración"
+      - name: platform_sessions_30
+        description: "Cantidad de accesos al panel en los últimos 30 días desde current_date"
+      - name: platform_sessions_90
+        description: "Cantidad de accesos al panel en los últimos 90 días desde current_date"
+      - name: platform_last_access
+        description: "Fecha del último acceso al panel de administración"
+      - name: days_since_last_platform_access
+        description: "Días transcurridos desde el último acceso al panel (calculado desde current_date)"
+      - name: pixel_fb
+        description: "Estado del Facebook Pixel (desde store_identity)"
+      - name: capi_status
+        description: "Estado de Conversions API (CAPI) de Facebook (desde store_identity)"
+      - name: twofa_status
+        description: "Estado de autenticación de dos factores (2FA) (desde store_identity)"
+      - name: google_ads
+        description: "Indica si la tienda tiene Google Ads activo (última instalación no eliminada)"
+        tests:
+          - accepted_values:
+              values: [true, false]
+      - name: merchant_center
+        description: "Indica si la tienda tiene Google Merchant Center activo (última instalación no eliminada)"
+        tests:
+          - accepted_values:
+              values: [true, false]
+      - name: google_user
+        description: "Indica si la tienda tiene Google User activo (última instalación no eliminada)"
+        tests:
+          - accepted_values:
+              values: [true, false]
+      - name: tiktok_ads
+        description: "Indica si la tienda tiene TikTok Ads activo (última instalación no eliminada)"
+        tests:
+          - accepted_values:
+              values: [true, false]
+      - name: merchant_finance_status
+        description: "Estado de la tienda en la base de clientes activos (active_merchants) en la última fecha disponible. Valores: 'paying' (está en active_merchants Y no es freemium), 'free' (está en active_merchants Y es freemium), 'not_active' (no está en active_merchants)"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['paying', 'free', 'not_active']
+      - name: store_name_from_identity
+        description: "Nombre de la tienda desde store_identity (desde i18n)"
+      - name: main_user_email
+        description: "Email del usuario principal de la tienda (usar este como user_email)"
+      - name: owner_phone_number
+        description: "Número de teléfono del propietario de la tienda"
+      - name: phone_from_footer
+        description: "Número de teléfono desde el footer de la tienda"
+      - name: phone_whatsapp_button
+        description: "Número de teléfono del botón de WhatsApp de la tienda"
+      - name: perfit_active_plan
+        description: "Indica si la tienda tiene un plan activo de Perfit (Nuvem Marketing). Valores: 'Yes' si feature_enabled = true, 'No' en caso contrario"
+        tests:
+          - accepted_values:
+              values: ['Yes', 'No']
+      - name: perfit_free
+        description: "Indica si la tienda tiene Perfit (Nuvem Marketing) en versión gratuita. Valores: 'Yes' si feature_enabled = false o no existe registro, 'No' si feature_enabled = true"
+        tests:
+          - accepted_values:
+              values: ['Yes', 'No']
+      - name: sys_audit_created_on
+        description: "Timestamp cuando el registro fue creado por primera vez en el modelo"
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "Usuario o proceso que creó el registro por primera vez. Defaults a 'data-dev-dbt-products'"
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp de la ejecución actual del modelo cuando el registro fue procesado"
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "Usuario o proceso responsable de la ejecución actual del modelo. Defaults a 'data-dev-dbt-products'"
+        tests:
+          - not_null
+
   - name: g__general__deepdive_gmv_store__agg_monthly
     description: "One row per (store_id, reported_month). Aggregates GMV, orders, products, on/off-platform splits, avg tickets, last-3-months-with-activity averages, bands (monthly/current/avg3m), lifecycle classification, SMB movements, tenures, and audits. reported_month is the calendar month end."
     meta:

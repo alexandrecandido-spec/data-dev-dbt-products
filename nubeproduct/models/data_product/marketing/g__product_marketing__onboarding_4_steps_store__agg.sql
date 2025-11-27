@@ -3,7 +3,8 @@
         materialized='incremental',
         incremental_strategy='merge',
         unique_key='store_id',
-        tags=['daily_7am']
+        on_schema_change='fail',
+        tags=['daily-7am']
     )
 }}
 
