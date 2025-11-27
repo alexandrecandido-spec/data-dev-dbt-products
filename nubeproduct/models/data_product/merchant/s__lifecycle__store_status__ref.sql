@@ -41,6 +41,7 @@ main_source.store_id
 , main_source.cancellation_reason
 , main_source.cancellation_comment
 , main_source.cancellation_comment_at
+, main_source.active_merchant_status
 , main_source.change_timestamp
 FROM {{ ref('_int__lifecycle__store_status') }} main_source
 {% if not is_incremental() %}
@@ -57,7 +58,8 @@ FROM {{ ref('_int__lifecycle__store_status') }} main_source
             "cancellation_reason",
             "cancellation_comment",
             "cancellation_comment_at",
-            "business_unit"
+            "business_unit",
+            "active_merchant_status"
         ] %}
 
   WHERE main_source.state != 4
