@@ -64,7 +64,9 @@ sources:
         description: "Table with coupons from merchants"
       - name: mwp_promotional_discounts
         description: "Table with promotional discounts from merchants"
-
+      - name: mwp_attribution
+        description: "Contains information on internal and external clicks used for store attribution."
+        
   - name: stg_orders
     description: "Source containing tables related to order movements"
     database: hive_metastore

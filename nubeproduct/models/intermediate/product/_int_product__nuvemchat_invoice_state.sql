@@ -20,10 +20,11 @@ SELECT
     i.invoice_cost_total,
     i.invoice_cost_total/coalesce(i.invoice_count_conversation, 0) as invoice_cost_per_conversation,
     is.invoice_state,
+    is.paid_date,
     GREATEST(
         MAX(is.sys_audit_updated_on),
         MAX(i.sys_audit_updated_on)
     ) as sys_audit_updated_on
     FROM {{ref('nuvem_chat__invoice')}} i 
     LEFT JOIN invoice_state is ON i.invoice_id = is.invoice_id AND is.rank_state = 1
-    GROUP BY 1,2,3,4,5,6,7,8,9
+    GROUP BY 1,2,3,4,5,6,7,8,9,10
