@@ -68,6 +68,7 @@ SELECT
     is.invoice_count_conversation,
     is.invoice_cost_total,
     is.invoice_cost_per_conversation,
+    is.paid_date,
     current_timestamp AS sys_audit_created_on,
     'data-dev-dbt-products' AS sys_audit_created_by,
     current_timestamp AS sys_audit_updated_on,

@@ -1445,6 +1445,8 @@ models:
         description: total cost of the invoice
       - name: invoice_cost_per_conversation
         description: cost per conversation in the invoice
+      - name: paid_date
+        description: date when the invoice was paid
       - name: sys_audit_created_on
         description: timestamp when the row was originally created in this model
       - name: sys_audit_created_by
