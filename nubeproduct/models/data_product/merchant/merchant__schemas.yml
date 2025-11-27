@@ -331,7 +331,7 @@ models:
           - dbt_expectations.expect_column_values_to_be_null:
               row_condition: "churned_at IS NULL"
       - name: merchant_finance_status
-        description: "Estado de la tienda en la base de clientes activos (active_merchants) en la última fecha disponible. Agregado por pedido de Gi para el data product user_information. Valores: 'paying' (está en active_merchants Y no es freemium), 'free' (está en active_merchants Y es freemium), 'not_active' (no está en active_merchants)."
+        description: "Estado de la tienda en la base de clientes pagantes (active_merchants) en la última fecha disponible. Agregado por pedido de Gi para el data product user_information. Valores: 'paying' si está en active_merchants Y no es freemium, 'free' si está en active_merchants Y es freemium, 'not_active' si no está en active_merchants."
         tests:
           - not_null
           - accepted_values:
