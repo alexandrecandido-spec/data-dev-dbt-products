@@ -259,6 +259,10 @@ models:
         description: "Type of the current plan"
         tests:
           - not_null
+      - name: current_plan_context
+        description: "Context of the current plan (Indicates the specific context in which the plan was applied — combining information like country, period (year and month), plan type, and version)."
+        tests:
+          - not_null
       - name: current_segment
         description: "Current segment of the store"
         tests:
@@ -410,6 +414,7 @@ models:
         description: "System or user that last updated the row."
         tests: [not_null]
 
+
   - name: s__lifecycle__store_sales_milestones__ref
     description: "Data Product silver that contains the sales milestones of each store, including the first and last sale date, payment method, shipping method, storefront and totals"
     config:
@@ -468,6 +473,7 @@ models:
         description: "System or user that last updated the row."
         tests: [not_null]
 
+
   - name: g__attributes__main_payment_method__agg
     description: "Data Product gold that contains the main payment method by GMV for each store (aggregation by store). Calculates which payment method has the highest GMV since 2024-01-01. Only includes stores that have paid orders (does not include stores without sales)."
     config:
@@ -506,6 +512,7 @@ models:
         tests:
           - not_null
 
+
   - name: s__lifecycle__competitor_crawler__ref
     description: "Data Product silver that contains the competitor crawler data of each store. This data is used to identify the competitor of each store. The crawler stopped working in 2023"
     config:
@@ -537,3 +544,47 @@ models:
       - name: sys_audit_updated_by
         description: "System or user that last updated the row."
         tests: [not_null]
+
+  
+  - name: s__lifecycle__first_payment_merchants__event
+    description: "Data Product silver that contains the first payment merchants, including the first payment date, plan, country, created at and date. This data is used to identify the first payment merchants to the merchant base."
+    config:
+      meta:
+        owner: "ronald.corcho@tiendanube.com"
+        domain: "merchant"
+        business_owner: "Giselle Galli"
+    columns:
+      - name: store_id
+        description: "Unique identifier for each store"
+        tests: [not_null, unique]
+      - name: store_country
+        description: "Country of the store"
+        tests: [not_null]
+      - name: store_created_at
+        description: "Date when the store was created"
+        tests: [not_null]
+      - name: store_first_payment
+        description: "Date when the store made the first payment"
+        tests: [not_null]
+      - name: store_plan_id
+        description: "Plan ID of the store"
+        tests: 
+          - not_null:
+                severity: warn
+      - name: deleted_contract
+        description: "Indicates if the contract is deleted."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_set:
+              value_set: [true, false]
+      - name: year_month_day_code
+        description: Full date in yyyy-MM-dd format (partition key).
+        tests: [not_null]
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created."
+      - name: sys_audit_created_by
+        description: "System or user that created the row."
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this table."
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row."

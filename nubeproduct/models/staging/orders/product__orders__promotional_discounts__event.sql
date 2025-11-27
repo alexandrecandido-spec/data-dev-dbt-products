@@ -1,7 +1,7 @@
 {{
     config(
         materialized='incremental',
-        unique_key='promotional_discount_id',
+        unique_key=['year_month_code','promotional_discount_id','order_id','promotional_discount_contents','total_discount_amount'],
         partition_by='year_month_code',
         on_schema_change='fail',
         tags=["product","daily-9am"]
@@ -10,7 +10,7 @@
 
 
 WITH source AS (
-    SELECT 
+    SELECT distinct
         year_month_code,
         id,
         store_id,
@@ -29,10 +29,10 @@ WITH source AS (
     {% endif %}
 ),
 existing_data AS (
-    {{ get_existing_data(this, ['promotional_discount_id', 'sys_audit_created_on', 'sys_audit_created_by']) }}
+    {{ get_existing_data(this, ['year_month_code','promotional_discount_id', 'order_id', 'promotional_discount_contents', 'total_discount_amount', 'sys_audit_created_on', 'sys_audit_created_by']) }}
 )
 
-SELECT 
+SELECT distinct
     source.year_month_code,
     source.id promotional_discount_id,
     source.store_id,
@@ -46,4 +46,10 @@ SELECT
     current_timestamp AS sys_audit_updated_on,
     'data-dev-dbt-products' AS sys_audit_updated_by
 FROM source
-LEFT JOIN existing_data e ON source.id = e.promotional_discount_id
+LEFT JOIN existing_data e 
+    ON 
+    source.year_month_code = e.year_month_code AND 
+    source.id = e.promotional_discount_id AND 
+    source.order_id = e.order_id AND 
+    source.contents = e.promotional_discount_contents AND 
+    source.total_discount_amount = e.total_discount_amount

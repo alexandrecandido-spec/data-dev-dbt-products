@@ -74,6 +74,7 @@ SELECT
     , ss.current_plan_id
     , COALESCE(pl.namev2, 'not informed') AS current_plan_name
     , COALESCE(pl.grupo, 'not informed') AS current_plan_type
+    , COALESCE(pl.plan_context, 'not informed') AS current_plan_context
     , si.current_segment
     , si.is_seller
     , si.max_segment
@@ -88,6 +89,7 @@ SELECT
     , CASE WHEN ss.churned_at IS NOT NULL THEN ci.cancellation_reason ELSE NULL END AS cancellation_reason
     , CASE WHEN ss.churned_at IS NOT NULL THEN ci.cancellation_comment ELSE NULL END AS cancellation_comment
     , CASE WHEN ss.churned_at IS NOT NULL THEN ci.cancellation_comment_at ELSE NULL END AS cancellation_comment_at
+    -- ACTIVE MERCHANTS: Agregado por pedido de Gi para el data product user_information
     , CASE 
         WHEN af.store_id IS NOT NULL AND COALESCE(pl.grupo, 'not informed') != 'freemium' THEN 'paying'
         WHEN af.store_id IS NOT NULL AND COALESCE(pl.grupo, 'not informed') = 'freemium' THEN 'free'

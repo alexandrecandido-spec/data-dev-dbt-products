@@ -4,7 +4,11 @@
         unique_key='id',
         partition_by='year_month_day_code',
         on_schema_change='fail',
-        tags=["operations","daily-8am-8pm"]
+        tags=["operations","daily-8am-8pm"],
+        cluster_by = ['store_id'],
+        post_hook = [
+            "OPTIMIZE {{ this }} ZORDER BY (store_id, created_at)"
+        ]
     )
 }}
 
@@ -12,9 +16,11 @@
 WITH source AS (
     SELECT 
         id,
+        order_id,
         created_at AS created_at,
         started_checkout AS started_checkout_at, 
         completed_contact AS completed_contact_at, 
+        date(completed_at) AS completed_at_date,
         completed_at AS completed_at,
         cancelled_at AS cancelled_at, 
         cancel_reason as cancel_reason,
@@ -39,8 +45,8 @@ WITH source AS (
         gateway_installments,
         gateway_method,
         app_id,
-        CONCAT(CAST(DATE(completed_at) AS STRING),'-',CAST(store_id AS STRING)) order_date_store_id,
-        CAST(date_format(completed_at, 'yyyyMMdd') AS INT) AS year_month_day_code,
+        CONCAT(CAST(DATE(created_at) AS STRING),'-',CAST(store_id AS STRING)) order_date_store_id,
+        CAST(date_format(sys_audit_updated_on, 'yyyyMMdd') AS INT) AS year_month_day_code,
         discount,
         discount_gateway,
         promotional_discount_id,
@@ -57,8 +63,8 @@ WITH source AS (
     -- this filter will only be applied on an incremental run
     -- (uses >= to include records whose timestamp occurred since the last run of this model)
     -- (If event_time is NULL or the table is truncated, the condition will always be true and load all records)
-    WHERE sys_audit_updated_on >= (select coalesce(max(sys_audit_updated_on),'1900-01-01') - INTERVAL '1 hour' from {{ this }} )
-
+    WHERE  CAST(date_format(sys_audit_updated_on, 'yyyyMMdd') AS INT) >= (SELECT MAX( CAST(date_format(sys_audit_updated_on, 'yyyyMMdd') AS INT)) - 1
+    FROM {{ this }})
     {% endif %}
 ),
 existing_data AS (
@@ -67,9 +73,11 @@ existing_data AS (
 
 SELECT 
     source.id,
+    source.order_id,
     created_at,
     started_checkout_at, 
     completed_contact_at, 
+    completed_at_date,
     completed_at,
     cancelled_at, 
     cancel_reason,
@@ -118,4 +126,10 @@ SELECT
     current_timestamp AS sys_audit_updated_on,
     'data-dev-dbt-products' AS sys_audit_updated_by
 FROM source
-LEFT JOIN existing_data e ON source.id = e.id
+--LEFT JOIN existing_data e ON source.id = e.id
+LEFT JOIN (
+  SELECT id, sys_audit_created_on, sys_audit_created_by
+  FROM {{ this }}
+  WHERE CAST(date_format(sys_audit_updated_on, 'yyyyMMdd') AS INT) >= (SELECT MAX(CAST(date_format(sys_audit_updated_on, 'yyyyMMdd') AS INT)) - 1 FROM {{ this }})
+) e
+ON source.id = e.id

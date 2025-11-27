@@ -1,8 +1,8 @@
 from airflow import DAG
 from airflow.hooks.base import BaseHook
-from airflow.operators.python import PythonOperator
+from airflow.operators.python import PythonOperator, get_current_context
 from airflow.operators.bash import BashOperator
-
+from airflow.exceptions import AirflowException
 import yaml
 from src.core.utils.dbt_operator import DBTOperator
 
@@ -33,6 +33,49 @@ def create_profiles_yml():
     with open('/tmp/dbt/profiles.yml', 'w') as f:
         yaml.dump(profiles_config, f, default_flow_style=False)
 
+def _validate_no_plus_for_initial_load():
+    """Solo se usa en el DAG con initial_load=True"""
+    ctx = get_current_context()
+    params = ctx.get('params', {}) or {}
+    dag_run = ctx.get('dag_run')
+
+    candidates = []
+    pm = params.get('models')
+    if pm:
+        candidates.extend(pm if isinstance(pm, (list, tuple)) else [pm])
+    if dag_run and getattr(dag_run, "conf", None):
+        for key in ('models', 'select', 'exclude'):
+            v = dag_run.conf.get(key)
+            if v:
+                candidates.extend(v if isinstance(v, (list, tuple)) else [v])
+
+    if any('+' in str(x) for x in candidates):
+        raise AirflowException(
+            "Initial load with '+' selectors is forbidden. "
+            "You're attempting an initial load with '+'. "
+            "Remove '+' from your model selection and try again."
+        )
+
+    forbidden_conf_keys = (
+        'tag', 'tags',
+        'source', 'sources',
+        'exclude',
+        'config',
+    )
+
+    if dag_run and getattr(dag_run, "conf", None):
+        used_forbidden = []
+        for k in forbidden_conf_keys:
+            v = dag_run.conf.get(k)
+            if v not in (None, '', [], {}):
+                used_forbidden.append(k)
+
+        if used_forbidden:
+            raise AirflowException(
+                "Initial load does not allow the use of the following parameters in the trigger:"
+                f"{', '.join(used_forbidden)}. "
+                "Remove these parameters from the DAG Run configuration and try running the job again."
+            )
 
 def create_dbt_dag(
     dag_id: str,
@@ -119,16 +162,14 @@ def create_dbt_dag(
         schedule_interval=None 
 
     main_task_name = "_".join(tags)
-    
+
     with DAG(
         dag_id=dag_id,
         schedule_interval=schedule_interval,
         default_args=default_args,
         tags=tags,
         catchup=False,
-        params={
-        "models": ["model_name"]    
-        }
+        params={"models": ["model_name"]}
     ) as dag:
 
         # Task de preparación
@@ -142,7 +183,7 @@ def create_dbt_dag(
                 cp -R /usr/local/airflow/dags/dbt/nubeproduct/* /tmp/dbt/{main_task_name}/nubeproduct/;
             """
         )
-        
+
         create_profiles = PythonOperator(
             task_id='create_profiles_yml',
             pool='dbt_serial_pool',
@@ -150,23 +191,31 @@ def create_dbt_dag(
         )
 
         task = DBTOperator(
-                         task_id=main_task_name,
-                         tags=tags,
-                         dbt_command= 'run',
-                         full_refresh=initial_load,
-                         models=[],  # Empty by default, will be populated at runtime
-                         pool='dbt_serial_pool',
-                     )
+            task_id=main_task_name,
+            tags=tags,
+            dbt_command='run',
+            full_refresh=initial_load,
+            models=[],  # se pobla en runtime
+            pool='dbt_serial_pool',
+        )
 
         test = DBTOperator(
-                         task_id='test_results',
-                         tags=tags,
-                         dbt_command= 'test',
-                         full_refresh=False,
-                         models=[],  # Empty by default, will be populated at runtime
-                         pool='dbt_serial_pool',
-                     )
-        
-        setup >> create_profiles >> task >> test
+            task_id='test_results',
+            tags=tags,
+            dbt_command='test',
+            full_refresh=False,
+            models=[],
+            pool='dbt_serial_pool',
+        )
+
+        if initial_load:
+            validate_no_plus = PythonOperator(
+                task_id='validate_no_plus_for_initial_load',
+                pool='dbt_serial_pool',
+                python_callable=_validate_no_plus_for_initial_load,
+            )
+            setup >> create_profiles >> validate_no_plus >> task >> test
+        else:
+            setup >> create_profiles >> task >> test
 
         return dag

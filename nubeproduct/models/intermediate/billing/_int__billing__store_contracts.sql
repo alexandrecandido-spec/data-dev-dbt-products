@@ -1,4 +1,4 @@
-
+--Model Query
 WITH tags_info AS (
   SELECT
     t.related_id AS store_id,
@@ -24,9 +24,10 @@ base AS (
         c.total,
         t.tag,
         CAST(c.created_at AS DATE) AS created_at_contract,
-        CAST(start_date AS DATE) AS start_date,
-        CAST(end_date AS DATE) AS end_date,
-        c.sys_audit_updated_on
+        CAST(c.start_date AS DATE) AS start_date,
+        CAST(c.end_date AS DATE) AS end_date,
+        c.sys_audit_updated_on,
+        c.deleted_at
     FROM {{ ref('billing__contracts__store_contract__scd') }} c
     LEFT JOIN {{ ref('s__general__grouping_plans__ref') }} p on p.plan = c.plan_id
     LEFT JOIN tags_info t on t.store_id = c.store_id
@@ -38,6 +39,7 @@ ordered AS (
     SELECT
         id,
         store_id,
+        plan_id,
         plan_name,
         type,
         total,
@@ -46,9 +48,11 @@ ordered AS (
         start_date,
         end_date,
         sys_audit_updated_on,
+        deleted_at,
         LAG(end_date) OVER (PARTITION BY store_id ORDER BY id) AS prev_end_date,
         LAG(plan_name) OVER (PARTITION BY store_id ORDER BY id) AS prev_plan,
-        LAG(type) OVER (PARTITION BY store_id ORDER BY start_date, end_date) AS prev_type
+        LAG(type) OVER (PARTITION BY store_id ORDER BY start_date, id) AS prev_type,
+        LAG(deleted_at) OVER (PARTITION BY store_id ORDER BY created_at_contract, id) AS prev_deleted_at
     FROM base
 ),
 
@@ -57,6 +61,12 @@ flags AS (
   SELECT
     *,
     CASE
+        WHEN deleted_at IS NOT NULL AND prev_deleted_at IS NULL THEN 1   
+        -- 🔹 abrir bloque solo en el primer deleted
+        WHEN deleted_at IS NOT NULL AND prev_deleted_at IS NOT NULL THEN 0 
+        -- 🔹 si el anterior está deleted, no compare contra él
+        WHEN deleted_at IS NULL AND prev_deleted_at IS NOT NULL THEN 1 
+        -- 🔹 si el anterior está deleted, y el siguiente activo compare contra él
         WHEN prev_end_date IS NULL THEN 1
         -- 🔹 cambia de plan
         WHEN plan_name != prev_plan THEN 1
@@ -71,6 +81,8 @@ flags AS (
         ELSE 0
     END AS new_block_flag,
     CASE
+        WHEN deleted_at IS NOT NULL AND start_date < '2000-01-01' THEN 'deleted_contract_data_anomaly' -- contrato eliminado con fecha anomala
+        WHEN deleted_at IS NOT NULL THEN 'deleted_contract' -- contrato eliminado
         WHEN start_date < '2000-01-01' THEN 'data_anomaly' -- fechas anomalas
         WHEN prev_end_date IS NULL THEN 'first_contract' -- primer contrato
         WHEN plan_name != prev_plan THEN 'plan_changed' -- cambio de plan
@@ -86,7 +98,7 @@ grouped AS (
     SELECT
         *,
         SUM(new_block_flag) OVER (
-            PARTITION BY store_id ORDER BY start_date
+            PARTITION BY store_id ORDER BY created_at_contract, id
             ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
         ) AS group_id
     FROM flags
@@ -96,12 +108,11 @@ grouped AS (
 typed AS (
     SELECT
         g.*,
-        FIRST_VALUE(CASE 
-            WHEN type NOT IN ('change-plan','change-plan-free-until-next-bill') 
-            THEN type END) 
+        FIRST_VALUE(CASE WHEN type NOT IN ('change-plan') THEN type END) 
             IGNORE NULLS OVER (PARTITION BY store_id, group_id ORDER BY start_date, id) AS main_type,
         FIRST_VALUE(change_reason_trigger) IGNORE NULLS
-            OVER (PARTITION BY store_id, group_id ORDER BY start_date, id) AS change_reason
+            OVER (PARTITION BY store_id, group_id ORDER BY start_date, id) AS change_reason,
+        FIRST_VALUE(plan_id) OVER (PARTITION BY store_id, group_id ORDER BY created_at_contract ASC) AS main_plan_id
     FROM grouped g
 ),
 
@@ -109,18 +120,20 @@ typed AS (
 block_agg AS (
 SELECT
     store_id,
-    plan_name AS plan_name,
+    main_plan_id AS plan_id,
+    plan_name,
     main_type AS contract_type,
     tag,
     SUM(total) AS contracts_total,
-    MIN(id)                   AS contract_id,
-    MIN(created_at_contract)  AS created_at_contract,
-    MIN(start_date)           AS start_date,
-    MAX(end_date)             AS end_date,
+    MIN(id) AS contract_id,
+    MIN(created_at_contract) AS created_at_contract,
+    MIN(start_date) AS start_date,
+    MAX(end_date) AS end_date,
     MAX(sys_audit_updated_on) AS sys_audit_updated_on,
-    MAX(change_reason)        AS change_reason
+    MAX(change_reason) AS change_reason,
+    MAX(CASE WHEN deleted_at IS NOT NULL THEN deleted_at END) AS deleted_at_contract
 FROM typed
-GROUP BY store_id, plan_name, main_type, tag, group_id
+GROUP BY store_id, main_plan_id, plan_name, main_type, tag, group_id
 ),
 
 -- 6️⃣ Marcamos el contrato actual por store
@@ -130,9 +143,11 @@ SELECT
     ROW_NUMBER() OVER (
              PARTITION BY store_id
              ORDER BY
+                CASE WHEN deleted_at_contract IS NULL THEN 0 ELSE 1 END ASC, -- ❌ contratos deleted ultimo
                 created_at_contract DESC,   -- 🥇 contrato creado más recientemente
                 start_date DESC,            -- 🥈 si hay empate, el que empezó más recientemente
-                end_date DESC               -- 🥉 si aún hay empate, el que termina más tarde
+                end_date DESC,              -- 🥉 si hay empate, el que termina más tarde
+                contract_id DESC            -- ✅ desempate determinístico
            ) as rn_current
 FROM block_agg
 ),
@@ -141,35 +156,39 @@ FROM block_agg
 data_anomaly_fix AS (
     SELECT
         a.*,
-        CASE WHEN a.change_reason = 'data_anomaly' AND a.contract_type = 'pre-churn-lead' AND a.rn_current = 1 THEN 'freemium' ELSE a.plan_name END AS main_plan_name,
+        CASE WHEN a.change_reason in ('deleted_contract_data_anomaly','data_anomaly') AND a.contract_type = 'pre-churn-lead' AND a.rn_current = 1 THEN 'freemium' ELSE a.plan_name END AS main_plan_name,
         CASE 
-            WHEN a.change_reason = 'data_anomaly' AND a.tag = 'billing-churn-vencimientos-extensos' THEN created_at_contract 
-            WHEN a.change_reason = 'data_anomaly' AND (a.tag = 'ONG' OR a.tag IS NULL) AND a.contract_type in ('pre-churn-lead', 'pre-churn', 'standard', 'free-days', 'url-free-days','freemium') THEN created_at_contract
+            WHEN a.change_reason in ('deleted_contract_data_anomaly','data_anomaly') AND a.tag = 'billing-churn-vencimientos-extensos' THEN created_at_contract 
+            WHEN a.change_reason in ('deleted_contract_data_anomaly','data_anomaly') AND (a.tag = 'ONG' OR a.tag IS NULL) AND a.contract_type in ('pre-churn-lead', 'pre-churn', 'standard', 'free-days', 'url-free-days','freemium') THEN created_at_contract
             ELSE start_date END AS main_start_date,
         CASE 
-            WHEN a.change_reason = 'data_anomaly' AND a.tag = 'billing-churn-vencimientos-extensos' AND a.contract_type in ('pre-churn-lead', 'pre-churn') THEN created_at_contract 
-            WHEN a.change_reason = 'data_anomaly' AND a.tag = 'billing-churn-vencimientos-extensos' AND a.contract_type in ('free-days','standard','recurring-edge-case') THEN LEAD(created_at_contract) OVER (PARTITION BY store_id ORDER BY created_at_contract, start_date) 
-            WHEN a.change_reason = 'data_anomaly' AND (a.tag = 'ONG' OR a.tag IS NULL) AND a.contract_type in ('pre-churn-lead', 'pre-churn') THEN created_at_contract 
-            WHEN a.change_reason = 'data_anomaly' AND (a.tag = 'ONG' OR a.tag IS NULL) AND a.contract_type in ('standard','free-days','url-free-days','freemium') THEN LEAD(created_at_contract) OVER (PARTITION BY store_id ORDER BY created_at_contract, start_date) 
+            WHEN a.change_reason in ('deleted_contract_data_anomaly','data_anomaly') AND a.tag = 'billing-churn-vencimientos-extensos' AND a.contract_type in ('pre-churn-lead', 'pre-churn') THEN created_at_contract 
+            WHEN a.change_reason in ('deleted_contract_data_anomaly','data_anomaly') AND a.tag = 'billing-churn-vencimientos-extensos' AND a.contract_type in ('free-days','standard','recurring-edge-case') THEN LEAD(created_at_contract) OVER (PARTITION BY store_id ORDER BY created_at_contract, start_date) 
+            WHEN a.change_reason in ('deleted_contract_data_anomaly','data_anomaly') AND (a.tag = 'ONG' OR a.tag IS NULL) AND a.contract_type in ('pre-churn-lead', 'pre-churn') THEN created_at_contract 
+            WHEN a.change_reason in ('deleted_contract_data_anomaly','data_anomaly') AND (a.tag = 'ONG' OR a.tag IS NULL) AND a.contract_type in ('standard','free-days','url-free-days','freemium') THEN LEAD(created_at_contract) OVER (PARTITION BY store_id ORDER BY created_at_contract, start_date) 
             ELSE end_date END AS main_end_date
     FROM final a
 )
 
 SELECT
   store_id,
+  plan_id,
   main_plan_name AS plan_name,
   contract_type,
+  CASE WHEN change_reason in ('deleted_contract_data_anomaly','deleted_contract') THEN TRUE ELSE  FALSE END AS deleted_contract,
+  deleted_at_contract,
   contracts_total,
   contract_id,
   created_at_contract,
-  main_start_date AS start_date,
-  main_end_date AS end_date,
+  main_start_date AS start_date_contract,
+  main_end_date AS end_date_contract,
   sys_audit_updated_on,
   change_reason,
   CASE WHEN rn_current = 1 THEN TRUE ELSE FALSE END AS is_current,
   ROW_NUMBER() OVER (PARTITION BY store_id ORDER BY created_at_contract, start_date) AS contract_order,
   COUNT(*) OVER (PARTITION BY store_id) AS contracts_qty,
   tag,
-  CASE WHEN MAX(CASE WHEN change_reason = 'data_anomaly' THEN 1 ELSE 0 END) OVER (PARTITION BY store_id) = 1 THEN TRUE ELSE FALSE END AS merchant_has_anomaly
+  CASE WHEN MAX(CASE WHEN change_reason in ('deleted_contract_data_anomaly','data_anomaly') THEN 1 ELSE 0 END) OVER (PARTITION BY store_id) = 1 THEN TRUE ELSE FALSE END AS merchant_has_anomaly,
+  CASE WHEN MAX(CASE WHEN change_reason in ('deleted_contract_data_anomaly','deleted_contract') THEN 1 ELSE 0 END) OVER (PARTITION BY store_id) = 1 THEN TRUE ELSE FALSE END AS merchant_has_deleted_contract
 FROM data_anomaly_fix
 ORDER BY store_id, contract_id, start_date ASC

@@ -8,6 +8,8 @@
     )
 }}
 
+-- s__general__hubspot_dealbreaker_deleted__event
+
 WITH existing_data AS (
     {{ get_existing_data(this, ['dealbreaker_id', 'sys_audit_created_on', 'sys_audit_created_by']) }}
 )
@@ -51,7 +53,7 @@ SELECT
 
 FROM {{ ref('product__general__hubspot_dealbreaker_archived__event') }} archived
 LEFT JOIN {{ ref('product__general__hubspot_dealbreaker_current__snapshot_daily') }} current
-    ON archived.dealbreaker_id = current.dealbreaker_id
+    ON archived.dealbreaker_id = current.dealbreaker_id AND current.is_current = TRUE
 LEFT JOIN {{ ref('product__general__hubspot_dealbreaker__event') }} d
     ON archived.dealbreaker_id = d.dealbreaker_id
 LEFT JOIN {{ ref('product__general__hubspot_dealbreaker_company__link') }} link
@@ -66,6 +68,7 @@ WHERE current.dealbreaker_id IS NULL
 {% if is_incremental() %}
 AND GREATEST(
     COALESCE(archived.sys_audit_updated_on, CAST('1900-01-01' AS TIMESTAMP)),
+    COALESCE(current.sys_audit_updated_on, CAST('1900-01-01' AS TIMESTAMP)),
     COALESCE(d.sys_audit_updated_on, CAST('1900-01-01' AS TIMESTAMP)),
     COALESCE(link.sys_audit_updated_on, CAST('1900-01-01' AS TIMESTAMP)),
     COALESCE(c.sys_audit_updated_on, CAST('1900-01-01' AS TIMESTAMP))

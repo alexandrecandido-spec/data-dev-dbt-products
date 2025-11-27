@@ -11,14 +11,13 @@
 WITH source AS ( 
     SELECT 
         event_bundle_sequence_id,
-        batch_event_index,
+        event_timestamp,
+        COALESCE(user_pseudo_id, 'no_user') AS user_pseudo_id,
+        COALESCE(batch_event_index, -1) AS batch_event_index,
+        COALESCE(event_name, 'no_event') AS event_name,
         source,
-        user_pseudo_id,
-        event_name,
         event_params,
         event_date,
-        event_timestamp,
-
         -- novo campo adicionado
         traffic_source,
 

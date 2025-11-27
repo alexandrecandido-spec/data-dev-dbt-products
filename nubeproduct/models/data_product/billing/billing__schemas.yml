@@ -12,20 +12,34 @@ models:
         description: "Store identifier linked to the contract."
         tests:
           - not_null
+      - name: plan_id
+        description: "Plan identifier associated with the contract."
       - name: plan_name
         description: "Plan type name."
       - name: contract_type
         description: "Type of contract event (e.g., freemium, change-plan)."
+      - name: deleted_contract
+        description: "Indicates if the contract is deleted."
+        tests:
+          - dbt_expectations.expect_column_values_to_be_in_set:
+              value_set: [true, false]
+      - name: deleted_at_contract
+        description: "Date when the contract was deleted."
+        tests: 
+          - dbt_expectations.expect_column_values_to_not_be_null:
+              row_condition: "deleted_contract = true"
       - name: contracts_total
         description: "Total amount of cash paid by the store for the contracts."
       - name: created_at_contract
-        description: "Date when the contract was created in the system."
-      - name: start_date
+        description: "Date when the contract was created in the system. Partition key."
+        tests:
+          - not_null
+      - name: start_date_contract
         description: "Date when the contract started."
         tests:
           - not_null:
               severity: warn
-      - name: end_date
+      - name: end_date_contract
         description: "Date when the contract ended."
         tests:
           - not_null:
@@ -35,7 +49,7 @@ models:
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_be_in_set:
-              value_set: [first_contract, plan_changed, gap_between_periods, type_changed, data_anomaly, unclassified]
+              value_set: [data_anomaly, deleted_contract, deleted_contract_data_anomaly, first_contract, gap_between_periods, plan_changed, type_changed, unclassified]
       - name: is_current
         description: "Indicates if the contract is currently active."
         tests:
@@ -50,10 +64,16 @@ models:
         description: "Total number of contracts for the store."
         tests:
           - not_null
-      - name: tag
-        description: "Tag associated with the contract. It is used to identify the contract anomalies. It can be 'billing-churn-vencimientos-extensos', 'beneficio-tiendagratuita', 'ONG' or NULL."
+      - name: merchant_tag
+        description: "Tag associated with the merchant. It is used to identify the contract anomalies. It can be 'billing-churn-vencimientos-extensos', 'beneficio-tiendagratuita', 'ONG' or NULL."
       - name: merchant_has_anomaly
         description: "Indicates if the merchant has any contract anomalies."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_in_set:
+              value_set: [true, false]
+      - name: merchant_has_deleted_contract
+        description: "Indicates if the merchant has any deleted contract."
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_be_in_set:
@@ -79,5 +99,3 @@ models:
         description: "System or user that last updated the row."
         tests:
           - not_null
-      - name: year_month_code
-        description: "Year and month code for the start date of the contract. Partition key."

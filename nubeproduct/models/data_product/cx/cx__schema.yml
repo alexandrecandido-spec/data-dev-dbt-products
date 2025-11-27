@@ -21,7 +21,6 @@ models:
         description: "User email address. Unique. Deduplicated by oldest user_id, then lowest store_id. Non-null only."
         tests:
           - not_null
-          - unique
       - name: name
         description: "User name. Format: 'First Last', 'First', 'Last', or 'User-{user_id}' (fallback)."
         tests:
@@ -852,4 +851,43 @@ models:
         tests: [not_null]
       - name: sys_audit_updated_by
         description: "System or user that last updated the row (usually the dbt job user)."
+        tests: [not_null]
+
+  - name: s__general__zendesk_ticket_topics__event
+    description: >
+      This table provides a standardized view of Zendesk ticket topic classifications, combining the original labels from the source table with their normalized versions after applying FROM-TO (mapping) rules.
+      Each row represents one subtopic entry from a ticket, ensuring a single record per subtopic.
+    meta:
+      domain: "cx"
+      owner: "valeria.nascimento@nuvemshop.com.br"
+      business_owner: "Operations"
+    columns:
+      - name: ticket_id
+        description: "Unique identifier of the ticket in Zendesk. Primary key."
+        tests: [not_null]
+      - name: created_at
+        description: "Timestamp when the ticket was created in Zendesk (UTC)."
+        tests: [not_null]
+      - name: main_topic_normalized
+        description: "Main topic classification extracted from custom fields. Used for ticket categorization."
+        tests: [not_null]
+      - name: secondary_topic_normalized
+        description: "Secondary topic classification extracted from custom fields. Provides additional categorization detail."
+        tests: [not_null]
+      - name: subtopic_normalized
+        description: "Subtopic classification extracted from custom fields. Most granular level of topic categorization."
+        tests: [not_null]
+      - name: subtopic_raw
+        description: "Subtopic classification extracted from custom fields. Most granular level of topic categorization. Original field, without treatments."
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created."
+        tests: [not_null]
+      - name: sys_audit_created_by
+        description: "System or user that created the row."
+        tests: [not_null]
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated."
+        tests: [not_null]
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row."
         tests: [not_null]

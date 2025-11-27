@@ -1,9 +1,9 @@
 {{
   config(
     materialized='incremental',
-    tags=['daily-9am'],
     unique_key=['date', 'country', 'search_query', 'device'],
-    on_schema_change='fail'
+    on_schema_change='fail',
+    tags=['daily-9am']
   )
 }}
 
@@ -28,7 +28,7 @@ nonbranded_detection AS (
     -- Non-branded Detection (only if no brands detected)
     CASE 
       WHEN d2c_detected.brand_name IS NULL AND marketplace_detected.brand_name IS NULL
-      THEN {{ get_nonbranded_terms_detection('search_query') }}
+      THEN STRUCT({{ get_nonacquisition_terms_detection('search_query') }} AS term, 'Non-Acquisition' AS category, 'exact' AS match_type)
       ELSE STRUCT(CAST(NULL AS STRING) AS term, CAST(NULL AS STRING) AS category, CAST(NULL AS STRING) AS match_type)
     END AS nonbranded_detected
     
@@ -67,8 +67,8 @@ enriched_data AS (
           CONTAINS(LOWER(search_query), 'evolution')
         )) OR
         (country = 'BR' AND CONTAINS(LOWER(search_query), 'next')))
-      ) THEN false
-      ELSE {{ get_official_d2c_flag('country', 'd2c_detected.brand_name') }}
+      ) THEN 'False'
+      ELSE CASE WHEN (d2c_detected.brand_name IN ('tiendanube', 'nuvemshop') AND d2c_detected.match_type = 'exact') THEN 'True' ELSE 'False' END
     END AS flag_d2c_oficial,
     
     CASE 
@@ -89,8 +89,8 @@ enriched_data AS (
           CONTAINS(LOWER(search_query), 'evolution')
         )) OR
         (country = 'BR' AND CONTAINS(LOWER(search_query), 'next')))
-      ) THEN false
-      ELSE {{ get_official_marketplace_flag('country', 'marketplace_detected.brand_name') }}
+      ) THEN 'False'
+      ELSE CASE WHEN {{ get_official_marketplace_flag('country', 'marketplace_detected.brand_name') }} THEN 'True' ELSE 'False' END
     END AS flag_marketplace_oficial,
     
     -- Tiendanube/Nuvemshop Detection
@@ -117,7 +117,7 @@ enriched_data AS (
       CONTAINS(LOWER(search_query), 'tiendanube perú') OR
       CONTAINS(LOWER(search_query), 'tienda nube peru') OR
       CONTAINS(LOWER(search_query), 'tienda nube perú')
-    ) THEN true ELSE false END AS is_nuvemshop_tiendanube,
+    ) THEN 'True' ELSE 'False' END AS is_nuvemshop_tiendanube,
     
     -- Next Evolution Detection
     CASE WHEN (
@@ -136,7 +136,7 @@ enriched_data AS (
         CONTAINS(LOWER(search_query), 'evolution')
       )) OR
       (country = 'BR' AND CONTAINS(LOWER(search_query), 'next')))
-    ) THEN true ELSE false END AS is_next_evolucion,
+    ) THEN 'True' ELSE 'False' END AS is_next_evolucion,
     
     -- Branded/Non-branded Classification
     CASE 
@@ -148,16 +148,16 @@ enriched_data AS (
     
     -- Non-acquisition detection (only for Tiendanube/Nuvemshop queries)
     CASE 
-      WHEN is_nuvemshop_tiendanube = true 
+      WHEN is_nuvemshop_tiendanube = 'True' 
       THEN {{ get_nonacquisition_terms_detection('search_query') }}
       ELSE CAST(NULL AS STRING)
     END AS non_adquisition_terms,
     
     CASE 
-      WHEN is_nuvemshop_tiendanube = true 
+      WHEN is_nuvemshop_tiendanube = 'True' 
         AND {{ get_nonacquisition_terms_detection('search_query') }} IS NOT NULL
-      THEN true
-      ELSE false
+      THEN 'True'
+      ELSE 'False'
     END AS is_non_adquisition_term,
     
     -- Date Dimensions
