@@ -92,7 +92,7 @@ SELECT
         WHEN af.store_id IS NOT NULL AND COALESCE(pl.grupo, 'not informed') != 'freemium' THEN 'paying'
         WHEN af.store_id IS NOT NULL AND COALESCE(pl.grupo, 'not informed') = 'freemium' THEN 'free'
         ELSE 'not_active'
-      END AS active_merchant_status
+      END AS merchant_finance_status
     , GREATEST(ss.sys_audit_updated_on, si.sys_audit_updated_on, bl.blocked_last_updated_at, fs.sys_audit_updated_on) as change_timestamp
 FROM store_source ss 
 LEFT JOIN segment_info si ON ss.store_id = si.store_id

@@ -3,6 +3,7 @@
         materialized='incremental',
         incremental_strategy='merge',
         unique_key='store_id',
+        on_schema_change='fail',
         tags=['daily-7am']
     )
 }}
@@ -248,7 +249,7 @@ SELECT
     -- ACTIVE MERCHANTS (Finance)
     -- ============================================
     -- Campos desde s__lifecycle__store_status__ref (agregados por pedido de Gi)
-    ss.active_merchant_status,
+    ss.merchant_finance_status,
 
     -- ============================================
     -- STORE IDENTITY (Contact Information)
