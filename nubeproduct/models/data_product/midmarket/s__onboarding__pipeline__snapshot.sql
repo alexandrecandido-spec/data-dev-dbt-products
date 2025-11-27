@@ -86,6 +86,13 @@ select distinct
   segmento_nuvemshop,
   produto_nuvemshop,
   associated_deal_ids,
+  forecast,
+  last_survey_answered,
+  subscription,
+  cpt,
+  coalesce(effective_churn_root_cause, out_of_portfolio_root_cause) as churn_downgrade_root_cause,
+	coalesce(effective_churn_root_cause_2, out_of_portfolio_root_cause_2) as churn_downgrade_root_cause_2,
+	coalesce(effective_churn_one_liner, out_of_portfolio_one_liner) as churn_downgrade_one_liner,
 
   current_timestamp AS sys_audit_created_on,
   'data-dev-dbt-products' AS sys_audit_created_by,

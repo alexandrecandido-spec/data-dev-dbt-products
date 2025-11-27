@@ -71,6 +71,10 @@ sources:
         description: "Información de cancelaciones de tiendas (encuestas de churns o cancelaciones de tiendas). Incluye el motivo de la cancelación y el comentario de la cancelación."
       - name: mwp_facebook_bussiness_extension
         description: "Facebook Business Extension (CAPI) configuration by store"
+      - name: mwp_store_branches
+        description: "Branches information by store"
+      - name: mwp_table_shipping_entries
+        description: "Shipping configuration by store"
 
   - name: int_finance
     database: hive_metastore
@@ -98,6 +102,7 @@ sources:
       - name: midmarket_hubspot_email
       - name: midmarket_hubspot_communications
       - name: midmarket_hubspot_tasks
+      - name: midmarket_hubspot_feedback_submissions
       - name: marketing_google_search_console_urls_results
         description: "Raw GSC URL results ingestion."
       - name: marketing_google_search_console_urls_unsplit_results
@@ -418,3 +423,10 @@ sources:
         description: "Manual classification of Tools and Calculators for Latam."
       - name: ext__cx__cx__ticket_topics_change
         description: "The core objective of this table is to isolate and standardize the continuous operational process of updating and merging subtopic classifications."
+
+  - name: int_pickup_points
+    database: hive_metastore
+    schema: pickup_points
+    tables:
+      - name: pickup_points
+        description: "Pickup points information by store"
