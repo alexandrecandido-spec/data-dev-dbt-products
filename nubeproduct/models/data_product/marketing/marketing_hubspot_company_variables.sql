@@ -96,7 +96,7 @@ with
             {{ ref("s__lifecycle__store_status__ref") }} lifecycle_status
             on active_stores.store_id = lifecycle_status.store_id
         left join
-            {{ ref("merchant__attributes__store_info__ref") }} store_info
+            {{ ref("s__attributes__store_identity__ref") }} store_info
             on active_stores.store_id = store_info.store_id
         left join
             {{ ref("g__product_marketing__gmv_rolling_windows_store__agg") }} gmv_rolling
