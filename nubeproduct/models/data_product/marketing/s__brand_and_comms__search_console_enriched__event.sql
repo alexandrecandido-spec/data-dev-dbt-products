@@ -2,7 +2,8 @@
   config(
     materialized='incremental',
     unique_key=['date', 'country', 'search_query', 'device'],
-    on_schema_change='fail'
+    on_schema_change='fail',
+    tags=['daily-9am']
   )
 }}
 
