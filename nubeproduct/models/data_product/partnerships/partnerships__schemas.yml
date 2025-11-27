@@ -630,10 +630,16 @@ models:
         description: "Rev share amount."
       - name: condition_1
         description: "Condition 1."
+      - name: value_1
+        description: "Value 1."
       - name: condition_2
         description: "Condition 2."
+      - name: value_2
+        description: "Value 2."
       - name: condition_3
         description: "Condition 3."
+      - name: value_3
+        description: "Value 3."
       - name: has_condition_compliance
         description: "Flag indicating if the order has the condition compliance."
       - name: rev_share_order_amount
