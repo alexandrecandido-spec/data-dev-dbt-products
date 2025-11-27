@@ -31,6 +31,24 @@ with
             products.config_products as config_products_completed,
             payments.config_payment as config_payment_completed,
             shipping.config_shipping as config_shipping_completed,
+            -- New fields from marketing and merchants data products
+            coalesce(country.country_code, '') as country,
+            merchant.created_at,
+            merchant.first_payment as first_payment_date,
+            first_seller.first_seller_at as first_seller_date,
+            admin_access.last_date_admin_access,
+            storefront_sessions.last_store_session as last_date_sessions,
+            lifecycle_status.current_plan_name as current_plan,
+            coalesce(segment.segment_name, '') as current_segment,
+            coalesce(store_info.user_email, '') as user_email,
+            coalesce(store_info.phone_whatsapp_button, '') as whatsapp_button,
+            coalesce(store_info.owner_phone_number, '') as owner_phone,
+            gmv_rolling.gmv30 as gmv_last_30d,
+            gmv_rolling.gmv60 as gmv_last_60d,
+            gmv_rolling.gmv90 as gmv_last_90d,
+            gmv_rolling.orders30 as orders_last_30d,
+            gmv_rolling.orders60 as orders_last_60d,
+            gmv_rolling.orders90 as orders_last_90d,
             active_stores.store_id
         from {{ ref("hubspot_active_stores") }} active_stores
         left join
@@ -65,6 +83,24 @@ with
         left join
             {{ ref("s__product_marketing__shipping__ref") }} shipping
             on active_stores.store_id = shipping.store_id
+        left join
+            {{ ref("marketing_first_seller_date") }} first_seller
+            on active_stores.store_id = first_seller.store_id
+        left join
+            {{ ref("g__product_marketing__admin_access_store__agg") }} admin_access
+            on active_stores.store_id = admin_access.store_id
+        left join
+            {{ ref("g__product_marketing__storefront_sessions_store__agg") }} storefront_sessions
+            on active_stores.store_id = storefront_sessions.store_id
+        left join
+            {{ ref("s__lifecycle__store_status__ref") }} lifecycle_status
+            on active_stores.store_id = lifecycle_status.store_id
+        left join
+            {{ ref("merchant__attributes__store_info__ref") }} store_info
+            on active_stores.store_id = store_info.store_id
+        left join
+            {{ ref("g__product_marketing__gmv_rolling_windows_store__agg") }} gmv_rolling
+            on active_stores.store_id = gmv_rolling.store_id
     )
 
 select
@@ -81,6 +117,24 @@ select
     info.config_products_completed,
     info.config_payment_completed,
     info.config_shipping_completed,
+    -- New fields
+    info.country,
+    info.created_at,
+    info.first_payment_date,
+    info.first_seller_date,
+    info.last_date_admin_access,
+    info.last_date_sessions,
+    info.current_plan,
+    info.current_segment,
+    info.user_email,
+    info.whatsapp_button,
+    info.owner_phone,
+    info.gmv_last_30d,
+    info.gmv_last_60d,
+    info.gmv_last_90d,
+    info.orders_last_30d,
+    info.orders_last_60d,
+    info.orders_last_90d,
     {% if is_incremental() %}
         coalesce(
             existing_data.sys_audit_created_on, current_timestamp
@@ -110,7 +164,24 @@ from source_data as info
             "config_layout_completed",
             "config_products_completed",
             "config_payment_completed",
-            "config_shipping_completed"
+            "config_shipping_completed",
+            "country",
+            "created_at",
+            "first_payment_date",
+            "first_seller_date",
+            "last_date_admin_access",
+            "last_date_sessions",
+            "current_plan",
+            "current_segment",
+            "user_email",
+            "whatsapp_button",
+            "owner_phone",
+            "gmv_last_30d",
+            "gmv_last_60d",
+            "gmv_last_90d",
+            "orders_last_30d",
+            "orders_last_60d",
+            "orders_last_90d"
         ] %}
     where
         existing_data.store_id is null

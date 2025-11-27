@@ -1163,9 +1163,10 @@ models:
       domain: "operations"
       business_owner: "Ane Paschoalino"
     description: >
-      Contains simplified store attributes for HubSpot integration, including only
-      vertical classification and current segment status. Returns empty strings
-      instead of null values to ensure the values are set in Hubspot as empty.
+      Contains simplified store attributes for HubSpot integration, including
+      vertical classification, current segment status, lifecycle dates, contact information,
+      and rolling GMV/orders metrics. Returns empty strings instead of null values
+      to ensure the values are set in Hubspot as empty.
     columns:
       - name: store_id
         description: "Unique identifier of the store. External key."
@@ -1210,6 +1211,40 @@ models:
         description: "Flag indicating if the store completed the payment methods configuration step (Step 3 of onboarding). Values: 1 = completed, 0 = not completed, NULL = store not in onboarding model (does not apply or no information available)."
       - name: config_shipping_completed
         description: "Flag indicating if the store completed the shipping methods configuration step (Step 4 of onboarding). Values: 1 = completed, 0 = not completed, NULL = store not in onboarding model (does not apply or no information available)."
+      - name: country
+        description: "Country code of the store (e.g., 'BR', 'AR', 'MX'). Returns empty string if null."
+      - name: created_at
+        description: "Timestamp when the store was created."
+      - name: first_payment_date
+        description: "Date of the first payment made by the store."
+      - name: first_seller_date
+        description: "Date when the store became a seller (7+ sales in 90 days)."
+      - name: last_date_admin_access
+        description: "Date of the last access to the admin panel."
+      - name: last_date_sessions
+        description: "Date of the last storefront session (end user session)."
+      - name: current_plan
+        description: "Current plan name of the store."
+      - name: current_segment
+        description: "Current segment of the store (e.g., no-seller, struggling-seller, seller). Returns empty string if null."
+      - name: user_email
+        description: "Email of the main user of the store. Returns empty string if null."
+      - name: whatsapp_button
+        description: "WhatsApp phone number from the store's WhatsApp button. Returns empty string if null."
+      - name: owner_phone
+        description: "Phone number of the store owner. Returns empty string if null."
+      - name: gmv_last_30d
+        description: "Total GMV (in local currency) in the last 30 days from current date (rolling window)."
+      - name: gmv_last_60d
+        description: "Total GMV (in local currency) in the last 60 days from current date (rolling window)."
+      - name: gmv_last_90d
+        description: "Total GMV (in local currency) in the last 90 days from current date (rolling window)."
+      - name: orders_last_30d
+        description: "Total number of orders in the last 30 days from current date (rolling window)."
+      - name: orders_last_60d
+        description: "Total number of orders in the last 60 days from current date (rolling window)."
+      - name: orders_last_90d
+        description: "Total number of orders in the last 90 days from current date (rolling window)."
       - name: sys_audit_created_on
         description: "Timestamp when the row was originally created."
       - name: sys_audit_created_by
