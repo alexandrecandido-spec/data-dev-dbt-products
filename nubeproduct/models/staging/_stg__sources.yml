@@ -476,6 +476,8 @@ sources:
         description: "Manually curated Merchant Sellers prospects/domains (A–S slice). Raw outreach and enrichment fields."
       - name: ext__marketing__acquisition__merchant_sellers_base_total_t_z
         description: "Manually curated Merchant Sellers prospects/domains (T–Z slice). Same schema as the A–S slice."
+      - name: ext__partnerships__platform_development__revenue_share_apps
+        description: "Contains the information of the revenue share apps, their conditions and variables"
 
   - name: stg_raw_ecosystem
     database: raw
