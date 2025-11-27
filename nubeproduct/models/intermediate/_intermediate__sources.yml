@@ -98,6 +98,7 @@ sources:
       - name: midmarket_hubspot_email
       - name: midmarket_hubspot_communications
       - name: midmarket_hubspot_tasks
+      - name: midmarket_hubspot_feedback_submissions
       - name: marketing_google_search_console_urls_results
         description: "Raw GSC URL results ingestion."
       - name: marketing_google_search_console_urls_unsplit_results
