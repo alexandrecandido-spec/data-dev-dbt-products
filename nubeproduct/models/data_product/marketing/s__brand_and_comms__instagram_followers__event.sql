@@ -141,7 +141,7 @@ all_dates_by_country AS (
   SELECT 
     fdc.country,
     EXPLODE(SEQUENCE(
-      GREATEST(fdc.first_date, DATE_TRUNC('year', CURRENT_DATE())),
+      GREATEST(fdc.first_date, ADD_MONTHS(CURRENT_DATE(), -2)),
       CURRENT_DATE()
     )) AS date
   FROM first_date_per_country fdc
