@@ -5611,7 +5611,7 @@ models:
         description: "User or process responsible for the current model run. Defaults to 'data-dev-dbt-products'."  
 
 
-  - name: s__general__issues_and_problems_comments__event
+  - name: g__general__issues_and_problems_comments__event
     description: >
       Contains the summary of Issues and Problems with their respective comments and associated stores. 
     config:
