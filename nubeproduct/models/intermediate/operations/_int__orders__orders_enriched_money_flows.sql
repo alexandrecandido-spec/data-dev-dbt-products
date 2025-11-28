@@ -93,6 +93,8 @@ SELECT
     carts_orders.app_id,
     carts_orders.discount,
     carts_orders.discount_gateway,
+    carts_orders.coupon_id,
+    carts_orders.shipping_extra,
     carts_orders.promotional_discount_id,
     carts_orders.shipping_cost_owner,
     carts_orders.fulfillment_status,
