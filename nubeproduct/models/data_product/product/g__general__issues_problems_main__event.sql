@@ -48,9 +48,11 @@ select
     msi.domain as store_name, 
     wbr.playbook_last_wbr, 
     wbr.date_wbr,
-    wbr.status_last_wbr as status_last_wbr_2
+    wbr.status_last_wbr as status_last_wbr_2,
+    mt.tag
 from {{ ref('product_issues_and_problems_summary') }} pips
 left join {{ ref('company_metrics_merchant_info') }} msi on pips.store_id = msi.store_id
+left join {{ ref('merchant__attributes__store_ts_tags__ref') }} mt on mt.store_id = pips.store_id
 left join (select 
     store_id,
     playbook as playbook_last_wbr,
