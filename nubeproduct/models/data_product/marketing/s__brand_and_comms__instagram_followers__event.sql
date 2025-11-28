@@ -209,7 +209,7 @@ enriched_data AS (
 
 SELECT
   -- Core date dimensions
-  date,
+  CAST(date AS DATE) AS date,
   date_dimensions.day AS date_day,
   date_dimensions.month AS date_month,
   date_dimensions.quarter AS date_quarter,
