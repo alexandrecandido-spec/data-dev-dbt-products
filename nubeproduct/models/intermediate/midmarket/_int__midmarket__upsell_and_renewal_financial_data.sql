@@ -65,7 +65,7 @@ with
 		(select
 		    f.store_id,
 		    date_trunc('month', f.datemonth)                 as last_finance_month,
-		    f.segment                                        as last_month_segment,
+		    f.segment_on_platform			 				 as last_month_segment_on_platform,
 		    -- Last month data
 		    round(f.gmv_usd_monthly)                         as gmv_usd_last_month,
 		    round(f.gmv_local_currency_monthly)              as gmv_last_month,
@@ -106,7 +106,7 @@ with
 select
   store_id,
   last_finance_month,
-  last_month_segment,
+  last_month_segment_on_platform,
   gmv_usd_last_month,
   gmv_last_month,
   gmv_usd_on_platform_last_month,
