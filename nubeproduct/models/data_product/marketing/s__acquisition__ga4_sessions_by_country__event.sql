@@ -1,7 +1,3 @@
--- depends_on: {{ ref('marketing__acquisition__ga4_event_info__event') }}
--- depends_on: {{ ref('marketing__acquisition__ga4_mod_pv_info__event') }}
--- depends_on: {{ ref('marketing__acquisition__ga4_trial_payment_info__event') }}
--- depends_on: {{ ref('marketing__acquisition__ga4_session_info__session') }}
 -- depends_on: {{ ref('_int_marketing__ga4_sessions_with_dimensions') }}
 
 {{ config(
