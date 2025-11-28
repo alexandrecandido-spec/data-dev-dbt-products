@@ -54,6 +54,14 @@ partner_info AS (
     , p.partner_code
     , p.sys_audit_updated_on
   FROM {{ ref('partnerships__general__partners__ref') }} p
+),
+register_plan AS (
+  SELECT
+    rp.id as store_id
+    , rp.plan_chosen_on_register as register_plan_id
+    , CASE WHEN rp.plan_chosen_on_register=0 THEN 'freemium' ELSE gp.grupo END as register_plan_type
+  FROM {{ source('stg_moltres','mwp_store_info') }} rp
+  LEFT JOIN {{ ref('operations_grouping_plans') }} gp ON rp.plan_chosen_on_register = gp.plan
 )
 
 
@@ -70,6 +78,7 @@ SELECT
     , ss.currency
     , ss.device
     , ss.register_url
+    , rp.register_plan_type
     , ss.partner_id
     , ss.partnership_type
     , pi.partner_code
@@ -82,3 +91,4 @@ LEFT JOIN vertical_info vi ON ss.store_id = vi.store_id
 LEFT JOIN business_size_info bs ON ss.store_id = bs.store_id
 LEFT JOIN partner_info pi ON ss.partner_id = pi.partner_id
 LEFT JOIN {{ ref('dimension__attributes__location_country__ref') }} dc ON ss.country_code = dc.country_code
+LEFT JOIN register_plan rp ON ss.store_id = rp.store_id
