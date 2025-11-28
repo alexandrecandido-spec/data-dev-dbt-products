@@ -1,7 +1,8 @@
 {{
   config(
     materialized='table',
-    tags=['daily-9am']
+    tags=['daily-9am','marketing'],
+    on_schema_change='fail'
   )
 }}
 
