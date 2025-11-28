@@ -3781,7 +3781,7 @@ models:
         description: "Auto-generated category using business-specific classification macro"
         tests:
           - accepted_values:
-              values: ['Branded', 'Marketplace', 'DTC', 'Ecommerce', 'E-commerce', 'Vendas', 'Envios', 'Envíos', 'Dropshipping', 'Drop', 'Producto', 'Redes Sociales', 'Intention Verbs', 'Catálogo', 'Página web', 'Canales', 'Canais', 'Tienda', 'Vender']
+              values: ['Branded', 'Marketplace', 'DTC', 'Ecommerce', 'E-commerce', 'Vendas', 'Envios', 'Envíos', 'Dropshipping', 'Drop', 'Producto', 'Redes Sociales', 'Intention Verbs', 'Catálogo', 'Página web', 'Canales', 'Canais', 'Tienda', 'Vender', 'Other']
       - name: d2c_brand_names
         description: "D2C brand name detected via automated macros"
       - name: marketplace_brand_names
