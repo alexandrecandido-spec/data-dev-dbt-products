@@ -45,7 +45,7 @@ select distinct
     mi.franchise_group,
     --Financial data
     fd.last_finance_month,
-    fd.last_month_segment,
+    fd.last_month_segment_on_platform,
     fd.gmv_usd_last_month,
     fd.gmv_last_month,
     fd.gmv_usd_on_platform_last_month,
