@@ -7,8 +7,10 @@ WITH shipping_carriers as (
     FROM {{ source('int_moltres', 'mwp_shipping_carriers') }} sc
     JOIN {{ source('int_moltres', 'mwp_apps') }} a
         ON sc.app_id = a.id
-)
+),
 
+base AS (
+    
 SELECT
     po.store_id,
     po.country as store_country,
@@ -16,11 +18,11 @@ SELECT
     ss.current_segment as segment,
     sc.vertical_name as vertical,
     DATE(po.completed_at) as order_completed_at,
-    io.shipping_country_code,
-    io.shipping_country_name,
-    io.is_international_shipping,
-    sd.is_same_delivered_status,
-    CASE 
+    COALESCE(io.shipping_country_code, 'N/D') as shipping_country_code,
+    COALESCE(io.shipping_country_name, 'N/D') as shipping_country_name,
+    COALESCE(io.is_international_shipping, FALSE) as is_international_shipping,
+    COALESCE(sd.is_same_delivered_status, 'no info') as is_same_delivered_status,
+    COALESCE(CASE 
 	    WHEN po.shipping_method LIKE 'api_%' THEN concat('app - ', c.carrier)
 	    WHEN po.shipping_method LIKE '%table%' AND po.shipping_pickup_type = 'ship' THEN 'personalizado: envio'
 	    WHEN po.shipping_method LIKE '%table%' AND po.shipping_pickup_type = 'pickup' THEN 'personalizado: retiro'
@@ -31,8 +33,8 @@ SELECT
 	    WHEN po.shipping_method = 'multiple' THEN 'multiples (multicd)'
 	    WHEN po.shipping_method = 'fallback' THEN 'fallback'
 	    ELSE concat('core - ', po.shipping_method) 
-    END AS shipping_method,
-    CASE 
+    END, 'without shipping data') AS shipping_method,
+    COALESCE(CASE 
 	    WHEN po.shipping_method LIKE 'api_%' THEN 'app integration'
 	    WHEN po.shipping_method LIKE '%table%' AND po.shipping_pickup_type = 'ship' THEN 'personalizado: envio'
 	    WHEN po.shipping_method LIKE '%table%' AND po.shipping_pickup_type = 'pickup' THEN 'personalizado: retiro'
@@ -43,9 +45,9 @@ SELECT
 	    WHEN po.shipping_method = 'multiple' THEN 'multiples (multicd)'
 	    WHEN po.shipping_method = 'fallback' THEN 'fallback'
 	    ELSE concat('core - ', po.shipping_method) 
-    END AS integration,
-    SUM(po.total_in_usd) as total_in_usd,
-    COUNT(DISTINCT po.id) as total_orders
+    END, 'without shipping data') AS integration,
+    po.total_in_usd,
+    po.id as order_id
 
 FROM {{ ref('company_metrics_paid_orders') }} po
 
@@ -67,5 +69,25 @@ LEFT JOIN {{ ref('_int__product__shipping__same_delivered_status') }} sd
 WHERE 1=1
     AND DATE(po.completed_at) > DATE(DATE_ADD(MONTH, -13, current_date))
     AND ss.state <> 4
+
+)
+
+SELECT
+    b.store_id,
+    b.store_country,
+    b.plan_group,
+    b.segment,
+    b.vertical,
+    b.order_completed_at,
+    b.shipping_country_code,
+    b.shipping_country_name,
+    b.is_international_shipping,
+    b.is_same_delivered_status,
+    b.shipping_method,
+    b.integration,
+    SUM(b.total_in_usd) as total_in_usd,
+    COUNT(DISTINCT b.order_id) as total_orders
+
+FROM base b
 
 GROUP BY 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
