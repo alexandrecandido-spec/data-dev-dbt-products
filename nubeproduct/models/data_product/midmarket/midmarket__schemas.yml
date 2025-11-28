@@ -1819,6 +1819,115 @@ models:
         description: "Potential gross profit percentage from HubSpot deal properties. Populated for Sales New Contracts, Onboarding metrics, Upsell/Renewal, and Success deal-based events. Null for Sales SQLs/Opportunities and Success merchant snapshots."
 
 
+  - name: s__general__closing_pack_weekly__event
+    config:
+      meta:
+        tech_steward: "pedro.fregonese@tiendanube.com"
+        domain: "midmarket"
+        business_owner: "Franco Tiberti"
+    description: >
+      Comprehensive data product that consolidates all Mid-Market closing pack metrics across the entire customer lifecycle
+      into a unified event-based view on a WEEKLY basis. This model provides a complete picture of the Mid-Market funnel
+      with weekly granularity for more timely insights and faster decision-making.
+      
+      **Important**: This model only includes CLOSED/COMPLETED weeks (excludes the current week) to ensure data 
+      completeness and consistency. The current week is filtered out to avoid reporting on incomplete data.
+      Additionally, only data from 2023 onwards is included to optimize table size and query performance.
+      
+      The model unions data from four weekly intermediate models representing different stages of the customer journey:
+      - Sales: SQLs (Sales Qualified Leads), Opportunities, and New Contracts from Sales pipelines (AR/BR/MX)
+      - Onboarding: Churns, Downgrades, and Go-Lives during the onboarding phase (AR/BR/MX)
+      - Upsell & Renewal: Renewal deals and Upsell opportunities from Upsell Success pipelines (AR/BR/MX)
+      - Success: Active Merchants, Warnings, Unknowns, Out of Portfolio, and Churns from Success pipelines (AR/BR/MX)
+      
+      **Scheduling & Dependencies**: Runs every Monday at 10:30am (tag: weekly-monday-1030am) to ensure all 
+      dependencies have completed:
+      - midmarket_weekly_business_review
+      - company_metrics_weekly_snapshot_gmv (runs at 10am)
+      
+      Each record represents a discrete event or status snapshot with associated metrics including potential GMV,
+      actual GMV, subscription fees, and financial indicators. This unified structure enables end-to-end funnel analysis
+      and comprehensive reporting across all Mid-Market segments on a weekly cadence.
+    columns:
+      - name: store_id
+        description: "Unique identifier of the store. Present for most metrics; may be null for early-stage sales deals that haven't converted to stores yet."
+      - name: deal_id
+        description: "Unique identifier of the HubSpot deal. Present for deal-based metrics (Sales, Upsell/Renewal, and event-specific Success metrics like churns). Null for aggregated Success merchant counts."
+      - name: name
+        description: "Store domain name or HubSpot deal name, depending on the metric source."
+      - name: country_code
+        description: "Country code where the store operates or deal is located (AR for Argentina, BR for Brazil, MX for Mexico)."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["AR", "BR", "MX"]
+      - name: geo_region
+        description: "Geographic region of the store based on merchant information. Null for Sales SQLs and early-stage opportunities without store data."
+      - name: geo_state
+        description: "Geographic state/province of the store. For Sales metrics, may be derived from cidade_territorio_sales field. Null when geographic data is unavailable."
+      - name: geo_city
+        description: "Geographic city of the store. For Sales metrics, may be derived from cidade_territorio_sales field. Null when geographic data is unavailable."
+      - name: vertical
+        description: "Business vertical or industry category of the store from merchant info or HubSpot. Defaults to 'Not Informed' when the vertical is not available."
+        tests:
+          - not_null
+      - name: acquisition_channel
+        description: "Channel through which the lead was originally acquired (e.g., 'Inbound', 'Events', 'Outbound'). Defaults to 'Unknown acquisition channel' when not available."
+        tests:
+          - not_null
+      - name: owner
+        description: "HubSpot owner (account manager or sales rep) responsible for the deal or store. May be null in some cases."
+      - name: metric_group
+        description: "High-level metric grouping category representing the customer lifecycle stage."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["Sales", "Onboarding", "Upsell & Renewal", "Success"]
+      - name: metric_type
+        description: "Specific type of metric or event being measured within each metric group."
+        tests:
+          - not_null
+          - accepted_values:
+              values: [
+                "Sales SQLs", 
+                "Sales Opportunities", 
+                "Sales New Contracts",
+                "Onboarding Churns",
+                "Onboarding Downgrades",
+                "Onboarding Go Lives",
+                "Renewals",
+                "Upsells",
+                "Success Merchants", 
+                "Success Warnings",
+                "Success Unknowns",
+                "Success Out of Portfolio",
+                "Success Churns"
+              ]
+      - name: date_week
+        description: >
+          Reference week for the metric, truncated to the first day of the week (Monday). The semantic meaning varies by metric type:
+          - Sales: Week when deal entered the relevant pipeline stage (scheduled meetings, problem discovery, or closed)
+          - Onboarding: Week of churn, downgrade, or go-live event
+          - Upsell & Renewal: Week when renewal or upsell deal closed
+          - Success: Week of the business review snapshot, churn event, or out-of-portfolio event
+        tests:
+          - not_null
+      - name: total
+        description: "Count indicator for aggregation purposes. Value of 1 when the record should be counted in totals, null otherwise (allows for filtering specific segments). Enables easy summation for totals by metric type, country, or time period."
+      - name: potential_gmv
+        description: "Potential GMV value from HubSpot deal properties. Populated for Sales Opportunities, Sales New Contracts, Onboarding metrics, Upsell & Renewal, and Success deal-based events. Null for Sales SQLs and aggregated Success merchant snapshots."
+      - name: actual_gmv
+        description: "Actual GMV achieved by the store in the reference week, measured in local currency (BRL for Brazil, ARS for Argentina, MXN for Mexico). Populated for Upsell/Renewal and Success metrics with active GMV data. Null for Sales and Onboarding metrics."
+      - name: actual_gmv_usd
+        description: "Actual GMV achieved by the store in the reference week, converted to USD for cross-country comparisons. Populated for Upsell/Renewal and Success metrics. Null for Sales and Onboarding metrics."
+      - name: subscription
+        description: "Monthly subscription fee amount. Populated for Sales New Contracts, Onboarding metrics, Upsell/Renewal, and Success deal-based events. Null for Sales SQLs/Opportunities and Success merchant snapshots."
+      - name: cpt
+        description: "Cost per transaction (transaction fee). Populated for Sales New Contracts, Onboarding metrics, Upsell/Renewal, and Success deal-based events. Null for Sales SQLs/Opportunities and Success merchant snapshots."
+      - name: potential_gross_profit_perc
+        description: "Potential gross profit percentage from HubSpot deal properties. Populated for Sales New Contracts, Onboarding metrics, Upsell/Renewal, and Success deal-based events. Null for Sales SQLs/Opportunities and Success merchant snapshots."
+
+
   - name: g__success__warnings__agg_snapshot_weekly
     config:
       meta:
