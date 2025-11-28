@@ -42,6 +42,8 @@ models:
               values: ['desktop', 'app', 'mobile', 'tablet', 'undefined']
       - name: register_url
         description: "Register URL of the store."
+      - name: register_plan_type
+        description: "Type of the register plan of the store."
       - name: partner_id
         description: "Partner ID of the store."
       - name: partnership_type
