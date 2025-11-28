@@ -2156,24 +2156,24 @@ models:
         description: "End date of the store's current contract."
       - name: last_finance_month
         description: "Most recent month with available financial data for the store."
-      - name: last_month_segment
-        description: "Store segment classification based on the last month's financial data."
-      - name: gmv_usd_last_month
-        description: "Gross Merchandise Value in USD for the last available month."
-      - name: gmv_last_month
-        description: "Gross Merchandise Value in local currency for the last available month."
+      - name: last_month_segment_on_platform
+        description: "Store segment classification based on the last month's on-platform financial data (GMV and orders on the platform only)."
+      - name: gmv_usd_on_platform_last_month
+        description: "On-platform Gross Merchandise Value in USD for the last available month."
+      - name: gmv_on_platform_last_month
+        description: "On-platform Gross Merchandise Value in local currency for the last available month."
       - name: orders_on_platform_last_month
         description: "Number of orders on the platform for the last available month."
-      - name: gmv_usd_six_months_avg
-        description: "Average Gross Merchandise Value in USD over the last six months."
-      - name: gmv_six_months_avg
-        description: "Average Gross Merchandise Value in local currency over the last six months."
+      - name: gmv_usd_on_platform_six_months_avg
+        description: "Average on-platform Gross Merchandise Value in USD over the last six months."
+      - name: gmv_on_platform_six_months_avg
+        description: "Average on-platform Gross Merchandise Value in local currency over the last six months."
       - name: orders_on_platform_six_months_avg
         description: "Average number of orders on the platform over the last six months."
-      - name: gmv_usd_three_months_avg
-        description: "Average Gross Merchandise Value in USD over the last three months."
-      - name: gmv_three_months_avg
-        description: "Average Gross Merchandise Value in local currency over the last three months."
+      - name: gmv_usd_on_platform_three_months_avg
+        description: "Average on-platform Gross Merchandise Value in USD over the last three months."
+      - name: gmv_on_platform_three_months_avg
+        description: "Average on-platform Gross Merchandise Value in local currency over the last three months."
       - name: orders_on_platform_three_months_avg
         description: "Average number of orders on the platform over the last three months."
       - name: sys_audit_created_on
@@ -2420,8 +2420,8 @@ models:
         description: "Name of the franchise group the store belongs to, if any."
       - name: last_finance_month
         description: "Most recent month with available financial data for the store."
-      - name: last_month_segment
-        description: "Store segment classification based on the last month's financial data."
+      - name: last_month_segment_on_platform
+        description: "Store segment classification based on the last month's on-platform financial data (GMV and orders on the platform only)."
       - name: gmv_usd_last_month
         description: "Total Gross Merchandise Value in USD for the last available month (includes on-platform and off-platform)."
       - name: gmv_last_month
