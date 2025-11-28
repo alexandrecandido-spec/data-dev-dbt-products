@@ -27,8 +27,8 @@ SELECT
     END AS is_churned,
     CASE WHEN pf.pickup_feature IS NULL THEN 'none' ELSE pf.pickup_feature END AS pickup_feature,
     CASE WHEN pf.is_deleted IS NULL THEN FALSE ELSE pf.is_deleted END AS is_deleted,
-    CASE WHEN pf.max_km IS NULL THEN 'non applicable' ELSE pf.max_km END AS max_km,
-    CASE WHEN pf.max_days_pickup IS NULL THEN 'non applicable' ELSE pf.max_days_pickup END AS max_days_pickup,
+    CASE WHEN pf.max_km IS NULL THEN 0 ELSE pf.max_km END AS max_km,
+    CASE WHEN pf.max_days_pickup IS NULL THEN 0 ELSE pf.max_days_pickup END AS max_days_pickup,
     CASE WHEN pf.pickup_locations_count IS NULL THEN 0 ELSE pf.pickup_locations_count END AS pickup_locations_count,
 
     COALESCE(e.sys_audit_created_on, current_timestamp) AS sys_audit_created_on,
@@ -54,12 +54,3 @@ LEFT JOIN existing_data e
 
 WHERE 1=1
     AND ss.state <> 4
-
-{% if is_incremental() %}
-AND GREATEST(
-    COALESCE(ss.sys_audit_updated_on, CAST('1900-01-01' AS TIMESTAMP)),
-    COALESCE(sc.sys_audit_updated_on, CAST('1900-01-01' AS TIMESTAMP))
-) >= (
-    SELECT COALESCE(MAX(sys_audit_updated_on), CAST('1900-01-01' AS TIMESTAMP)) FROM {{ this }}
-)
-{% endif %}
