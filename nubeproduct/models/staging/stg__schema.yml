@@ -2219,132 +2219,6 @@ models:
       - name: year_month_code
         description: "Reference year and month. Also the field used to partition the table."
 
-
-  - name: marketing__acquisition__gsc_url_results__ref
-    description: "Staging model with Google Search Console URL results by date, URL, search type, country and device."
-    config:
-      meta:
-        owner: "yan.santos@nuvemshop.com.br"
-        domain: "Marketing"
-        business_owner: "Giselle Galli"
-    columns:
-      - name: year_month_day_code
-        description: "Reference year and month. Also the field used to partition the table."
-      - name: date
-        description: "Date of the Search Console metric."
-        tests:
-          - not_null
-      - name: full_url
-        description: "Full URL for which the metrics were recorded."
-        tests:
-          - not_null
-      - name: path
-        description: "Path component of the URL."
-        tests:
-          - not_null
-      - name: search_type
-        description: "Search type reported by Search Console."
-        tests:
-          - not_null
-      - name: country_name
-        description: "Country."
-        tests:
-          - not_null
-      - name: device
-        description: "device sesion user"
-      - name: impressions
-        description: "Number of impressions."
-        tests:
-          - not_null
-          - dbt_expectations.expect_column_values_to_be_between:
-              min_value: 0
-      - name: clicks
-        description: "Number of clicks."
-        tests:
-          - not_null
-          - dbt_expectations.expect_column_values_to_be_between:
-              min_value: 0
-      - name: average_position
-        description: "Position for the URL in search results."
-      - name: sys_audit_created_on
-        description: "Timestamp when the row was originally created."
-        tests:
-          - not_null
-      - name: sys_audit_created_by
-        description: "System or user that created the row."
-        tests:
-          - not_null
-      - name: sys_audit_updated_on
-        description: "Timestamp when the row was last updated in this table."
-        tests:
-          - not_null
-      - name: sys_audit_updated_by
-        description: "System or user that last updated the row."
-        tests:
-          - not_null
-      - name: year_month_day_code
-        description: "Reference year and month. Also the field used to partition the table."
-        tests:
-          - not_null
-
-
-  - name: marketing__acquisition__gsc_url_unsplit_results__ref
-    description: "Staging model with Google Search Console URL unsplit results by date, URL, search type, country and device."
-    config:
-      meta:
-        owner: "yan.santos@nuvemshop.com.br"
-        domain: "Marketing"
-        business_owner: "Giselle Galli"
-    columns:
-      - name: year_month_day_code
-        description: "Reference year and month. Also the field used to partition the table."
-      - name: date
-        description: "Date of the Search Console metric."
-        tests:
-          - not_null
-      - name: full_url
-        description: "Full URL for which the metrics were recorded."
-        tests:
-          - not_null
-      - name: path
-        description: "Path component of the URL."
-        tests:
-          - not_null
-      - name: search_type
-        description: "Search type reported by Search Console."
-        tests:
-          - not_null
-      - name: impressions
-        description: "Number of impressions."
-        tests:
-          - not_null
-          - dbt_expectations.expect_column_values_to_be_between:
-              min_value: 0
-      - name: clicks
-        description: "Number of clicks."
-        tests:
-          - not_null
-          - dbt_expectations.expect_column_values_to_be_between:
-              min_value: 0
-      - name: average_position
-        description: "Position for the URL in search results."
-      - name: sys_audit_created_on
-        description: "Timestamp when the row was originally created."
-        tests:
-          - not_null
-      - name: sys_audit_created_by
-        description: "System or user that created the row."
-        tests:
-          - not_null
-      - name: sys_audit_updated_on
-        description: "Timestamp when the row was last updated in this table."
-        tests:
-          - not_null
-      - name: sys_audit_updated_by
-        description: "System or user that last updated the row."
-        tests:
-          - not_null
-
           
   - name: product__traffic__cart_product_add__event
     description: >
@@ -3042,8 +2916,6 @@ models:
         description: "Type of relationship between the dealbreaker and the company (HubSpot-defined)."
       - name: company_id
         description: "Unique identifier for the associated company."
-        tests: 
-          - not_null
       - name: row_hash
         description: "MD5 hash of the dealbreaker_id, association_type and company_id used to detect changes in the association and persist audit fields."
         tests: 
@@ -3079,6 +2951,10 @@ models:
         description: "Timestamp of the last update of the dealbreaker in the current table in Hubspot."
       - name: row_hash
         description: "MD5 hash of the dealbreaker_id and record_updated_at used to detect changes in the snapshot and persist audit fields."
+        tests: 
+          - not_null
+      - name: is_current
+        description: "Indicates whether the record is current. It exists to make the model incremental."
         tests: 
           - not_null
       - name: sys_audit_created_on

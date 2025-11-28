@@ -585,3 +585,70 @@ models:
         description: "System or user that last updated the row."
         tests:
           - not_null
+
+  - name: s__platform_development__rev_share_apps__events
+    config:
+      meta:
+        owner: "fernando.martinez@tiendanube.com"
+        domain: "partnerships"
+        business_owner: "Nicolas Loreti"
+    description: >
+      Contains the list of rev share apps events.
+    columns:
+      - name: registered_date
+        description: "Date when the event occurred."
+        tests:
+          - not_null
+      - name: order_id
+        description: "Order ID."
+        tests:
+          - not_null
+          - unique
+      - name: gateway_method
+        description: "Gateway method."
+      - name: store_id
+        description: "Store ID."
+      - name: store_type
+        description: "Store type."
+      - name: country
+        description: "Country."
+      - name: app_id
+        description: "App ID."
+      - name: app_name
+        description: "App name."
+      - name: app_category
+        description: "App category."
+      - name: total_gmv_local_currency
+        description: "Total GMV in local currency."
+      - name: monthly_total_gmv_lc
+        description: "Total GMV in local currency for the month."
+      - name: has_rev_share_agreement
+        description: "Flag indicating if the order has a rev share agreement."
+      - name: rev_share_type
+        description: "Rev share type."
+      - name: rev_share_amount
+        description: "Rev share amount."
+      - name: condition_1
+        description: "Condition 1."
+      - name: value_1
+        description: "Value 1."
+      - name: condition_2
+        description: "Condition 2."
+      - name: value_2
+        description: "Value 2."
+      - name: condition_3
+        description: "Condition 3."
+      - name: value_3
+        description: "Value 3."
+      - name: has_condition_compliance
+        description: "Flag indicating if the order has the condition compliance."
+      - name: rev_share_order_amount
+        description: "Rev share order amount."
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created."
+      - name: sys_audit_created_by
+        description: "System or user that created the row."
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this table."
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row."

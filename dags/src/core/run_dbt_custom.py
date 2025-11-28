@@ -56,6 +56,27 @@ def _validate_no_plus_for_initial_load():
             "Remove '+' from your model selection and try again."
         )
 
+    forbidden_conf_keys = (
+        'tag', 'tags',
+        'source', 'sources',
+        'exclude',
+        'config',
+    )
+
+    if dag_run and getattr(dag_run, "conf", None):
+        used_forbidden = []
+        for k in forbidden_conf_keys:
+            v = dag_run.conf.get(k)
+            if v not in (None, '', [], {}):
+                used_forbidden.append(k)
+
+        if used_forbidden:
+            raise AirflowException(
+                "Initial load does not allow the use of the following parameters in the trigger:"
+                f"{', '.join(used_forbidden)}. "
+                "Remove these parameters from the DAG Run configuration and try running the job again."
+            )
+
 def create_dbt_dag(
     dag_id: str,
     schedule_interval_tag: str,
