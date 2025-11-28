@@ -652,3 +652,52 @@ models:
         description: "Timestamp when the row was last updated in this table."
       - name: sys_audit_updated_by
         description: "System or user that last updated the row."
+
+  - name: g__platform_development__revenue_share_apps__agg_monthly
+    config:
+      meta:
+        owner: "fernando.martinez@tiendanube.com"
+        domain: "partnerships"
+        business_owner: "Nicolas Loreti"
+    description: >
+      Contains the list of rev share apps events.
+    columns:
+      - name: unique_id
+        description: "Unique identifier for the rev share app event."
+        tests:
+          - not_null
+          - unique
+      - name: registered_month
+        description: "Date when the event occurred."
+        tests:
+          - not_null
+      - name: store_id
+        description: "Store ID."
+        tests:
+          - not_null
+      - name: country
+        description: "Country."
+      - name: app_id
+        description: "App ID."
+        tests:
+          - not_null
+      - name: app_category
+        description: "App category."
+      - name: app_name
+        description: "App name."
+      - name: total_orders
+        description: "Total orders."
+      - name: total_gmv_local_currency
+        description: "Total GMV in local currency."
+      - name: max_monthly_gmv_local_currency
+        description: "Max GMV in local currency for the month."
+      - name: total_rev_share
+        description: "Total rev share."
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created."
+      - name: sys_audit_created_by
+        description: "System or user that created the row."
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this table."
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row."
