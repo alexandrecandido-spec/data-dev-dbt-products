@@ -407,6 +407,12 @@ sources:
         description: "Manual Google Keyword Planner data uploads containing search volume by keyword, country and date"
       - name: ext__marketing__brand_comms__marketing_brand_nobrand_daily_goals
         description: "Daily marketing goals and targets for branded/non-branded performance tracking across Search Console and KWP"
+      - name: ext__marketing__brand_comms__followers_instagram_br
+        description: "Manual Instagram followers data for Brazil, including daily follower counts, new followers, and unfollowers"
+      - name: ext__marketing__brand_comms__followers_instagram_mx
+        description: "Manual Instagram followers data for Mexico, including daily follower counts, new followers, and unfollowers"
+      - name: ext__marketing__brand_comms__followers_instagram_ar
+        description: "Manual Instagram followers data for Argentina, including daily follower counts, new followers, and unfollowers"
       - name: ext__marketing__acquisition__content_classification_br_blog
         description: "Manual classification of Blog content for Brazil (Growth Acquisition), including funnel stage and persona."
       - name: ext__marketing__acquisition__content_classification_br_cases
