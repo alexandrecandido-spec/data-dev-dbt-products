@@ -1445,6 +1445,8 @@ models:
         description: total cost of the invoice
       - name: invoice_cost_per_conversation
         description: cost per conversation in the invoice
+      - name: paid_date
+        description: date when the invoice was paid
       - name: sys_audit_created_on
         description: timestamp when the row was originally created in this model
       - name: sys_audit_created_by
@@ -5506,14 +5508,13 @@ models:
             - not_null
 
   - name: g__checkout__payment_method_position__event
-    description: >
-      Gold layer table with orders that used payment method position feature.
+    description:  >
+      Gold layer table with orders that used payment method position feature
     config:
       meta:
         owner: "fabrizio.crivella@tiendanube.com"
+        domain: "product"
         business_owner: "Rocio Diez"
-        openmetadata:
-          domain: "product"
     columns:
       - name: store_id
         description: Unique identifier of store.
@@ -5669,3 +5670,66 @@ models:
         description: If the store is on success AR portfolio
       - name: mm_br
         description: If the store is on success BR portfolio
+
+
+  - name: s__shipping__pickup_features__snapshot_daily
+    description: >
+      Daily snapshot of the pickup features configurated by the merchant.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: 
+            - store_id
+            - pickup_feature
+            - is_deleted
+            - max_km
+            - max_days_pickup
+    config:
+      meta:
+        owner: "matias.scasso@tiendanube.com"
+        domain: "product"
+        business_owner: "Martin Palombo"
+    columns:
+      - name: store_id
+        description: "Unique identifier of the store."
+        tests: [not_null]
+      - name: domain
+        description: "Domain to which the store belongs."
+      - name: country
+        description: "ISO code representing the store's country."
+      - name: plan_group
+        description: "Store's current plan group."
+      - name: segment
+        description: "Internal segmentation category of the store."
+      - name: vertical
+        description: "Vertical of the store."
+      - name: state
+        description: "Current lifecycle state of the store."
+      - name: is_churned
+        description: "Flag indicating whether the store is churned at the time."
+        tests: [not_null]
+      - name: pickup_feature
+        description: "Feature of the pickup configurated by the merchant."
+        tests: [not_null]
+      - name: is_deleted
+        description: "Flag indicating whether the pickup feature location is deleted."
+        tests: [not_null]
+      - name: max_km
+        description: "Maximum distance in kilometers for the pickup feature to be shown in the storefront. Only applies to pickup point feature."
+        tests: [not_null]
+      - name: max_days_pickup
+        description: "Maximum days for the order to be ready for pickup. Only applies to pickup point feature."
+        tests: [not_null]
+      - name: pickup_locations_count
+        description: "Number of pickup locations configurated by the merchant."
+      - name: sys_audit_created_on
+        description: "Timestamp when this record was first created in the DBT model."
+        tests: [not_null]
+      - name: sys_audit_created_by
+        description: "Identifier of the user or system that created this record."
+        tests: [not_null]
+      - name: sys_audit_updated_on
+        description: "Timestamp when this record was last updated."
+        tests: [not_null]
+      - name: sys_audit_updated_by
+        description: "Identifier of the user or system that last updated this record."
+        tests: [not_null]
