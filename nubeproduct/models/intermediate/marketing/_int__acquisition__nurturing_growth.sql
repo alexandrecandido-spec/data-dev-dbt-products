@@ -10,6 +10,7 @@ WITH attribution_table AS (
         lifecycle.first_seller_at, -- Data do primeiro venda
         lifecycle.new_seller, -- Flag de novo vendedor
         lifecycle.new_payment, -- Flag de novo pagamento
+        attribution_profile.is_quality_lead, -- Flag de qls
         
         -- 2. PARÂMETROS DE TRÁFEGO UTM & Referrer
         att.source,             -- Fonte do tráfego (utm_source)
@@ -93,8 +94,9 @@ WITH attribution_table AS (
         ON store.store_id = att.store_id
     INNER JOIN {{ ref('s__lifecycle__store_status__ref') }} lifecycle 
         ON lifecycle.store_id = att.store_id
+    LEFT JOIN {{ ref('s__attributes__acquisition_profile__ref') }} attribution_profile
+        ON attribution_profile.store_id = att.store_id
     WHERE store.created_at >= '2024-01-01' 
-      AND store.created_at <= '2024-12-31'
       AND lifecycle.is_store_blocked = FALSE
 ),
 flux_attribution AS (

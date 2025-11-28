@@ -16,7 +16,7 @@ WITH source_data AS (
         cast(dba.updatedAt as timestamp) as record_updated_at, -- lo casteo porque viene como string
         md5(concat_ws('|',
             cast(dba.id as varchar(100)),
-            cast(dba.updatedAt as varchar(100))
+            cast(COALESCE(dba.updatedAt, CAST('1900-01-01' AS TIMESTAMP)) as varchar(100))
         )) as row_hash, -- lo usamos para persistir correctamente los campos de auditoría
         TRUE AS is_current
     FROM {{ source('stg_hubspot','dealbreakers_base_association') }} dba
