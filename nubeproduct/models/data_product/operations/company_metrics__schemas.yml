@@ -612,76 +612,86 @@ models:
         owner: "gustavo.braga@nuvemshop.com.br"
         domain: "operations"
         business_owner: "Nico Loreti"
-    description: Contains daily GMV and order metrics by store, both on and off platform, as well as breakdowns by storefront type.
+    description: >
+      Contains daily GMV and order metrics by store, both on and off platform, as well as breakdowns by storefront type.
+      Rows are updated incrementally based on sys_audit_updated_on timestamp. The unique key is composed of all dimension columns.
     columns:
       - name: store_id
-        description: Unique identifier of the store. External key.
+        description: Unique identifier of the store. Part of the unique key.
         tests:
           - not_null
       - name: country
-        description: Country of the store.
+        description: Country of the store. Part of the unique key.
         tests:
           - not_null
       - name: domain
-        description: Domain of the store. Can be null for stores without custom domains.
+        description: Domain of the store. Can be null for stores without custom domains. Part of the unique key.
       - name: vertical
-        description: Vertical of the store.
+        description: Vertical of the store. Part of the unique key.
       - name: province
-        description: Province or state where the store is located.
+        description: Province or state where the store is located. Part of the unique key.
       - name: city
-        description: City where the store is located.
+        description: City where the store is located. Part of the unique key.
       - name: region
-        description: Geographic region where the store is located.
+        description: Geographic region where the store is located. Part of the unique key.
       - name: business_size
-        description: Business size classification of the store.
+        description: Business size classification of the store. Part of the unique key.
       - name: max_seller_segment
-        description: Maximum seller segment classification the store has ever achieved.
+        description: Maximum seller segment classification the store has ever achieved. Part of the unique key.
       - name: current_seller_segment
-        description: Current seller segment classification of the store.
+        description: Current seller segment classification of the store. Part of the unique key.
       - name: historical_seller_segment
-        description: Historical seller segment classification of the store.
+        description: Historical seller segment classification of the store. Part of the unique key.
       - name: current_plan
-        description: Current plan associated with the store.
+        description: Current plan associated with the store. Part of the unique key.
       - name: historical_plan
-        description: Historical plan associated with the store.
+        description: Historical plan associated with the store. Part of the unique key.
       - name: current_bu
-        description: Current business unit associated with the store.
+        description: Current business unit associated with the store. Part of the unique key.
       - name: historical_bu
-        description: Historical business unit associated with the store.
+        description: Historical business unit associated with the store. Part of the unique key.
       - name: date
-        description: Date of the order metrics. Partition dimension.
+        description: Date of the order metrics. Partition dimension. Part of the unique key.
         tests:
           - not_null
       - name: year_month_day_code
-        description: YYYYMMDD code used for partitioning the data. Partition Key.
+        description: YYYYMMDD code used for partitioning the data. Partition Key. Part of the unique key.
         tests:
           - not_null
-      - name: mes
-        description: Month identifier for the order metrics.
+      - name: surrogate_key
+        description: MD5 hash of all dimension columns, used as the unique key for incremental merges.
+        tests:
+          - not_null
+      - name: datemonth
+        description: Month identifier for the order metrics. Part of the unique key.
       - name: platform_type
-        description: Whether the order was placed on or off platform.
+        description: Whether the order was placed on or off platform. Part of the unique key.
       - name: storefront
-        description: Storefront type from which the order originated (mobile, store, form, social, pos, api, others).
+        description: Storefront type from which the order originated (mobile, store, form, social, pos, api, others). Part of the unique key.
       - name: device
-        description: Device type used for the order.
+        description: Device type used for the order. Part of the unique key.
       - name: payment_provider
-        description: Payment provider used for the order.
+        description: Payment provider used for the order. Part of the unique key.
       - name: payment_method
-        description: Payment method used for the order.
+        description: Payment method used for the order. Part of the unique key.
       - name: shipping_method
-        description: Shipping method selected for the order.
+        description: Shipping method selected for the order. Part of the unique key.
       - name: shipping_province
-        description: Province or region to which the order was shipped.
+        description: Province or region to which the order was shipped. Part of the unique key.
       - name: gateway_installments
-        description: Number of installments used in the payment.
-      - name: order_source
-        description: Source of the order.
-      - name: social_network
-        description: Social network from which the order originated.
-      - name: source_details
-        description: Additional details about the order source.
-      - name: source_type
-        description: Type of source for the order.
+        description: Number of installments used in the payment. Part of the unique key.
+      - name: source_name
+        description: Traffic source name from the session data. Part of the unique key.
+      - name: source_group
+        description: Traffic source group classification from the session data. Part of the unique key.
+      - name: google_subchannel
+        description: Google subchannel classification from the session data. Part of the unique key.
+      - name: traffic_type
+        description: Type of traffic from the session data (paid or organic). Part of the unique key.
+      - name: is_end_user
+        description: Boolean indicating if the traffic is from an end user. Part of the unique key.
+      - name: visitor_country
+        description: Country of the visitor from the session data. Part of the unique key.
       - name: gmv
         description: Gross Merchandise Value in local currency for the day.
       - name: gmv_usd
@@ -700,17 +710,14 @@ models:
           - dbt_expectations.expect_column_values_to_be_between:
               min_value: 0
               row_condition: "products IS NOT NULL"
-      - name: row_key
-        description: Unique hash key generated from all dimension columns. Primary key for incremental updates.
-        tests:
-          - not_null
-          - unique
       - name: sys_audit_created_on
         description: Timestamp when the row was initially created in the summary table.
       - name: sys_audit_created_by
         description: Source or user responsible for the initial row creation.
       - name: sys_audit_updated_on
-        description: Timestamp of the latest update to the row.
+        description: >
+          Timestamp of the latest update to the row. This is the maximum sys_audit_updated_on from the underlying orders.
+          Used for incremental processing - rows are updated when this timestamp changes.
       - name: sys_audit_updated_by
         description: Source or user responsible for the latest update.
 
@@ -720,70 +727,80 @@ models:
         owner: "gustavo.braga@nuvemshop.com.br"
         domain: "operations"
         business_owner: "Nico Loreti"
-    description: Contains daily GMV and order metrics by country, both on and off platform, as well as breakdowns by storefront type.
+    description: >
+      Contains daily GMV and order metrics by country, both on and off platform, as well as breakdowns by storefront type.
+      Rows are updated incrementally based on sys_audit_updated_on timestamp. The unique key is composed of all dimension columns.
     columns:
       - name: country
-        description: Country of the store.
+        description: Country of the store. Part of the unique key.
         tests:
           - not_null
       - name: vertical
-        description: Vertical of the store.
+        description: Vertical of the store. Part of the unique key.
       - name: province
-        description: Province or state where the store is located.
+        description: Province or state where the store is located. Part of the unique key.
       - name: city
-        description: City where the store is located.
+        description: City where the store is located. Part of the unique key.
       - name: region
-        description: Geographic region where the store is located.
+        description: Geographic region where the store is located. Part of the unique key.
       - name: business_size
-        description: Business size classification of the store.
+        description: Business size classification of the store. Part of the unique key.
       - name: max_seller_segment
-        description: Maximum seller segment classification the store has ever achieved.
+        description: Maximum seller segment classification the store has ever achieved. Part of the unique key.
       - name: current_seller_segment
-        description: Current seller segment classification of the store.
+        description: Current seller segment classification of the store. Part of the unique key.
       - name: historical_seller_segment
-        description: Historical seller segment classification of the store.
+        description: Historical seller segment classification of the store. Part of the unique key.
       - name: current_plan
-        description: Current plan associated with the store.
+        description: Current plan associated with the store. Part of the unique key.
       - name: historical_plan
-        description: Historical plan associated with the store.
+        description: Historical plan associated with the store. Part of the unique key.
       - name: current_bu
-        description: Current business unit associated with the store.
+        description: Current business unit associated with the store. Part of the unique key.
       - name: historical_bu
-        description: Historical business unit associated with the store.
+        description: Historical business unit associated with the store. Part of the unique key.
       - name: date
-        description: Date of the order metrics. Partition dimension.
+        description: Date of the order metrics. Partition dimension. Part of the unique key.
         tests:
           - not_null
       - name: year_month_day_code
-        description: YYYYMMDD code used for partitioning the data. Partition Key.
+        description: YYYYMMDD code used for partitioning the data. Partition Key. Part of the unique key.
         tests:
           - not_null
-      - name: mes
-        description: Month identifier for the order metrics.
+      - name: surrogate_key
+        description: MD5 hash of all dimension columns, used as the unique key for incremental merges.
+        tests:
+          - not_null
+      - name: datemonth
+        description: Month identifier for the order metrics. Part of the unique key.
       - name: platform_type
-        description: Whether the order was placed on or off platform.
+        description: Whether the order was placed on or off platform. Part of the unique key.
       - name: storefront
-        description: Storefront type from which the order originated (mobile, store, form, social, pos, api, others).
+        description: Storefront type from which the order originated (mobile, store, form, social, pos, api, others). Part of the unique key.
       - name: device
-        description: Device type used for the order.
+        description: Device type used for the order. Part of the unique key.
       - name: payment_provider
-        description: Payment provider used for the order.
+        description: Payment provider used for the order. Part of the unique key.
       - name: payment_method
-        description: Payment method used for the order.
+        description: Payment method used for the order. Part of the unique key.
       - name: shipping_method
-        description: Shipping method selected for the order.
+        description: Shipping method selected for the order. Part of the unique key.
       - name: shipping_province
-        description: Province or region to which the order was shipped.
+        description: Province or region to which the order was shipped. Part of the unique key.
       - name: gateway_installments
-        description: Number of installments used in the payment.
-      - name: order_source
-        description: Source of the order.
-      - name: social_network
-        description: Social network from which the order originated.
-      - name: source_details
-        description: Additional details about the order source.
-      - name: source_type
-        description: Type of source for the order.
+        description: Number of installments used in the payment. Part of the unique key.
+      - name: source_name
+        description: Traffic source name from the session data. Part of the unique key.
+      - name: source_group
+        description: Traffic source group classification from the session data. Part of the unique key.
+      - name: google_subchannel
+        description: Google subchannel classification from the session data. Part of the unique key.
+      - name: traffic_type
+        description: Type of traffic from the session data (paid or organic). Part of the unique key.
+      - name: is_end_user
+        description: Boolean indicating if the traffic is from an end user. Part of the unique key.
+      - name: visitor_country
+        description: Country of the visitor from the session data. Part of the unique key.
       - name: gmv
         description: Gross Merchandise Value in local currency for the day.
       - name: gmv_usd
@@ -808,17 +825,14 @@ models:
           - dbt_expectations.expect_column_values_to_be_between:
               min_value: 0
               row_condition: "stores IS NOT NULL"
-      - name: row_key
-        description: Unique hash key generated from all dimension columns. Primary key for incremental updates.
-        tests:
-          - not_null
-          - unique
       - name: sys_audit_created_on
         description: Timestamp when the row was initially created in the summary table.
       - name: sys_audit_created_by
         description: Source or user responsible for the initial row creation.
       - name: sys_audit_updated_on
-        description: Timestamp of the latest update to the row.
+        description: >
+          Timestamp of the latest update to the row. This is the maximum sys_audit_updated_on from the underlying orders.
+          Used for incremental processing - rows are updated when this timestamp changes.
       - name: sys_audit_updated_by
         description: Source or user responsible for the latest update.
 
