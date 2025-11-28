@@ -75,8 +75,6 @@ sources:
         description: "Branches information by store"
       - name: mwp_table_shipping_entries
         description: "Shipping configuration by store"
-      - name: mwp_fulfillment_statuses
-        description: "Fulfillment status by order_id"
 
   - name: int_finance
     database: hive_metastore
