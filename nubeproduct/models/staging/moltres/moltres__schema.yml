@@ -404,6 +404,8 @@ models:
         description: "Date when the contract ended."
       - name: created_at
         description: "Timestamp when the contract entry was created."
+        tests:
+          - not_null
       - name: deleted_at
         description: "Timestamp when the contract entry was deleted."
       - name: total
@@ -459,3 +461,65 @@ models:
         description: "Timestamp of the most recent update to the record."
       - name: sys_audit_updated_by
         description: "User or process that performed the last update."
+
+  - name: moltres__mwp_attribution
+    description: "Staging model containing attribution data for marketing campaigns and traffic sources."
+    config:
+      meta:
+        owner: "yan.santos@nuvemshop.com.br"
+        domain: "Marketing"
+        business_owner: "Giselle Galli"
+    columns:
+      - name: id
+        description: "Unique identifier for the attribution record."
+        tests:
+          - not_null
+          - unique
+      - name: store_id
+        description: "Store identifier linked to the attribution."
+        tests:
+          - not_null
+      - name: source
+        description: "Traffic source of the attribution."
+      - name: medium
+        description: "Marketing medium of the attribution."
+      - name: term
+        description: "Search term associated with the attribution."
+      - name: content
+        description: "Content identifier for the attribution."
+      - name: campaign
+        description: "Campaign name associated with the attribution."
+      - name: matchtype
+        description: "Match type of the attribution."
+      - name: placement
+        description: "Placement identifier for the attribution."
+      - name: adposition
+        description: "Ad position for the attribution."
+      - name: device
+        description: "Device type for the attribution."
+      - name: devicemodel
+        description: "Device model for the attribution."
+      - name: http_referrer
+        description: "HTTP referrer URL for the attribution."
+      - name: landing_page
+        description: "Landing page URL for the attribution."
+      - name: date
+        description: "Date of the attribution event."
+        tests:
+          - not_null
+      - name: sys_audit_created_on
+        description: "Timestamp when the row was originally created."
+        tests:
+          - not_null
+      - name: sys_audit_created_by
+        description: "System or user that created the row."
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when the row was last updated in this table."
+        tests:
+          - not_null
+      - name: sys_audit_updated_by
+        description: "System or user that last updated the row."
+        tests:
+          - not_null

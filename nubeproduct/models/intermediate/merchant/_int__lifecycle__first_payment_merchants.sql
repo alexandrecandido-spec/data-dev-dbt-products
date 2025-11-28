@@ -13,7 +13,8 @@ contracts AS (
     SELECT
         store_id,
         created_at_contract,
-        plan_id AS store_plan_id
+        plan_id AS store_plan_id,
+        deleted_contract
     FROM {{ ref('s__contracts__store_contracts__scd') }}
     WHERE contract_type NOT IN ('free','freemium','pre-churn','partner-test','pre-churn-lead','free-days','trial','url-free-days','test')
     OR contract_type IS NULL
@@ -23,6 +24,7 @@ contracts_latest_before_payment AS (
         c.store_id,
         c.created_at_contract,
         c.store_plan_id,
+        c.deleted_contract,
         row_number() over (partition by c.store_id order by c.created_at_contract desc) as rn_latest
     FROM contracts c
     INNER JOIN store_info s ON c.store_id = s.store_id AND c.created_at_contract <= s.store_first_payment
@@ -35,6 +37,7 @@ first_payments AS (
         s.store_created_at,
         s.store_first_payment,
         c.store_plan_id as store_plan_id,
+        CASE WHEN c.deleted_contract = true THEN TRUE ELSE FALSE END AS deleted_contract,
         s.first_payment_timestamp
     FROM store_info s
     LEFT JOIN contracts_latest_before_payment c ON s.store_id = c.store_id AND c.rn_latest = 1
@@ -46,5 +49,6 @@ fp.store_country,
 fp.store_created_at,
 fp.store_first_payment,
 fp.store_plan_id,
+fp.deleted_contract,
 fp.first_payment_timestamp
 FROM first_payments fp

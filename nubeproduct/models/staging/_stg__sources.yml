@@ -64,7 +64,9 @@ sources:
         description: "Table with coupons from merchants"
       - name: mwp_promotional_discounts
         description: "Table with promotional discounts from merchants"
-
+      - name: mwp_attribution
+        description: "Contains information on internal and external clicks used for store attribution."
+        
   - name: stg_orders
     description: "Source containing tables related to order movements"
     database: hive_metastore
@@ -476,6 +478,8 @@ sources:
         description: "Manually curated Merchant Sellers prospects/domains (A–S slice). Raw outreach and enrichment fields."
       - name: ext__marketing__acquisition__merchant_sellers_base_total_t_z
         description: "Manually curated Merchant Sellers prospects/domains (T–Z slice). Same schema as the A–S slice."
+      - name: ext__partnerships__platform_development__revenue_share_apps
+        description: "Contains the information of the revenue share apps, their conditions and variables"
 
   - name: stg_raw_ecosystem
     database: raw

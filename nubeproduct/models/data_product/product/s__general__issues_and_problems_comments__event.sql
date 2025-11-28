@@ -1,7 +1,7 @@
 {{
     config(
         materialized='table',
-        unique_key=['issue_number', 'repo_name', 'comment_id'],
+        unique_key=['issue_number', 'repo_name', 'comment_id', 'store_id'],
         partition_by='comment_date',
         tags=["daily-10am"]
     )
