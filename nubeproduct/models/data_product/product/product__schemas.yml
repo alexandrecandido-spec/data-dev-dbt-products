@@ -5733,3 +5733,70 @@ models:
       - name: sys_audit_updated_by
         description: "Identifier of the user or system that last updated this record."
         tests: [not_null]
+
+
+  - name: g__shipping__gmv_and_orders__agg_daily
+    description: >
+      Daily aggregated data product summarizing paid orders and GMV by store and shipping information.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: 
+            - store_id
+            - order_completed_at
+            - shipping_method
+            - shipping_country_code
+            - shipping_country_name
+            - is_international_shipping
+            - is_same_delivered_status
+            - integration
+    config:
+      meta:
+        owner: "matias.scasso@tiendanube.com"
+        domain: "product"
+        business_owner: "Martin Palombo"
+    columns:
+      - name: store_id
+        description: "Unique identifier of the store."
+        tests: [not_null]
+      - name: store_country
+        description: "Country of the store."
+      - name: plan_group
+        description: "Store's plan group."
+      - name: segment
+        description: "Store's segment."
+      - name: vertical
+        description: "Store's vertical."
+      - name: order_completed_at
+        description: "Date the order was completed."
+        tests: [not_null]
+      - name: shipping_country_code
+        description: "Country code of the shipping."
+      - name: shipping_country_name
+        description: "Name of the shipping country."
+      - name: is_international_shipping
+        description: "Flag indicating if the shipping is international."
+      - name: is_same_delivered_status
+        description: "Flag indicating if the app information coincides with the order delivered status."
+      - name: shipping_method
+        description: "Method of shipping used in the order."
+      - name: integration
+        description: "App name and integration of the shipping."
+      - name: total_in_usd
+        description: "Total value of orders in USD for the day and store."
+      - name: total_orders
+        description: "Count of distinct orders for the given day, store, and shipping method."
+      - name: year_month_day_code
+        description: "Date code used for partitioning. (YYYYMMDD)"
+        tests: [not_null]
+      - name: sys_audit_created_on
+        description: "Timestamp when this record was first created in the DBT model."
+        tests: [not_null]
+      - name: sys_audit_created_by
+        description: "User or system who created this record."
+        tests: [not_null]
+      - name: sys_audit_updated_on
+        description: "Timestamp when this record was last updated."
+        tests: [not_null]
+      - name: sys_audit_updated_by
+        description: "User or system who last updated this record."
+        tests: [not_null]
