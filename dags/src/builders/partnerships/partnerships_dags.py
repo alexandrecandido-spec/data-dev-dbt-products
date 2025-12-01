@@ -39,6 +39,13 @@ dag = create_dbt_dag(
     tags=['partnerships', 'daily-10am']
 )
 
+dag = create_dbt_dag(
+    dag_id='dbt_partnerships_daily-8am',
+    schedule_interval_tag='daily-8am',
+    default_args=default_args,
+    tags=['partnerships', 'daily-8am']
+)
+
 # Crear el DAG frecuencia semanal lunes 10am
 dag = create_dbt_dag(
     dag_id='dbt_partnerships_weekly-monday-10am',
