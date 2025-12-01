@@ -1159,7 +1159,7 @@ models:
 
   - name: marketing_hubspot_company_variables
     meta:
-      owner: "santiago.gandolfo@tiendanube.com" # to be changed
+      owner: "santiago.gandolfo@tiendanube.com"
       domain: "operations"
       business_owner: "Ane Paschoalino"
     description: >
