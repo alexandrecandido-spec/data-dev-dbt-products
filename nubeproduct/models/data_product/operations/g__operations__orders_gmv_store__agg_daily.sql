@@ -2,102 +2,72 @@
     materialized        = "incremental",
     incremental_strategy= "merge",
     partition_by        = "year_month_day_code",
-    unique_key          = "row_key",
+    unique_key          = "surrogate_key",
     on_schema_change    = "fail",
-    tags                = ["daily-9am-9pm"]
+    tags                = ["daily-9am"]
 ) }}
 
 WITH existing_data AS (
-    {{ get_existing_data(this, ['row_key', 'orders', 'gmv', 'sys_audit_created_on', 'sys_audit_created_by']) }}
+    {{ get_existing_data(this, [
+        "surrogate_key",
+        "sys_audit_created_on", "sys_audit_created_by", "sys_audit_updated_on"
+    ]) }}
 ),
 
 base_data AS (
-    SELECT
-        o.store_id,
-        o.country,
-        o.domain,
-        o.vertical,
-        o.province,
-        o.city,
-        o.region,
-        o.business_size,
-        o.max_seller_segment,
-        o.current_seller_segment,
-        o.historical_seller_segment,
-        o.current_plan,
-        o.historical_plan,
-        o.current_bu,
-        o.historical_bu,
-        o.date,
-        o.year_month_day_code,
-        o.mes,
-        o.platform_type,
-        o.storefront,
-        o.device,
-        o.payment_provider,
-        o.payment_method,
-        o.shipping_method,
-        o.shipping_province,
-        o.gateway_installments,
-        o.order_source,
-        o.social_network,
-        o.source_details,
-        o.source_type,
-        o.gmv,
-        o.gmv_usd,
-        o.orders,
-        o.orders_free_shipping,
-        o.products,
-        lower(hex(md5(concat_ws(
-            '|',
-            cast(o.store_id as varchar(10)),
-            cast(o.country as varchar(10)),
-            coalesce(o.domain, ''),
-            coalesce(o.vertical, ''),
-            coalesce(o.province, ''),
-            coalesce(o.city, ''),
-            coalesce(o.region, ''),
-            coalesce(o.business_size, ''),
-            coalesce(o.max_seller_segment, ''),
-            coalesce(o.current_seller_segment, ''),
-            coalesce(o.historical_seller_segment, ''),
-            coalesce(o.current_plan, ''),
-            coalesce(o.historical_plan, ''),
-            coalesce(o.current_bu, ''),
-            coalesce(o.historical_bu, ''),
-            cast(o.date as varchar(10)),
-            cast(o.year_month_day_code as varchar(10)),
-            cast(o.mes as varchar(10)),
-            coalesce(o.platform_type, ''),
-            coalesce(o.storefront, ''),
-            coalesce(o.device, ''),
-            coalesce(o.payment_provider, ''),
-            coalesce(o.payment_method, ''),
-            coalesce(o.shipping_method, ''),
-            coalesce(o.shipping_province, ''),
-            cast(o.gateway_installments as varchar(10)),
-            coalesce(o.order_source, ''),
-            coalesce(o.social_network, ''),
-            coalesce(o.source_details, ''),
-            cast(o.orders_free_shipping as varchar(10)),
-            coalesce(o.source_type, '')
-        )))) AS row_key
-    FROM {{ ref('_int__operations__orders_gmv_store__agg_daily_prep') }} o
+    SELECT 
+        *,
+        MD5(
+            CONCAT_WS('|',
+                COALESCE(CAST(country AS STRING), ''),
+                COALESCE(CAST(vertical AS STRING), ''),
+                COALESCE(CAST(province AS STRING), ''),
+                COALESCE(CAST(city AS STRING), ''),
+                COALESCE(CAST(region AS STRING), ''),
+                COALESCE(CAST(business_size AS STRING), ''),
+                COALESCE(CAST(max_seller_segment AS STRING), ''),
+                COALESCE(CAST(current_seller_segment AS STRING), ''),
+                COALESCE(CAST(historical_seller_segment AS STRING), ''),
+                COALESCE(CAST(current_plan AS STRING), ''),
+                COALESCE(CAST(historical_plan AS STRING), ''),
+                COALESCE(CAST(current_bu AS STRING), ''),
+                COALESCE(CAST(historical_bu AS STRING), ''),
+                COALESCE(CAST(date AS STRING), ''),
+                COALESCE(CAST(year_month_day_code AS STRING), ''),
+                COALESCE(CAST(datemonth AS STRING), ''),
+                COALESCE(CAST(platform_type AS STRING), ''),
+                COALESCE(CAST(storefront AS STRING), ''),
+                COALESCE(CAST(device AS STRING), ''),
+                COALESCE(CAST(payment_provider AS STRING), ''),
+                COALESCE(CAST(payment_method AS STRING), ''),
+                COALESCE(CAST(shipping_method AS STRING), ''),
+                COALESCE(CAST(shipping_province AS STRING), ''),
+                COALESCE(CAST(gateway_installments AS STRING), ''),
+                COALESCE(CAST(source_name AS STRING), ''),
+                COALESCE(CAST(source_group AS STRING), ''),
+                COALESCE(CAST(google_subchannel AS STRING), ''),
+                COALESCE(CAST(traffic_type AS STRING), ''),
+                COALESCE(CAST(is_end_user AS STRING), ''),
+                COALESCE(CAST(visitor_country AS STRING), '')
+            )
+        ) AS surrogate_key
+    FROM {{ ref('_int__operations__orders_gmv_store__agg_daily_prep') }}
+    {% if is_incremental() %}
+    WHERE sys_audit_updated_on > (
+        SELECT COALESCE(MAX(sys_audit_updated_on), TIMESTAMP '1900-01-01 00:00:00')
+        FROM {{ this }}
+    )
+    {% endif %}
 )
 
 SELECT
     b.*,
     COALESCE(e.sys_audit_created_on, current_timestamp) AS sys_audit_created_on,
     COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by,
-    current_timestamp AS sys_audit_updated_on,
     'data-dev-dbt-products' AS sys_audit_updated_by
 FROM base_data b
-LEFT JOIN existing_data e ON b.row_key = e.row_key
+LEFT JOIN existing_data e
+  ON b.surrogate_key = e.surrogate_key
 WHERE
-    {% if is_incremental() %}
-        e.row_key IS NULL
-        OR b.orders IS DISTINCT FROM e.orders
-        OR b.gmv IS DISTINCT FROM e.gmv
-    {% else %}
-        TRUE
-    {% endif %}
+    e.sys_audit_updated_on IS NULL
+    OR b.sys_audit_updated_on > e.sys_audit_updated_on

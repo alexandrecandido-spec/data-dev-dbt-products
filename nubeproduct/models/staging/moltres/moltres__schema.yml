@@ -44,6 +44,8 @@ models:
         description: "Code indicating the device used during store creation."
       - name: register_url
         description: "URL of the store's registration page."
+      - name: plan_chosen_on_register
+        description: "ID of the plan chosen on store registration."
       - name: main_user_id
         description: "Main user ID of the store."
       - name: partner_id

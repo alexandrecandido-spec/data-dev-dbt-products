@@ -21,7 +21,8 @@ WITH base_trials_clicks AS (
 
         -- Métricas de Trials e Payments (Multi-Click)
         COUNT(DISTINCT ag.store_id) AS trials_multi_click,
-        COUNT(CASE WHEN ag.new_payment = true THEN ag.store_id ELSE NULL END) AS payment_multi_click,
+        COUNT(CASE WHEN ag.new_payment = TRUE THEN ag.store_id END) AS payment_multi_click,
+        COUNT(CASE WHEN ag.is_quality_lead = 1 THEN ag.store_id END) AS qls_multi_click,
         COUNT(DISTINCT ag.click_id) AS clicks,
 
         -- Métricas de Trials (Attribution Models)
@@ -29,10 +30,14 @@ WITH base_trials_clicks AS (
         SUM(att.trials_last_click) AS trials_last_click,
 
         -- Métricas de Payments (Attribution Models)
-        SUM(CASE WHEN ag.new_payment = true THEN att.trials_last_click  ELSE 0 END) AS payment_last_click,
-        SUM(CASE WHEN ag.new_payment = true THEN att.trials_mean_click  ELSE 0 END) AS payment_mean_click,
+        SUM(CASE WHEN ag.new_payment = TRUE THEN att.trials_last_click  ELSE 0 END) AS payment_last_click,
+        SUM(CASE WHEN ag.new_payment = TRUE THEN att.trials_mean_click  ELSE 0 END) AS payment_mean_click,
 
-        -- Inicialização de colunas que não aplicam nesta CTE (Pagamentos/Vendas por first_payment/first_seller_at)
+        -- Métricas de Qualidade de Lead (Attribution Models)
+        SUM(CASE WHEN ag.is_quality_lead = 1 THEN att.trials_last_click  ELSE 0 END) AS qls_last_click,
+        SUM(CASE WHEN ag.is_quality_lead = 1 THEN att.trials_mean_click  ELSE 0 END) AS qls_mean_click,
+
+        -- Inicialização de colunas que não aplicam nesta CTE (New Payments / New Sellers)
         CAST(NULL AS BIGINT) AS new_payment_multi_click,
         CAST(NULL AS BIGINT) AS new_payment_last_click,
         CAST(NULL AS BIGINT) AS new_payment_mean_click,
@@ -40,7 +45,7 @@ WITH base_trials_clicks AS (
         CAST(NULL AS BIGINT) AS new_seller_last_click,
         CAST(NULL AS BIGINT) AS new_seller_mean_click,
 
-        MAX(ag.change_timestamp) as change_timestamp
+        MAX(ag.change_timestamp) AS change_timestamp
     FROM {{ ref('_int__acquisition__nurturing_growth') }} AS ag
     LEFT JOIN {{ ref('s__general__mkt_attribution_model__event') }} att
         ON ag.click_id = att.click_id AND ag.store_id = att.store_id
@@ -65,26 +70,35 @@ base_new_payment AS (
         ag.flux,
         ag.email_name,
 
-        -- Inicialização de colunas que não aplicam nesta CTE (Trials/Payments por created_at/first_seller_at)
+        -- Trials / Payments / QLs / Clicks (não se aplicam nessa CTE)
         CAST(NULL AS BIGINT) AS trials_multi_click,
         CAST(NULL AS BIGINT) AS payment_multi_click,
-        CAST(0 AS INTEGER) AS clicks,
+        CAST(NULL AS BIGINT) AS qls_multi_click,
+        CAST(0    AS BIGINT) AS clicks,
+
+        -- Trials (Attribution Models) - não se aplicam aqui
         CAST(NULL AS BIGINT) AS trials_mean_click,
         CAST(NULL AS BIGINT) AS trials_last_click,
+
+        -- Payments (Attribution Models) - não se aplicam aqui
         CAST(NULL AS BIGINT) AS payment_last_click,
         CAST(NULL AS BIGINT) AS payment_mean_click,
 
-        -- Métricas de New Payments (Attribution Models)
-        COUNT(CASE WHEN ag.new_payment = true THEN ag.store_id ELSE NULL END) AS new_payment_multi_click,
-        SUM(CASE WHEN ag.new_payment = true THEN att.trials_last_click  ELSE 0 END) AS new_payment_last_click,
-        SUM(CASE WHEN ag.new_payment = true THEN att.trials_mean_click  ELSE 0 END) AS new_payment_mean_click,
+        -- QLs (Attribution Models) - não se aplicam aqui
+        CAST(NULL AS BIGINT) AS qls_last_click,
+        CAST(NULL AS BIGINT) AS qls_mean_click,
 
-        -- Inicialização de colunas que não aplicam nesta CTE (New Sellers)
+        -- Métricas de New Payments (Attribution Models)
+        COUNT(DISTINCT ag.store_id) AS new_payment_multi_click,
+        SUM(CASE WHEN ag.new_payment = TRUE THEN att.trials_last_click  ELSE 0 END) AS new_payment_last_click,
+        SUM(CASE WHEN ag.new_payment = TRUE THEN att.trials_mean_click  ELSE 0 END) AS new_payment_mean_click,
+
+        -- New Sellers - não se aplicam aqui
         CAST(NULL AS BIGINT) AS new_seller_multi_click,
         CAST(NULL AS BIGINT) AS new_seller_last_click,
         CAST(NULL AS BIGINT) AS new_seller_mean_click,
 
-        MAX(ag.change_timestamp) as change_timestamp
+        MAX(ag.change_timestamp) AS change_timestamp
     FROM {{ ref('_int__acquisition__nurturing_growth') }} AS ag
     LEFT JOIN {{ ref('s__general__mkt_attribution_model__event') }} att
         ON ag.click_id = att.click_id AND ag.store_id = att.store_id
@@ -110,24 +124,35 @@ base_new_seller AS (
         ag.flux,
         ag.email_name,
 
-        -- Inicialização de colunas que não aplicam nesta CTE (Trials/Payments por created_at/first_payment)
+        -- Trials / Payments / QLs / Clicks (não se aplicam nessa CTE)
         CAST(NULL AS BIGINT) AS trials_multi_click,
         CAST(NULL AS BIGINT) AS payment_multi_click,
-        CAST(0 AS INTEGER) AS clicks,
+        CAST(NULL AS BIGINT) AS qls_multi_click,
+        CAST(0    AS BIGINT) AS clicks,
+
+        -- Trials (Attribution Models) - não se aplicam aqui
         CAST(NULL AS BIGINT) AS trials_mean_click,
         CAST(NULL AS BIGINT) AS trials_last_click,
+
+        -- Payments (Attribution Models) - não se aplicam aqui
         CAST(NULL AS BIGINT) AS payment_last_click,
         CAST(NULL AS BIGINT) AS payment_mean_click,
+
+        -- QLs (Attribution Models) - não se aplicam aqui
+        CAST(NULL AS BIGINT) AS qls_last_click,
+        CAST(NULL AS BIGINT) AS qls_mean_click,
+
+        -- New Payments - não se aplicam aqui
         CAST(NULL AS BIGINT) AS new_payment_multi_click,
         CAST(NULL AS BIGINT) AS new_payment_last_click,
         CAST(NULL AS BIGINT) AS new_payment_mean_click,
 
         -- Métricas de New Sellers (Attribution Models)
-        COUNT(CASE WHEN ag.new_seller = true THEN ag.store_id ELSE NULL END) AS new_seller_multi_click,
-        SUM(CASE WHEN ag.new_seller = true THEN att.trials_last_click  ELSE 0 END) AS new_seller_last_click,
-        SUM(CASE WHEN ag.new_seller = true THEN att.trials_mean_click  ELSE 0 END) AS new_seller_mean_click,
+        COUNT(DISTINCT ag.store_id) AS new_seller_multi_click,
+        SUM(CASE WHEN ag.new_seller = TRUE THEN att.trials_last_click  ELSE 0 END) AS new_seller_last_click,
+        SUM(CASE WHEN ag.new_seller = TRUE THEN att.trials_mean_click  ELSE 0 END) AS new_seller_mean_click,
 
-        MAX(ag.change_timestamp) as change_timestamp
+        MAX(ag.change_timestamp) AS change_timestamp
     FROM {{ ref('_int__acquisition__nurturing_growth') }} AS ag
     LEFT JOIN {{ ref('s__general__mkt_attribution_model__event') }} att
         ON ag.click_id = att.click_id AND ag.store_id = att.store_id
@@ -160,27 +185,32 @@ SELECT
     flux,
     email_name,
 
-    -- Soma das métricas de Trials e Clicks (base_trials_clicks)
-    SUM(trials_multi_click) AS trials_multi_click,
-    SUM(clicks) AS clicks,
-    SUM(trials_mean_click) AS trials_mean_click,
-    SUM(trials_last_click) AS trials_last_click,
+    -- Trials e Clicks
+    COALESCE(SUM(trials_multi_click), 0)       AS trials_multi_click,
+    COALESCE(SUM(clicks), 0)                   AS clicks,
+    COALESCE(SUM(trials_mean_click), 0)        AS trials_mean_click,
+    COALESCE(SUM(trials_last_click), 0)        AS trials_last_click,
 
-    -- Soma das métricas de Payments (base_trials_clicks)
-    SUM(payment_multi_click) AS payment_multi_click,
-    SUM(payment_last_click) AS payment_last_click,
-    SUM(payment_mean_click) AS payment_mean_click,
+    -- Qualidade de Lead
+    COALESCE(SUM(qls_multi_click), 0)          AS qls_multi_click,
+    COALESCE(SUM(qls_last_click), 0)           AS qls_last_click,
+    COALESCE(SUM(qls_mean_click), 0)           AS qls_mean_click,
 
-    -- Soma das métricas de New Payments (base_new_payment)
-    SUM(new_payment_multi_click) AS new_payment_multi_click,
-    SUM(new_payment_last_click) AS new_payment_last_click,
-    SUM(new_payment_mean_click) AS new_payment_mean_click,
+    -- Payments
+    COALESCE(SUM(payment_multi_click), 0)      AS payment_multi_click,
+    COALESCE(SUM(payment_last_click), 0)       AS payment_last_click,
+    COALESCE(SUM(payment_mean_click), 0)       AS payment_mean_click,
 
-    -- Soma das métricas de New Sellers (base_new_seller)
-    SUM(new_seller_multi_click) AS new_seller_multi_click,
-    SUM(new_seller_last_click) AS new_seller_last_click,
-    SUM(new_seller_mean_click) AS new_seller_mean_click,
+    -- New Payments
+    COALESCE(SUM(new_payment_multi_click), 0)  AS new_payment_multi_click,
+    COALESCE(SUM(new_payment_last_click), 0)   AS new_payment_last_click,
+    COALESCE(SUM(new_payment_mean_click), 0)   AS new_payment_mean_click,
 
-    MAX(change_timestamp) as change_timestamp
+    -- New Sellers
+    COALESCE(SUM(new_seller_multi_click), 0)   AS new_seller_multi_click,
+    COALESCE(SUM(new_seller_last_click), 0)    AS new_seller_last_click,
+    COALESCE(SUM(new_seller_mean_click), 0)    AS new_seller_mean_click,
+
+    MAX(change_timestamp) AS change_timestamp
 FROM all_metrics
 GROUP BY 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14

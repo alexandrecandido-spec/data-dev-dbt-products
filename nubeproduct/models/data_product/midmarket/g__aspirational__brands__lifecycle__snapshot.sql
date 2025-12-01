@@ -268,7 +268,9 @@ SELECT
     CASE
         WHEN NOT (UPPER(f.pipeline) LIKE 'SALES |%' AND UPPER(f.stage) = 'WON') THEN NULL
         WHEN UPPER(f.dealstage_onboarding) LIKE '%CHURN%' OR UPPER(f.dealstage_success) LIKE '%CHURN%' THEN 'Churn'
-        WHEN UPPER(f.dealstage_onboarding) LIKE '%OUT OF PORTFOLIO%' OR UPPER(f.dealstage_onboarding) LIKE '%DOWNGRADE%' OR UPPER(f.dealstage_success) LIKE '%OUT OF PORTFOLIO%' THEN 'Downgrade'
+        WHEN UPPER(f.dealstage_onboarding) LIKE '%OUT OF PORTFOLIO%' 
+            OR UPPER(f.dealstage_onboarding) LIKE '%DOWNGRADE%' 
+            OR UPPER(f.dealstage_success) LIKE '%OUT OF PORTFOLIO%' THEN 'Downgrade'
         WHEN UPPER(f.dealstage_onboarding) LIKE '%PAUSED%' OR UPPER(f.dealstage_success) LIKE '%PAUSED%' THEN 'Paused'
         WHEN UPPER(f.dealstage_success) LIKE '%RECUPERADO CHURN%' OR UPPER(f.dealstage_success) LIKE '%WARNING%' THEN 'Warning Success'
         WHEN f.store_id IS NULL THEN 'NOK'
@@ -276,12 +278,18 @@ SELECT
         WHEN (
             (f.dealid_onboarding IS NOT NULL OR f.dealid_success IS NOT NULL)
             AND (UPPER(f.dealstage_onboarding) IN ('GO LIVE', 'TRANSITION TO CUSTOMER SUCCESS') OR f.dealid_success IS NOT NULL)
-            AND coalesce(s.current_plan, '') <> 'enterprise'
+            AND COALESCE(s.current_plan, '') <> 'enterprise'
         ) THEN 'Downgrade'
         WHEN (
-            (f.dealid_onboarding IS NOT NULL OR f.dealid_success IS NOT NULL)
-            AND s.store_info_churned_at IS NOT NULL
+            (f.date_entered_churn_onboarding IS NOT NULL OR f.date_entered_churn_success IS NOT NULL)
+            OR (TO_DATE(s.store_info_churned_at) >= TO_DATE(f.date_entered_won))
         ) THEN 'Churn'
+        WHEN s.current_plan = 'enterprise'
+             AND (
+                 f.dealid_onboarding IS NULL AND f.dealid_success IS NULL AND F.store_id IS NOT NULL
+                 AND s.store_info_churned_at IS NULL
+             )
+        THEN 'OK'
         WHEN s.current_plan = 'enterprise'
              AND (
                  f.dealid_success IS NULL
@@ -293,9 +301,12 @@ SELECT
     CAST(regexp_replace(regexp_replace(dl.companies, '\\[|\\]|"', ''), '\\s', '') AS BIGINT) AS company_id,
     cp.lifecyclestage,
     cp.hs_is_target_account,
-    cp.hs_ideal_customer_profile
+    er.direct_exchange_rate
 FROM full_funnel f
 LEFT JOIN store_info s ON f.store_id = s.store_id
 LEFT JOIN {{ ref('hubspot__deals') }} dl ON f.deal_id = dl.deal_id
 LEFT JOIN {{ ref('hubspot__companies') }} cp
   ON CAST(regexp_replace(regexp_replace(dl.companies, '\\[|\\]|"', ''), '\\s', '') AS BIGINT) = cp.company_id
+LEFT JOIN {{ ref('finance_exchange_rate') }} AS er
+  ON TO_DATE(f.date_entered_won) = TO_DATE(er.processed_at)
+  AND f.country = er.country_currency_code
