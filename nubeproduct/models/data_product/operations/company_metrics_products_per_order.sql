@@ -5,15 +5,20 @@
     tags=["operations","daily-8am-8pm"]
 ) }}
 
-WITH orders_to_update (
+WITH orders_max_change_timestamp AS (
     SELECT 
-        DISTINCT order_id 
+        order_id,
+        MAX(change_timestamp) AS max_change_timestamp
     FROM {{ ref('orders__mwp_order_products') }}
+    GROUP BY order_id
+),
+orders_to_update AS (
+    SELECT 
+        o.order_id
+    FROM orders_max_change_timestamp o
     {% if is_incremental() %}
-        where change_timestamp > (
-            select max(sys_audit_updated_on)
-            from {{ this }}
-        )
+    LEFT JOIN {{ this }} existing ON o.order_id = existing.order_id
+    WHERE o.max_change_timestamp > COALESCE(existing.sys_audit_updated_on, TIMESTAMP '1900-01-01')
     {% endif %}
 ),
 orders_to_delete (
