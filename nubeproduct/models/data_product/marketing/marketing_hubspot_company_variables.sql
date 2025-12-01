@@ -49,6 +49,13 @@ with
             gmv_rolling.orders30 as orders_last_30d,
             gmv_rolling.orders60 as orders_last_60d,
             gmv_rolling.orders90 as orders_last_90d,
+            -- Potential Churn ML Model fields
+            churn_predictor.prediction as potential_churn_is_at_risk,
+            churn_predictor.snapshot_month_end as potential_churn_snapshot,
+            churn_predictor.life_stage_bucket as potential_churn_life_stage,
+            churn_predictor.profile as potential_churn_profile,
+            churn_predictor.probability as potential_churn_risk_score,
+            -- store_id
             active_stores.store_id
         from {{ ref("hubspot_active_stores") }} active_stores
         left join
@@ -101,6 +108,9 @@ with
         left join
             {{ ref("g__product_marketing__gmv_rolling_windows_store__agg") }} gmv_rolling
             on active_stores.store_id = gmv_rolling.store_id
+        left join
+            {{ ref("s__models__potential_churn_latest_prediction__ref") }} churn_predictor
+            on active_stores.store_id = churn_predictor.store_id
     )
 
 select
@@ -117,7 +127,7 @@ select
     info.config_products_completed,
     info.config_payment_completed,
     info.config_shipping_completed,
-    -- New fields
+    -- New fields from marketing and merchants data products
     info.country,
     info.created_at,
     info.first_payment_date,
@@ -135,6 +145,12 @@ select
     info.orders_last_30d,
     info.orders_last_60d,
     info.orders_last_90d,
+    -- Potential Churn ML Model fields
+    info.potential_churn_is_at_risk,
+    info.potential_churn_snapshot,
+    info.potential_churn_life_stage,
+    info.potential_churn_profile,
+    info.potential_churn_risk_score,
     {% if is_incremental() %}
         coalesce(
             existing_data.sys_audit_created_on, current_timestamp
@@ -181,7 +197,12 @@ from source_data as info
             "gmv_last_90d",
             "orders_last_30d",
             "orders_last_60d",
-            "orders_last_90d"
+            "orders_last_90d",
+            "potential_churn_is_at_risk",
+            "potential_churn_snapshot",
+            "potential_churn_life_stage",
+            "potential_churn_profile",
+            "potential_churn_risk_score",
         ] %}
     where
         existing_data.store_id is null

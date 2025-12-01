@@ -152,6 +152,8 @@ models:
           - not_null
       - name: updated_at
         description: "Timestamp of the most recent update to the order-product record."
+      - name: free_shipping
+        description: "Indicates whether the product has free shipping."
       - name: deleted_at
         description: "Timestamp when the order-product record was soft-deleted, if applicable."
       - name: year_month_day_code

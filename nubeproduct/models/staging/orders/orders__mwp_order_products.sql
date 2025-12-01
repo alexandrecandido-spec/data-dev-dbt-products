@@ -25,6 +25,7 @@ with source as (
         quantity,
         created_at,
         updated_at,
+        free_shipping,
         TO_TIMESTAMP(deleted_at, 'yyyy-MM-dd HH:mm:ss') AS deleted_at
     from {{ source('stg_orders', 'mwp_order_products') }}
     where
@@ -48,6 +49,7 @@ select
     source.quantity,
     source.created_at,
     source.updated_at,
+    source.free_shipping,
     source.deleted_at,
     greatest(source.created_at, source.updated_at, source.deleted_at) as change_timestamp,
     CAST(date_format(greatest(source.created_at, source.updated_at, source.deleted_at), 'yyyyMMdd') AS INT) AS year_month_day_code,

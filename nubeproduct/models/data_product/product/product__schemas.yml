@@ -5890,3 +5890,135 @@ models:
         description: If the store is on Onboarding BR pipeline
       - name: impact
         description: If the +1 is considered High Priority, Dealbreaker or normal. Only applies to active stores on Mid Market
+
+
+  - name: g__orders__store_promotions_summary__agg_daily
+    description: >
+      Gold layer table with the summary of orders with and without promotions by store and date. Split by the type of promotion
+    config:
+      meta:
+        owner: "sol.abelleyro@tiendanube.com"
+        domain: "product"
+        business_owner: "Nico Loreti"
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: 
+            - store_id
+            - order_date
+    columns:
+      - name: store_id
+        tests: [not_null]
+        tests: [unique]
+        description: Unique identifier of the store.
+      - name: order_date
+        description: Date of the order (completed at).
+      - name: store_segment
+        description: Segment of the store.
+      - name: current_plan_type
+        description: Current plan type of the store.
+      - name: country_code
+        description: Country code of the store.
+      - name: orders
+        description: Total number of orders.
+      - name: orders_total
+        description: Total gmv from orders in local currency.
+      - name: orders_total_usd
+        description: Total gmv from orders in USD.
+      - name: has_app_coupon
+        description: Total number of orders with app coupon.
+      - name: has_app_coupon_total
+        description: Total gmv from orders with app coupon in local currency.
+      - name: has_app_coupon_total_usd
+        description: Total gmv from orders with app coupon in USD.
+      - name: has_native_coupon
+        description: Total number of orders with native coupon.
+      - name: has_native_coupon_total
+        description: Total gmv from orders with native coupon in local currency.
+      - name: has_native_coupon_total_usd
+        description: Total gmv from orders with native coupon in USD.
+      - name: has_free_shipping
+        description: Total number of orders with free shipping.
+      - name: has_free_shipping_total
+        description: Total gmv from orders with free shipping in local currency.
+      - name: has_free_shipping_total_usd
+        description: Total gmv from orders with free shipping in USD.
+      - name: has_free_custom_shipping
+        description: Total number of orders with free custom shipping.
+      - name: has_free_custom_shipping_total
+        description: Total gmv from orders with free custom shipping in local currency.
+      - name: has_free_custom_shipping_total_usd
+        description: Total gmv from orders with free custom shipping in USD.
+      - name: has_free_shipping_coupon
+        description: Total number of orders with free shipping coupon.
+      - name: has_free_shipping_coupon_total
+        description: Total gmv from orders with free shipping coupon in local currency.
+      - name: has_free_shipping_coupon_total_usd
+        description: Total gmv from orders with free shipping coupon in USD.
+      - name: has_free_shipping_product
+        description: Total number of orders with free shipping product.
+      - name: has_free_shipping_product_total
+        description: Total gmv from orders with free shipping product in local currency.
+      - name: has_free_shipping_product_total_usd
+        description: Total gmv from orders with free shipping product in USD.
+      - name: has_mxn
+        description: Total number of orders with MXN discount.
+      - name: has_mxn_total
+        description: Total gmv from orders with MXN discount in local currency.
+      - name: has_mxn_total_usd
+        description: Total gmv from orders with MXN discount in USD.
+      - name: has_native_discount
+        description: Total number of orders with native discount.
+      - name: has_native_discount_total
+        description: Total gmv from orders with native discount in local currency.
+      - name: has_native_discount_total_usd
+        description: Total gmv from orders with native discount in USD.
+      - name: has_quantity_discount
+        description: Total number of orders with quantity discount.
+      - name: has_quantity_discount_total
+        description: Total gmv from orders with quantity discount in local currency.
+      - name: has_quantity_discount_total_usd
+        description: Total gmv from orders with quantity discount in USD.
+      - name: has_payment_method_discount
+        description: Total number of orders with payment method discount.
+      - name: has_payment_method_discount_total
+        description: Total gmv from orders with payment method discount in local currency.
+      - name: has_payment_method_discount_total_usd
+        description: Total gmv from orders with payment method discount in USD.
+      - name: has_application_discount
+        description: Total number of orders with application discount.
+      - name: has_application_discount_total
+        description: Total gmv from orders with application discount in local currency.
+      - name: has_application_discount_total_usd
+        description: Total gmv from orders with application discount in USD.
+      - name: has_native_gmv
+        description: Total number of orders with native discount.
+      - name: has_native_gmv_total
+        description: Total gmv from orders with native discount in local currency.
+      - name: has_native_gmv_total_usd
+        description: Total gmv from orders with native discount in USD.
+      - name: has_native_free_shipping_gmv
+        description: Total number of orders with free shipping.
+      - name: has_native_free_shipping_gmv_total
+        description: Total gmv from orders with free shipping in local currency.
+      - name: has_native_free_shipping_gmv_total_usd
+        description: Total gmv from orders with free shipping in USD.
+      - name: no_promotion
+        description: Total number of orders without promotion.
+      - name: no_promotion_total
+        description: Total gmv from orders without promotion in local currency.
+      - name: no_promotion_total_usd
+        description: Total gmv from orders without promotion in USD.
+      - name: has_promotion
+        description: Total number of orders with promotion.
+      - name: has_promotion_total
+        description: Total gmv from orders with promotion in local currency.
+      - name: has_promotion_total_usd
+        description: Total gmv from orders with promotion in USD.
+      - name: sys_audit_updated_on
+        description: Timestamp when the record was last updated.
+      - name: sys_audit_created_on
+        description: Timestamp when the record was created.
+      - name: sys_audit_created_by
+        description: User or process that created the record.
+      - name: sys_audit_updated_by
+        description: User or process that updated the record.
