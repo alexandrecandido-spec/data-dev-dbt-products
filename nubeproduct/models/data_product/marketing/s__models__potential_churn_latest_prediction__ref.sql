@@ -16,7 +16,7 @@ Spec: This model selects the most recent churn prediction for each store from th
         materialized='incremental',
         incremental_strategy='merge',
         unique_key=['store_id'],
-        tags = ['marketing', 'monthly-2nd-10AM']
+        tags = ['monthly-2nd-10AM']
     )
 }}
 
