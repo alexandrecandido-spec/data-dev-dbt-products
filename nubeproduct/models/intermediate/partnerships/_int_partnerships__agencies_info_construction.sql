@@ -66,8 +66,8 @@ WITH partners_info AS
                         'fer-almeida'
                     )
                     OR partner_utm_campaign LIKE ('%kimura%')
-                    THEN 'Influencers'
-                ELSE 'Unknown'
+                    THEN 'influencers'
+                ELSE 'unknown'
                 END
         ELSE 'Rule not specified for the country'
         END AS partner_origin,
