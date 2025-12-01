@@ -1159,9 +1159,9 @@ models:
 
   - name: marketing_hubspot_company_variables
     meta:
-      owner: "santiago.gandolfo@tiendanube.com"
+      owner: "jhu.boggio@tiendanube.com"
       domain: "operations"
-      business_owner: "jhu.boggio@tiendanube.com"
+      business_owner: "Ane Paschoalino"
     description: >
       Contains simplified store attributes for HubSpot integration, including
       vertical classification, current segment status, lifecycle dates, contact information,
