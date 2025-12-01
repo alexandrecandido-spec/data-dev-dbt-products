@@ -4069,3 +4069,84 @@ models:
         description: "Timestamp when record was created in data warehouse"
       - name: sys_audit_updated_on
         description: "Timestamp when record was last updated in data warehouse"
+
+
+  - name: s__brand_and_comms__instagram_followers__event
+    description: "Silver layer model for Instagram followers data from manual uploads. Unifies daily follower metrics (total, new, unfollowers) across Brazil, Mexico, and Argentina. Each row represents daily follower metrics by country."
+    config:
+      materialized: incremental
+      meta:
+        owner: "beto.martinez@tiendanube.com"
+        business_owner: "Giselle Galli"
+        domain: "marketing"
+    columns:
+      - name: date
+        description: "Date of the Instagram followers data (daily granularity)"
+        tests:
+          - not_null
+      - name: date_day
+        description: "Day extracted from date (YYYY-MM-DD format)"
+        tests:
+          - not_null
+      - name: date_month
+        description: "Month extracted from date (YYYY-MM format)"
+        tests:
+          - not_null
+      - name: date_quarter
+        description: "Quarter extracted from date (YYYY-QN format)"
+        tests:
+          - not_null
+      - name: date_week
+        description: "Week extracted from date (YYYY-MM-DD format, Monday of the week)"
+        tests:
+          - not_null
+      - name: date_year
+        description: "Year extracted from date (YYYY format)"
+        tests:
+          - not_null
+      - name: date_day_of_week
+        description: "Day of week name (Monday, Tuesday, etc.)"
+        tests:
+          - not_null
+      - name: country
+        description: "Country code (BR, MX, AR)"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['BR', 'MX', 'AR']
+      - name: profile_followers
+        description: "Total number of Instagram profile followers on the given date"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+      - name: new_followers
+        description: "Number of new followers gained on the given date (can be negative if more users unfollowed than followed)"
+        tests:
+          - not_null
+      - name: unfollowers
+        description: "Number of users who unfollowed on the given date"
+        tests:
+          - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
+      - name: status
+        description: "Data quality status: 'ok' for valid data, 'review' for data that required imputation or has issues (missing dates, invalid numeric values, etc.), 'review_dup' for duplicate dates that were deduplicated"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['ok', 'review', 'review_dup']
+      - name: sys_audit_created_on
+        description: "Timestamp when record was created in data warehouse (preserved across incremental merges)"
+        tests:
+          - not_null
+      - name: sys_audit_updated_on
+        description: "Timestamp when record was last updated in data warehouse"
+        tests:
+          - not_null
+    tests:
+      - dbt_utils.expression_is_true:
+          expression: "date < DATE_SUB(CURRENT_DATE(), 7) OR status NOT IN ('review', 'review_dup')"
+          config:
+            severity: warn
+          description: "Warning: Records with status='review' or 'review_dup' detected in the last 7 days. 'review' indicates data quality issues (missing dates, invalid numeric values). 'review_dup' indicates duplicate dates that were deduplicated."
