@@ -4150,3 +4150,66 @@ models:
           config:
             severity: warn
           description: "Warning: Records with status='review' or 'review_dup' detected in the last 7 days. 'review' indicates data quality issues (missing dates, invalid numeric values). 'review_dup' indicates duplicate dates that were deduplicated."
+
+  - name: s__models__potential_churn_latest_prediction__ref
+    description: "Silver layer model for the most recent churn prediction for each store from the monthly snapshot model: marketing__models__churn_predictor__snapshot_monthly"
+    config:
+      materialized: incremental
+      meta:
+        owner: "ianca.leite@nuvemshop.com.br"
+        business_owner: "Giselle Galli"
+        domain: "marketing"
+    columns:
+      - name: store_id
+        description: "Unique identifier of the store."
+        tests:
+          - not_null
+          - unique
+      - name: country
+        description: "Country code (e.g., BR, AR, MX, CL, CO) representing the store's creation country."
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['BR', 'AR', 'MX', 'CL', 'CO']
+      - name: snapshot_month_end
+        description: "Last day of the observed month (reference period for prediction)."
+        tests:
+          - not_null
+      - name: life_stage_bucket
+        description: "Store lifecycle stage at the time of prediction bucketed into:
+                      - 0–30d = Up to 30 days old
+                      - 1–6m = Between 1 and 6 months old
+                      - 6–12m = Between 6 and 12 months old
+                      - 12m+ = More than 12 months old"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['0–30d', '1–6m', '6–12m', '12m+']
+      - name: profile
+        description: |
+          Segmentation label derived from life_stage and behavioral model features  
+          (e.g., orders, products, admin access, sessions at different thresholds).
+        tests:
+          - not_null
+          - accepted_values:
+              values:
+                ['1. Adormecido','1. Desinteressado','1. Inexperiente',
+                 '2. Básico','2. Esporádico','2. Perseverante','2. Persistente',
+                 '3. Baixa conversão','3. Configurado','3. Newbie','3. Regular',
+                 '4. Potencial','4. Promissor','4. Regular',
+                 '5. Extraordinário','5. Profissional','6. NA']
+      - name: probability
+        description: "Predicted probability (0–1) that the store will churn."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0.00000000001
+              max_value: 1
+      - name: prediction
+        description: "Binary output of the churn prediction model:
+                      - 0 = retain --> probability < cutoff
+                      - 1 = churn --> probability ≥ cutoff"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [0, 1]
