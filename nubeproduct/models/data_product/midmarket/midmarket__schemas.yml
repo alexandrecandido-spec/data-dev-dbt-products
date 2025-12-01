@@ -1418,6 +1418,94 @@ models:
       - name: hs_ideal_customer_profile
         description: "Boolean flag indicating if the company fits the Ideal Customer Profile (ICP) criteria in HubSpot."
 
+  - name: g__aspirational__brands__events__agg__monthly
+    description: >
+      Monthly event timeline for Aspirational Brands merchants, aggregating lifecycle transitions 
+      (Prospect Marketing, Problem Discovery, Won, Onboarding, Success, Warning, Churn) and combining these 
+      with store-level GMV and orders as well as Nuvemshop-wide GMV and orders for the same event month. 
+      Each row represents a (deal_id, store_id, month) tuple summarizing funnel progression, event flags, 
+      merchant contribution to GMV, and overall platform performance in the same period.
+    config:
+      meta:
+        owner: "renan.ferrari@nuvemshop.com.br"
+        domain: "midmarket"
+        business_owner: "Franco Tiberti"
+    columns:
+      - name: deal_id
+        description: "Unique HubSpot deal identifier associated with this merchant. Represents the root deal from the Sales pipeline."
+        tests:
+          - not_null
+      - name: store_id
+        description: "Nuvemshop store identifier associated with the deal. May appear null when the deal existed without a linked store."
+      - name: datemonth
+        description: "Month of the lifecycle event. Normalized to the first day of the month (YYYY-MM-01). Represents the monthly grain of the dataset."
+        tests:
+          - not_null
+      - name: year
+        description: "Extracted year from the datemonth column."
+      - name: Prospect_Mkt
+        description: "Flag indicating whether the merchant entered the Prospect Marketing stage during the given month (1=yes, 0=no)."
+        tests:
+          - accepted_values:
+              values: [0, 1]
+      - name: Problem_Discovery
+        description: "Flag indicating entry into the Problem Discovery stage within the given month."
+        tests:
+          - accepted_values:
+              values: [0, 1]
+      - name: Won
+        description: "Flag indicating whether the deal entered the Won stage during that month."
+        tests:
+          - accepted_values:
+              values: [0, 1]
+      - name: Onboarding
+        description: "Flag signaling that the merchant entered onboarding on the given month."
+        tests:
+          - accepted_values:
+              values: [0, 1]
+      - name: Success
+        description: "Flag indicating the merchant entered the Success phase within the month."
+        tests:
+          - accepted_values:
+              values: [0, 1]
+      - name: Warning
+        description: "Flag indicating that a warning event (Success or Onboarding) occurred during that month."
+        tests:
+          - accepted_values:
+              values: [0, 1]
+      - name: Churn
+        description: "Flag indicating that the merchant churned in the given month (via Success, Onboarding, or StoreInfo churn signals)."
+        tests:
+          - accepted_values:
+              values: [0, 1]
+      - name: gmv_usd
+        description: >
+          Store-level GMV in USD for this store and month, sourced from company_metrics_gmv_and_segments. 
+          Represents the merchant's contribution to GMV for the same month of the lifecycle event.
+      - name: orders
+        description: >
+          Store-level order count for this store and month, sourced from company_metrics_gmv_and_segments.
+      - name: gmv_churn
+        description: >
+          GMV (last 90 days) attributed to merchants who churned on this month. Null when the event is not churn-related.
+      - name: gmv_downgrade
+        description: >
+          GMV (last 90 days) associated with Warning events (downgrades) occurring during the month. Null otherwise.
+      - name: gmv_usd_total
+        description: >
+          Total GMV of the entire Nuvemshop platform (all stores) for the same month. 
+          Aggregated directly from company_metrics_gmv_and_segments without store-level filtering.
+      - name: orders_total
+        description: >
+          Total orders across the entire Nuvemshop platform for the same month, aggregated without store filtering.
+      - name: status
+        description: >
+          Derived lifecycle status for the merchant in that month. 
+          Indicates whether the merchant is OK after the Won month, or NULL otherwise.
+        tests:
+          - accepted_values:
+              values: ["OK"]
+
   - name: g__success__business_review_enriched__agg_snapshot_weekly
     config:
       meta:

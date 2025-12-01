@@ -13,11 +13,16 @@ WITH store_source AS (
       WHEN si.verified IN (4,5,6) THEN 'mobile'
       ELSE 'tablet'
       END AS device
-    , si.register_url
+    , si.register_url    
+    , CASE 
+      WHEN si.plan_chosen_on_register=0 THEN 'freemium' 
+      ELSE gp.grupo 
+      END AS register_plan_type
     , si.partner_id
     , si.partnership_type
     , si.sys_audit_updated_on
   FROM {{ ref('merchant__attributes__store_info__ref') }} si
+  LEFT JOIN {{ ref('s__general__grouping_plans__ref') }} gp ON si.plan_chosen_on_register = gp.plan
 ), 
 location_info AS (
   SELECT
@@ -70,6 +75,7 @@ SELECT
     , ss.currency
     , ss.device
     , ss.register_url
+    , ss.register_plan_type
     , ss.partner_id
     , ss.partnership_type
     , pi.partner_code

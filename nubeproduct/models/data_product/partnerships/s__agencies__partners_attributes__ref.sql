@@ -20,6 +20,7 @@ status AS
         lifecycle_status,
         partner_age_classification,
         partner_origin,
+        partner_sub_origin,
         partner_business_unit,
         active_paying_stores_flg,
         new_payments_lm3_flg,
@@ -29,6 +30,7 @@ status AS
         last_store_trial_date,
         last_store_payment_date,
         last_store_seller_date,
+        is_potential_flg,
         agencies_info_change_timestamp
     FROM {{ ref('_int_partnerships__agencies_info_construction') }}
 )

@@ -4378,7 +4378,7 @@ models:
                  '4. Potencial','4. Promissor','4. Regular',
                  '5. Extraordinário','5. Profissional','6. NA']
       - name: probability
-        description: "Predicted probability (0–1) that the store will remain a seller."
+        description: "Predicted probability (0–1) that the store will churn."
         tests:
           - not_null
           - dbt_expectations.expect_column_values_to_be_between:

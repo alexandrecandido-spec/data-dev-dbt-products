@@ -6,7 +6,7 @@
   tags = ['daily-9am']
 ) }}
 
--- s__shipping__pickup_features__snapshot_daily
+-- s__shipping__pickup_configuration__snapshot_daily
 
 WITH existing_data AS (
     {{ get_existing_data(this, ['store_id', 'pickup_feature', 'is_deleted', 'max_km', 'max_days_pickup', 'sys_audit_created_on', 'sys_audit_created_by']) }}
