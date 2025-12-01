@@ -1159,7 +1159,7 @@ models:
 
   - name: marketing_hubspot_company_variables
     meta:
-      owner: "santiago.gandolfo@tiendanube.com"
+      owner: "santiago.gandolfo@tiendanube.com" # to be changed
       domain: "operations"
       business_owner: "Ane Paschoalino"
     description: >
@@ -1245,6 +1245,22 @@ models:
         description: "Total number of orders in the last 60 days from current date (rolling window)."
       - name: orders_last_90d
         description: "Total number of orders in the last 90 days from current date (rolling window)."
+      - name: potential_churn_is_at_risk
+        description: "Binary output of the churn prediction model:
+                      - 0 = retain --> probability < cutoff
+                      - 1 = churn --> probability ≥ cutoff"
+      - name: potential_churn_snapshot
+        description: "Last day of the observed month (reference period for prediction)."
+      - name: potential_churn_life_stage
+        description: "Store lifecycle stage at the time of prediction bucketed into:
+                      - 0–30d = Up to 30 days old
+                      - 1–6m = Between 1 and 6 months old
+                      - 6–12m = Between 6 and 12 months old
+                      - 12m+ = More than 12 months old"
+      - name: potential_churn_profile
+        description: "Profile of the store at the time of prediction."
+      - name: potential_churn_risk_score
+        description: "Predicted probability (0–1) that the store will churn."
       - name: sys_audit_created_on
         description: "Timestamp when the row was originally created."
       - name: sys_audit_created_by
