@@ -19,6 +19,7 @@ base_data AS (
         *,
         MD5(
             CONCAT_WS('|',
+                COALESCE(CAST(store_id AS STRING), ''),
                 COALESCE(CAST(country AS STRING), ''),
                 COALESCE(CAST(vertical AS STRING), ''),
                 COALESCE(CAST(province AS STRING), ''),
