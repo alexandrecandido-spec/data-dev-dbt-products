@@ -1161,7 +1161,7 @@ models:
     meta:
       owner: "santiago.gandolfo@tiendanube.com"
       domain: "operations"
-      business_owner: "Ane Paschoalino"
+      business_owner: "jhu.boggio@tiendanube.com"
     description: >
       Contains simplified store attributes for HubSpot integration, including only
       vertical classification and current segment status. Returns empty strings
