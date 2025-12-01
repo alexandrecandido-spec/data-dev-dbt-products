@@ -542,7 +542,9 @@ models:
           - accepted_values:
               values: ['New partner', 'Established partner']
       - name: partner_origin
-        description: "Origin of the partner based on UTM parameters, prioritizing campaign, source, medium, and content. Defaults to 'Unknown' if no UTM parameters are available."
+        description: "Origin of the partner based on the UTM parameters defined by each country"
+      - name: partner_sub_origin
+        description: "Sub-origin of the partner based on UTM parameters, prioritizing campaign, source, medium, and content. Defaults to 'Unknown' if no UTM parameters are available."
       - name: partner_business_unit
         description: "Business unit classification of the partner based on their stores: 'MM' (Mid-Market) if at least one paying store is MM, otherwise 'SMB' (Small and Medium Business)."
         tests:
@@ -583,6 +585,10 @@ models:
           - not_null
       - name: sys_audit_updated_by
         description: "System or user that last updated the row."
+        tests:
+          - not_null
+      - name: is_potential_flg
+        description: "Boolean flag indicating if the partner is a potential partner (TRUE) or not (FALSE)."
         tests:
           - not_null
 
