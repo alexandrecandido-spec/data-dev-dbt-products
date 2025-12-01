@@ -138,6 +138,32 @@ models:
         description: Timestamp when the row was initially created in the summary table.
       - name: sys_audit_created_by
         description: Source or user responsible for the initial row creation.
+      - name: gmv_usd_on_platform_monthly
+        description: "Monthly GMV in USD for the store, sourced from company_metrics_gmv_and_segments."
+      - name: gmv_local_currency_on_platform_monthly
+        description: "Monthly GMV in the store's local currency, sourced from company_metrics_gmv_and_segments."
+      - name: orders_on_platform_monthly
+        description: "Total number of orders placed by the store in the given month."
+      - name: store_id_hubspot
+        description: "Store ID as stored in HubSpot, used to link Deals with plan changes."
+      - name: deal_id
+        description: "Identifier of the most recent Won deal associated with the store (Escala-related)."
+      - name: pipeline
+        description: "HubSpot pipeline of the associated deal (e.g., 'Sales | BR')."
+      - name: deal_owner
+        description: "HubSpot owner responsible for the associated deal."
+      - name: stage
+        description: "Current stage of the HubSpot deal (expected 'Won' for Escala cases)."
+      - name: type_of_onboarding
+        description: "Category of the onboarding process according to HubSpot."
+      - name: gmv_potencial
+        description: "Potential GMV associated with the deal, as registered in HubSpot."
+      - name: deal_close_date
+        description: "Date when the HubSpot deal was closed/won."
+      - name: first_payment_escala_after_close_date
+        description: >
+          First payment date on the Escala plan after the deal was won. 
+          Used to validate contract activation timing.
 
 
   - name: midmarket_weekly_business_review

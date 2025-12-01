@@ -77,7 +77,17 @@ base_final AS (
   SELECT * FROM churns_implicitos
 )
 
-SELECT *
+SELECT
+  base_final.*,
+  escala.*,
+  gmv.gmv_usd_on_platform_monthly,
+  gmv.gmv_local_currency_on_platform_monthly,
+  gmv.orders_on_platform_monthly
 FROM base_final
+LEFT JOIN {{ ref('company_metrics_gmv_and_segments') }} as gmv
+  ON base_final.store_id = gmv.store_id
+  AND base_final.date = gmv.datemonth
+LEFT JOIN {{ ref('_int_plan_change_escala_hubspot') }} as escala
+  ON base_final.store_id = escala.store_id_hubspot
 WHERE date <= date_trunc('month', current_date())
 ORDER BY store_id, year, month
