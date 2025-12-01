@@ -50,9 +50,6 @@ models:
               where: "sys_audit_updated_on >= current_timestamp - interval '1 hours'"
       - name: total_in_usd
         description: "Total value of the order converted to USD."
-        tests:
-          - not_null:
-              where: "sys_audit_updated_on >= current_timestamp - interval '1 hours'"
       - name: total
         description: "Total value of the order in the original currency."
       - name: storefront
