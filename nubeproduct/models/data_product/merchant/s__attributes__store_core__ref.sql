@@ -30,6 +30,7 @@ main_source.store_id
 , main_source.currency
 , main_source.device
 , main_source.register_url
+, main_source.register_plan_type
 , main_source.partner_id
 , main_source.partnership_type
 , main_source.partner_code

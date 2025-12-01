@@ -10,12 +10,18 @@ WITH calls_interactions AS (
     ) c
     INNER JOIN {{ ref('midmarket_success_stores') }} sid 
         ON CAST(deal AS BIGINT) = sid.deal_id
+    INNER JOIN {{ ref('_int_midmarket_wbr_mbr__reps') }} r
+        ON c.activity_assigned_to = r.hubspot_owner_id
+    INNER JOIN {{ source('int_third_party', 'midmarket_hubspot_deals') }} d 
+        ON sid.deal_id = d.deal_id
     WHERE 
         call_status = 'Completed'
-        AND (call_outcome = 'Conectado'
-            OR call_outcome like 'Connected%')
+        AND (lower(call_outcome) = 'conectado'
+            OR lower(call_outcome) like 'connected%')
         AND (call_and_meeting_type IS NULL OR call_and_meeting_type != 'CS - Non-Value Interaction')
         AND (activity_date < date_trunc('week', current_date) OR activity_date < date_trunc('month', current_date))
+        AND r.hubspot_owner_id is not null
+        AND activity_date::date >= d.createdate::date
     GROUP BY CAST(deal AS BIGINT)
 ),
 
@@ -29,10 +35,16 @@ meetings_interactions AS (
     ) m
     INNER JOIN {{ ref('midmarket_success_stores') }} sid 
         ON CAST(deal AS BIGINT) = sid.deal_id
+    INNER JOIN {{ ref('_int_midmarket_wbr_mbr__reps') }} r
+        ON m.hubspot_owner_id = r.hubspot_owner_id
+    INNER JOIN {{ source('int_third_party', 'midmarket_hubspot_deals') }} d 
+        ON sid.deal_id = d.deal_id
     WHERE 
         meeting_outcome = 'Completed'
         AND (call_and_meeting_type IS NULL OR call_and_meeting_type != 'CS - Non-Value Interaction')
         AND (activity_date < date_trunc('week', current_date) OR activity_date < date_trunc('month', current_date))
+        AND r.hubspot_owner_id is not null
+        AND activity_date::date >= d.createdate::date
     GROUP BY CAST(deal AS BIGINT)
 )
 
