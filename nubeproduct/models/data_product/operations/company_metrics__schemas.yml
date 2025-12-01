@@ -922,6 +922,10 @@ models:
         description: Payment gateway used for the order.
       - name: internal_extra
         description: Internal extra information related to the payment gateway.
+      - name: coupon_id
+        description: Coupon identifier used for the order.
+      - name: shipping_extra
+        description: Shipping extra information related to the order.
       - name: gateway_integration_type
         description: Type of integration with the payment gateway.
       - name: gateway_installments

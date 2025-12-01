@@ -75,6 +75,8 @@ select
     orders.payment_handler_category,
     orders.gateway,
     orders.internal_extra,
+    orders.coupon_id,
+    orders.shipping_extra,
     orders.gateway_integration_type,
     orders.gateway_installments,
     orders.gateway_method,
