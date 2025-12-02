@@ -315,7 +315,7 @@ final_data_base AS (
         att.mkt_subteam_first_click,
         att.mkt_source_last_click,
         att.mkt_subteam_last_click,
-        COALESCE(ls_att.is_active_merchant, 0) AS active_merchant_probability,
+        ls_att.merchant_finance_status AS merchant_finance_status,
         
         -- ============================================
         -- ONBOARDING TAGS
@@ -332,7 +332,7 @@ final_data_base AS (
         -- ============================================
         -- BLOCKED FRAUD TAG
         -- ============================================
-        COALESCE(CASE WHEN ls.is_store_blocked = TRUE THEN 1 ELSE 0 END, 0) AS blocked_fraud_tag,
+        COALESCE(CASE WHEN ls.is_store_blocked = TRUE THEN 1 ELSE 0 END, 0) AS blocked_fraud_tag
         
     FROM {{ ref('s__attributes__store_core__ref') }} sc
     INNER JOIN {{ ref('s__attributes__store_identity__ref') }} si ON sc.store_id = si.store_id
@@ -344,7 +344,7 @@ final_data_base AS (
         WHERE tag IN ('new-admin-onboarding-202411-a', 'new-admin-onboarding-202411-b')
     ) ot ON sc.store_id = ot.store_id  -- Muy pequeño (solo tags específicos)
     LEFT JOIN {{ ref('s__attributes__acquisition_profile__ref') }} att ON sc.store_id = att.store_id  -- Mediano (mover antes para usar ls_att)
-    LEFT JOIN {{ ref('s__lifecycle__store_status__ref') }} ls_att ON att.store_id = ls_att.store_id  -- Para active_merchant_probability
+    LEFT JOIN {{ ref('s__lifecycle__store_status__ref') }} ls_att ON att.store_id = ls_att.store_id  -- Para merchant_finance_status
     LEFT JOIN {{ ref('marketing__models__quality_leads__ref') }} ql
         ON sc.store_id = ql.store_id
     LEFT JOIN store_core_with_device_for_cutoff scd
@@ -401,11 +401,96 @@ final_data AS (
 {% if is_incremental() %}
 -- Comparar hash con datos existentes para evitar UPDATEs innecesarios
 -- Optimización: Usa macro para evitar duplicación de código
+-- Mapear columna antigua active_merchant_probability a merchant_finance_status para compatibilidad
+existing_data_mapped AS (
+    SELECT 
+        store_id,
+        store_name,
+        country,
+        created_at,
+        first_payment,
+        first_seller_at,
+        current_segment,
+        current_plan,
+        vertical,
+        main_user_id,
+        user_email,
+        owner_phone_number,
+        phone_from_footer,
+        whatsapp_button,
+        qty_admin_access_7d,
+        qty_admin_access_15d,
+        qty_admin_access_30d,
+        qty_admin_access_60d,
+        first_date_admin_access,
+        last_date_admin_access,
+        first_store_session,
+        qty_sessions_7d,
+        qty_sessions_15d,
+        qty_sessions_30d,
+        qty_sessions_60d,
+        qty_sessions_90d,
+        last_store_session,
+        config_layout,
+        layout_name,
+        theme_banner,
+        theme_slider,
+        theme_color_change,
+        first_date_config_layout,
+        last_date_config_layout,
+        config_products,
+        first_date_config_products,
+        last_date_config_products,
+        config_payment,
+        first_date_config_payment,
+        last_date_config_payment,
+        config_shipping,
+        first_date_config_shipping,
+        last_date_config_shipping,
+        first_order,
+        time_to_first_order,
+        orders_7,
+        orders_15,
+        orders_30,
+        orders_60,
+        orders_90,
+        gmv_30,
+        gmv_60,
+        gmv_90,
+        gmv_dol_30,
+        gmv_dol_60,
+        gmv_dol_90,
+        upgrade_d7,
+        upgrade_d15,
+        upgrade_d30,
+        downgrade_d7,
+        downgrade_d15,
+        downgrade_d30,
+        primeiro_plano,
+        max_plan_d7,
+        max_plan_d15,
+        max_plan_d30,
+        mkt_source_first_click,
+        mkt_subteam_first_click,
+        mkt_source_last_click,
+        mkt_subteam_last_click,
+        -- Después del full-refresh, la tabla ya tiene merchant_finance_status
+        merchant_finance_status,
+        onboarding_tag,
+        new_payment_probability,
+        cutoff_ql,
+        blocked_fraud_tag,
+        sys_audit_created_on,
+        sys_audit_created_by,
+        sys_audit_updated_on,
+        sys_audit_updated_by
+    FROM {{ this }}
+),
 existing_with_hash AS (
     SELECT 
         store_id,
         {{ calculate_onboarding_row_hash() }} AS existing_hash
-    FROM {{ this }}
+    FROM existing_data_mapped
 ),
 {% endif %}
 -- Solo incluir filas que cambiaron o son nuevas
@@ -500,7 +585,7 @@ SELECT
     mkt_subteam_first_click,
     mkt_source_last_click,
     mkt_subteam_last_click,
-    active_merchant_probability,
+    merchant_finance_status,
     onboarding_tag,
     new_payment_probability,
     cutoff_ql,
