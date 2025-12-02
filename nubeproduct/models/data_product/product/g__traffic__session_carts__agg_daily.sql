@@ -1,15 +1,24 @@
 -- Brings aggregated info about sessions, including the carts generated and their GMV
 -- GMV fields are included for funnel tracking only. For official revenue figures, refer to Finance data products.
 
+{% set interval = get_max_date_env_model(
+      'product',
+      'g__traffic__session_carts__agg_daily',
+      'base_date',
+      1, 'MONTH',
+      fallback_start='2024-01-01',
+      fallback_end='2024-01-05'
+) %}
+{% set min_date_raw = interval.split(' ')[1] %}
+{% set s_start_date = "DATE_ADD(MONTH, -1, DATE_TRUNC('MONTH', " ~ min_date_raw ~ "))" %}
+
 {{ config(
    materialized = 'incremental',
-   incremental_strategy='merge',
-   unique_key = ['base_date', 'store_id', 'country_code', 'vertical_name', 'current_plan_type', 'current_segment'
-        , 'is_store_blocked' , 'visitor_country', 'device', 'theme', 'source_name', 'source_group'  
-        , 'google_subchannel', 'traffic_type', 'is_end_user', 'storefront'],
+   incremental_strategy = 'replace_where',
    partition_by = 'base_date',
    on_schema_change = 'fail',
-   tags = ['daily-2am']
+   tags = ['daily-2am'],
+   incremental_predicates = ["base_date >= " ~ s_start_date]
 ) }}
 
 WITH base_data AS (
