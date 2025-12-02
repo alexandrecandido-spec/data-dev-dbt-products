@@ -1,4 +1,4 @@
-churns as(
+with churns as(
 select
 	s.deal_id,
 	s.store_id,
@@ -27,7 +27,7 @@ FROM
     ) AS t(dates)
 )
 select
-d.date_start,
+d.date_start as dates,
 c.country,
 'churns' as origen,
 case when lower(c.effective_churn_root_cause) like '%pricing%' then 'Pricing'

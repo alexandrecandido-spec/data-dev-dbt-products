@@ -28,9 +28,9 @@ c.country,
 c.origen,
 c.cause,
 c.merchants
- {{ ref('_int__issues_and_problems_success_churn') }} c
+from  {{ ref('_int__issues_and_problems_success_churn') }} c
  {% if is_incremental() %}
-        and w.dates >= DATE_SUB( (SELECT COALESCE(MAX(dates), DATE('1900-01-01')) FROM {{ this }}), 15 )
+        and c.dates >= DATE_SUB( (SELECT COALESCE(MAX(dates), DATE('1900-01-01')) FROM {{ this }}), 15 )
     {% endif %}
 ),
     existing_data AS (
@@ -43,7 +43,7 @@ select
     s.country,
     s.origen,
     s.cause,
-    s.merchants
+    s.merchants,
     COALESCE(e.sys_audit_created_on, current_timestamp) AS sys_audit_created_on,
     COALESCE(e.sys_audit_created_by, 'data-dev-dbt-products') AS sys_audit_created_by,
     current_timestamp AS sys_audit_updated_on,
@@ -53,4 +53,4 @@ left join existing_data e on
     s.dates = e.dates and
     s.country = e.country and
     s.origen = e.origen and
-    s.cause = e.cause and
+    s.cause = e.cause
