@@ -17,7 +17,7 @@ w.cause,
 w.merchants
 from {{ ref('_int__issues_and_problems_success_warnings') }} w
     {% if is_incremental() %}
-        and w.dates >= DATE_SUB( (SELECT COALESCE(MAX(dates), DATE('1900-01-01')) FROM {{ this }}), 15 )
+        where w.dates >= DATE_SUB( (SELECT COALESCE(MAX(dates), DATE('1900-01-01')) FROM {{ this }}), 15 )
     {% endif %}
 
 UNION
@@ -30,7 +30,7 @@ c.cause,
 c.merchants
 from  {{ ref('_int__issues_and_problems_success_churn') }} c
  {% if is_incremental() %}
-        and c.dates >= DATE_SUB( (SELECT COALESCE(MAX(dates), DATE('1900-01-01')) FROM {{ this }}), 15 )
+        where c.dates >= DATE_SUB( (SELECT COALESCE(MAX(dates), DATE('1900-01-01')) FROM {{ this }}), 15 )
     {% endif %}
 ),
     existing_data AS (

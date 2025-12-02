@@ -38,5 +38,5 @@ else 'Others' end as cause,
 count(*) as merchants
 from dates d
 LEFT JOIN churns c on c.effective_churn_at between d.date_start and d.date_end
-where date_start = cast('2024-01-01' as date)
+where date_start > cast('2024-01-01' as date)
 group by 1,2,3,4
