@@ -2603,8 +2603,8 @@ models:
         description: "Fuente de marketing atribuida al último click"
       - name: mkt_subteam_last_click
         description: "Subteam de marketing atribuida al último click"
-      - name: active_merchant_probability
-        description: "Probabilidad de ser active merchant (0 o 1). Usa is_active_merchant de s__lifecycle__store_status__ref. Si necesitas una probabilidad real (0-1), usar un modelo de ML específico"
+      - name: merchant_finance_status
+        description: "Estado de la tienda en la base de clientes activos. Valores: 'paying' (está pagando y no es freemium), 'free' (está en freemium), 'not_active' (no está activa). Viene de s__lifecycle__store_status__ref.merchant_finance_status"
       - name: onboarding_tag
         description: "Tag de onboarding asignado a la tienda (new-admin-onboarding-202411-a o new-admin-onboarding-202411-b). Consumido desde int_moltres.mwp_tags"
       - name: new_payment_probability

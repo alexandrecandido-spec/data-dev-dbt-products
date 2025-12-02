@@ -77,7 +77,7 @@
             COALESCE(mkt_subteam_first_click, ''),
             COALESCE(mkt_source_last_click, ''),
             COALESCE(mkt_subteam_last_click, ''),
-            COALESCE(CAST(active_merchant_probability AS STRING), ''),
+            COALESCE(merchant_finance_status, ''),
             COALESCE(onboarding_tag, ''),
             COALESCE(CAST(new_payment_probability AS STRING), ''),
             COALESCE(CAST(cutoff_ql AS STRING), ''),

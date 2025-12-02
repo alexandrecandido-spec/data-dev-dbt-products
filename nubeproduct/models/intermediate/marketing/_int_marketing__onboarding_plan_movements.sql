@@ -25,7 +25,7 @@ WITH contracts_with_plan_info AS (
         c.store_id,
         c.plan_name,
         c.created_at_contract AS created_at,
-        c.start_date,
+        c.start_date_contract AS start_date,
         c.plan_name AS plan_group,
         -- Optimización: Calcular DATEDIFF una vez para evitar recálculos en CTEs siguientes
         DATEDIFF(DAY, s.created_at, DATE(c.created_at_contract)) AS days_from_creation,
