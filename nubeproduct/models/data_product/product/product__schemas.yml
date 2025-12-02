@@ -6022,3 +6022,24 @@ models:
         description: User or process that created the record.
       - name: sys_audit_updated_by
         description: User or process that updated the record.
+
+  - name: g__general__issues_problems_success_churn_warnings__agg_weekly
+    description: >
+      Contains a weekly summary of success churns and warnings. 
+    config:
+      meta:
+        owner: "fabrizio.crivella@tiendanube.com"
+        business_owner: "Martin Palombo"
+        openmetadata:
+          domain: "product"
+    columns:
+      - name: dates
+        description: Weekly date, starting on mondays
+      - name: country
+        description: Country of the store
+      - name: origen
+        description: If the row comes from a churn, new warning or warning.
+      - name: cause
+        description: Reason for the warning/churn
+      - name: merchants
+        description: Amount of merchants
