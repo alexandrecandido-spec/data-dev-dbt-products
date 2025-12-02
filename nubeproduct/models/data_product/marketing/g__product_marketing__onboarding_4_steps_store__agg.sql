@@ -474,12 +474,8 @@ existing_data_mapped AS (
         mkt_subteam_first_click,
         mkt_source_last_click,
         mkt_subteam_last_click,
-        -- Mapear columna antigua a nueva para compatibilidad durante transición
-        CASE 
-            WHEN active_merchant_probability = 1 THEN 'paying'
-            WHEN active_merchant_probability = 0 THEN 'not_active'
-            ELSE 'not_active'
-        END AS merchant_finance_status,
+        -- Después del full-refresh, la tabla ya tiene merchant_finance_status
+        merchant_finance_status,
         onboarding_tag,
         new_payment_probability,
         cutoff_ql,
