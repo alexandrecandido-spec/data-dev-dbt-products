@@ -1,0 +1,58 @@
+version: 2
+
+models:
+  - name: marketing__enp_students
+    description: >
+      Staging de membros/alunos do CursEduca (fonte EnP), lido da tabela raw,
+      expondo as colunas brutas necessárias para o domínio de Marketing.
+    columns:
+      - name: id
+        description: Identificador do membro na origem.
+      - name: name
+        description: Nome do membro/aluno.
+      - name: email
+        description: E-mail principal do membro/aluno.
+      - name: createdAt
+        description: Data de criação do membro na plataforma (texto na origem).
+      - name: updatedAt
+        description: Data da última atualização do membro na plataforma (texto na origem).
+      - name: lastAccess
+        description: Data do último acesso do membro na plataforma (texto na origem).
+      - name: situation
+        description: Situação/status do membro na origem.
+
+  - name: _int_marketing__enp_students_treated
+    description: >
+      Modelo intermediate lógico que seleciona as colunas relevantes
+      de alunos do CursEduca e converte campos de data para tipo date.
+    columns:
+      - name: name
+        description: Nome do membro já filtrado para uso em análises.
+      - name: email
+        description: E-mail do membro disponível para análises de marketing.
+      - name: created_date
+        description: Data de criação do membro (sem horário).
+      - name: updated_date
+        description: Data da última atualização do membro (sem horário).
+      - name: last_access_date
+        description: Data do último acesso do membro (sem horário).
+      - name: situation
+        description: Situação/status atual do membro.
+
+  - name: dp_marketing__enp_students
+    description: >
+      Data product final de alunos/membros do CursEduca para o time
+      de Marketing, contendo apenas dados essenciais e datas no nível de dia.
+    columns:
+      - name: name
+        description: Nome do membro/aluno.
+      - name: email
+        description: E-mail principal do membro/aluno.
+      - name: created_date
+        description: Data de criação do membro (sem horário).
+      - name: updated_date
+        description: Data da última atualização do membro (sem horário).
+      - name: last_access_date
+        description: Data do último acesso do membro (sem horário).
+      - name: situation
+        description: Situação/status atual do membro.
