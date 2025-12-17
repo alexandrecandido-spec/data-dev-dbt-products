@@ -1,4 +1,3 @@
-
 # Name your project! Project names should contain only lowercase characters
 # and underscores. A good package name should reflect your organization's
 # name or the intended use of these models
@@ -13,8 +12,6 @@ dispatch:
     search_order: ['nubeproduct', 'databricks', 'spark', 'dbt']
 
 # These configurations specify where dbt should look for different types of files.
-# The `model-paths` config, for example, states that models in this project can be
-# found in the "models/" directory. You probably won't need to change these!
 model-paths: ["models"]
 analysis-paths: ["analyses"]
 test-paths: ["tests"]
@@ -31,15 +28,8 @@ vars:
   'dbt_date:time_zone': 'America/Argentina/Buenos_Aires'
 
 # Configuring models
-# Full documentation: https://docs.getdbt.com/docs/configuring-models
-
-# In this example config, we tell dbt to build all models in the example/
-# directory as views. These settings can be overridden in the individual model
-# files using the `{{ config(...) }}` macro.
-
 models:
-  nubeproduct: # project name
-    # Config indicated by + and applies to all files under models/example/   
+  nubeproduct:  # project name
 
     staging:
       +materialized: table
@@ -51,14 +41,15 @@ models:
           tier: 'Tier.Silver'
       +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/staging/"
       +post-hook:
-       # testing_unity_staging
+        # testing_unity_staging
         - "CREATE TABLE IF NOT EXISTS {{ var('mirror_catalog') }}.{{ this.schema }}.{{ this.identifier }} USING DELTA LOCATION '{{ 
                 ('s3://dn-lkh-dev01' if target.name == 'dev' else 's3://dn-lkh-products-prd01') 
                 ~ '/data-dev-dbt-products/' 
                 ~ (this.schema | replace('testing_', '') | replace('data_', '')) 
                 ~ '/' 
                 ~ this.identifier 
-              }}'"    
+             }}'"
+
     intermediate:
       +materialized: ephemeral
       operations:
@@ -100,90 +91,99 @@ models:
       +meta:
         openmetadata:
           tier: 'Tier.Gold'
+
       operations:
         +schema: operations
         +tags: ["operations"]
         +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/data_product/operations/"
+
       partners:
         +schema: partners
         +tags: ["partners"]
         +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/data_product/partners/"
+
       finance:
         +schema: finance
         +tags: ["finance"]
         +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/data_product/finance/"
+
       fintech:
         +schema: fintech
         +tags: ["fintech"]
         +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/data_product/fintech/"
+
       logistics:
         +schema: logistics
         +tags: ["logistics"]
         +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/data_product/logistics/"
+
       marketing:
         +schema: marketing
         +tags: ["marketing"]
         +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/data_product/marketing/"
+
       marketing_automation:
         +schema: marketing_automation
         +tags: ["marketing_automation"]
         +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/data_product/marketing_automation/"
+
       midmarket:
         +schema: midmarket
         +tags: ["midmarket"]
         +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/data_product/midmarket/"
+
       product:
         +schema: product
         +tags: ["product"]
         +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/data_product/product/"
+
       support:
         +schema: support
         +tags: ["support"]
         +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/data_product/support/"
+
       dimensions:
         +schema: dimensions
         +tags: ["dimensions"]
         +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/data_product/dimensions/"
+
       onboarding:
         +schema: onboarding
         +tags: ["onboarding"]
         +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/data_product/onboarding/"
+
       merchant:
         +schema: merchant
         +tags: ["merchant"]
         +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/data_product/merchant/"
+
       partnerships:
         +schema: partnerships
         +tags: ["partnerships"]
         +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/data_product/partnerships/"
+
       cx:
         +schema: cx
         +tags: ["cx"]
         +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/data_product/cx/"
+
       billing:
         +schema: billing
         +tags: ["billing"]
         +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/data_product/billing/"
+
       +post-hook:
-       # testing_unity_{domain}, donde {domain} = this.schema (marketing, finance, etc.)
+        # testing_unity_{domain}, donde {domain} = this.schema (marketing, finance, etc.)
         - "CREATE TABLE IF NOT EXISTS {{ var('mirror_catalog') }}.{{ this.schema }}.{{ this.identifier }} USING DELTA LOCATION '{{ 
-            ('s3://dn-lkh-dev01' if target.name == 'dev' else 's3://dn-lkh-products-prd01') 
-            ~ '/data-dev-dbt-products/data_product/' 
-            ~ (this.schema | replace('testing_', '') | replace('data_', '')) 
-            ~ '/' 
-            ~ this.identifier 
-        }}'"
-  dbt_artifacts:
-    +materialized: table
-    +schema: dbt_artifacts
-    +file_format: delta
-    +location_root: "s3://{{ 'dn-lkh-dev01' if target.name == 'dev' else 'dn-lkh-products-prd01' }}/data-dev-dbt-products/artifacts/"
-    +post-hook:
-      - "CREATE TABLE IF NOT EXISTS {{ var('mirror_catalog') }}.{{ this.schema }}.{{ this.identifier }} USING DELTA LOCATION '{{ ('s3://dn-lkh-dev01' if target.name == 'dev' else 's3://dn-lkh-products-prd01') ~ '/data-dev-dbt-products/artifacts/' ~ this.identifier }}'"
+              ('s3://dn-lkh-dev01' if target.name == 'dev' else 's3://dn-lkh-products-prd01') 
+              ~ '/data-dev-dbt-products/data_product/' 
+              ~ (this.schema | replace('testing_', '') | replace('data_', '')) 
+              ~ '/' 
+              ~ this.identifier 
+           }}'"
 
-
-on-run-end:
-  - "{{ dbt_artifacts.upload_results(results) }}"
+# on-run-end:
+#   - "{{ dbt_artifacts.upload_results(results) }}"
 
 seeds:
   nubeproduct:
@@ -200,7 +200,7 @@ seeds:
 
 vars:
   mirror_hms_prefix: "{{ 'testing_unity_dev' if target.name == 'dev' else 'testing_unity_prd' }}"
-  mirror_catalog: "{{ 'hive_metastore' if target.name == 'dev' else 'hive_metastore' }}" #"{{ 'data_products_dev' if target.name == 'dev' else 'data_products_prd' }}"
+  mirror_catalog: "{{ 'hive_metastore' if target.name == 'dev' else 'hive_metastore' }}"
   'dbt_date:time_zone': 'America/Argentina/Buenos_Aires'
-  required_docs_fail_on_error: true         
+  required_docs_fail_on_error: true
   required_docs_skip_models: []

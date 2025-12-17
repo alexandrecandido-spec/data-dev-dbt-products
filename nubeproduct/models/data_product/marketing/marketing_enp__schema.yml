@@ -1,0 +1,29 @@
+version: 2
+
+models:
+  - name: marketing_enp__members_details
+    description: "Tabela consolidada com detalhes de contato e perfil dos membros da plataforma ENP Curseduca."
+    config:
+      meta:
+        owner: "seu.email@tiendanube.com" 
+        domain: "marketing"
+    columns:
+      - name: member_name
+        description: "Nome completo do membro."
+        tests:
+          - not_null
+
+      - name: member_email
+        description: "Email do membro. Usado como chave de identificação."
+        tests:
+          - unique
+          - not_null
+
+      - name: created_at
+        description: "Data de criação da conta."
+
+      - name: phone_number
+        description: "Telefone de contato vindo da tabela de detalhes."
+        
+      - name: profile_type
+        description: "Tipo de perfil ou grupo do usuário."

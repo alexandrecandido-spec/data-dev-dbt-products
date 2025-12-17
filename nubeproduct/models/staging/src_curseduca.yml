@@ -1,0 +1,9 @@
+version: 2
+
+sources:
+  - name: enp_curseduca
+    database: raw           # <--- AQUI ESTAVA O ERRO. O nome correto é 'raw' conforme seu print.
+    schema: enp_curseduca
+    tables:
+      - name: member_details
+      - name: members

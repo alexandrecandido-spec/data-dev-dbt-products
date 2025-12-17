@@ -1,0 +1,25 @@
+version: 2
+
+models:
+  - name: stg_curseduca__member_details
+    description: "Tabela de staging com detalhes dos membros e grupos extraídos do JSON."
+    columns:
+      - name: member_id
+        tests:
+          - not_null
+          - unique
+
+      - name: phone_number
+        description: "Telefone de contato tratado."
+
+      - name: group_id
+        description: "ID do grupo (pode ser nulo se o membro não tiver grupo)."
+        # tests:        <-- Remova ou comente estas linhas
+        #   - not_null  <-- Remova
+
+      - name: group_name
+        description: "Nome do grupo (pode ser nulo)."
+        # tests:        <-- Remova ou comente estas linhas
+        #   - not_null  <-- Remova
+
+      - name: group_created_at
