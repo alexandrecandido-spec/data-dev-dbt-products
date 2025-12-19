@@ -4,7 +4,6 @@
 ) }}
 
 WITH source AS (
-    -- Importante: O DBT precisa encontrar a definição desta source no arquivo YAML (Passo 2)
     SELECT * FROM {{ source('enp_curseduca', 'member_details') }}
 ),
 
@@ -23,6 +22,7 @@ cleaned_data AS (
         -- 2. Tratamento do JSON
         from_json(
             groups, 
+            -- Dica: Garanta que o schema aqui bate com o JSON real. Se falhar, use STRING temporariamente.
             'ARRAY<STRUCT<group:STRUCT<id:INT, name:STRING, expiresAt:TIMESTAMP>, externalReference:STRING, createdAt:TIMESTAMP>>'
         ) as groups_struct
 
@@ -33,10 +33,12 @@ SELECT
     member_id,
     phone_number,
 
-    -- 3. Extração das novas colunas
+    -- 3. Extração (Pegando o primeiro grupo do array)
     groups_struct[0].group.id as group_id,
     groups_struct[0].group.name as group_name,
-    groups_struct[0].group.expiresAt as group_expires_at,
-    date(groups_struct[0].createdAt) as group_created_at
+    
+    -- Casting explícito para garantir compatibilidade
+    cast(groups_struct[0].group.expiresAt as timestamp) as group_expires_at,
+    cast(groups_struct[0].createdAt as date) as group_created_at
 
 FROM cleaned_data

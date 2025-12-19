@@ -1,29 +1,44 @@
 version: 2
 
 models:
-  - name: marketing_enp__members_details
-    description: "Tabela consolidada com detalhes de contato e perfil dos membros da plataforma ENP Curseduca."
+  - name: s__enp__members_details__ref
+    description: "Tabela consolidada de membros da plataforma ENP Curseduca, incluindo dados de contato e informações de grupo."
     config:
       meta:
-        owner: "seu.email@tiendanube.com" 
+        owner: "seu.email@tiendanube.com"
         domain: "marketing"
+        subdomain: "enp"
     columns:
+      - name: member_id
+        description: "Identificador único do membro."
+        tests:
+          - unique
+          - not_null
+
       - name: member_name
         description: "Nome completo do membro."
         tests:
           - not_null
 
       - name: member_email
-        description: "Email do membro. Usado como chave de identificação."
+        description: "Email do membro. Chave principal de contato."
         tests:
-          - unique
           - not_null
 
       - name: created_at
-        description: "Data de criação da conta."
+        description: "Data de criação da conta do membro."
 
       - name: phone_number
-        description: "Telefone de contato vindo da tabela de detalhes."
-        
-      - name: profile_type
-        description: "Tipo de perfil ou grupo do usuário."
+        description: "Telefone de contato do membro."
+
+      - name: group_id
+        description: "ID do grupo ou plano ao qual o membro pertence (ex: 1)."
+
+      - name: group_name
+        description: "Nome do grupo ou plano do membro (ex: Freemium Nuvemshop)."
+
+      - name: group_created_at
+        description: "Data em que o membro entrou no grupo."
+
+      - name: group_expires_at
+        description: "Data de expiração do grupo ou plano, se houver."

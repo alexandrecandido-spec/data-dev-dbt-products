@@ -1,10 +1,13 @@
 version: 2
 
 models:
-  - name: stg_curseduca__member_details
+  - name: stg_curseduca__member_details  # Certifique-se que o arquivo .sql tem ESSE MESMO nome
     description: "Tabela de staging com detalhes dos membros e grupos extraídos do JSON."
+    config:
+      tags: ['marketing']  # <--- ADICIONAR ISSO (Obrigatório para Staging)
     columns:
       - name: member_id
+        description: "Identificador único do membro."
         tests:
           - not_null
           - unique
@@ -13,13 +16,10 @@ models:
         description: "Telefone de contato tratado."
 
       - name: group_id
-        description: "ID do grupo (pode ser nulo se o membro não tiver grupo)."
-        # tests:        <-- Remova ou comente estas linhas
-        #   - not_null  <-- Remova
+        description: "ID do grupo (nulo se o membro não tiver grupo)."
 
       - name: group_name
-        description: "Nome do grupo (pode ser nulo)."
-        # tests:        <-- Remova ou comente estas linhas
-        #   - not_null  <-- Remova
+        description: "Nome do grupo (nulo se o membro não tiver grupo)."
 
       - name: group_created_at
+        description: "Data de criação ou entrada no grupo." # <--- Adicionei a descrição
